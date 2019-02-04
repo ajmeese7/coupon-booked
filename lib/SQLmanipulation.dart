@@ -8,5 +8,3 @@ import 'package:sqflite/sqflite.dart';
    seem like it's going to cut it (example code giving errors)
 */
 
-var databasesPath = await getDatabasesPath();
-String path = join(databasesPath, 'demo.db');
