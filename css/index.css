@@ -1,0 +1,75 @@
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+body {
+    /*-webkit-touch-callout: none;
+    -webkit-text-size-adjust: none;
+    -webkit-user-select: none;
+    -webkit-overflow-scrolling: auto !important;*/
+
+    /* From jQuery mobile:
+    background-color:#f9f9f9;*/
+
+  	background-color: #F7F3CE !important; /*#E4E4E4*/
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    /*overflow: visible !important;*/
+    /*overflow-y: scroll !important;*/
+}
+
+a {
+    text-decoration: none;
+}
+
+#navTitle {
+    display: inline-flex;
+}
+
+#name {
+    font-size: 24px;
+    font-weight: normal;
+    vertical-align: middle;
+    text-align: center;
+    margin-left: 10px;
+    overflow: visible;
+    padding: 0px;
+}
+
+#logo {
+    width: 50px;
+    height: 50px;
+}
+
+.row {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+
+#home button {
+    /* https://stackoverflow.com/a/15290133/6456163 */
+    border-radius: 50% !important;
+    display: inline-block !important;
+    width: 100px !important;
+    height: 100px !important;
+
+    /* https://stackoverflow.com/a/18618063 */
+    overflow: visible !important; /* In body now; needed? */
+    text-overflow: clip !important;
+    white-space: normal !important;
+}
+
+.overflow {
+    /* IDEA: Try to just apply to everything? Cleans up code... */
+    /* https://stackoverflow.com/a/28233945 */
+    margin-left: -100%;
+    margin-right: -100%;
+    text-align: center;
+}
+
+#help {
+    margin: 0px 10px;
+    display: none;
+}

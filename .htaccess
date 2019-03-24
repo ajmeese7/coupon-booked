@@ -1,0 +1,8 @@
+AuthName "jessica-wants"
+AuthUserFile "/home/ajmeese7/.htpasswds/public_html/jessica-wants/passwd"
+AuthType Basic
+require valid-user
+SetEnvIf Request_URI "(/apple-touch-icon\.png)$" allow
+Order allow,deny
+Allow from env=allow
+Satisfy any
