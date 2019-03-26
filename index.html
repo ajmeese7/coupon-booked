@@ -1,41 +1,47 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <!-- TODO: Get a better logo. Succinct and representative of noglastia of product. -->
-
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <!--<meta name="google-signin-client_id" content="YOUR_CLIENT_ID.apps.googleusercontent.com">
+        NOTE: Can't use until I have a definite URL for the site; see:
+        https://developers.google.com/identity/sign-in/web/sign-in -->
+    <link rel="stylesheet" href="https://unpkg.com/picnic">
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
 
+    <!-- TODO: Get a better logo. Succinct and representative of noglastia of product. -->
     <link rel="shortcut icon" href="./favicon.ico"/>
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
 
+    <!--script src="https://apis.google.com/js/platform.js" async defer>/* Google login */</script>-->
     <script src="scripts/jquery-1.8.0.min.js"></script>
-    <script src="scripts/jquery.mobile-1.4.5.min.js"></script>
+    <!--<script src="scripts/jquery.mobile-1.4.5.min.js"></script>-->
     <title>Coupon Book</title>
 </head>
 <body>
     <nav>
         <!-- URL is going to change (possibly). Fancy font for logo? -->
-        <a id="logo" href="couponbook.xyz">Coupon Book</a>
+        <a class="brand" id="logo" href="couponbook.xyz">Coupon Book</a>
         <a href="#">Why us?</a>
         <a href="#">Examples</a>
         <a href="#">Create Your Own</a>
     </nav>
 
-    <h2>Why us?</h2>
-    <p>
-        Coupon Book is an excellent choice for any occasion, whether it be Father's Day, Mother's Day,
-        a birthday, or an anniversary. You should create a Coupon Book because it is a thoughtful
-        way to show someone how well you know them and how much you really care.
-    </p>
+    <main>
+        <h2>Why us?</h2>
+        <p>
+            Coupon Book is an excellent choice for any occasion, whether it be Father's Day, Mother's Day,
+            a birthday, or an anniversary. You should create a Coupon Book because it is a thoughtful
+            way to show someone how well you know them and how much you really care.
+        </p>
 
-    <h2>Examples</h2>
-    <p></p>
+        <h2>Examples</h2>
+        <p></p>
 
-    <h2>Create Your Own</h2>
-    <button>Start here!</button>
+        <h2>Create Your Own</h2>
+        <button onclick="alert('testing all beans')">Start here!</button>
+    </main>
 
     <script type="text/javascript" src="scripts/index.js"></script>
     <!--<script type="text/javascript" src="scripts/db.js"></script>-->
