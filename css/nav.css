@@ -3,7 +3,7 @@ nav {
     height: 40px;
     background-color: #0b98de;
     overflow: hidden;
-    position: sticky;
+    position: absolute; /* sticky? */
 }
 
 nav a {

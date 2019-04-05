@@ -16,10 +16,40 @@ body {
     margin: 0px;
     padding: 0px;
     width: 100%;
+    overflow-x: hidden;
     /*overflow: visible !important;
     overflow-y: scroll !important;*/
 }
 
 a {
     text-decoration: none;
+}
+
+section {
+    height: 100vh;
+    width: 100vw;
+}
+
+#why {
+    background-image: url("../images/notebook.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+#title {
+    line-height: 2.0; 
+    padding: 120px 50px 50px 50px;
+    width: 400px;
+    margin: 20px auto;
+}
+
+#title h2, #title p {
+    background-color: black;
+    color: #fff; 
+    display: inline;
+    padding: 0.5rem;
+    
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
 }
