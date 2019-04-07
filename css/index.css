@@ -1,14 +1,11 @@
+/* GENERAL */
+
 * {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Temporary; https://fonts.google.com/ */
 }
 
 body {
-    /*-webkit-touch-callout: none;
-    -webkit-text-size-adjust: none;
-    -webkit-user-select: none;
-    -webkit-overflow-scrolling: auto !important;*/
-
     /* From jQuery mobile:
     background-color:#f9f9f9;*/
 
@@ -17,8 +14,6 @@ body {
     padding: 0px;
     width: 100%;
     overflow-x: hidden;
-    /*overflow: visible !important;
-    overflow-y: scroll !important;*/
 }
 
 a {
@@ -29,6 +24,8 @@ section {
     height: 100vh;
     width: 100vw;
 }
+
+/* WHY */
 
 #why {
     background-image: url("../images/notebook.jpg");
@@ -52,4 +49,15 @@ section {
     
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
+}
+
+/* EXAMPLES */
+
+#examples h2 {
+    text-align: center;
+}
+
+#examples img {
+    width: 300px; /* These will obviously change with the actual images */
+    height: 300px;
 }
