@@ -23,13 +23,15 @@
 <body>
     <nav>
         <!-- URL is going to change (possibly). Fancy font for logo? -->
-        <a class="brand" id="logo" href="couponbook.xyz">Coupon Book</a>
-        <a href="#">Why us?</a>
-        <a href="#">Examples</a>
-        <a href="#">Create Your Own</a>
+        <a id="logo" class="brand" href="couponbook.xyz">Coupon Book</a>
+        <a id="scroll-why" href="#why">Why us?</a>
+        <a id="scroll-example" href="#examples">Examples</a>
+        <a id="scroll-create" href="#create">Create Your Own</a>
+        <!-- NOTE: Because it scrolls, no anchor tag is applied to URL; fix? -->
     </nav>
 
     <main>
+        <div style="height: 20px; width: 100%;"><!-- Whitespace; don't question it. --></div>
         <section id="why">
             <div id="title">
                 <h2>Why us?</h2>
@@ -45,14 +47,17 @@
 
         <section id="examples">
             <h2>Examples</h2>
-            <div class="flex">
+            <div class="flex one four-300">
+                <!-- TODO: Make image count decrease when scaled so there aren't two uneven rows? -->
                 <img src="https://via.placeholder.com/300">
                 <img src="https://via.placeholder.com/300">
                 <img src="https://via.placeholder.com/300">
+                <img src="https://via.placeholder.com/300">
+                <!-- IDEA: `MORE` button? Would require a lot of examples... -->
             </div>
         </section>
 
-        <section>
+        <section id="create">
             <h2>Create Your Own</h2>
             <button>Start here!</button>
         </section>

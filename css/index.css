@@ -53,11 +53,13 @@ section {
 
 /* EXAMPLES */
 
-#examples h2 {
+#examples h2, #create h2 {
     text-align: center;
 }
 
 #examples img {
     width: 300px; /* These will obviously change with the actual images */
     height: 300px;
+    margin: auto;
+    margin-top: 20px;
 }
