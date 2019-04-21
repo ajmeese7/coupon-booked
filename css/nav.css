@@ -22,6 +22,11 @@ nav a:hover {
     background-color: #17b0cf;
 }
 
+/* TODO: Make this pretty! */
+.g-signin2 {
+    float: right;
+}
+
 #logo {
     font-family: 'Hind', sans-serif;
     font-size: 30px;
