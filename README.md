@@ -1,7 +1,8 @@
-# jessica-wants
+# coupon-booked
 Instead of a teddy bear or a gift card, my girlfriend wanted an unconventional
 gift this Christmas. She wanted me to put my programming skills to use and
-create something for her. This is what I came up with.
+create something for her. After making her an app, it was suggested that I 
+commercialize the idea, which I did.
 
 ## Setup
 I used my GoDaddy cPanel web server throughout this project, so if you have a

@@ -1,6 +1,6 @@
 <?php
-$servername = "website-IP-HERE";
-$username = "your-username";
+$servername = "couponbooked";
+$username = "gvxn4otz8mk6";
 $password = "your-password";
 $dbname = "database-name";
 
