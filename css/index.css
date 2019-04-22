@@ -21,7 +21,8 @@ a {
 }
 
 section {
-    height: 100vh;
+    /* TODO: Make this work better for when viewing desktop mode on mobile */
+    min-height: 100vh;
     width: 100vw;
 }
 
