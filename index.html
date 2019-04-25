@@ -17,7 +17,7 @@
 
     <script src="https://apis.google.com/js/platform.js" async defer>/* Google login */</script>
     <script src="javascript/jquery-1.8.0.min.js"></script>
-    <!--<script src="scripts/jquery.mobile-1.4.5.min.js"></script>-->
+
     <title>Coupon Booked</title>
 </head>
 <body>
@@ -32,17 +32,18 @@
             <!-- NOTE: Because it scrolls, no anchor tag is applied to URL; fix? -->
         </div>
         <div id="mobile">
-            <!-- TODO: Think of a creative solution for this. -->
             <div id="main">
-                <span style="font-size:30px; cursor:pointer" onclick="openNav()"><img id="logo" src="images/logo.png"></span>
+                <span style="font-size: 30px; cursor: pointer" onclick="openNav()"><img id="logo" src="images/logo.png"></span>
             </div>
         </div>
     </nav>
 
+    <!-- Sidebar content for mobile navigation; TODO: make properly functional -->
     <div id="mySidenav" class="sidenav">
-        <a href="#">Why us?</a>
-        <a href="#">Examples</a>
-        <a href="#">Create Your Own</a>
+        <!-- IDEA: Make it scroll like desktop? How to transition out of menu... -->
+        <a href="#why">Why us?</a>
+        <a href="#examples">Examples</a>
+        <a href="#create">Create Your Own</a>
         <a href="#">Sign In</a>
     </div>
 

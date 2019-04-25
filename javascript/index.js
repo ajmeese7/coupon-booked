@@ -21,13 +21,14 @@ $(function() {
 
 // Handle mobile menu
 var exitMenuButton = "<a href='javascript:void(0)' class='closebtn' onclick='closeNav()'>&times; Coupon Booked</a>";
-var openMenuButton = "<span style='font-size:30px; cursor:pointer' onclick='openNav()'><img id='logo' src='images/logo.png'></span>";
+var openMenuButton = "<span style='font-size: 30px; cursor: pointer' onclick='openNav()'><img id='logo' src='images/logo.png'></span>";
 function openNav() {
+    // TODO: Find safer alternative to innerHTML if necessary (BELOW as well!)
     document.getElementById("main").innerHTML = exitMenuButton;
     document.getElementById("mySidenav").style.width = "250px";
     document.getElementsByTagName("main")[0].style.marginLeft = "250px";
     //document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
-    // NOTE: This method of transparency doesn't work. Use a div.
+    // NOTE: This method of transparency doesn't work. TODO: Use a div.
 }
 
 function closeNav() {
