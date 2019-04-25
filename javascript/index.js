@@ -19,35 +19,20 @@ $(function() {
     });
 });
 
-// "Coupon" should be the ID of the coupon redeemed
-function redeemCoupon(coupon) {
-    var currentValue = $("span#" + coupon + ".count").text();
-
-    if (currentValue != 0) {
-        var newValue = parseInt(currentValue) - 1;
-        $("span#" + coupon + ".count").text(newValue);
-
-        $.ajax({
-            url: "https://maker.ifttt.com/trigger/coupon_redeemed/with/key/YOUR-KEY-HERE",
-            type: "POST",
-            data: { value1: coupon },
-            dataType: "json"
-        });
-    } else {
-        // NOTE: Alert untested, just a new idea...
-        alert("You have zero " + coupon + " coupons remaining! <a href='...'>Ask for more?</a>");
-    }
+// Handle mobile menu
+var exitMenuButton = "<a href='javascript:void(0)' class='closebtn' onclick='closeNav()'>&times; Coupon Booked</a>";
+var openMenuButton = "<span style='font-size:30px; cursor:pointer' onclick='openNav()'><img id='logo' src='images/logo.png'></span>";
+function openNav() {
+    document.getElementById("main").innerHTML = exitMenuButton;
+    document.getElementById("mySidenav").style.width = "250px";
+    document.getElementsByTagName("main")[0].style.marginLeft = "250px";
+    //document.body.style.backgroundColor = "rgba(0,0,0,0.4)";
+    // NOTE: This method of transparency doesn't work. Use a div.
 }
 
-$("#toggle").unbind('click').click(function () {
-    var toggle = document.getElementById("toggle");
-
-    $("#help").toggle();
-    $("#home").toggle();
-
-    if (toggle.innerText == "Help") {
-        toggle.innerText = "Home";
-    } else {
-        toggle.innerText = "Help";
-    }
-});
+function closeNav() {
+    document.getElementById("main").innerHTML = openMenuButton;
+    document.getElementById("mySidenav").style.width = "0";
+    document.getElementsByTagName("main")[0].style.marginLeft= "0";
+    //document.body.style.backgroundColor = "white";
+}

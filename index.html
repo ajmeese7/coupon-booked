@@ -5,7 +5,8 @@
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
     <meta name="google-signin-client_id" content="243041825180-biblp8qec6c7olmrikls566gnlaj6b15.apps.googleusercontent.com">
 
-    <link rel="stylesheet" href="https://unpkg.com/picnic">
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/picnic" />
+    <link rel="stylesheet" type="text/css" href="css/mobile-nav.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
     <link rel="stylesheet" type="text/css" href="css/scroll-down.css" />
@@ -21,14 +22,29 @@
 </head>
 <body>
     <nav>
-        <!-- Fancy font for logo? -->
-        <a class="brand" href="http://www.couponbooked.com"><img id="logo" src="images/logo.png">Coupon Booked</a>
-        <a id="scroll-why" href="#why">Why us?</a>
-        <a id="scroll-example" href="#examples">Examples</a>
-        <a id="scroll-create" href="#create">Create Your Own</a>
-        <div class="g-signin2" data-onsuccess="onSignIn"></div>
-        <!-- NOTE: Because it scrolls, no anchor tag is applied to URL; fix? -->
+        <div id="desktop">
+            <!-- Fancy font for logo? -->
+            <a class="brand" href="http://www.couponbooked.com"><img id="logo" src="images/logo.png">Coupon Booked</a>
+            <a id="scroll-why" href="#why">Why us?</a>
+            <a id="scroll-example" href="#examples">Examples</a>
+            <a id="scroll-create" href="#create">Create Your Own</a>
+            <div class="g-signin2" data-onsuccess="onSignIn"><!--IDEA: Just a 'sign in' then link to google so I can have my own display?--></div>
+            <!-- NOTE: Because it scrolls, no anchor tag is applied to URL; fix? -->
+        </div>
+        <div id="mobile">
+            <!-- TODO: Think of a creative solution for this. -->
+            <div id="main">
+                <span style="font-size:30px; cursor:pointer" onclick="openNav()"><img id="logo" src="images/logo.png"></span>
+            </div>
+        </div>
     </nav>
+
+    <div id="mySidenav" class="sidenav">
+        <a href="#">Why us?</a>
+        <a href="#">Examples</a>
+        <a href="#">Create Your Own</a>
+        <a href="#">Sign In</a>
+    </div>
 
     <main>
         <div style="height: 20px; width: 100%;"><!-- Whitespace; don't question it. --></div>
@@ -41,6 +57,7 @@
                     a birthday, or an anniversary. You should create a Book because it is a thoughtful
                     way to show someone how well you know them and how much you really care.
                 </p>
+                <!-- TODO: This is not pushing over when mobile menu is activated... -->
                 <a href="#" class="scroll-down" address="true"></a>
             </div>
         </section>

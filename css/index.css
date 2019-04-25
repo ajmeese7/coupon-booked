@@ -6,10 +6,7 @@
 }
 
 body {
-    /* From jQuery mobile:
-    background-color:#f9f9f9;*/
-
-  	background-color: #E4E4E4 !important;
+  	background-color: #f9f9f9 !important;
     margin: 0px;
     padding: 0px;
     width: 100%;
