@@ -3,19 +3,18 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
-    <meta name="google-signin-client_id" content="243041825180-biblp8qec6c7olmrikls566gnlaj6b15.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="243041825180-hf171dl59cjh4cksgko57no0jfcmgn0b.apps.googleusercontent.com">
 
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/picnic" />
+    <script src="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.js"></script>
     <link rel="stylesheet" type="text/css" href="css/mobile-nav.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
     <link rel="stylesheet" type="text/css" href="css/scroll-down.css" />
 
-    <!-- TODO: Work on logo cropping + color -->
     <link rel="shortcut icon" href="images/favicon.png" />
     <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
 
-    <script src="https://apis.google.com/js/platform.js" async defer>/* Google login */</script>
     <script src="javascript/jquery-1.8.0.min.js"></script>
 
     <title>Coupon Booked</title>
@@ -23,29 +22,39 @@
 <body>
     <nav>
         <div id="desktop">
-            <!-- Fancy font for logo? -->
-            <a class="brand" href="http://www.couponbooked.com"><img id="logo" src="images/logo.png">Coupon Booked</a>
+            <a id="brand" href="http://www.couponbooked.com"><img id="logo" src="images/logo.png">Coupon Booked</a>
+            <!-- TODO: Save this segment as a separate piece of code and add individually to mobile menu + desktop -->
             <a id="scroll-why" href="#why">Why us?</a>
             <a id="scroll-example" href="#examples">Examples</a>
             <a id="scroll-create" href="#create">Create Your Own</a>
-            <div class="g-signin2" data-onsuccess="onSignIn"><!--IDEA: Just a 'sign in' then link to google so I can have my own display?--></div>
-            <!-- NOTE: Because it scrolls, no anchor tag is applied to URL; fix? -->
+            <div id="sign-in-status" class="hide"></div>
+            <a id="sign-in" href="#">Sign in</a>
         </div>
+
         <div id="mobile">
-            <div id="main">
-                <span style="font-size: 30px; cursor: pointer" onclick="openNav()"><img id="logo" src="images/logo.png"></span>
-            </div>
+            <!-- IDEA: Just have a side nav for mobile + desktop? -->
+            <!-- NOTE: There is no title here now in case I decide to move the sign in button, but if the button stays
+                where is is a title would probably be a good idea. If I do NOT add a title, get rid of the span entirely. -->
+            <span class="menu-btn" style="font-size: 30px; cursor: pointer">
+                <img id="logo" src="images/logo.png">
+            </span>
         </div>
     </nav>
 
-    <!-- Sidebar content for mobile navigation; TODO: make properly functional -->
-    <div id="mySidenav" class="sidenav">
-        <!-- IDEA: Make it scroll like desktop? How to transition out of menu... -->
-        <a href="#why">Why us?</a>
-        <a href="#examples">Examples</a>
-        <a href="#create">Create Your Own</a>
-        <a href="#">Sign In</a>
-    </div>
+    <!-- Sidebar content for mobile navigation -->
+    <menu class="menu">
+        <a id="scroll-why" href="#why">Why us?</a>
+        <a id="scroll-example" href="#examples">Examples</a>
+        <a id="scroll-create" href="#create">Create Your Own</a>
+        <div id="sign-in-status" class="hide"></div>
+        <a id="sign-in" href="#">Sign in</a>
+        <!-- IDEA: Place this on top menu after testing? Would make more sense instead of slider from slider... 
+            but why did I elect against that in the first place? Also, make the side menu look like the fitbit menu
+            with the user profile image and whatnot once they are signed in (dominos...). Can get Unsplash or whatever 
+            random profile pictures that GitHub uses. -->
+    </menu>
+
+    <div id="firebaseui-auth-container" class="hide"></div>
 
     <main>
         <div style="height: 20px; width: 100%;"><!-- Whitespace; don't question it. --></div>
@@ -58,22 +67,20 @@
                     a birthday, or an anniversary. You should create a Book because it is a thoughtful
                     way to show someone how well you know them and how much you really care.
                 </p>
-                <!-- TODO: This is not pushing over when mobile menu is activated... -->
                 <a href="#" class="scroll-down" address="true"></a>
             </div>
         </section>
 
         <section id="examples">
             <h2>Examples</h2>
+
+            <pre id="account-details" class="hide"></pre>
+
             <div class="flex one four-300">
-                <!-- TODO: Make image count decrease when scaled so there aren't two uneven rows? 
-                        IDEA: Make the classes change with JS as the screen size decreases. -->
-                <!-- TODO: Improve spacing as the screen width decreases (padding on left & between) -->
                 <img src="https://via.placeholder.com/300">
                 <img src="https://via.placeholder.com/300">
                 <img src="https://via.placeholder.com/300">
                 <img src="https://via.placeholder.com/300">
-                <!-- IDEA: `MORE` button? Would require a lot of examples... -->
             </div>
         </section>
 
@@ -83,6 +90,15 @@
         </section>
     </main>
 
+    <footer>
+        <a href="tos.html">Terms of Service</a>
+        <a href="privacy.html">Privacy Policy</a>
+    </footer>
+
+    <script src="javascript/firebase-app.js"></script>
+    <script src="javascript/firebase-auth.js"></script>
+    <script src="javascript/firebase.js"></script>
     <script type="text/javascript" src="javascript/index.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
 </body>
 </html>

@@ -10,35 +10,33 @@ nav a {
     display: block; 
     float: left;
     font-family: sans-serif;
-    font-size: 13px;
     color: white;
     text-shadow: 1px -1px -6px #000;
     text-decoration: none;
+}
+
+#desktop a {
+    font-size: 13px;
     padding: 20px 10px;
     margin-top: -8px;
-} 
+}
 
 nav a:hover {
     background-color: #17b0cf;
 }
 
-/* TODO: Make this pretty! */
-.g-signin2 {
+#sign-in, #sign-in-status {
     float: right;
-    position: relative;
-    top: 50%;
-    transform: perspective(1px) translateY(-50%);
 }
 
 #logo {
-    /* TODO: Get a CSS code of order (drawer card) and stick to it */
     width: 40px;
     height: 40px;
     margin-bottom: 3px;
     margin-right: 3px;
 }
 
-.brand {
+#brand {
     font-family: 'Hind', sans-serif;
     font-size: 30px;
     letter-spacing: -2px;

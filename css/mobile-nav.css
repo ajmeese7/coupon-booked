@@ -1,53 +1,35 @@
-body {
-    /* TODO: Smooth out the transition */
-    transition: background-color .5s;
-}
-
-/* TODO: Make the mobile menu nav stay at top; desktop too? */
-.sidenav {
-    height: 100%; /* vh? */
-    width: 0;
-    position: fixed;
-    background-color: #111;
-    overflow-x: hidden;
-    transition: 0.5s;
-    padding-top: 60px;
-}
-
-.sidenav a {
-    padding: 8px 8px 8px 32px;
-    text-decoration: none;
-    font-size: 25px;
-    color: #818181;
-    display: block;
-    transition: 0.3s;
-}
-
-.sidenav a:hover {
-    color: #f1f1f1;
-}
-
-.sidenav .closebtn {
-    position: absolute;
+/* Styles for the menu */
+.menu {
+    /* TODO: Enforce the CSS order from card (& find the card!) */
     top: 0;
-    font-size: 36px;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+    padding: 32px;
+    position: fixed;
+    width: 288px;
+    background-color: #32325D;
+    transform: translate3d(-100%, 0, 0);
+    /* Is there a way to make transform initial reaction faster? Work on timing. */
+    -webkit-transition: transform .2s ease-in-out;
+       -moz-transition: transform .2s ease-in-out;
+         -o-transition: transform .2s ease-in-out;
+            transition: transform .2s ease-in-out;
 }
 
-#main {
-    /* TODO: Make the text show all at once instead of adjusting gradually */
-    transition: margin-left .5s;
+.menu--open {
+    transform: translate3d(0, 0, 0);
+}
+
+.hide {
+    display: none;
 }
 
 #mobile {
     display: none;
 }
 
-/* TODO: Test */
-@media screen and (max-height: 450px) {
-    .sidenav {padding-top: 15px;}
-    .sidenav a {font-size: 18px;}
-}
-
+/* Break from desktop to mobile */
 @media (max-width: 600px) {
     #mobile { display: inline-block;}
     #desktop { display: none;}
