@@ -1,4 +1,4 @@
-﻿// Handle the click of the scroll button
+﻿// Handle the click of the scroll button and nav bar links
 $(function() {
     $('#scroll-why').click (function() {
         $('html, body').animate({scrollTop: $('section#why').offset().top + 1 }, 'slow');
@@ -21,6 +21,7 @@ $(function() {
 
 // This is a general function that removes one class and adds another
 function toggleClass(targetElement, addedClass) {
+    // IDEA: Make it accept an array of selectors as well?
     if (targetElement.classList.contains(addedClass)) {
         targetElement.classList.remove(addedClass);
     } else {
@@ -35,15 +36,18 @@ document.querySelector('.menu-btn').addEventListener('click', function() {
 });
 
 document.querySelector('#sign-in').addEventListener('click', function() {
-    if (document.querySelector('#sign-in').innerText == "Sign in") {
-        // TODO: Make the whole transition from main page to sign in smoother
-        $("#firebaseui-auth-container").fadeIn(1000);
-        //toggleClass(document.querySelector('#firebaseui-auth-container'), 'hide');
+    // TODO: Make it so if the user hits the browser back button the normal content is displayed
+    // again instead of the sign in page (fade in somehow)
 
-        // IDEA: Make it accept an array of selectors as well? Avoids these four calls by combining
-        toggleClass(document.querySelector('nav'), 'hide');
-        toggleClass(document.querySelector('main'), 'hide');
-        toggleClass(document.querySelector('footer'), 'hide');
+    if (document.querySelector('#sign-in').innerText == "Sign in") {
+        // Fades from main page to login page
+        // TODO: Add a way to go back in case the user does not want to sign in.
+        $("nav, main, footer").fadeOut(150, function() {
+            $("#firebaseui-auth-container").fadeIn(400);
+        });
+
+        // IDEA: Toggle to an x in case the user does not want to sign in. (&times;)
+        // Or instead of 'toggling' to an x, hide it and use an x button that works that way.
     } else if (document.querySelector('#sign-in').innerText == "Sign out") {
         firebase.auth().signOut().then(function() {
             // Sign-out successful.
@@ -53,6 +57,4 @@ document.querySelector('#sign-in').addEventListener('click', function() {
             console.error(error);
         });
     }
-    // IDEA: Toggle to an x in case the user does not want to sign in. (&times;)
-    // Or instead of 'toggling' to an x, hide it and use an x button that works that way.
 });

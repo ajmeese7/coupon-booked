@@ -25,6 +25,7 @@ var uiConfig = {
         firebase.auth.PhoneAuthProvider.PROVIDER_ID
     ],
     // Is the callback function better or different in any way?
+    // TODO: Test this to make sure it works somehow
     tosUrl: 'tos.html',
     privacyPolicyUrl: function() {
         window.location.assign('privacy.html');
@@ -41,6 +42,7 @@ ui.start('#firebaseui-auth-container', uiConfig);
 // TODO: Use this tracking state code to determine whether each page's nav needs
 // to show the sign in button or the user's information on the fancy menu.
 initApp = function() {
+    // NOTE: Most of this is unnecessary and should be removed before production
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
             // User is signed in.
