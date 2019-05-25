@@ -32,6 +32,7 @@ function toggleClass(targetElement, addedClass) {
 // This is the function we add to our menu button to enable its click functionality
 // TODO: Add some kind of toggle associated with this to change the image from the logo to an X.
 document.querySelector('.menu-btn').addEventListener('click', function() {
+    // IDEA: Come down from the top and cover content?
     toggleClass(document.querySelector('.menu'), 'menu--open');
 });
 

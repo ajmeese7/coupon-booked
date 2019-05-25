@@ -11,17 +11,18 @@ nav a {
     float: left;
     font-family: sans-serif;
     color: white;
-    text-shadow: 1px -1px -6px #000;
+    text-shadow: 1px -1px -6px #000; /* TODO: Look into this */
     text-decoration: none;
 }
 
-#desktop a {
+/* TODO: Clean this up */
+#scroll-why, #scroll-example, #scroll-create, #sign-in {
     font-size: 13px;
     padding: 20px 10px;
     margin-top: -8px;
 }
 
-nav a:hover {
+#scroll-why:hover, #scroll-example:hover, #scroll-create:hover, #sign-in:hover {
     background-color: #17b0cf;
 }
 
@@ -32,16 +33,13 @@ nav a:hover {
 #logo {
     width: 40px;
     height: 40px;
-    margin-bottom: 3px;
+    margin-bottom: -10px;
     margin-right: 3px;
 }
 
 #brand {
-    font-family: 'Hind', sans-serif;
-    font-size: 30px;
+    font-size: 30px !important;
     letter-spacing: -2px;
     text-shadow: 1px 1px 2px #c4c4c4;
-    margin-top: 0px;
-    margin-right: 10px;
-    padding-left: 18px; /* Work on spacing of background highlighting */
+    margin: -2.5px 10px 0 18px;
 }
