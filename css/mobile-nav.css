@@ -7,30 +7,38 @@
     margin: 0;
     padding: 32px;
     position: fixed;
-    width: 288px;
+    width: 100%;
+    height: 100%;
+    z-index: 99;
     background-color: #32325D;
-    transform: translate3d(-100%, 0, 0);
-    /* Is there a way to make transform initial reaction faster? Work on timing. */
+    transform: translate3d(0, -100%, 0);
+    /* Work on timing. TODO: Decide if vertical is better for long-term temporary menu. */
+    /* TODO: Develop transition out of menu and proper height, etc. */
     -webkit-transition: transform .2s ease-in-out;
        -moz-transition: transform .2s ease-in-out;
          -o-transition: transform .2s ease-in-out;
             transition: transform .2s ease-in-out;
 }
 
+/* IDEA: Should mobile still have brand text? */
 .menu--open {
     transform: translate3d(0, 0, 0);
 }
 
+/* Used for testing purposes and toggling whether an element is displayed */
 .hide {
     display: none;
 }
 
+/* TODO: Work on height for mobile sections, because arrow is below screen */
 #mobile {
     display: none;
+    width: 100%;
 }
 
 /* Break from desktop to mobile */
-@media (max-width: 600px) {
+@media (max-width: 610px) {
     #mobile { display: inline-block;}
     #desktop { display: none;}
+    body #logo { margin-bottom: 0px;} /* https://stackoverflow.com/a/19038303 */
 }
