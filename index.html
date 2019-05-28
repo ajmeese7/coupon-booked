@@ -21,6 +21,7 @@
 </head>
 <body>
     <nav>
+        <!-- TODO: Be thinking about how to migrate to app store -->
         <div id="desktop">
             <a id="brand" href="http://www.couponbooked.com"><img id="logo" src="images/logo.png">Coupon Booked</a>
             <!-- TODO: Save this segment as a separate piece of code and add individually to mobile menu + desktop -->
@@ -28,7 +29,6 @@
             <a id="scroll-example" href="#examples">Examples</a>
             <a id="scroll-create" href="#create">Create Your Own</a>
             <div id="sign-in-status" class="hide"></div>
-            <a id="sign-in" href="#">Sign in</a>
         </div>
 
         <div id="mobile">
@@ -38,19 +38,23 @@
             <span class="menu-btn" style="font-size: 30px; cursor: pointer">
                 <img id="logo" src="images/logo.png">
             </span>
-            <a id="sign-in" href="#">Sign in</a>
+            <a id="brand" href="http://www.couponbooked.com">Coupon Booked</a>
         </div>
+
+        <a id="sign-in" href="#">Sign in</a>
     </nav>
 
     <!-- Sidebar content for mobile navigation -->
     <menu class="menu">
-        <a id="scroll-why" href="#why">Why us?</a>
-        <a id="scroll-example" href="#examples">Examples</a>
-        <a id="scroll-create" href="#create">Create Your Own</a>
+        <ul>
+            <li><a href="#why">Why us?</a></li>
+            <li><a href="#examples">Examples</a></li>
+            <li><a href="#create">Create Your Own</a></li>
+        </ul>
+        
         <div id="sign-in-status" class="hide"></div>
-        <!-- IDEA: Place this on top menu after testing? Would make more sense instead of slider from slider... 
-            but why did I elect against that in the first place? Also, make the side menu look like the fitbit menu
-            with the user profile image and whatnot once they are signed in (dominos...). Can get Unsplash or whatever 
+        <!-- IDEA: Make the side menu look like the fitbit menu with the user profile image 
+            and whatnot once they are signed in (dominos...). Can get Unsplash or whatever 
             random profile pictures that GitHub uses. -->
     </menu>
 

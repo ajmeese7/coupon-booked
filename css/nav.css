@@ -7,12 +7,15 @@ nav {
 }
 
 nav a {
-    display: block; 
-    float: left;
     font-family: sans-serif;
     color: white;
     text-shadow: 1px -1px -6px #000; /* TODO: Look into this */
     text-decoration: none;
+}
+
+#desktop a {
+    display: block; 
+    float: left;
 }
 
 /* TODO: Clean this up */

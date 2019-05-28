@@ -19,10 +19,11 @@ a {
 
 section {
     /* TODO: Make this work better for when viewing desktop mode on mobile */
-    min-height: 100vh;
+    min-height: 100vh; /* TODO: Work on height for mobile sections, because arrow is below screen */
     width: 100vw;
 }
 
+/* TODO: Fix on mobile */
 footer {
     width: 100%;
     height: 60px;

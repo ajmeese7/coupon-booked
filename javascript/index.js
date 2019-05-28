@@ -32,7 +32,11 @@ function toggleClass(targetElement, addedClass) {
 // This is the function we add to our menu button to enable its click functionality
 // TODO: Add some kind of toggle associated with this to change the image from the logo to an X.
 document.querySelector('.menu-btn').addEventListener('click', function() {
-    // IDEA: Come down from the top and cover content?
+    toggleClass(document.querySelector('.menu'), 'menu--open');
+});
+
+// TODO: Make the mobile nav bar still show after click; stay on scroll!
+$('.menu li').click (function() {
     toggleClass(document.querySelector('.menu'), 'menu--open');
 });
 
