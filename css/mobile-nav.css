@@ -46,6 +46,7 @@
 }
 
 #mobile {
+    margin-top: -4px;
     display: none;
 }
 
@@ -53,6 +54,5 @@
 @media (max-width: 610px) {
     #mobile { display: inline-block;}
     #desktop { display: none;}
-    body #logo { margin-bottom: 0px;} /* https://stackoverflow.com/a/19038303 */
-    body #brand { margin: 0;}
+    body #brand { margin: 0;} /* https://stackoverflow.com/a/19038303 */
 }

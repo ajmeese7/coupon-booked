@@ -1,6 +1,6 @@
 // Initialize Firebase
 var config = {
-    // TODO: How to obsfucate this?
+    // TODO: Work on project API permissions once I get closer to production, and TEST!
     apiKey: "AIzaSyAlXDmH2X2zZ1vUhP3TQ2AZ0yQVutiDQGM",
     authDomain: "coupon-booked.firebaseapp.com",
     databaseURL: "https://coupon-booked.firebaseio.com",
@@ -10,13 +10,15 @@ var config = {
 };
 firebase.initializeApp(config);
 
+// TODO: Look into using something like this to help my build process:
+// https://stackoverflow.com/a/40962187
 var uiConfig = {
     // IDEA: Could send them to their profile for the redirect, but be careful, because that was causing problems last time.
-    // Ties into ui.start() method linked
+    // Pending redirect code for ui.start(): https://github.com/firebase/firebaseui-web#using-firebaseui-for-authentication
     signInSuccessUrl: 'http://couponbooked.com',
     signInOptions: [
         // TODO: Enable all sign-in options and configure
-        // IDEA: Instead of guest login, ust add option to send coupon book anonymously
+        // IDEA: Instead of guest login, just add option to send coupon book anonymously
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         firebase.auth.FacebookAuthProvider.PROVIDER_ID,
         firebase.auth.TwitterAuthProvider.PROVIDER_ID,
@@ -36,7 +38,6 @@ var uiConfig = {
 var ui = new firebaseui.auth.AuthUI(firebase.auth());
 // The start method will wait until the DOM is loaded.
 ui.start('#firebaseui-auth-container', uiConfig);
-// Is pending redirect option needed? https://github.com/firebase/firebaseui-web#using-firebaseui-for-authentication
 
 
 // TODO: Use this tracking state code to determine whether each page's nav needs
@@ -55,6 +56,7 @@ initApp = function() {
             var providerData = user.providerData;
             user.getIdToken().then(function(accessToken) {
                 document.getElementById('sign-in-status').textContent = 'Signed in';
+                // TODO: Somehow stop this from 'flickering' right after login if it is used again
                 document.getElementById('sign-in').textContent = 'Sign out';
                 // TODO: Need to change this to show user image that leads to fancy drop down menu
                 document.getElementById('account-details').textContent = JSON.stringify({
