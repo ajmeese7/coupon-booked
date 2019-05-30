@@ -1,4 +1,4 @@
-﻿// Handle the click of the scroll button and nav bar links
+// Handle the click of the scroll button and nav bar links
 $(function() {
     $('#scroll-why').click (function() {
         $('html, body').animate({scrollTop: $('section#why').offset().top + 1 }, 'slow');
@@ -20,19 +20,29 @@ $(function() {
 });
 
 // This is a general function that removes one class and adds another
-function toggleClass(targetElement, addedClass) {
-    // IDEA: Make it accept an array of selectors as well?
-    if (targetElement.classList.contains(addedClass)) {
-        targetElement.classList.remove(addedClass);
-    } else {
-        targetElement.classList.add(addedClass);
+function toggleClass(target, addedClass) {
+    // If target is an element rather than a list, it is converted to array form
+    if (!NodeList.prototype.isPrototypeOf(target)) {
+        target = [target];
     }
+
+    // Allows for multiple elements to be toggled, such as by using the querySelectorAll() method
+    [].forEach.call(target, (element) => {
+        if (element.classList.contains(addedClass)) {
+            element.classList.remove(addedClass);
+        } else {
+            element.classList.add(addedClass);
+        }
+    });
 };
 
 // This is the function we add to our menu button to enable its click functionality
-// TODO: Add some kind of toggle associated with this to change the image from the logo to an X.
 document.querySelector('.menu-btn').addEventListener('click', function() {
+    // Opens or closes menu
     toggleClass(document.querySelector('.menu'), 'menu--open');
+
+    // Toggles whether the x button or the menu button is shown
+    toggleClass(document.querySelectorAll('.menu-btn img'), 'hide');
 });
 
 // TODO: Make the mobile nav bar still show after click; stay on scroll!
