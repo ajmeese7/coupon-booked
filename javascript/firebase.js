@@ -27,7 +27,6 @@ var uiConfig = {
         firebase.auth.PhoneAuthProvider.PROVIDER_ID
     ],
     // Is the callback function better or different in any way?
-    // TODO: Test this to make sure it works somehow
     tosUrl: 'tos.html',
     privacyPolicyUrl: function() {
         window.location.assign('privacy.html');

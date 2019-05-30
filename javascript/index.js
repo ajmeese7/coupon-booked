@@ -1,5 +1,6 @@
-// Handle the click of the scroll button and nav bar links
+﻿// Handle the click of the scroll button and nav bar links
 $(function() {
+    // IDEA: Combine all of these under a forEach function
     $('#scroll-why').click (function() {
         $('html, body').animate({scrollTop: $('section#why').offset().top + 1 }, 'slow');
         return false;
@@ -56,13 +57,9 @@ document.querySelector('#sign-in').addEventListener('click', function() {
 
     if (document.querySelector('#sign-in').innerText == "Sign in") {
         // Fades from main page to login page
-        // TODO: Add a way to go back in case the user does not want to sign in.
         $("nav, main, footer").fadeOut(150, function() {
             $("#firebaseui-auth-container").fadeIn(400);
         });
-
-        // IDEA: Toggle to an x in case the user does not want to sign in. (&times;)
-        // Or instead of 'toggling' to an x, hide it and use an x button that works that way.
     } else if (document.querySelector('#sign-in').innerText == "Sign out") {
         firebase.auth().signOut().then(function() {
             // Sign-out successful.
@@ -73,3 +70,15 @@ document.querySelector('#sign-in').addEventListener('click', function() {
         });
     }
 });
+
+window.onhashchange = function(e) {
+    var oldHash = e.oldURL.split("#")[1];
+    var newHash = e.newURL.split("#")[1];
+    
+    // Handle back button from sign in page
+    if (oldHash == "login" && newHash == undefined) {
+        $("#firebaseui-auth-container, #xButton").fadeOut(150, function() {
+            $("nav, main, footer").fadeIn(400);
+        });
+    }
+};

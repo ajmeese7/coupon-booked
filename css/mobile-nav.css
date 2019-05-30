@@ -12,15 +12,12 @@
     z-index: 99;
     background-color: #32325D;
     transform: translate3d(0, -100%, 0);
-    /* Work on timing. TODO: Decide if vertical is better for long-term temporary menu. */
-    /* TODO: Develop transition out of menu and proper height, etc. */
     -webkit-transition: transform .2s ease-in-out;
        -moz-transition: transform .2s ease-in-out;
          -o-transition: transform .2s ease-in-out;
             transition: transform .2s ease-in-out;
 }
 
-/* IDEA: Should mobile still have brand text? */
 .menu--open {
     transform: translate3d(0, 0, 0);
 }
@@ -52,6 +49,8 @@
 
 /* Break from desktop to mobile */
 @media (max-width: 610px) {
+    /* IDEA: Is this good enough, or should I switch to actual mobile detection with 
+    https://github.com/lokesh/color-thief/pull/143? */
     #mobile { display: inline-block;}
     #desktop { display: none;}
     body #brand { margin: 0;} /* https://stackoverflow.com/a/19038303 */
