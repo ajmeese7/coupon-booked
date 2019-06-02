@@ -49,6 +49,7 @@ document.querySelector('.menu-btn').addEventListener('click', function() {
 // TODO: Make the mobile nav bar still show after click; stay on scroll!
 $('.menu li').click (function() {
     toggleClass(document.querySelector('.menu'), 'menu--open');
+    toggleClass(document.querySelectorAll('.menu-btn img'), 'hide');
 });
 
 document.querySelector('#sign-in').addEventListener('click', function() {
@@ -71,6 +72,7 @@ document.querySelector('#sign-in').addEventListener('click', function() {
     }
 });
 
+// https://stackoverflow.com/questions/11392046/get-the-hash-value-which-was-before-hashchange
 window.onhashchange = function(e) {
     var oldHash = e.oldURL.split("#")[1];
     var newHash = e.newURL.split("#")[1];

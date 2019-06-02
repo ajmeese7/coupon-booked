@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
@@ -20,14 +20,14 @@
     <title>Coupon Booked</title>
 </head>
 <body>
+    <!-- NOTE: Tried S.O.//a/42333464 and it wouldn't load fast enough, resulting in short ugly transition for user. -->
     <nav>
-        <!-- TODO: Be thinking about how to migrate to app store -->
+        <!-- TODO: Figure out if analytics will work with Jasonette or if I need separate native apps -->
         <div id="desktop">
             <a id="brand" href="http://www.couponbooked.com"><img id="logo" src="images/logo.png">Coupon Booked</a>
             <a id="scroll-why" href="#why">Why us?</a>
             <a id="scroll-example" href="#examples">Examples</a>
             <a id="scroll-create" href="#create">Create Your Own</a>
-            <div id="sign-in-status" class="hide"></div>
         </div>
 
         <!-- This looks a little small on actual mobile. Field testing? -->
@@ -39,6 +39,7 @@
             <a id="brand" href="http://www.couponbooked.com">Coupon Booked</a>
         </div>
 
+        <div id="sign-in-status" class="hide"></div>
         <a id="sign-in" href="#login">Sign in</a>
     </nav>
 
@@ -49,8 +50,7 @@
             <li><a href="#examples">Examples</a></li>
             <li><a href="#create">Create Your Own</a></li>
         </ul>
-        
-        <div id="sign-in-status" class="hide"></div>
+
         <!-- IDEA: Make the side menu look like the fitbit menu with the user profile image 
             and whatnot once they are signed in (dominos...). Can get Unsplash or whatever 
             random profile pictures that GitHub uses. -->
@@ -69,7 +69,7 @@
                     a birthday, or an anniversary. You should create a Book because it is a thoughtful
                     way to show someone how well you know them and how much you really care.
                 </p>
-                <a href="#" class="scroll-down" address="true"></a>
+                <a href="#examples" class="scroll-down" address="true"></a>
             </div>
         </section>
 
