@@ -20,17 +20,15 @@
     <title>Coupon Booked</title>
 </head>
 <body>
-    <!-- NOTE: Tried S.O.//a/42333464 and it wouldn't load fast enough, resulting in short ugly transition for user. -->
     <nav>
-        <!-- TODO: Figure out if analytics will work with Jasonette or if I need separate native apps -->
         <div id="desktop">
             <a id="brand" href="http://www.couponbooked.com"><img id="logo" src="images/logo.png">Coupon Booked</a>
             <a id="scroll-why" href="#why">Why us?</a>
             <a id="scroll-example" href="#examples">Examples</a>
             <a id="scroll-create" href="#create">Create Your Own</a>
+            <div id="sign-in-status" class="hide"></div>
         </div>
 
-        <!-- This looks a little small on actual mobile. Field testing? -->
         <div id="mobile">
             <span class="menu-btn" style="font-size: 30px; cursor: pointer">
                 <img id="logo" src="images/logo.png">
@@ -49,46 +47,16 @@
             <li><a href="#examples">Examples</a></li>
             <li><a href="#create">Create Your Own</a></li>
         </ul>
-
-        <!-- IDEA: Make the side menu look like the fitbit menu with the user profile image 
-            and whatnot once they are signed in (dominos...). Can get Unsplash or whatever 
-            random profile pictures that GitHub uses. -->
     </menu>
 
     <div id="firebaseui-auth-container" class="hide"></div>
 
     <main>
-        <div style="height: 20px; width: 100%;"><!-- Whitespace; don't question it. --></div>
-        <section id="why">
-            <div id="title">
-                <h2>Why us?</h2>
-                <br />
-                <p>
-                    Coupon Booked is an excellent choice for any occasion, whether it be Mother's Day, Father's Day,
-                    a birthday, or an anniversary. You should create a Book because it is a thoughtful
-                    way to show someone how well you know them and how much you really care.
-                </p>
-                <a href="#examples" class="scroll-down" address="true"></a>
-            </div>
-        </section>
-
-        <section id="examples">
-            <h2>Examples</h2>
-
-            <pre id="account-details" class="hide"></pre>
-
-            <div class="flex one four-300">
-                <img src="https://via.placeholder.com/300">
-                <img src="https://via.placeholder.com/300">
-                <img src="https://via.placeholder.com/300">
-                <img src="https://via.placeholder.com/300">
-            </div>
-        </section>
-
-        <section id="create">
-            <h2>Create Your Own</h2>
-            <button>Start here!</button>
-        </section>
+        <!-- TODO: Look into 'emailVerified' and figure out how to do that -->
+        <!-- TODO: If user null, redirect to main page with alert? -->
+        <!-- TODO: Fix being redirected twice; once to main page then to profile (idea) ? -->
+        <pre id="account-details" style="margin-top: 100px"></pre>
+        <img id="profilePic">
     </main>
 
     <script src="javascript/firebase-app.js"></script>
@@ -96,5 +64,12 @@
     <script src="javascript/firebase.js"></script>
     <script type="text/javascript" src="javascript/index.js"></script>
     <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
+
+    <style>
+        #profilePic {
+            width: 100px;
+            height: 100px;
+        }
+    </style>
 </body>
 </html>
