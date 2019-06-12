@@ -59,7 +59,7 @@ document.querySelector('#sign-in').addEventListener('click', function() {
     if (document.querySelector('#sign-in').innerText == "Sign in") {
         // Fades from main page to login page
         $("nav, main, footer").fadeOut(150, function() {
-            $("#firebaseui-auth-container").fadeIn(400);
+            $("#container").fadeIn(400);
         });
     } else if (document.querySelector('#sign-in').innerText == "Sign out") {
         firebase.auth().signOut().then(function() {
@@ -79,7 +79,7 @@ window.onhashchange = function(e) {
     
     // Handle back button from sign in page
     if (oldHash == "login" && newHash == undefined) {
-        $("#firebaseui-auth-container, #xButton").fadeOut(150, function() {
+        $("#container").fadeOut(150, function() {
             $("nav, main, footer").fadeIn(400);
         });
     }

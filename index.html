@@ -39,7 +39,6 @@
             <a id="brand" href="http://www.couponbooked.com">Coupon Booked</a>
         </div>
 
-        <div id="sign-in-status" class="hide"></div>
         <a id="sign-in" href="#login">Sign in</a>
     </nav>
 
@@ -57,6 +56,39 @@
     </menu>
 
     <div id="firebaseui-auth-container" class="hide"></div>
+
+    <div id="container" class="firebaseui-container hide">
+        <div class= "firebaseui-card-header">
+            <div id="loading">Loading...</div>
+            <div id="loaded" class="hidden">
+                <div id="main">
+                    <div id="user-signed-in" class="hidden">
+                        <h4>You are signed in.</h4>
+                        <div id="user-info">
+                            <div id="photo-container">
+                                <img id="photo"></img>
+                            </div>
+                            <div id="name"></div>
+                            <div id="email"></div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <p>
+                            <button id="sign-out" class="firebaseui-button mdl-button mdl-js-button mdl-button--raised">Sign Out</button>
+                            <button id="delete-account" class="firebaseui-button mdl-button mdl-js-button mdl-button--raised">Delete account</button>
+                        </p>
+                    </div>
+                    <div id="user-signed-out" class="hidden">
+                        <h4>You are signed out.</h4>
+                        <div id="firebaseui-spa">
+                            <div id="firebaseui-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <br />
+    </div>
 
     <main>
         <div style="height: 20px; width: 100%;"><!-- Whitespace; don't question it. --></div>
