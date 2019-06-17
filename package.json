@@ -1,0 +1,13 @@
+{
+    "name": "coupon-booked",
+    "author": {
+        "name": "Aaron Meese",
+        "email": "ajmeese7@gmail.com",
+        "url": "http://aaronmeese.com"
+    },
+    "version": "0.1.0",
+    "description": "A coupon book gifting application.",
+    "repository": "github:ajmeese7/coupon-booked",
+    "private": true
+}
+  
