@@ -64,7 +64,7 @@ document.querySelector('#sign-in').addEventListener('click', function() {
     } else if (document.querySelector('#sign-in').innerText == "Sign out") {
         firebase.auth().signOut().then(function() {
             // Sign-out successful.
-            alert("Signed out successfully.");
+            alert("Signed out successfully."); // TODO: Handle this more elegantly
         }).catch(function(error) {
             // An error happened.
             console.error(error);

@@ -114,12 +114,14 @@ var currentUid = null;
  * @param {!firebase.User} user
  */
 var handleSignedInUser = function(user) {
+    document.getElementById('sign-in').textContent = 'Sign out';
+
     currentUid = user.uid;
     document.getElementById('user-signed-in').style.display = 'block';
     document.getElementById('user-signed-out').style.display = 'none';
     
     document.getElementById('name').innerHTML = "<b>Display Name: </b>" + user.displayName;
-    document.getElementById('email').innerHTML = "<b>User Email: </b> " + user.email;
+    document.getElementById('email').innerHTML = "<b>User Email: </b>" + user.email;
     if (user.photoURL){
         document.getElementById('photo').src = user.photoURL;
         document.getElementById('photo').style.display = 'block';
@@ -133,6 +135,8 @@ var handleSignedInUser = function(user) {
  * Displays the UI for a signed out user.
  */
 var handleSignedOutUser = function() {
+    document.getElementById('sign-in').textContent = 'Sign in';
+
     document.getElementById('user-signed-in').style.display = 'none';
     document.getElementById('user-signed-out').style.display = 'block';
     ui.start('#firebaseui-container', uiConfig);
