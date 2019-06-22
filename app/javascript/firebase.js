@@ -1,46 +1,15 @@
 // Initialize Firebase
-/*var config = {
-    
-    apiKey: "AIzaSyAlXDmH2X2zZ1vUhP3TQ2AZ0yQVutiDQGM",
-    authDomain: "coupon-booked.firebaseapp.com",
-    databaseURL: "https://coupon-booked.firebaseio.com",
-    projectId: "coupon-booked",
-    storageBucket: "coupon-booked.appspot.com",
-    messagingSenderId: "243041825180"
-};
+/*
 
 // IDEA: Use a URL parameter for the app that conditionally loads specific
 // Firebase settings, etc. for mobile platforms; will that work for analytics too?
-firebase.initializeApp(config);
-firebase.auth().useDeviceLanguage();
 
-// TODO: Look into using something like this to help my build process:
-// https://stackoverflow.com/a/40962187
-var uiConfig = {
-    // TODO: Add callbacks for failure, etc.
-    signInSuccessUrl: 'http://couponbooked.com/profile.php',
-    signInOptions: [
-        // IDEA: Instead of guest login, just add option to send coupon book anonymously
-        // TODO: Either style what is here better or add more options; maybe both
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-        firebase.auth.EmailAuthProvider.PROVIDER_ID
-    ],
-    tosUrl: 'tos.html',
-    privacyPolicyUrl: 'privacy.html'
-};
-
-// Initialize the FirebaseUI Widget using Firebase.
-var ui = new firebaseui.auth.AuthUI(firebase.auth());
-// The start method will wait until the DOM is loaded.
-ui.start('#firebaseui-auth-container', uiConfig);
-
+// TODO: How to do something similar with current setup?
 var user = firebase.auth().currentUser; // For accessing user propeties outside of the initApp function
 
 // TODO: Use this tracking state code to determine whether each page's nav needs
 // to show the sign in button or the user's information on the fancy menu.
 initApp = function() {
-    // NOTE: Currently the sign in is not persistant when page is refreshed; HOW TO FIX?
     firebase.auth().onAuthStateChanged(function(currentUser) {
         user = currentUser;
     }, function(error) {
@@ -48,16 +17,11 @@ initApp = function() {
     });
 };
 
-window.addEventListener('load', function() {
-    initApp();
-});
-
 // NOTE: After creating a Google account, it sends you back to the main page without signing
 // you in. You then have to sign in again. How to fix?
 if (user) {
     // TODO: Look into the purpose of accessToken
     user.getIdToken().then(function(accessToken) {
-        document.getElementById('sign-in').textContent = 'Sign out';
         // TODO: Need to change this to show user image that leads to fancy drop down menu
         document.getElementById('account-details').textContent = JSON.stringify({
             displayName: user.displayName,
@@ -70,15 +34,12 @@ if (user) {
             providerData: user.providerData
         }, null, '  ');
     });
-} else {
-    document.getElementById('sign-in').textContent = 'Sign in';
-    document.getElementById('account-details').textContent = 'User not logged in';
 }*/
 
 
 
-// TESTING!
 var config = {
+    // TODO: Work on project API permissions once I get closer to production, and TEST!
     apiKey: "AIzaSyAlXDmH2X2zZ1vUhP3TQ2AZ0yQVutiDQGM",
     authDomain: "coupon-booked.firebaseapp.com",
     databaseURL: "https://coupon-booked.firebaseio.com",
@@ -87,22 +48,34 @@ var config = {
 };
 
 firebase.initializeApp(config);
+firebase.auth().useDeviceLanguage();
 
+// TODO: Look into using something like this to help my build process:
+// https://stackoverflow.com/a/40962187
 var uiConfig = {
     credentialHelper: firebaseui.auth.CredentialHelper.NONE,
     callbacks: {
         signInSuccess: function(currentUser, credential, redirectUrl) {          
             handleSignedInUser(currentUser);
-            // Do not redirect.
+            // Using parameters.
+            //window.location.assign(`/users/${userId}`);
+            // Manually redirect.
+            //window.location.assign("/loggedIn.html");
+            // Do not automatically redirect.
             return false;
         }
     },
     signInOptions: [
+        // IDEA: Instead of guest login, just add option to send coupon book anonymously
+        // TODO: Either style what is here better or add more options; maybe both
+        //firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        //firebase.auth.FacebookAuthProvider.PROVIDER_ID,
         firebase.auth.EmailAuthProvider.PROVIDER_ID
     ],
     tosUrl: 'tos.html',
     privacyPolicyUrl: 'privacy.html'
 };
+
 
 // Initialize the FirebaseUI Widget using Firebase.
 var ui = new firebaseui.auth.AuthUI(firebase.auth());
@@ -163,7 +136,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 var deleteAccount = function() {
     firebase.auth().currentUser.delete().catch(function(error) {
         if (error.code == 'auth/requires-recent-login') {
-            // The user's credential is too old. She needs to sign in again.
+            // The user's credential is too old. User needs to sign in again.
             firebase.auth().signOut().then(function() {
                 // The timeout allows the message to be displayed after the UI has
                 // changed to the signed out state.

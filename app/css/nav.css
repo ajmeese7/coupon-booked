@@ -3,7 +3,8 @@ nav {
     height: 40px; /* Remove? */
     background-color: #0b98de;
     overflow: hidden;
-    position: absolute;
+    position: fixed; /* Set the navbar to fixed position */
+    top: 0; /* Position the navbar at the top of the page */
 }
 
 nav a {

@@ -2,20 +2,20 @@
 $(function() {
     // IDEA: Combine all of these under a forEach function
     $('#scroll-why').click (function() {
-        $('html, body').animate({scrollTop: $('section#why').offset().top + 1 }, 'slow');
+        $('html, body').animate({scrollTop: $('section#why').offset().top - 40 }, 'slow');
         return false;
     });
     $('#scroll-example').click (function() {
-        $('html, body').animate({scrollTop: $('section#examples').offset().top + 1 }, 'slow');
+        $('html, body').animate({scrollTop: $('section#examples').offset().top - 39 }, 'slow');
         return false;
     });
     $('.scroll-down').click (function() {
         // TODO: Look into resolution with previous problem of combining under one ID
-        $('html, body').animate({scrollTop: $('section#examples').offset().top + 1 }, 'slow');
+        $('html, body').animate({scrollTop: $('section#examples').offset().top - 39 }, 'slow');
         return false;
     });
     $('#scroll-create').click (function() {
-        $('html, body').animate({scrollTop: $('section#create').offset().top + 1 }, 'slow');
+        $('html, body').animate({scrollTop: $('section#create').offset().top - 39 }, 'slow');
         return false;
     });
 });
@@ -53,9 +53,6 @@ $('.menu li').click (function() {
 });
 
 document.querySelector('#sign-in').addEventListener('click', function() {
-    // TODO: Make it so if the user hits the browser back button the normal content is displayed
-    // again instead of the sign in page (fade in somehow)
-
     if (document.querySelector('#sign-in').innerText == "Sign in") {
         // Fades from main page to login page
         $("nav, main, footer").fadeOut(150, function() {
@@ -64,7 +61,7 @@ document.querySelector('#sign-in').addEventListener('click', function() {
     } else if (document.querySelector('#sign-in').innerText == "Sign out") {
         firebase.auth().signOut().then(function() {
             // Sign-out successful.
-            alert("Signed out successfully."); // TODO: Handle this more elegantly
+            // TODO: Handle this more elegantly
         }).catch(function(error) {
             // An error happened.
             console.error(error);
@@ -78,7 +75,7 @@ window.onhashchange = function(e) {
     var newHash = e.newURL.split("#")[1];
     
     // Handle back button from sign in page
-    if (oldHash == "login" && newHash == undefined) {
+    if (oldHash == "login" && newHash != "login") {
         $("#container").fadeOut(150, function() {
             $("nav, main, footer").fadeIn(400);
         });
