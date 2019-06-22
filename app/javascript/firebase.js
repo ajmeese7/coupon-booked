@@ -1,26 +1,12 @@
-// Initialize Firebase
-/*
-
 // IDEA: Use a URL parameter for the app that conditionally loads specific
 // Firebase settings, etc. for mobile platforms; will that work for analytics too?
 
 // TODO: How to do something similar with current setup?
-var user = firebase.auth().currentUser; // For accessing user propeties outside of the initApp function
-
-// TODO: Use this tracking state code to determine whether each page's nav needs
-// to show the sign in button or the user's information on the fancy menu.
-initApp = function() {
-    firebase.auth().onAuthStateChanged(function(currentUser) {
-        user = currentUser;
-    }, function(error) {
-        console.error(error);
-    });
-};
+/*var user = firebase.auth().currentUser; // For accessing user propeties outside of the initApp function
 
 // NOTE: After creating a Google account, it sends you back to the main page without signing
 // you in. You then have to sign in again. How to fix?
 if (user) {
-    // TODO: Look into the purpose of accessToken
     user.getIdToken().then(function(accessToken) {
         // TODO: Need to change this to show user image that leads to fancy drop down menu
         document.getElementById('account-details').textContent = JSON.stringify({
@@ -37,9 +23,8 @@ if (user) {
 }*/
 
 
-
 var config = {
-    // TODO: Work on project API permissions once I get closer to production, and TEST!
+    // TODO: Use https://stackoverflow.com/a/40962187 for security + API permissions
     apiKey: "AIzaSyAlXDmH2X2zZ1vUhP3TQ2AZ0yQVutiDQGM",
     authDomain: "coupon-booked.firebaseapp.com",
     databaseURL: "https://coupon-booked.firebaseio.com",
@@ -50,17 +35,13 @@ var config = {
 firebase.initializeApp(config);
 firebase.auth().useDeviceLanguage();
 
-// TODO: Look into using something like this to help my build process:
-// https://stackoverflow.com/a/40962187
 var uiConfig = {
     credentialHelper: firebaseui.auth.CredentialHelper.NONE,
     callbacks: {
         signInSuccess: function(currentUser, credential, redirectUrl) {          
             handleSignedInUser(currentUser);
-            // Using parameters.
-            //window.location.assign(`/users/${userId}`);
             // Manually redirect.
-            //window.location.assign("/loggedIn.html");
+            //window.location.assign("/profile.html"); // TODO: Set this page to function when user isn't signed in
             // Do not automatically redirect.
             return false;
         }
@@ -68,9 +49,9 @@ var uiConfig = {
     signInOptions: [
         // IDEA: Instead of guest login, just add option to send coupon book anonymously
         // TODO: Either style what is here better or add more options; maybe both
-        //firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         //firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-        firebase.auth.EmailAuthProvider.PROVIDER_ID
+        //firebase.auth.EmailAuthProvider.PROVIDER_ID
     ],
     tosUrl: 'tos.html',
     privacyPolicyUrl: 'privacy.html'
@@ -95,7 +76,7 @@ var handleSignedInUser = function(user) {
     
     document.getElementById('name').innerHTML = "<b>Display Name: </b>" + user.displayName;
     document.getElementById('email').innerHTML = "<b>User Email: </b>" + user.email;
-    if (user.photoURL){
+    if (user.photoURL) {
         document.getElementById('photo').src = user.photoURL;
         document.getElementById('photo').style.display = 'block';
     } else {
@@ -124,6 +105,9 @@ firebase.auth().onAuthStateChanged(function(user) {
     if (user && user.uid == currentUid) {
         return;
     }
+
+    // TODO: Use this tracking state code to determine whether each page's nav needs
+    // to show the sign in button or the user's information on the fancy menu.
     document.getElementById('loading').style.display = 'none';
     document.getElementById('loaded').style.display = 'block';
     user ? handleSignedInUser(user) : handleSignedOutUser();

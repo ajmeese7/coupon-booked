@@ -1,5 +1,6 @@
 ﻿// Handle the click of the scroll button and nav bar links
 $(function() {
+    // TODO: Fix this on mobile
     // IDEA: Combine all of these under a forEach function
     $('#scroll-why').click (function() {
         $('html, body').animate({scrollTop: $('section#why').offset().top - 40 }, 'slow');

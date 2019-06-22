@@ -3,8 +3,7 @@ nav {
     height: 40px; /* Remove? */
     background-color: #0b98de;
     overflow: hidden;
-    position: fixed; /* Set the navbar to fixed position */
-    top: 0; /* Position the navbar at the top of the page */
+    top: 0;
 }
 
 nav a {
@@ -20,18 +19,14 @@ nav a {
 }
 
 /* TODO: Clean this up */
-#scroll-why, #scroll-example, #scroll-create, #sign-in {
+#scroll-why, #scroll-example, #scroll-create {
     font-size: 13px;
     padding: 20px 10px;
     margin-top: -8px;
 }
 
-#scroll-why:hover, #scroll-example:hover, #scroll-create:hover, #sign-in:hover {
+#scroll-why:hover, #scroll-example:hover, #scroll-create:hover {
     background-color: #17b0cf;
-}
-
-#sign-in, #sign-in-status {
-    float: right;
 }
 
 #logo {
