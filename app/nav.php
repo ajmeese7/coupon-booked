@@ -8,6 +8,7 @@
         <a id="brand" href="http://app.couponbooked.com">Coupon Booked</a>
     </div>
 
+    <a href="#profilePic"><img id="profile-picture" style="display: none;" /></a> <!-- NOTE: WIP -->
     <a id="sign-in" href="#login">Sign in</a>
 </nav>
 

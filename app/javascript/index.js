@@ -25,26 +25,18 @@ document.querySelector('.menu-btn').addEventListener('click', function() {
 });
 
 // TODO: Make the mobile nav bar still show after click; stay on scroll!
+// TODO: See if all of this can be transitioned to pure JS in case mobile doesn't support it
 $('.menu li').click (function() {
     toggleClass(document.querySelector('.menu'), 'menu--open');
     toggleClass(document.querySelectorAll('.menu-btn img'), 'hide');
 });
 
+// querySelector vs getElementById?
 document.querySelector('#sign-in').addEventListener('click', function() {
-    if (document.querySelector('#sign-in').innerText == "Sign in") {
-        // Fades from main page to login page
-        $("nav, main, footer").fadeOut(150, function() {
-            $("#container").fadeIn(400);
-        });
-    } else if (document.querySelector('#sign-in').innerText == "Sign out") {
-        firebase.auth().signOut().then(function() {
-            // Sign-out successful.
-            // TODO: Handle this more elegantly
-        }).catch(function(error) {
-            // An error happened.
-            console.error(error);
-        });
-    }
+    // Fades from main page to login page
+    $("nav, main, footer").fadeOut(150, function() {
+        $("#container").fadeIn(400);
+    });
 });
 
 // https://stackoverflow.com/questions/11392046/get-the-hash-value-which-was-before-hashchange
