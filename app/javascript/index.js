@@ -39,6 +39,30 @@ document.querySelector('#sign-in').addEventListener('click', function() {
     });
 });
 
+// Profile picture menu
+$(document).ready(function() {
+    $(".account").click(function() {
+        var X = $(this).attr('id');
+        if (X == 1) {
+            $(".submenu").hide();
+            $(this).attr('id', '0'); 
+        } else {
+            $(".submenu").show();
+            $(this).attr('id', '1');
+        }
+    });
+    $(".submenu").mouseup(function() {
+        return false
+    });
+    $(".account").mouseup(function() {
+        return false
+    });
+    $(document).mouseup(function() {
+        $(".submenu").hide();
+        $(".account").attr('id', '');
+    });
+});
+
 // https://stackoverflow.com/questions/11392046/get-the-hash-value-which-was-before-hashchange
 window.onhashchange = function(e) {
     var oldHash = e.oldURL.split("#")[1];
@@ -49,5 +73,7 @@ window.onhashchange = function(e) {
         $("#container").fadeOut(150, function() {
             $("nav, main, footer").fadeIn(400);
         });
-    }
+    }/* else if (newHash == "profilePic" && oldHash != "profilePic") {
+        // TODO: Creatively display dropdown menu
+    }*/
 };

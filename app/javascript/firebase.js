@@ -55,7 +55,8 @@ var handleSignedInUser = function(user) {
     if (user.photoURL) {
         document.getElementById('profile-picture').src = user.photoURL;
     } else {
-        // TODO: Get a better image
+        // TODO: Get a better image or assign a random one like
+        // https://github.com/adorableio/avatars-api-middleware
         var defaultImage = "images/default.png";
 
         user.updateProfile({

@@ -8,9 +8,20 @@
         <a id="brand" href="http://app.couponbooked.com">Coupon Booked</a>
     </div>
 
-    <a href="#profilePic"><img id="profile-picture" style="display: none;" /></a> <!-- NOTE: WIP -->
+    <a href="#profilePic" class="account" ><img id="profile-picture" style="display: none;" /></a>
     <a id="sign-in" href="#login">Sign in</a>
 </nav>
+
+<div class="dropdown">
+    <div class="submenu" style="display: none;">
+        <ul class="root">
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#">Settings</a></li>
+            <li><a href="#">Sign Out</a></li>
+        </ul>
+    </div>
+</div>
 
 <!-- Sidebar content for mobile navigation -->
 <menu class="menu">
