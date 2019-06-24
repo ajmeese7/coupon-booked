@@ -1,0 +1,167 @@
+nav {
+    width: 100%;
+    height: 40px;
+    background-color: #0b98de;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+}
+
+nav a {
+    font-family: sans-serif;
+    color: white;
+    text-shadow: 1px -1px -6px #000; /* TODO: Look into this */
+    text-decoration: none;
+}
+
+/* Styles for the menu */
+.menu {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+    padding: 32px;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 99;
+    background-color: #32325D;
+    transform: translate3d(0, -100%, 0);
+    -webkit-transition: transform .2s ease-in-out;
+       -moz-transition: transform .2s ease-in-out;
+         -o-transition: transform .2s ease-in-out;
+            transition: transform .2s ease-in-out;
+}
+
+.menu--open {
+    transform: translate3d(0, 0, 0);
+}
+
+.menu ul {
+    padding-left: 0;
+    list-style-type: none;
+}
+
+.menu li {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.menu li a {
+    color: white;
+    font-size: 32px;
+}
+
+/* Used for testing purposes and toggling whether an element is displayed */
+.hide {
+    display: none;
+}
+
+#mobile {
+    margin-top: -4px;
+    display: inline-block;
+}
+
+#sign-in {
+    float: right;
+    font-size: 13px;
+    padding: 20px 10px;
+    margin-top: -8px;
+}
+
+#sign-in:hover {
+    background-color: #17b0cf;
+}
+
+#logo {
+    width: 40px;
+    height: 40px;
+    margin-bottom: -10px;
+    margin-right: 3px;
+}
+
+#brand {
+    font-size: 30px !important;
+    letter-spacing: -2px;
+    text-shadow: 1px 1px 2px #c4c4c4;
+    margin: 0;
+}
+
+/**********************
+    Profile Picture
+***********************/
+
+#profile-picture {
+    float: right;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-top: 2.5px;
+
+    /* Would I want a border?
+    border: 2px solid #eee;
+    box-shadow: 0 3px 2px rgba(0, 0, 0, 0.3);
+    */
+}
+/* TODO: Add a CSS downwards transition like menu */
+div.dropdown {
+    width: 115px;
+    text-align: left;
+    float: right;
+}
+div.submenu {
+    position: absolute;
+    width: 100px;
+    display: none;
+    margin-left: 10px;
+    padding: 28px 0 5px;
+    border-radius: 6px;
+}
+.dropdown li a {
+    color: #555555;
+    display: block;
+    font-family: arial;
+    font-weight: bold;
+    padding: 6px 15px;
+    cursor: pointer;
+    text-decoration: none;
+}
+.dropdown li a:hover{
+    background:#155FB0;
+    color: #FFFFFF;
+    text-decoration: none;
+}
+a.account {
+    font-size: 11px;
+    line-height: 16px;
+    color: #555;
+    display: block;
+    padding: 11px 0 0 20px;
+    height: 28px;
+    width: 121px;
+    margin: -11px 0 0 -10px;
+    float: right;
+    text-decoration: none;
+    background: url(images/arrow.png) 80px 32px no-repeat;
+    cursor: pointer;
+}
+.root {
+    list-style: none;
+    font-size: 11px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    background: #fff;
+    padding: 10px 0 10px 0;
+    border-radius: 5px 5px 5px 5px;
+    margin: 21px 0 0 0;
+}
+.root:before {
+    content: '';
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-bottom: 7px solid #ccc;
+    border-bottom-color: #ffffff;
+    position: absolute;
+    color: #ffffff;
+    top: 42px;
+    left: 70px;
+}

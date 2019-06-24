@@ -3,10 +3,8 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
-    <meta name="google-signin-client_id" content="243041825180-hf171dl59cjh4cksgko57no0jfcmgn0b.apps.googleusercontent.com">
 
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/picnic" />
-    <script src="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.js"></script>
     <link rel="stylesheet" type="text/css" href="css/mobile-nav.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
@@ -20,9 +18,7 @@
     <title>Coupon Booked</title>
 </head>
 <body>
-    <!-- NOTE: Tried S.O.//a/42333464 and it wouldn't load fast enough, resulting in short ugly transition for user. -->
     <nav>
-        <!-- TODO: Figure out if analytics will work with Jasonette or if I need separate native apps -->
         <div id="desktop">
             <a id="brand" href="http://www.couponbooked.com"><img id="logo" src="images/logo.png">Coupon Booked</a>
             <a id="scroll-why" href="#why">Why us?</a>
@@ -30,7 +26,7 @@
             <a id="scroll-create" href="#create">Create Your Own</a>
         </div>
 
-        <!-- This looks a little small on actual mobile. Field testing? -->
+        <!-- TODO: This looks a little small on actual mobile. Field testing? -->
         <div id="mobile">
             <span class="menu-btn" style="font-size: 30px; cursor: pointer">
                 <img id="logo" src="images/logo.png">
@@ -38,9 +34,6 @@
             </span>
             <a id="brand" href="http://www.couponbooked.com">Coupon Booked</a>
         </div>
-
-        <div id="sign-in-status" class="hide"></div>
-        <a id="sign-in" href="#login">Sign in</a>
     </nav>
 
     <!-- Sidebar content for mobile navigation -->
@@ -50,13 +43,7 @@
             <li><a href="#examples">Examples</a></li>
             <li><a href="#create">Create Your Own</a></li>
         </ul>
-
-        <!-- IDEA: Make the side menu look like the fitbit menu with the user profile image 
-            and whatnot once they are signed in (dominos...). Can get Unsplash or whatever 
-            random profile pictures that GitHub uses. -->
     </menu>
-
-    <div id="firebaseui-auth-container" class="hide"></div>
 
     <main>
         <div style="height: 20px; width: 100%;"><!-- Whitespace; don't question it. --></div>
@@ -92,10 +79,6 @@
         </section>
     </main>
 
-    <script src="javascript/firebase-app.js"></script>
-    <script src="javascript/firebase-auth.js"></script>
-    <script src="javascript/firebase.js"></script>
     <script type="text/javascript" src="javascript/index.js"></script>
-    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
 </body>
 </html>
