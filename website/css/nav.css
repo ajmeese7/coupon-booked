@@ -5,7 +5,6 @@ nav {
     overflow: hidden;
     top: 0;
 }
-
 nav a {
     font-family: sans-serif;
     color: white;
@@ -24,7 +23,6 @@ nav a {
     padding: 20px 10px;
     margin-top: -8px;
 }
-
 #scroll-why:hover, #scroll-example:hover, #scroll-create:hover {
     background-color: #17b0cf;
 }
@@ -35,7 +33,6 @@ nav a {
     margin-bottom: -10px;
     margin-right: 3px;
 }
-
 #brand {
     font-size: 30px !important;
     letter-spacing: -2px;

@@ -17,29 +17,20 @@
          -o-transition: transform .2s ease-in-out;
             transition: transform .2s ease-in-out;
 }
-
 .menu--open {
     transform: translate3d(0, 0, 0);
 }
-
 .menu ul {
     padding-left: 0;
     list-style-type: none;
 }
-
 .menu li {
     margin-top: 25px;
     text-align: center;
 }
-
 .menu li a {
     color: white;
     font-size: 32px;
-}
-
-/* Used for testing purposes and toggling whether an element is displayed */
-.hide {
-    display: none;
 }
 
 #mobile {

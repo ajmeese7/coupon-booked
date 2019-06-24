@@ -1,4 +1,4 @@
-﻿// This is a general function that removes one class and adds another
+// This is a general function that removes one class and adds another
 function toggleClass(target, addedClass) {
     // If target is an element rather than a list, it is converted to array form
     if (!NodeList.prototype.isPrototypeOf(target)) {
@@ -42,10 +42,10 @@ document.querySelector('#sign-in').addEventListener('click', function() {
 // Profile picture menu
 $(document).ready(function() {
     $(".account").click(function() {
-        var X = $(this).attr('id');
-        if (X == 1) {
+        // TODO: Something with toggle here?
+        if ($(this).attr('id') == 1) {
             $(".submenu").hide();
-            $(this).attr('id', '0'); 
+            $(this).attr('id', '0');
         } else {
             $(".submenu").show();
             $(this).attr('id', '1');
@@ -57,7 +57,8 @@ $(document).ready(function() {
     $(".account").mouseup(function() {
         return false
     });
-    $(document).mouseup(function() {
+    // IDEA: Switch to mousedown for scrolling to close it? Document only.
+    $(document).add("#sign-out").mouseup(function() {
         $(".submenu").hide();
         $(".account").attr('id', '');
     });
@@ -70,6 +71,7 @@ window.onhashchange = function(e) {
     
     // Handle back button from sign in page
     if (oldHash == "login" && newHash != "login") {
+        // Doesn't work nearly as well with PHP; hopefully it will be smooth again once PHP is replaced
         $("#container").fadeOut(150, function() {
             $("nav, main, footer").fadeIn(400);
         });

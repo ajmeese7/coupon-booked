@@ -12,13 +12,15 @@
     <a id="sign-in" href="#login">Sign in</a>
 </nav>
 
+<!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
 <div class="dropdown">
     <div class="submenu" style="display: none;">
         <ul class="root">
+            <!-- NOTE: href required to have mouse change to clicker on hover -->
             <li><a href="#">Dashboard</a></li>
-            <li><a href="#">Profile</a></li>
+            <li><a href="profile.php">Profile</a></li>
             <li><a href="#">Settings</a></li>
-            <li><a href="#">Sign Out</a></li>
+            <li><a href="#" id="sign-out">Sign Out</a></li>
         </ul>
     </div>
 </div>
@@ -31,11 +33,6 @@
         <li><a href="#examples">Examples</a></li>
         <li><a href="#create">Create Your Own</a></li>
     </ul>
-
-    <!-- IDEA: Make a tutorial (with skip option) for when user first signs in -->
-    <!-- IDEA: Make the side menu look like the fitbit menu with the user profile image 
-        and whatnot once they are signed in (dominos...). Can get Unsplash or whatever 
-        random profile pictures that GitHub uses. -->
 </menu>
 
 <div style="height: 20px; width: 100%;"><!-- Whitespace; don't question it. --></div>

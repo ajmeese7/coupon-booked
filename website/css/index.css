@@ -23,6 +23,11 @@ section {
     width: 100vw;
 }
 
+/* Used for testing purposes and toggling whether an element is displayed */
+.hide {
+    display: none;
+}
+
 /* WHY */
 
 #why {
@@ -38,7 +43,6 @@ section {
     width: 400px;
     margin: 20px auto;
 }
-
 #title h2, #title p {
     background-color: black;
     color: #fff; 
@@ -54,7 +58,6 @@ section {
 #examples h2, #create h2 {
     text-align: center;
 }
-
 #examples img {
     width: 300px; /* These will obviously change with the actual images */
     height: 300px;

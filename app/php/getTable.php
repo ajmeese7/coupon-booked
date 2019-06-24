@@ -1,8 +1,10 @@
 <?php
-$servername = "couponbooked";
-$username = "gvxn4otz8mk6";
-$password = "your-password";
-$dbname = "database-name";
+  // Way to avoid issues with requests in Cordova:
+  // https://stackoverflow.com/questions/29665933/how-can-use-i-use-php-as-back-end-for-ionic-framework
+  $servername = "couponbooked";
+  $username = "gvxn4otz8mk6";
+  $password = "your-password";
+  $dbname = "database-name";
 
   // Create connection
   $conn = new mysqli($servername, $username, $password, $dbname);

@@ -1,3 +1,4 @@
+// TODO: Work on fixing third party cookies issue
 var config = {
     // TODO: Use https://stackoverflow.com/a/40962187 for security + API permissions
     apiKey: "AIzaSyAlXDmH2X2zZ1vUhP3TQ2AZ0yQVutiDQGM",
@@ -16,7 +17,8 @@ var uiConfig = {
         signInSuccess: function(currentUser, credential, redirectUrl) {
             handleSignedInUser(currentUser);
             // Manually redirect.
-            //window.location.assign("/profile.php"); // TODO: Set this page to function when user isn't signed in
+            // NOTE: Will use this for the first login of a new user if possible.
+            //window.location.assign("/tutorial.php");
             // Do not automatically redirect.
             return false;
         }
@@ -129,15 +131,16 @@ var initApp = function() {
     document.getElementById('sign-out').addEventListener('click', function() {
         firebase.auth().signOut().then(function() {
             // Sign-out successful.
-            // TODO: Handle this more elegantly
+            // TODO: Handle this with some kind of sign out notification
         }).catch(function(error) {
             // An error happened.
             console.error(error);
         });
     });
-    document.getElementById('delete-account').addEventListener('click', function() {
+    /*document.getElementById('delete-account').addEventListener('click', function() {
+        // TODO: Add to settings or profile page
         deleteAccount();
-    });
+    });*/
 };
 
 window.addEventListener('load', initApp);

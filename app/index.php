@@ -5,6 +5,7 @@
     <!-- ex. var imported = require('your-module'); in Node.js, Pug or Handlebars,
          <%- include('header'); %> with EJS (https://www.reddit.com/r/node/comments/8xd4z1/what_is_the_node_equivalent_of_a_php_include/),
          or partials with ZURB Foundation; https://stackoverflow.com/questions/36098736/connect-php-with-phonegap -->
+    <link rel="canonical" href="http://app.couponbooked.com">
 </head>
 <body>
     <?php 
@@ -22,7 +23,6 @@
                     a birthday, or an anniversary. You should create a Book because it is a thoughtful
                     way to show someone how well you know them and how much you really care.
                 </p>
-                <a href="#examples" class="scroll-down" address="true"></a>
             </div>
         </section>
 

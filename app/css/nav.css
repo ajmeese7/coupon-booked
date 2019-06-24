@@ -6,11 +6,9 @@ nav {
     position: fixed;
     top: 0;
 }
-
 nav a {
     font-family: sans-serif;
     color: white;
-    text-shadow: 1px -1px -6px #000; /* TODO: Look into this */
     text-decoration: none;
 }
 
@@ -32,29 +30,20 @@ nav a {
          -o-transition: transform .2s ease-in-out;
             transition: transform .2s ease-in-out;
 }
-
 .menu--open {
     transform: translate3d(0, 0, 0);
 }
-
 .menu ul {
     padding-left: 0;
     list-style-type: none;
 }
-
 .menu li {
     margin-top: 25px;
     text-align: center;
 }
-
 .menu li a {
     color: white;
     font-size: 32px;
-}
-
-/* Used for testing purposes and toggling whether an element is displayed */
-.hide {
-    display: none;
 }
 
 #mobile {
@@ -68,7 +57,6 @@ nav a {
     padding: 20px 10px;
     margin-top: -8px;
 }
-
 #sign-in:hover {
     background-color: #17b0cf;
 }
@@ -79,7 +67,6 @@ nav a {
     margin-right: 3px;
     margin-bottom: -10px;
 }
-
 #xButton {
     width: 30px;
     height: 30px;
@@ -87,7 +74,6 @@ nav a {
     margin-bottom: -5px;
     margin-left: 5px;
 }
-
 #brand {
     font-size: 30px !important;
     letter-spacing: -2px;
@@ -105,11 +91,6 @@ nav a {
     height: 35px;
     border-radius: 50%;
     margin-top: 2.5px;
-
-    /* Would I want a border?
-    border: 2px solid #eee;
-    box-shadow: 0 3px 2px rgba(0, 0, 0, 0.3);
-    */
 }
 /* TODO: Add a CSS downwards transition like menu */
 div.dropdown {
@@ -125,33 +106,24 @@ div.submenu {
     padding: 28px 0 5px;
     border-radius: 6px;
 }
+.dropdown li {
+    /* TODO: Decide if this or default is better */
+    margin: 0;
+}
 .dropdown li a {
     color: #555555;
     display: block;
     font-family: arial;
     font-weight: bold;
     padding: 6px 15px;
-    cursor: pointer;
-    text-decoration: none;
 }
 .dropdown li a:hover{
-    background:#155FB0;
+    background: #155FB0;
     color: #FFFFFF;
-    text-decoration: none;
 }
 a.account {
-    font-size: 11px;
-    line-height: 16px;
-    color: #555;
-    display: block;
     padding: 11px 0 0 20px;
-    height: 28px;
-    width: 121px;
     margin: -11px 0 0 -10px;
-    float: right;
-    text-decoration: none;
-    background: url(images/arrow.png) 80px 32px no-repeat;
-    cursor: pointer;
 }
 .root {
     list-style: none;

@@ -15,11 +15,6 @@
                         <div id="email"></div>
                         <div class="clearfix"></div>
                     </div>
-                    <p>
-                        <!-- TODO: Put this on a popup for user icon-->
-                        <button id="sign-out" class="firebaseui-button mdl-button mdl-js-button mdl-button--raised">Sign Out</button>
-                        <button id="delete-account" class="firebaseui-button mdl-button mdl-js-button mdl-button--raised">Delete account</button>
-                    </p>
                 </div>
                 <div id="user-signed-out" class="hide">
                     <div id="firebaseui-spa">

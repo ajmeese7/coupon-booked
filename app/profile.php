@@ -2,6 +2,7 @@
 <html>
 <head>
     <?php include 'header.php'; ?>
+    <link rel="canonical" href="http://app.couponbooked.com/profile">
 </head>
 <body>
     <?php 
@@ -9,6 +10,7 @@
         include 'login.php';
     ?>
 
+    <!-- TODO: Set this page to not function when user isn't signed in -->
     <main>
         <div id="account-details"></div>
     </main>
@@ -18,7 +20,6 @@
         /*var user = firebase.auth().currentUser;
         if (user != null) {
             user.getIdToken().then(function(accessToken) {
-                // TODO: Need to change this to show user image that leads to fancy drop down menu
                 document.getElementById('account-details').textContent = JSON.stringify({
                     displayName: user.displayName,
                     email: user.email,
@@ -31,9 +32,10 @@
                 }, null, '  ');
             }); // Use User.getToken()?
         } else {
+            // NOTE: This does not work because the sign in takes time to load.
             alert("You are not signed in! You aren't supposed to access this page.");
             // Attempt to prevent seeing page without being signed in.
-            window.location.assign("index.php");
+            //window.location.assign("index.php");
         }*/
     </script>
 </body>
