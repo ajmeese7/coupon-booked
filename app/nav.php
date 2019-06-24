@@ -3,7 +3,7 @@
     <div id="mobile">
         <span class="menu-btn" style="font-size: 30px; cursor: pointer">
             <img id="logo" src="images/logo.png">
-            <img id="logo" src="images/x.png" class="hide">
+            <img id="xButton" src="images/x.png" class="hide">
         </span>
         <a id="brand" href="http://app.couponbooked.com">Coupon Booked</a>
     </div>
