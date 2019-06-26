@@ -2,8 +2,8 @@
 <html>
 <head>
     <?php
-        include 'header.php';
-        include 'scripts.php';
+        include 'reused-code/header.php';
+        include 'reused-code/scripts.php';
     ?>
     <!-- ex. var imported = require('your-module'); in Node.js, Pug or Handlebars,
          <%- include('header'); %> with EJS (https://www.reddit.com/r/node/comments/8xd4z1/what_is_the_node_equivalent_of_a_php_include/),
@@ -12,8 +12,8 @@
 </head>
 <body>
     <?php 
-        include 'nav.php';
-        include 'login.php';
+        include 'reused-code/nav.php';
+        include 'reused-code/login.php';
     ?>
 
     <main>

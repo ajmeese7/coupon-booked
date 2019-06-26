@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <?php include 'header.php'; ?>
+    <?php
+        include 'reused-code/header.php';
+        include 'reused-code/scripts.php';
+    ?>
     <link rel="canonical" href="http://app.couponbooked.com/profile">
 </head>
 <body>
     <?php 
-        include 'nav.php';
-        include 'login.php';
+        include 'reused-code/nav.php';
+        include 'reused-code/login.php';
     ?>
 
     <!-- TODO: Set this page to not function when user isn't signed in -->
@@ -16,9 +19,8 @@
         <div id="account-details"></div>
     </main>
 
-    <?php include 'scripts.php'; ?>
     <script>
-        /*var user = firebase.auth().currentUser;
+        if (currentUid != null) {
             // TODO: Have some type of wait here or store user info too
             user.getIdToken().then(function(accessToken) {
                 document.getElementById('account-details').textContent = JSON.stringify({
@@ -37,7 +39,7 @@
             console.log("You are not signed in! You aren't supposed to access this page.");
             // Attempt to prevent seeing page without being signed in.
             //window.location.assign("index.php");
-        }*/
+        }
     </script>
 </body>
 </html>
