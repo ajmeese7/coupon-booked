@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <?php include 'header.php'; ?>
+    <?php
+        include 'header.php';
+        include 'scripts.php';
+    ?>
     <!-- ex. var imported = require('your-module'); in Node.js, Pug or Handlebars,
          <%- include('header'); %> with EJS (https://www.reddit.com/r/node/comments/8xd4z1/what_is_the_node_equivalent_of_a_php_include/),
          or partials with ZURB Foundation; https://stackoverflow.com/questions/36098736/connect-php-with-phonegap -->
@@ -42,7 +45,5 @@
             <button>Start here!</button>
         </section>
     </main>
-
-    <?php include 'scripts.php'; ?>
 </body>
 </html>

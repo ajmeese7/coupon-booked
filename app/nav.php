@@ -8,6 +8,7 @@
         <a id="brand" href="http://app.couponbooked.com">Coupon Booked</a>
     </div>
 
+    <!-- NOTE: The transition here is too long. Is it fixable? -->
     <a href="#profilePic" class="account" ><img id="profile-picture" style="display: none;" /></a>
     <a id="sign-in" href="#login">Sign in</a>
 </nav>

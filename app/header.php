@@ -4,14 +4,12 @@
     <meta name="google-signin-client_id" content="243041825180-hf171dl59cjh4cksgko57no0jfcmgn0b.apps.googleusercontent.com">
 
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/picnic" />
-    <script src="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
 
     <link rel="shortcut icon" href="images/favicon.png" />
     <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
-
-    <script src="javascript/jquery-1.8.0.min.js"></script>
 
     <title>Coupon Booked</title>
 </head>

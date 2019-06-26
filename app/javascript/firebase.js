@@ -8,19 +8,27 @@ var config = {
     messagingSenderId: "243041825180"
 };
 
+// TODO: Look into using Firebase database for user info?
 firebase.initializeApp(config);
 firebase.auth().useDeviceLanguage();
 
+// TODO: Implement this for account creation:
+// https://firebase.google.com/docs/functions/auth-events#trigger_a_function_on_user_creation
 var uiConfig = {
     credentialHelper: firebaseui.auth.CredentialHelper.NONE,
     callbacks: {
         signInSuccess: function(currentUser, credential, redirectUrl) {
             handleSignedInUser(currentUser);
             // Manually redirect.
-            // NOTE: Will use this for the first login of a new user if possible.
+            // TODO: Implement this to determine whether to send user to tutorial on first login:
+            // https://github.com/firebase/firebaseui-web/issues/137#issuecomment-388467423
             //window.location.assign("/tutorial.php");
             // Do not automatically redirect.
             return false;
+            // IDEA: Send some kind of signal, possibly via URL, to the redirect page (experimentation)
+            // that tells it to switch to profile pic displayed with loading icon (3 bouncing dots).
+            // NOTE: Obviosuly this would not be ideal, but better than nothing until the data retrieval
+            // can be sped up for things such as the profile page, perhaps with SQL.
         }
     },
     signInOptions: [
@@ -45,6 +53,10 @@ var currentUid = null;
  * @param {!firebase.User} user
  */
 var handleSignedInUser = function(user) {
+    // IDEA: Display a splashscreen at startup when waiting for data;
+    // https://stackoverflow.com/a/41954672
+    // NOTE: can also lazy load all required data and assume user is still
+    // signed in until told otherwise by Firebase; https://urlzs.com/kNbJG
     document.getElementById('sign-in').style.display = 'none';
     document.getElementById('profile-picture').style.display = 'inline-block';
     
@@ -109,6 +121,7 @@ firebase.auth().onAuthStateChanged(function(user) {
  * Deletes the user's account.
  */
 var deleteAccount = function() {
+    // TODO: Migrate to example where there is a then statement to handle that case.
     firebase.auth().currentUser.delete().catch(function(error) {
         if (error.code == 'auth/requires-recent-login') {
             // The user's credential is too old. User needs to sign in again.
@@ -128,10 +141,13 @@ var deleteAccount = function() {
  * Initializes the app.
  */
 var initApp = function() {
+    // TODO: Use this if I switch to Cordova:
+    // https://firebase.google.com/docs/auth/web/cordova
     document.getElementById('sign-out').addEventListener('click', function() {
         firebase.auth().signOut().then(function() {
             // Sign-out successful.
             // TODO: Handle this with some kind of sign out notification
+            // ex. https://css-tricks.com/pop-from-top-notification/
         }).catch(function(error) {
             // An error happened.
             console.error(error);
