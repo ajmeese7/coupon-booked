@@ -1,0 +1,32 @@
+.hidden {
+  display: none;
+}
+label {
+  margin-bottom: 10px;
+  display: block;
+}
+
+#main-content {
+  min-height: 550px;
+}
+
+.navbar {
+  position: fixed;
+  min-height: 50.3833px;
+  width: 100%;
+  margin-top: -48px; /* To counteract the problematic random whitespace */
+  padding: 0; /* Should expermient with this vs. default; normal height 87px */
+  padding-top: 5px;
+}
+
+#main-content {
+  margin-top: 48px; /* NOTE: These will need to be adjusted to be equal to nav height */
+}
+
+.nav-user-profile {
+  max-width: 35px;
+}
+
+.dropdown-toggle::after {
+    margin-top: 15px;
+}
