@@ -12,15 +12,27 @@ label {
 
 .navbar {
   position: fixed;
-  min-height: 50.3833px;
+  height: 50.3833px;
   width: 100%;
-  margin-top: -48px; /* To counteract the problematic random whitespace */
+  top: 0;
   padding: 0; /* Should expermient with this vs. default; normal height 87px */
   padding-top: 5px;
+  background-color: #0b98de !important;
+  box-shadow: 0 1px 2px 0 #0b98de;
+}
+.navbar-collapse {
+  flex-grow: 0;
+}
+.navbar-nav {
+  margin-right: 0px;
+  margin-left: 0px;
+}
+.container {
+  max-width: inherit;
 }
 
 #main-content {
-  margin-top: 48px; /* NOTE: These will need to be adjusted to be equal to nav height */
+  margin-top: 50px; /* NOTE: This will need to be adjusted to be equal to nav height */
 }
 
 .nav-user-profile {

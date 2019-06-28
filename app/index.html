@@ -8,8 +8,7 @@
     <meta name="google-signin-client_id" content="243041825180-hf171dl59cjh4cksgko57no0jfcmgn0b.apps.googleusercontent.com">
 
     <link rel="stylesheet" type="text/css" href="public/css/index.css" />
-    <!--<link rel="stylesheet" type="text/css" href="https://unpkg.com/picnic" />
-    <link rel="stylesheet" type="text/css" href="public/css/nav.css" />-->
+    <link rel="stylesheet" type="text/css" href="public/css/nav.css" />
 
     <!-- For Auth0 -->
     <link rel="stylesheet" type="text/css" href="public/css/auth0-theme.css" /> <!-- TODO: Minify once everything else is handled -->
@@ -39,27 +38,22 @@
   <body>
     <div id="app">
       <div class="nav-container">
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <nav class="navbar navbar-expand-md navbar-light">
           <div class="container">
-            <div class="navbar-brand logo"></div>
-            <button
-              class="navbar-toggler"
-              type="button"
-              data-toggle="collapse"
-              data-target="#navbarNav"
-              aria-controls="navbarNav"
-              aria-expanded="false"
-              aria-label="Toggle navigation"
-            >
-              <span class="navbar-toggler-icon"></span>
-            </button>
+            <div id="mobile"> <!-- class="navbar-toggler" -->
+                <span class="menu-btn" style="font-size: 30px; cursor: pointer">
+                    <img id="logo" src="images/logo.png">
+                    <img id="xButton" src="images/x.png" class="hide">
+                </span>
+                <a id="brand" class="route-link" href="/">Coupon Booked</a> <!-- route-link required on navigation for app.js -->
+            </div>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav mr-auto">
+              <!--<ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                  <a href="/" class="nav-link route-link">Home</a>
+                  <a href="/" class="nav-link route-link">Home</a> 
                 </li>
-              </ul>
+              </ul>-->
               <ul class="navbar-nav d-none d-md-block">
                 <!-- Login button: show if NOT authenticated -->
                 <li class="nav-item auth-invisible">
