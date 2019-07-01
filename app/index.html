@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Coupon Booked</title>
+
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <meta name="google-signin-client_id" content="243041825180-hf171dl59cjh4cksgko57no0jfcmgn0b.apps.googleusercontent.com">
+
+    <link rel="stylesheet" type="text/css" href="public/css/index.css" />
+    <link rel="stylesheet" type="text/css" href="public/css/nav.css" />
+
+    <!-- For Auth0 -->
+    <link rel="stylesheet" type="text/css" href="public/css/auth0-theme.css" /> <!-- TODO: Minify once everything else is handled -->
+    <link rel="stylesheet" type="text/css" href="public/css/main.css" />
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/monokai-sublime.min.css"
+    />
+    <link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/solid.css"
+      integrity="sha384-r/k8YTFqmlOaqRkZuSiE9trsrDXkh07mRaoGBMoDcmA58OHILZPsk29i2BsFng1B"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/fontawesome.css"
+      integrity="sha384-4aon80D8rXCGx9ayDt85LbyUHeMWd3UiBaWliBlJ53yzm9hqN21A+o1pqoyK04h+"
+      crossorigin="anonymous"
+    />
+    <!-- /For Auth0 -->
+
+    <link rel="shortcut icon" href="images/favicon.png" />
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png" />
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="nav-container">
+        <nav class="navbar navbar-expand-md navbar-light">
+          <div class="container">
+            <div id="mobile">
+                <span class="menu-btn" style="font-size: 30px; cursor: pointer">
+                    <img id="logo" src="images/logo.png">
+                    <img id="xButton" src="images/x.png" class="hide">
+                </span>
+                <a id="brand" class="route-link" href="/">Coupon Booked</a> <!-- route-link required on navigation for app.js -->
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav d-none d-md-block">
+                <!-- Login button: show if NOT authenticated -->
+                <li class="nav-item auth-invisible">
+                    <!-- NOTE: This is not working at all on mobile; how to fix? -->
+                    <a onclick="login()" id="login" class="auth-invisible hidden" href="#">Log in</a>
+                </li>
+                <!-- / Login button -->
+
+                <!-- Fullsize dropdown: show if authenticated -->
+                <li class="nav-item dropdown auth-visible hidden">
+                  <a class="nav-link dropdown-toggle" href="#" id="profileDropDown" data-toggle="dropdown">
+                    <!-- Profile image should be set to the profile picture from the id token -->
+                    <img alt="Profile picture" class="nav-user-profile profile-image" />
+                  </a>
+                  <div class="dropdown-menu dropdown-menu-right">
+                    <!-- Show the user's full name from the id token here -->
+                    <div class="dropdown-header nav-user-name user-name"></div>
+                    <a href="/profile" class="dropdown-item dropdown-profile route-link">
+                      <span class="icon icon-profile"></span> Profile
+                    </a>
+                    <a href="#" class="dropdown-item" onclick="logout()">
+                      <span class="icon icon-power"></span> Log out
+                    </a>
+                  </div>
+                </li>
+                <!-- /Fullsize dropdown -->
+              </ul>
+
+              <!-- Responsive login button: show if NOT authenticated -->
+              <ul class="navbar-nav d-md-none auth-invisible">
+                <button class="btn btn-primary btn-block auth-invisible hidden" onclick="login()">
+                  Log in
+                </button>
+              </ul>
+              <!-- /Responsive login button -->
+
+              <!-- This part is for the smaller screen menu; how to remove entirely? -->
+              <!-- Responsive profile dropdown: show if authenticated -->
+              <ul class="navbar-nav d-md-none auth-visible hidden">
+                <li class="nav-item">
+                  <span class="user-info">
+                    <!-- Profile image should be set to the profile picture from the id token -->
+                    <img
+                      alt="Profile picture"
+                      class="nav-user-profile d-inline-block profile-image"
+                    />
+                    <!-- Show the user's full name from the id token here -->
+                    <h6 class="d-inline-block nav-user-name user-name"></h6>
+                  </span>
+                </li>
+                <li>
+                  <span class="icon icon-profile"></span>
+                  <a href="/profile" class="route-link">Profile</a>
+                </li>
+
+                <li>
+                  <span class="icon icon-power"></span>
+                  <a href="#" onclick="logout()">Log out</a>
+                </li>
+              </ul>
+              <!-- /Responsive profile dropdown -->
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div id="main-content">
+        <div id="content-home" class="page">
+          <section id="why">
+            <div id="title">
+              <h2>Why us?</h2>
+              <br />
+              <p>
+                Coupon Booked is an excellent choice for any occasion, whether
+                it be Mother's Day, Father's Day, a birthday, or an anniversary.
+                You should create a Book because it is a thoughtful way to show
+                someone how well you know them and how much you really care.
+              </p>
+            </div>
+          </section>
+
+          <section id="examples">
+            <h2>Examples</h2>
+
+            <div class="flex one four-300">
+              <img src="https://via.placeholder.com/300" />
+              <img src="https://via.placeholder.com/300" />
+              <img src="https://via.placeholder.com/300" />
+              <img src="https://via.placeholder.com/300" />
+            </div>
+          </section>
+
+          <section id="create">
+            <h2>Create Your Own</h2>
+            <button>Start here!</button>
+          </section>
+        </div>
+
+        <div class="page" id="content-profile">
+          <div class="container">
+            <div class="row align-items-center profile-header">
+              <div class="col-md-2">
+                <img
+                  alt="User's profile picture"
+                  class="rounded-circle img-fluid profile-image"
+                />
+              </div>
+              <div class="col-md">
+                <h2 class="user-name"></h2>
+                <p class="lead text-muted user-email"></p>
+              </div>
+            </div>
+
+            <div class="row">
+              <pre class="rounded">
+                <code id="profile-data" class="json"></code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IDEA: A footer would look real nice here; has good styling already -->
+
+    <!-- Auth0 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="public/js/auth0-theme.min.js"></script>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.0/auth0-spa-js.production.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+    <script src="public/js/ui.js"></script>
+    <script src="public/js/app.js"></script>
+    <!-- /Auth0 -->
+  </body>
+</html>

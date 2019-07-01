@@ -24,14 +24,14 @@ section {
 }
 
 /* Used for testing purposes and toggling whether an element is displayed */
-.hide {
+.hide, .hidden {
     display: none;
 }
 
 /* WHY */
 
 #why {
-    background-image: url("../images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
+    background-image: url("/images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -43,7 +43,6 @@ section {
     width: 400px;
     margin: 20px auto;
 }
-
 #title h2, #title p {
     background-color: black;
     color: #fff; 
@@ -59,7 +58,6 @@ section {
 #examples h2, #create h2 {
     text-align: center;
 }
-
 #examples img {
     width: 300px; /* These will obviously change with the actual images */
     height: 300px;

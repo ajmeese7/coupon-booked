@@ -1,0 +1,58 @@
+label {
+    margin-bottom: 10px;
+    display: block;
+}
+#main-content {
+    min-height: 550px;
+}
+
+.navbar {
+    position: fixed;
+    height: 50.3833px;
+    width: 100%;
+    top: 0;
+    padding: 0; /* Should expermient with this vs. default; normal height 87px */
+    padding-top: 5px;
+    background-color: #0b98de !important;
+    box-shadow: 0 1px 2px 0 #0b98de;
+}
+.navbar-collapse {
+    flex-grow: 0;
+}
+.navbar-nav {
+    margin-right: 0px;
+    margin-left: 0px;
+}
+#login {
+    font-family: sans-serif;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+}
+.nav-item {
+    margin-top: -4px;
+}
+.container {
+    max-width: inherit;
+}
+@media (max-width:576px) {
+  .container {
+    padding: 0px;
+  }
+  #logo {
+    margin-right: -3px;
+  }
+}
+#main-content {
+    margin-top: 50px; /* NOTE: This will need to be adjusted to be equal to nav height */
+}
+.nav-user-profile {
+    max-width: 35px;
+}
+.dropdown-toggle::after {
+    margin-top: 20px;
+}
+
+#content-profile {
+  padding-top: 15px;
+}
