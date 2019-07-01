@@ -13,18 +13,15 @@
     <!-- For Auth0 -->
     <link rel="stylesheet" type="text/css" href="public/css/auth0-theme.css" /> <!-- TODO: Minify once everything else is handled -->
     <link rel="stylesheet" type="text/css" href="public/css/main.css" />
-    <link
-      rel="stylesheet"
+    <link rel="stylesheet"
       href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/monokai-sublime.min.css"
     />
-    <link
-      rel="stylesheet"
+    <link rel="stylesheet"
       href="https://use.fontawesome.com/releases/v5.7.2/css/solid.css"
       integrity="sha384-r/k8YTFqmlOaqRkZuSiE9trsrDXkh07mRaoGBMoDcmA58OHILZPsk29i2BsFng1B"
       crossorigin="anonymous"
     />
-    <link
-      rel="stylesheet"
+    <link rel="stylesheet"
       href="https://use.fontawesome.com/releases/v5.7.2/css/fontawesome.css"
       integrity="sha384-4aon80D8rXCGx9ayDt85LbyUHeMWd3UiBaWliBlJ53yzm9hqN21A+o1pqoyK04h+"
       crossorigin="anonymous"
@@ -40,7 +37,7 @@
       <div class="nav-container">
         <nav class="navbar navbar-expand-md navbar-light">
           <div class="container">
-            <div id="mobile"> <!-- class="navbar-toggler" -->
+            <div id="mobile">
                 <span class="menu-btn" style="font-size: 30px; cursor: pointer">
                     <img id="logo" src="images/logo.png">
                     <img id="xButton" src="images/x.png" class="hide">
@@ -49,17 +46,11 @@
             </div>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-              <!--<ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                  <a href="/" class="nav-link route-link">Home</a> 
-                </li>
-              </ul>-->
               <ul class="navbar-nav d-none d-md-block">
                 <!-- Login button: show if NOT authenticated -->
                 <li class="nav-item auth-invisible">
-                  <button onclick="login()" class="btn btn-primary btn-margin auth-invisible hidden">
-                    Log in
-                  </button>
+                    <!-- NOTE: This is not working at all on mobile; how to fix? -->
+                    <a onclick="login()" id="login" class="auth-invisible hidden" href="#">Log in</a>
                 </li>
                 <!-- / Login button -->
 
@@ -121,7 +112,7 @@
         </nav>
       </div>
 
-      <div id="main-content" class="container<!--mt-5-->">
+      <div id="main-content">
         <div id="content-home" class="page">
           <section id="why">
             <div id="title">
@@ -177,19 +168,15 @@
       </div>
     </div>
 
-    <footer>
-      <div class="logo"></div>
-      <p>
-        Sample project provided by
-        <a href="https://auth0.com">Auth0</a>
-      </p>
-    </footer>
+    <!-- IDEA: A footer would look real nice here; has good styling already -->
 
+    <!-- Auth0 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="public/js/auth0-theme.min.js"></script>
     <script src="https://cdn.auth0.com/js/auth0-spa-js/1.0/auth0-spa-js.production.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
     <script src="public/js/ui.js"></script>
     <script src="public/js/app.js"></script>
+    <!-- /Auth0 -->
   </body>
 </html>
