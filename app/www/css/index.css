@@ -28,10 +28,15 @@ section {
     display: none;
 }
 
+/* NOTE: Could use class toggle with hide instead; pasted JS in index just in case */
+#deviceReady {
+    display: none;
+}
+
 /* WHY */
 
 #why {
-    background-image: url("/images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
+    background-image: url("../images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;

@@ -37,9 +37,22 @@ const logout = () => {
 };
 
 /**
- * Retrieves the auth configuration from the server
+ * Retrieves the auth configuration from the server.
+ * NOTE: Fetch API can't retrieve files, so trying this approach instead.
  */
-const fetchAuthConfig = () => fetch("/auth_config.json");
+const fetchAuthConfig = () =>
+  // fetch("../auth_config.json");
+  new Promise(function(resolve, reject) {
+    var xhr = new XMLHttpRequest;
+    xhr.onload = function() {
+      resolve(new Response(xhr.responseText, {status: xhr.status}))
+    }
+    xhr.onerror = function() {
+      reject(new TypeError('Local request failed'))
+    }
+    xhr.open('GET', "./auth_config.json");
+    xhr.send(null);
+  });
 
 /**
  * Initializes the Auth0 client

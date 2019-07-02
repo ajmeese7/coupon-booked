@@ -7,25 +7,32 @@
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
     <meta name="google-signin-client_id" content="243041825180-hf171dl59cjh4cksgko57no0jfcmgn0b.apps.googleusercontent.com">
 
-    <link rel="stylesheet" type="text/css" href="public/css/index.css" />
-    <link rel="stylesheet" type="text/css" href="public/css/nav.css" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <!-- This is a wide open CSP declaration. TODO: To lock this down for production, see below. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+    <!-- Good default declaration:
+    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+        * Enable inline JS: add 'unsafe-inline' to default-src
+        * Enable eval(): add 'unsafe-eval' to default-src
+    * Create your own at http://cspisawesome.com
+    -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com; style-src 'self' 'unsafe-inline'; media-src *" /> -->
 
-    <!-- For Auth0 -->
-    <link rel="stylesheet" type="text/css" href="public/css/auth0-theme.css" /> <!-- TODO: Minify once everything else is handled -->
-    <link rel="stylesheet" type="text/css" href="public/css/main.css" />
-    <link rel="stylesheet"
-      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/monokai-sublime.min.css"
-    />
-    <link rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.7.2/css/solid.css"
-      integrity="sha384-r/k8YTFqmlOaqRkZuSiE9trsrDXkh07mRaoGBMoDcmA58OHILZPsk29i2BsFng1B"
-      crossorigin="anonymous"
-    />
-    <link rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.7.2/css/fontawesome.css"
-      integrity="sha384-4aon80D8rXCGx9ayDt85LbyUHeMWd3UiBaWliBlJ53yzm9hqN21A+o1pqoyK04h+"
-      crossorigin="anonymous"
-    />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/cordova.css" />
+
+    <!-- For Auth0; TODO: Eventually determine what of this I actually need -->
+    <link rel="stylesheet" type="text/css" href="css/auth0-theme.css" /> <!-- TODO: Minify once everything else is handled -->
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet"href="css/monokai-sublime.min.css" />
+    <!-- For Fontawesome -->
+    <link rel="stylesheet" href="css/solid.css" />
+    <link rel="stylesheet" href="css/fontawesome.css" />
+    <!-- /For Fontawesome -->
     <!-- /For Auth0 -->
 
     <link rel="shortcut icon" href="images/favicon.png" />
@@ -33,12 +40,12 @@
   </head>
 
   <body>
-    <div id="app">
+    <div id="deviceready">
       <div class="nav-container">
         <nav class="navbar navbar-expand-md navbar-light">
           <div class="container">
             <div id="mobile">
-                <span class="menu-btn" style="font-size: 30px; cursor: pointer">
+                <span class="menu-btn">
                     <img id="logo" src="images/logo.png">
                     <img id="xButton" src="images/x.png" class="hide">
                 </span>
@@ -131,10 +138,11 @@
             <h2>Examples</h2>
 
             <div class="flex one four-300">
-              <img src="https://via.placeholder.com/300" />
-              <img src="https://via.placeholder.com/300" />
-              <img src="https://via.placeholder.com/300" />
-              <img src="https://via.placeholder.com/300" />
+              <!-- Placeholders until I can get legitimate content -->
+              <img src="images/300.png" />
+              <img src="images/300.png" />
+              <img src="images/300.png" />
+              <img src="images/300.png" />
             </div>
           </section>
 
@@ -171,12 +179,21 @@
     <!-- IDEA: A footer would look real nice here; has good styling already -->
 
     <!-- Auth0 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="public/js/auth0-theme.min.js"></script>
-    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.0/auth0-spa-js.production.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
-    <script src="public/js/ui.js"></script>
-    <script src="public/js/app.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/auth0-theme.min.js"></script>
+    <script src="js/auth0-spa-js.production.js"></script>
+    <script src="js/highlight.min.js"></script> <!-- TODO: Test if this is important at all -->
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
     <!-- /Auth0 -->
+
+    <!-- PhoneGap -->
+    <!-- The right version for the platform is injected at runtime by the Developer app or CLI-->
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script type="text/javascript">
+        app.initialize();
+    </script>
+    <!-- /PhoneGap -->
   </body>
 </html>

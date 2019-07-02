@@ -31,6 +31,10 @@
     color: white;
     font-size: 32px;
 }
+.menu-btn {
+    font-size: 30px;
+    cursor: pointer;
+}
 
 #mobile {
     margin-top: -6px;
