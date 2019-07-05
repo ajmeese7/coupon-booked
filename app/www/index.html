@@ -3,6 +3,8 @@
   <head>
     <title>Coupon Booked</title>
 
+    <!-- https://auth0.com/docs/quickstart/native/cordova/01-login;
+         used this to change from single page web app to native -->
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
     <meta name="google-signin-client_id" content="243041825180-hf171dl59cjh4cksgko57no0jfcmgn0b.apps.googleusercontent.com">
@@ -89,7 +91,7 @@
               </ul>
               <!-- /Responsive login button -->
 
-              <!-- This part is for the smaller screen menu; how to remove entirely? -->
+              <!-- This part is for the smaller screen menu; TODO: how to remove entirely? -->
               <!-- Responsive profile dropdown: show if authenticated -->
               <ul class="navbar-nav d-md-none auth-visible hidden">
                 <li class="nav-item">
@@ -178,7 +180,7 @@
 
     <!-- IDEA: A footer would look real nice here; has good styling already -->
 
-    <!-- Auth0 -->
+    <!-- Auth0; NOTE: https://stackoverflow.com/a/11494025 -->
     <script src="js/jquery.min.js"></script>
     <script src="js/auth0-theme.min.js"></script>
     <script src="js/auth0-spa-js.production.js"></script>

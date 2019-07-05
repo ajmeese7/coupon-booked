@@ -9,5 +9,13 @@
     </author>
     <content src="index.html" />
     <access origin="*" />
+    <preference name="AndroidLaunchMode" value="singleTask" />
+    <plugin name="cordova-plugin-safariviewcontroller" spec="^1.6.0" />
+    <plugin name="cordova-plugin-customurlscheme" spec="^4.4.0">
+        <variable name="URL_SCHEME" value="{com.couponbooked.app}" />
+        <variable name="ANDROID_SCHEME" value="{com.couponbooked.app}" />
+        <variable name="ANDROID_HOST" value="couponbooked.auth0.com" />
+        <variable name="ANDROID_PATHPREFIX" value="/cordova/{com.couponbooked.app}/callback" />
+    </plugin>
     <engine name="android" spec="~7.1.4" />
 </widget>

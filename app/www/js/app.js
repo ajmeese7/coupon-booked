@@ -39,6 +39,7 @@ const logout = () => {
 /**
  * Retrieves the auth configuration from the server.
  * NOTE: Fetch API can't retrieve files, so trying this approach instead.
+ * https://github.com/github/fetch/pull/92#issuecomment-174730593
  */
 const fetchAuthConfig = () =>
   // fetch("../auth_config.json");
