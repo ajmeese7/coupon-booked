@@ -1,66 +1,43 @@
 {
-  "name": "com.couponbooked.app",
-  "version": "1.0.0",
-  "displayName": "Coupon Booked",
-  "cordova": {
-    "platforms": [
-      "android"
-    ],
-    "plugins": {
-      "cordova-plugin-battery-status": {},
-      "cordova-plugin-camera": {},
-      "cordova-plugin-media-capture": {},
-      "cordova-plugin-console": {},
-      "cordova-plugin-contacts": {},
-      "cordova-plugin-device": {},
-      "cordova-plugin-device-motion": {},
-      "cordova-plugin-device-orientation": {},
-      "cordova-plugin-dialogs": {},
-      "cordova-plugin-file": {},
-      "cordova-plugin-file-transfer": {},
-      "cordova-plugin-geolocation": {},
-      "cordova-plugin-globalization": {},
-      "cordova-plugin-inappbrowser": {},
-      "cordova-plugin-media": {},
-      "cordova-plugin-network-information": {},
-      "cordova-plugin-splashscreen": {},
-      "cordova-plugin-statusbar": {},
-      "cordova-plugin-vibration": {},
-      "cordova-plugin-whitelist": {},
-      "cordova-plugin-safariviewcontroller": {},
-      "cordova-plugin-customurlscheme": {
-        "URL_SCHEME": "{com.couponbooked.app}",
-        "ANDROID_SCHEME": "{com.couponbooked.app}",
-        "ANDROID_HOST": "couponbooked.auth0.com",
-        "ANDROID_PATHPREFIX": "/cordova/{com.couponbooked.app}/callback"
-      }
+    "name": "com.couponbooked.app",
+    "version": "1.0.0",
+    "displayName": "Coupon Booked",
+    "description": "Gift virtual coupon books to loved ones",
+    "scripts": {
+        "build": "webpack -p --config webpack.config.js",
+        "watch": "webpack --watch --config webpack.config.js",
+        "prepare": "cordova prepare android",
+        "android": "cordova run android"
+    },
+    "author": "ajmeese7",
+    "dependencies": {
+        "@auth0/cordova": "^0.2.0",
+        "auth0-js": "~>9.3.0",
+        "cordova-android": "^7.1.1",
+        "cordova-plugin-customurlscheme": "~4.2.0",
+        "cordova-plugin-inappbrowser": "~1.7.1",
+        "cordova-plugin-safariviewcontroller": "~1.4.7",
+        "cordova-plugin-whitelist": "~1.3.2"
+    },
+    "devDependencies": {
+        "cordova": "^8.1.2",
+        "expose-loader": "^0.7.3",
+        "webpack": "^3.5.2"
+    },
+    "cordova": {
+        "platforms": [
+            "android"
+        ],
+        "plugins": {
+            "cordova-plugin-customurlscheme": {
+                "URL_SCHEME": "com.couponbooked.app",
+                "ANDROID_SCHEME": "com.couponbooked.app",
+                "ANDROID_HOST": "couponbooked.auth0.com",
+                "ANDROID_PATHPREFIX": "/cordova/com.couponbooked.app/callback"
+            },
+            "cordova-plugin-whitelist": {},
+            "cordova-plugin-safariviewcontroller": {},
+            "cordova-plugin-inappbrowser": {}
+        }
     }
-  },
-  "dependencies": {
-    "@auth0/cordova": "^0.3.0",
-    "auth0-js": "^9.11.1",
-    "cordova-android": "~7.1.4",
-    "cordova-plugin-battery-status": "~1.1.1",
-    "cordova-plugin-camera": "~2.1.1",
-    "cordova-plugin-console": "~1.0.2",
-    "cordova-plugin-contacts": "~2.0.1",
-    "cordova-plugin-customurlscheme": "^4.4.0",
-    "cordova-plugin-device": "~1.1.1",
-    "cordova-plugin-device-motion": "~1.2.0",
-    "cordova-plugin-device-orientation": "~1.0.2",
-    "cordova-plugin-dialogs": "~1.2.0",
-    "cordova-plugin-file": "~4.1.1",
-    "cordova-plugin-file-transfer": "~1.5.0",
-    "cordova-plugin-geolocation": "~2.1.0",
-    "cordova-plugin-globalization": "~1.0.3",
-    "cordova-plugin-inappbrowser": "~1.3.0",
-    "cordova-plugin-media": "~2.2.0",
-    "cordova-plugin-media-capture": "~1.2.0",
-    "cordova-plugin-network-information": "~1.2.0",
-    "cordova-plugin-safariviewcontroller": "^1.6.0",
-    "cordova-plugin-splashscreen": "~3.2.1",
-    "cordova-plugin-statusbar": "~2.1.2",
-    "cordova-plugin-vibration": "~2.1.0",
-    "cordova-plugin-whitelist": "~1.2.1"
-  }
 }
