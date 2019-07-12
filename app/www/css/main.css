@@ -8,7 +8,7 @@ label {
 
 .navbar {
     position: fixed;
-    height: 50.3833px;
+    height: 56.3833px;
     width: 100%;
     top: 0;
     padding: 0; /* Should expermient with this vs. default; normal height 87px */
@@ -28,10 +28,13 @@ label {
     color: white;
     text-decoration: none;
     font-size: 14px;
+    margin-right: 16px;
 }
+/* Doesn't look good on phone. TODO: Test tablets and diff screen sizes
 .nav-item {
     margin-top: -4px;
 }
+*/
 .container {
     max-width: inherit;
 }
@@ -42,6 +45,11 @@ label {
   #logo {
     margin-right: -3px;
   }
+}
+@media (max-width: 767px) {
+    .nav-item {
+        margin-bottom: 1.6rem /* Changed; */;
+    }
 }
 #main-content {
     margin-top: 50px; /* NOTE: This will need to be adjusted to be equal to nav height */

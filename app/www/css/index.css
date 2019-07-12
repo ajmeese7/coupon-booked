@@ -11,6 +11,7 @@ body {
     padding: 0px;
     width: 100%;
     overflow-x: hidden;
+    text-transform: none !important; /* Should I let this be uppercase like Cordova does? */
 }
 
 a {
@@ -28,10 +29,15 @@ section {
     display: none;
 }
 
+/* NOTE: Could use class toggle with hide instead; commit eec9c44241e78171254e6c677ddbc0338104c0f2 */
+#deviceReady {
+    display: none;
+}
+
 /* WHY */
 
 #why {
-    background-image: url("/images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
+    background-image: url("../images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -48,7 +54,7 @@ section {
     color: #fff; 
     display: inline;
     padding: 0.5rem;
-    
+    line-height: 2.1; /* Not set on this yet; WIP */
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
 }
