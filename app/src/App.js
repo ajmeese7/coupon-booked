@@ -71,9 +71,13 @@ App.prototype.state = {
           });
 
           // Logout button on dropdown
-          // TODO: Figure out if this needs a `all` or something after dropdown works
           var logoutButton = page.querySelector('.logout');
           logoutButton.addEventListener('click', this.logout);
+
+          // Profile button on dropdown
+          var profileButton = page.querySelector('.profile');
+          var _this = this; // https://stackoverflow.com/a/1338622
+          profileButton.addEventListener('click', function() { _this.redirectTo('/profile') });
 
           // Profile picture dropdown
           $(".account").click(function() {

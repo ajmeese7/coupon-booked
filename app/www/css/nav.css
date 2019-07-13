@@ -38,18 +38,8 @@
 
 #mobile {
     margin-top: -6px;
-    margin-left: 8px;
+    margin-left: 15px;
     display: inline-block;
-}
-
-#sign-in {
-    float: right;
-    font-size: 13px;
-    padding: 20px 10px;
-    margin-top: -8px;
-}
-#sign-in:hover {
-    background-color: #17b0cf;
 }
 
 #logo {

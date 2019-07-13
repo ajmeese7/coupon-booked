@@ -27,10 +27,7 @@
     <link rel="stylesheet" type="text/css" href="css/solid.css" />
     <link rel="stylesheet" href="css/fontawesome.css" />
 
-
     <!-- TODO: Implement https://pointdeveloper.com/add-app-icon-phonegap-build-apps/ in the future -->
-    <link href="https://cdn.auth0.com/styleguide/4.8.33/index.min.css" rel="stylesheet" />
-    <link rel="stylesheet" type="text/css" href="css/app.css" />
     <title>Coupon Booked</title>
 </head>
 
@@ -50,6 +47,9 @@
     </template>
 
     <template id="login">
+        <link rel="stylesheet" type="text/css" href="css/auth0.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/app.css" />
+
         <div class="page">
             <div class="flex col full-page">
                 <div class="expand-to-fill flex abs-centered">
@@ -81,68 +81,35 @@
                                 <img id="logo" src="images/logo.png">
                                 <img id="xButton" src="images/x.png" class="hide">
                             </span>
-                            <a id="brand" href="/home">Coupon Booked</a>
+                            <a id="brand" href="#">Coupon Booked</a>
                         </div>
             
                         <div class="collapse navbar-collapse" id="navbarNav">
                             <ul class="navbar-nav d-none d-md-block">
                                 <!-- Fullsize dropdown: show if authenticated -->
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle account" href="#" id="profileDropDown" data-toggle="dropdown">
+                                    <a class="nav-link dropdown-toggle account" id="profileDropDown" data-toggle="dropdown">
                                         <!-- Profile image should be set to the profile picture from the id token;
                                             src is the default image until the user's profile pic loads in -->
                                         <img alt="Profile picture" src="images/default.png" class="nav-user-profile profile-image" />
                                         <!-- TODO: Find a way to cache previous image -->
                                     </a>
-                                    <!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
-                                    <div class="dropdown-menu dropdown-menu-right">
-                                        <!-- Show the user's full name from the id token here -->
-                                        <div class="dropdown-header nav-user-name user-name"></div>
-                                        <a href="/profile" class="dropdown-item dropdown-profile">
-                                            <span class="icon icon-profile"></span> Profile
-                                        </a>
-                                        <a href="#" class="dropdown-item logout">
-                                            <span class="icon icon-power"></span> Log out
-                                        </a>
-                                    </div>
                                 </li>
-                                <!-- /Fullsize dropdown -->
                             </ul>
-            
-                            <!-- This part is for the smaller screen menu; TODO: how to remove entirely? -->
-                            <!-- Responsive profile dropdown: show if authenticated -->
-                            <ul class="navbar-nav d-md-none">
-                                <li class="nav-item">
-                                    <span class="user-info">
-                                        <!-- Profile image should be set to the profile picture from the id token -->
-                                        <img alt="Profile picture" class="nav-user-profile d-inline-block profile-image" />
-                                        <!-- Show the user's full name from the id token here -->
-                                        <h6 class="d-inline-block nav-user-name user-name"></h6>
-                                    </span>
-                                </li>
-                                <li>
-                                    <span class="icon icon-profile"></span>
-                                    <a href="/profile">Profile</a>
-                                </li>
-                                <li>
-                                    <span class="icon icon-power"></span>
-                                    <a class="logout" href="#">Log out</a>
-                                </li>
-                            </ul> <!-- Responsive profile dropdown -->
                         </div> <!-- navbar-collapse -->
                     </div> <!-- container -->
                 </nav> <!-- navbar -->
             </div> <!-- nav-container -->
 
-            <!-- EXPERIMENTAL dropdown design -->
+            <!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
             <div class="dropdown">
+                <!-- TODO: Change this and menu to fixed position so it scrolls with screen -->
                 <div class="submenu" style="display: none;">
                     <ul class="root">
                         <!-- NOTE: href required to have mouse change to clicker on hover -->
                         <li><a href="#">Dashboard</a></li>
-                        <li><a href="profile.php">Profile</a></li>
-                        <li><a href="#">Settings</a></li>
-                        <li><a href="#" id="sign-out">Sign Out</a></li>
+                        <li><a class="profile" href="#profile"><!--<span class="icon icon-profile"></span> -->Profile</a></li>
+                        <li><a class="logout" id="sign-out"><!--<span class="icon icon-power"></span> -->Log out</a></li>
                     </ul>
                 </div>
             </div>
@@ -186,6 +153,8 @@
     </template>
 
     <template id="profile">
+        <link rel="stylesheet" type="text/css" href="css/app.css" />
+
         <div class="page">
             <div>
                 <h1>Coupon Booked</h1>

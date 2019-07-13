@@ -15,6 +15,6 @@ const config = {
     filename: 'index.js'
   },
 
-  devtool: 'source-map',
+  devtool: 'source-map'
 }
 module.exports = config;
