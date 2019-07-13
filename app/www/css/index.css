@@ -47,7 +47,7 @@ section {
     line-height: 2.0; 
     padding: 120px 50px 50px 50px;
     width: 400px;
-    margin: 20px auto;
+    /*margin: 20px auto;*/
 }
 #title h2, #title p {
     background-color: black;

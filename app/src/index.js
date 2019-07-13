@@ -1,7 +1,7 @@
 var Auth0Cordova =  require('@auth0/cordova');
 var App = require('./App');
 
-// Should this be replaced with jQuery or something?
+// Should this be replaced like the example suggested?
 function main() {
     var app = new App();
     function intentHandler(url) {

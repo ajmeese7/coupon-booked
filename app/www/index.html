@@ -16,16 +16,28 @@
     -->
     <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com; default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com; style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
 
+    <!-- https://auth0.com/docs/quickstart/native/cordova/01-login;
+        used this to change from single page web app to native -->                
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <link rel="stylesheet" type="text/css" href="css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="css/auth0-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+    <link rel="stylesheet" type="text/css" href="css/monokai-sublime.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+    <link rel="stylesheet" type="text/css" href="css/solid.css" />
+    <link rel="stylesheet" href="css/fontawesome.css" />
+
+
+    <!-- TODO: Implement https://pointdeveloper.com/add-app-icon-phonegap-build-apps/ in the future -->
     <link href="https://cdn.auth0.com/styleguide/4.8.33/index.min.css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="css/app.css" />
     <title>Coupon Booked</title>
 </head>
 
 <body>
-    <!-- HTML is my templating engine -->
-    <!-- and CSS is my router -->
-    <div class="app" id="app">
-    </div>
+    <!-- HTML is my templating engine and CSS is my router -->
+    <div class="app" id="app"></div>
+
     <template id="loading">
         <div class="page">
             <div class="flex col abs-centered full-page">
@@ -36,6 +48,7 @@
             </div>
         </div>
     </template>
+
     <template id="login">
         <div class="page">
             <div class="flex col full-page">
@@ -57,6 +70,121 @@
             </div>
         </div>
     </template>
+
+    <template id="home">
+        <div class="page">
+            <div class="nav-container">
+                <nav class="navbar navbar-expand-md navbar-light">
+                    <div class="container">
+                        <div id="mobile">
+                            <span class="menu-btn">
+                                <img id="logo" src="images/logo.png">
+                                <img id="xButton" src="images/x.png" class="hide">
+                            </span>
+                            <a id="brand" href="/home">Coupon Booked</a>
+                        </div>
+            
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav d-none d-md-block">
+                                <!-- Fullsize dropdown: show if authenticated -->
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle account" href="#" id="profileDropDown" data-toggle="dropdown">
+                                        <!-- Profile image should be set to the profile picture from the id token;
+                                            src is the default image until the user's profile pic loads in -->
+                                        <img alt="Profile picture" src="images/default.png" class="nav-user-profile profile-image" />
+                                        <!-- TODO: Find a way to cache previous image -->
+                                    </a>
+                                    <!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
+                                    <div class="dropdown-menu dropdown-menu-right">
+                                        <!-- Show the user's full name from the id token here -->
+                                        <div class="dropdown-header nav-user-name user-name"></div>
+                                        <a href="/profile" class="dropdown-item dropdown-profile">
+                                            <span class="icon icon-profile"></span> Profile
+                                        </a>
+                                        <a href="#" class="dropdown-item logout">
+                                            <span class="icon icon-power"></span> Log out
+                                        </a>
+                                    </div>
+                                </li>
+                                <!-- /Fullsize dropdown -->
+                            </ul>
+            
+                            <!-- This part is for the smaller screen menu; TODO: how to remove entirely? -->
+                            <!-- Responsive profile dropdown: show if authenticated -->
+                            <ul class="navbar-nav d-md-none">
+                                <li class="nav-item">
+                                    <span class="user-info">
+                                        <!-- Profile image should be set to the profile picture from the id token -->
+                                        <img alt="Profile picture" class="nav-user-profile d-inline-block profile-image" />
+                                        <!-- Show the user's full name from the id token here -->
+                                        <h6 class="d-inline-block nav-user-name user-name"></h6>
+                                    </span>
+                                </li>
+                                <li>
+                                    <span class="icon icon-profile"></span>
+                                    <a href="/profile">Profile</a>
+                                </li>
+                                <li>
+                                    <span class="icon icon-power"></span>
+                                    <a class="logout" href="#">Log out</a>
+                                </li>
+                            </ul> <!-- Responsive profile dropdown -->
+                        </div> <!-- navbar-collapse -->
+                    </div> <!-- container -->
+                </nav> <!-- navbar -->
+            </div> <!-- nav-container -->
+
+            <!-- EXPERIMENTAL dropdown design -->
+            <div class="dropdown">
+                <div class="submenu" style="display: none;">
+                    <ul class="root">
+                        <!-- NOTE: href required to have mouse change to clicker on hover -->
+                        <li><a href="#">Dashboard</a></li>
+                        <li><a href="profile.php">Profile</a></li>
+                        <li><a href="#">Settings</a></li>
+                        <li><a href="#" id="sign-out">Sign Out</a></li>
+                    </ul>
+                </div>
+            </div>
+    
+            <div id="main-content">
+                <div id="content-home" class="page">
+                    <section id="why">
+                        <div id="title">
+                            <h2>Why us?</h2>
+                            <br />
+                            <p>
+                            Coupon Booked is an excellent choice for any occasion, whether
+                            it be Mother's Day, Father's Day, a birthday, or an anniversary.
+                            You should create a Book because it is a thoughtful way to show
+                            someone how well you know them and how much you really care.
+                            </p>
+                        </div>
+                    </section>
+        
+                    <section id="examples">
+                        <h2>Examples</h2>
+            
+                        <div class="one four-300">
+                            <!-- Placeholders until I can get legitimate content -->
+                            <img src="images/300.png" />
+                            <img src="images/300.png" />
+                            <img src="images/300.png" />
+                            <img src="images/300.png" />
+                        </div>
+                    </section>
+        
+                    <section id="create">
+                        <h2>Create Your Own</h2>
+                        <button>Start here!</button>
+                    </section>
+                </div>
+            </div>
+        </div>
+        
+        <!-- IDEA: A footer would look real nice here; has good styling already -->
+    </template>
+
     <template id="profile">
         <div class="page">
             <div>
@@ -76,8 +204,10 @@
             </div>
         </div>
     </template>
+
     <script src="cordova.js"></script>
     <script src="./index.js"></script>
+    <script src="js/jquery.min.js"></script>
 </body>
 
 </html>

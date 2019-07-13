@@ -1,3 +1,5 @@
+// NOTE: THIS FILE DOES NOT REDEPLOY ON `npm run android`
+// This goes to webpack, which you have to rebuid to test any changes.
 var env = require('../env');
 var Auth0 = require('auth0-js');
 var Auth0Cordova = require('@auth0/cordova');
@@ -52,8 +54,55 @@ App.prototype.state = {
       }
     },
     '/home': {
+      id: 'home',
+      onMount: function(page) {
+          if (this.state.authenticated === false) {
+            // With this I can remove the login button for nav
+            return this.redirectTo('/login');
+          }
+
+          // Profile picture for nav bar
+          var avatar = page.querySelector('.profile-image');
+          this.loadProfile(function(err, profile) {
+            if (err) {
+              console.error('Error ' + err.message);
+            }
+            avatar.src = profile.picture;
+          });
+
+          // Logout button on dropdown
+          // TODO: Figure out if this needs a `all` or something after dropdown works
+          var logoutButton = page.querySelector('.logout');
+          logoutButton.addEventListener('click', this.logout);
+
+          // Profile picture dropdown
+          $(".account").click(function() {
+              // TODO: Something with toggle here?
+              if ($(this).attr('id') == 1) {
+                  $(".submenu").hide();
+                  $(this).attr('id', '0');
+              } else {
+                  $(".submenu").show();
+                  $(this).attr('id', '1');
+              }
+          });
+          $(".submenu").mouseup(function() {
+              return false
+          });
+          $(".account").mouseup(function() {
+              return false
+          });
+          // IDEA: Switch to mousedown for scrolling to close it? Document only.
+          $(document).add("#sign-out").mouseup(function() {
+              $(".submenu").hide();
+              $(".account").attr('id', '');
+          });
+      }
+    },
+    '/profile': {
       id: 'profile',
       onMount: function(page) {
+        console.log("Profile called!");
         if (this.state.authenticated === false) {
           return this.redirectTo('/login');
         }

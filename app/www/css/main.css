@@ -13,6 +13,7 @@ label {
     top: 0;
     padding: 0; /* Should expermient with this vs. default; normal height 87px */
     padding-top: 5px;
+    margin-bottom: 0px !important;
     background-color: #0b98de !important;
     box-shadow: 0 1px 2px 0 #0b98de;
 }
@@ -37,30 +38,33 @@ label {
 */
 .container {
     max-width: inherit;
+    padding-left: 5px;
+}
+.container>.navbar-collapse {
+    margin-left: 0px;
 }
 @media (max-width:576px) {
-  .container {
-    padding: 0px;
-  }
-  #logo {
-    margin-right: -3px;
-  }
+    .container {
+        padding: 0px;
+    }
+    #logo {
+        margin-right: -3px;
+    }
 }
 @media (max-width: 767px) {
     .nav-item {
         margin-bottom: 1.6rem /* Changed; */;
     }
-}
-#main-content {
-    margin-top: 50px; /* NOTE: This will need to be adjusted to be equal to nav height */
+    .navbar-nav:first-child {
+        margin-top: .75em;
+    }
+    .nav-item .nav-link {
+        padding: 0px;
+    }
 }
 .nav-user-profile {
     max-width: 35px;
 }
 .dropdown-toggle::after {
     margin-top: 20px;
-}
-
-#content-profile {
-  padding-top: 15px;
 }
