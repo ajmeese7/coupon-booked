@@ -81,25 +81,17 @@ App.prototype.state = {
 
           // Profile picture dropdown
           $(".account").click(function() {
-              // TODO: Something with toggle here?
-              if ($(this).attr('id') == 1) {
-                  $(".submenu").hide();
-                  $(this).attr('id', '0');
-              } else {
-                  $(".submenu").show();
-                  $(this).attr('id', '1');
+              // TODO: See if it is possible to have the shadow visible before the entire element is unrolled
+              if (!$('.submenu').is(':visible')) {
+                $(".submenu").slideDown();
               }
           });
-          $(".submenu").mouseup(function() {
+          $(".root li").mouseup(function() {
               return false
           });
-          $(".account").mouseup(function() {
-              return false
-          });
-          // IDEA: Switch to mousedown for scrolling to close it? Document only.
-          $(document).add("#sign-out").mouseup(function() {
-              $(".submenu").hide();
-              $(".account").attr('id', '');
+          $(document).mouseup(function() {
+              // TODO: Find a way for scrolling to close it
+              $(".submenu").slideUp();
           });
       }
     },
