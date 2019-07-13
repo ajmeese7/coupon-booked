@@ -20,6 +20,13 @@ label {
 .navbar-collapse {
     flex-grow: 0;
 }
+.navbar>.container,
+.navbar>.container-fluid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
 .navbar-nav {
     margin-right: 0px;
     margin-left: 0px;

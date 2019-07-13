@@ -106,7 +106,6 @@ App.prototype.state = {
     '/profile': {
       id: 'profile',
       onMount: function(page) {
-        console.log("Profile called!");
         if (this.state.authenticated === false) {
           return this.redirectTo('/login');
         }
