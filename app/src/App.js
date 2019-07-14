@@ -29,6 +29,7 @@ function App() {
   this.logout = this.logout.bind(this);
 }
 
+var nav, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -37,6 +38,8 @@ App.prototype.state = {
     '/': {
       id: 'loading',
       onMount: function(page) {
+        nav = page.querySelector("#nav");
+
         if (this.state.authenticated === true) {
           return this.redirectTo('/home');
         }
@@ -61,38 +64,8 @@ App.prototype.state = {
             return this.redirectTo('/login');
           }
 
-          // Profile picture for nav bar
-          var avatar = page.querySelector('.profile-image');
-          this.loadProfile(function(err, profile) {
-            if (err) {
-              console.error('Error ' + err.message);
-            }
-            avatar.src = profile.picture;
-          });
-
-          // Logout button on dropdown
-          var logoutButton = page.querySelector('.logout');
-          logoutButton.addEventListener('click', this.logout);
-
-          // Profile button on dropdown
-          var profileButton = page.querySelector('.profile');
-          var _this = this; // https://stackoverflow.com/a/1338622
-          profileButton.addEventListener('click', function() { _this.redirectTo('/profile') });
-
-          // Profile picture dropdown
-          $(".account").click(function() {
-              // TODO: See if it is possible to have the shadow visible before the entire element is unrolled
-              if (!$('.submenu').is(':visible')) {
-                $(".submenu").slideDown();
-              }
-          });
-          $(".root li").mouseup(function() {
-              return false
-          });
-          $(document).mouseup(function() {
-              // TODO: Find a way for scrolling to close it
-              $(".submenu").slideUp();
-          });
+          _this = this;
+          navBar(page, _this);
       }
     },
     '/profile': {
@@ -101,6 +74,10 @@ App.prototype.state = {
         if (this.state.authenticated === false) {
           return this.redirectTo('/login');
         }
+
+        _this = this;
+        navBar(page, _this);
+
         var logoutButton = page.querySelector('.btn-logout');
         var avatar = page.querySelector('#avatar');
         var profileCodeContainer = page.querySelector('.profile-json');
@@ -116,6 +93,41 @@ App.prototype.state = {
     }
   }
 };
+
+function navBar(page, _this) {
+  // Profile picture for nav bar
+  var avatar = page.querySelector('.profile-image');
+  _this.loadProfile(function(err, profile) {
+    if (err) {
+      console.error('Error ' + err.message);
+    }
+    avatar.src = profile.picture;
+  });
+
+  // Logout button on dropdown
+  var logoutButton = page.querySelector('.logout');
+  logoutButton.addEventListener('click', _this.logout);
+
+  // Profile button on dropdown
+  var profileButton = page.querySelector('.profile');
+  profileButton.addEventListener('click', function() { _this.redirectTo('/profile') });
+
+  // Profile picture dropdown
+  $(".account").click(function() {
+      // TODO: See if it is possible to have the shadow visible before the entire element is unrolled
+      // IDEA: Container element?
+      if (!$('.submenu').is(':visible')) {
+        $(".submenu").slideDown();
+      }
+  });
+  $(".root li").mouseup(function() {
+      return false
+  });
+  $(document).mouseup(function() {
+      // TODO: Find a way for scrolling to close it
+      $(".submenu").slideUp();
+  });
+}
 
 App.prototype.run = function(id) {
   this.container = getBySelector(id);
@@ -180,8 +192,15 @@ App.prototype.resumeApp = function() {
 App.prototype.render = function() {
   var currRoute = this.state.routes[this.state.currentRoute];
   var currRouteEl = getById(currRoute.id);
+  var currRouteId = currRouteEl.id;
   var element = document.importNode(currRouteEl.content, true);
   this.container.innerHTML = '';
+
+  // Apply nav
+  if (currRouteId == "home" || currRouteId == "profile") {
+    this.container.appendChild(nav);
+  }
+
   this.container.appendChild(element);
   currRoute.onMount.call(this, this.container);
 };

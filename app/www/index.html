@@ -36,6 +36,52 @@
     <div class="app" id="app"></div>
 
     <template id="loading">
+        <!-- NOTE: This is just here to be saved for other routes; not actually displayed -->
+        <div id="nav">
+            <div class="nav-container">
+                <nav class="navbar navbar-expand-md navbar-light">
+                    <div class="container">
+                        <!-- TODO: Route clicks to home page -->
+                        <div id="mobile">
+                            <span class="menu-btn">
+                                <img id="logo" src="images/logo.png">
+                            </span>
+                            <a id="brand" href="#">Coupon Booked</a>
+                        </div>
+        
+                        <div class="collapse navbar-collapse" id="navbarNav">
+                            <ul class="navbar-nav">
+                                <!-- Fullsize dropdown: show if authenticated -->
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle account" data-toggle="dropdown">
+                                        <!-- Profile image should be set to the profile picture from the id token;
+                                            src is the default image until the user's profile pic loads in -->
+                                        <img alt="Profile picture" src="images/default.png" class="nav-user-profile profile-image" />
+                                        <!-- TODO: Find a way to cache previous image -->
+                                    </a>
+                                </li>
+                            </ul>
+                        </div> <!-- navbar-collapse -->
+                    </div> <!-- container -->
+                </nav> <!-- navbar -->
+            </div> <!-- nav-container -->
+        
+            <!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
+            <div class="dropdown">
+                <div class="submenu" style="display: none;">
+                    <ul class="root">
+                        <!-- NOTE: href required to have mouse change to clicker on hover -->
+                        <li><a href="#">Dashboard</a></li>
+                        <li><a href="#" class="profile"><!--<span class="icon icon-profile"></span> -->Profile</a></li>
+                        <li><a href="#" class="logout" id="sign-out"><!--<span class="icon icon-power"></span> -->Log out</a></li>
+                    </ul>
+                </div>
+            </div> <!-- dropdown -->
+        </div>
+
+        <style> #nav { display: none; } </style>
+
+        <!-- TODO: Eventually test this and experiment with removal / splashscreen animation replacement with Cordova plugin -->
         <div class="page">
             <div class="flex col abs-centered full-page">
                 <div class="spinner spinner-lg is-auth0">
@@ -72,47 +118,8 @@
     </template>
 
     <template id="home">
+        <!-- NOTE: Are the page divs still necessary? -->
         <div class="page">
-            <div class="nav-container">
-                <nav class="navbar navbar-expand-md navbar-light">
-                    <div class="container">
-                        <div id="mobile">
-                            <span class="menu-btn">
-                                <img id="logo" src="images/logo.png">
-                            </span>
-                            <a id="brand" href="#">Coupon Booked</a>
-                        </div>
-            
-                        <div class="collapse navbar-collapse" id="navbarNav">
-                            <ul class="navbar-nav d-none d-md-block">
-                                <!-- Fullsize dropdown: show if authenticated -->
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle account" data-toggle="dropdown">
-                                        <!-- Profile image should be set to the profile picture from the id token;
-                                            src is the default image until the user's profile pic loads in -->
-                                        <img alt="Profile picture" src="images/default.png" class="nav-user-profile profile-image" />
-                                        <!-- TODO: Find a way to cache previous image -->
-                                    </a>
-                                </li>
-                            </ul>
-                        </div> <!-- navbar-collapse -->
-                    </div> <!-- container -->
-                </nav> <!-- navbar -->
-            </div> <!-- nav-container -->
-
-            <!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
-            <div class="dropdown">
-                <!-- TODO: Change this and menu to fixed position so it scrolls with screen -->
-                <div class="submenu" style="display: none;">
-                    <ul class="root">
-                        <!-- NOTE: href required to have mouse change to clicker on hover -->
-                        <li><a href="#">Dashboard</a></li>
-                        <li><a class="profile" href="#profile"><!--<span class="icon icon-profile"></span> -->Profile</a></li>
-                        <li><a class="logout" id="sign-out"><!--<span class="icon icon-power"></span> -->Log out</a></li>
-                    </ul>
-                </div>
-            </div>
-    
             <div id="main-content">
                 <div id="content-home" class="page">
                     <section id="why">
@@ -120,10 +127,10 @@
                             <h2>Why us?</h2>
                             <br />
                             <p>
-                            Coupon Booked is an excellent choice for any occasion, whether
-                            it be Mother's Day, Father's Day, a birthday, or an anniversary.
-                            You should create a Book because it is a thoughtful way to show
-                            someone how well you know them and how much you really care.
+                                Coupon Booked is an excellent choice for any occasion, whether
+                                it be Mother's Day, Father's Day, a birthday, or an anniversary.
+                                You should create a Book because it is a thoughtful way to show
+                                someone how well you know them and how much you really care.
                             </p>
                         </div>
                     </section>
@@ -146,19 +153,17 @@
                     </section>
                 </div>
             </div>
+
+            <!-- IDEA: A footer would look real nice here; has good styling already -->
         </div>
-        
-        <!-- IDEA: A footer would look real nice here; has good styling already -->
     </template>
 
     <template id="profile">
         <link rel="stylesheet" type="text/css" href="css/app.css" />
 
-        <div class="page">
-            <div>
-                <h1>Coupon Booked</h1>
-                <h2>Profile</h2>
-            </div>
+        <div class="page" style="margin-top: 50px;">
+            <!-- TODO: Prevent profile from scrolling over nav bar -->
+            <h2>Profile</h2>
             <br />
             <img id="avatar" />
             <code class="profile-json code-picker">loading...</code>
