@@ -65,18 +65,19 @@ App.prototype.state = {
           }
 
           _this = this;
-          navBar(page, _this);
+          navBar(_this);
       }
     },
     '/profile': {
       id: 'profile',
       onMount: function(page) {
+        // TODO: Fix this not being able to retrieve profile a second time
         if (this.state.authenticated === false) {
           return this.redirectTo('/login');
         }
 
         _this = this;
-        navBar(page, _this);
+        navBar(_this);
 
         var logoutButton = page.querySelector('.btn-logout');
         var avatar = page.querySelector('#avatar');
@@ -94,10 +95,13 @@ App.prototype.state = {
   }
 };
 
-// IDEA: Might be possible to remove page arg using functions at top of file
-function navBar(page, _this) {
+function navBar(_this) {
+  // Route to home on title or logo click
+  //var mobile = page.querySelector("#mobile");
+  //mobile.addEventListener('click', function() { _this.redirectTo('/home') });
+
   // Profile picture for nav bar
-  var avatar = page.querySelector('.profile-image');
+  var avatar = getBySelector('.profile-image');
   _this.loadProfile(function(err, profile) {
     if (err) {
       console.error('Error ' + err.message);
@@ -106,11 +110,11 @@ function navBar(page, _this) {
   });
 
   // Logout button on dropdown
-  var logoutButton = page.querySelector('.logout');
+  var logoutButton = getBySelector('.logout');
   logoutButton.addEventListener('click', _this.logout);
 
   // Profile button on dropdown
-  var profileButton = page.querySelector('.profile');
+  var profileButton = getBySelector('.profile');
   profileButton.addEventListener('click', function() { _this.redirectTo('/profile') });
 
   // Profile picture dropdown
