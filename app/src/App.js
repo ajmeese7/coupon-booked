@@ -3,6 +3,7 @@
 var env = require('../env');
 var Auth0 = require('auth0-js');
 var Auth0Cordova = require('@auth0/cordova');
+var profile;
 
 function getAllBySelector(arg) {
   return document.querySelectorAll(arg);
@@ -38,12 +39,13 @@ App.prototype.state = {
     '/': {
       id: 'loading',
       onMount: function(page) {
-        nav = page.querySelector("#nav");
+        nav = getBySelector("#nav");
 
         if (this.state.authenticated === true) {
           return this.redirectTo('/home');
+        } else {
+          return this.redirectTo('/login');
         }
-        return this.redirectTo('/login');
       }
     },
     '/login': {
@@ -52,7 +54,8 @@ App.prototype.state = {
         if (this.state.authenticated === true) {
           return this.redirectTo('/home');
         }
-        var loginButton = page.querySelector('.btn-login');
+
+        var loginButton = getBySelector('.btn-login');
         loginButton.addEventListener('click', this.login);
       }
     },
@@ -71,7 +74,6 @@ App.prototype.state = {
     '/profile': {
       id: 'profile',
       onMount: function(page) {
-        // TODO: Fix this not being able to retrieve profile a second time
         if (this.state.authenticated === false) {
           return this.redirectTo('/login');
         }
@@ -79,17 +81,13 @@ App.prototype.state = {
         _this = this;
         navBar(_this);
 
-        var logoutButton = page.querySelector('.btn-logout');
-        var avatar = page.querySelector('#avatar');
-        var profileCodeContainer = page.querySelector('.profile-json');
+        var logoutButton = getBySelector('.btn-logout');
+        var avatar = getBySelector('#avatar');
+        var profileCodeContainer = getBySelector('.profile-json');
         logoutButton.addEventListener('click', this.logout);
-        this.loadProfile(function(err, profile) {
-          if (err) {
-            profileCodeContainer.textContent = 'Error ' + err.message;
-          }
-          profileCodeContainer.textContent = JSON.stringify(profile, null, 4);
-          avatar.src = profile.picture;
-        });
+        
+        profileCodeContainer.textContent = JSON.stringify(profile, null, 4);
+        avatar.src = profile.picture;
       }
     }
   }
@@ -97,17 +95,26 @@ App.prototype.state = {
 
 function navBar(_this) {
   // Route to home on title or logo click
-  //var mobile = page.querySelector("#mobile");
-  //mobile.addEventListener('click', function() { _this.redirectTo('/home') });
+  var mobile = getBySelector("#mobile");
+  mobile.addEventListener('click', function() { _this.redirectTo('/home') });
 
-  // Profile picture for nav bar
+  // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
   var avatar = getBySelector('.profile-image');
-  _this.loadProfile(function(err, profile) {
-    if (err) {
-      console.error('Error ' + err.message);
-    }
+  if (profile == null) {
+    _this.loadProfile(function(err, _profile) {
+      if (err) {
+        console.log("Error loading profile:");
+        console.error(err);
+      }
+
+      avatar.src = _profile.picture;
+      profile = _profile;
+    });
+  } else {
+    // NOTE: May cause issues if some data is changed; how to fix?
+    // Not using localstorage yet because it seems overkill
     avatar.src = profile.picture;
-  });
+  }
 
   // Logout button on dropdown
   var logoutButton = getBySelector('.logout');
@@ -202,7 +209,9 @@ App.prototype.render = function() {
   this.container.innerHTML = '';
 
   // Apply nav
-  if (currRouteId == "home" || currRouteId == "profile") {
+  var navRoutes = ["home", "profile"];
+  if ($.inArray(currRouteId, navRoutes) >= 0) {
+    // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(nav);
   }
 
