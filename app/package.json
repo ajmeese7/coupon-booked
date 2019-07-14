@@ -4,7 +4,7 @@
     "displayName": "Coupon Booked",
     "description": "Gift virtual coupon books to loved ones",
     "scripts": {
-        "build": "webpack -p --config webpack.config.js",
+        "build": "webpack -p --config webpack.config.js && npm run android",
         "watch": "webpack --watch --config webpack.config.js",
         "prepare": "cordova prepare android",
         "android": "cordova run android"
