@@ -31,18 +31,6 @@ label {
     margin-right: 0px;
     margin-left: 0px;
 }
-#login {
-    font-family: sans-serif;
-    color: white;
-    text-decoration: none;
-    font-size: 14px;
-    margin-right: 16px;
-}
-/* Doesn't look good on phone. TODO: Test tablets and diff screen sizes
-.nav-item {
-    margin-top: -4px;
-}
-*/
 .container {
     max-width: inherit;
     padding-left: 5px;

@@ -4,7 +4,6 @@ body {
 }
 
 .page{
-    position: absolute;
     top: 0px;
     left: 0px;
     width: 100%;
@@ -12,6 +11,12 @@ body {
     padding: 25px 20px;
     margin-bottom: constant(safe-area-inset-bottom); /* iOS 11.0 */
     margin-bottom: env(safe-area-inset-bottom); /* iOS 11.2 */
+}
+
+/* Only for pages like profile, where it is an issue */
+/* NOTE: Issue where animation starts from below normal */
+div.submenu {
+    margin-top: -50px;
 }
 
 .flex {

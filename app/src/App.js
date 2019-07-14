@@ -94,6 +94,7 @@ App.prototype.state = {
   }
 };
 
+// IDEA: Might be possible to remove page arg using functions at top of file
 function navBar(page, _this) {
   // Profile picture for nav bar
   var avatar = page.querySelector('.profile-image');
