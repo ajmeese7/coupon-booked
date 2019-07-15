@@ -132,9 +132,6 @@ function navBar(_this) {
         $(".submenu").slideDown();
       }
   });
-  $(".root li").mouseup(function() {
-      return false
-  });
   $(document).mouseup(function() {
       // TODO: Find a way for scrolling to close it
       $(".submenu").slideUp();
