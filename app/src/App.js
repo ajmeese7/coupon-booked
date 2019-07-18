@@ -105,6 +105,10 @@ function navBar(_this) {
       if (err) {
         console.log("Error loading profile:");
         console.error(err);
+        if (err.code == 401) {
+          // Not authenticated; shouldn't happen with refresh token
+          _this.redirectTo('/login');
+        }
       }
 
       avatar.src = _profile.picture;
@@ -157,7 +161,7 @@ App.prototype.login = function(e) {
   });
 
   var options = {
-    scope: 'openid profile',
+    scope: 'openid profile offline_access',
     audience: env.AUTH0_AUDIENCE
   };
   var self = this;
@@ -166,6 +170,18 @@ App.prototype.login = function(e) {
       console.log(err);
       return (e.target.disabled = false);
     }
+
+    client.client.userInfo(authResult.accessToken, function(err, user) {
+      if (err) {
+        console.log("Error in userInfo():");
+        console.error(err);
+      } else {
+        // Now you have the user's information
+        console.log("User information:");
+        console.log(user);
+      }
+    });
+
     localStorage.setItem('access_token', authResult.accessToken);
     self.resumeApp();
   });
