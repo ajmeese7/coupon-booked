@@ -5,16 +5,18 @@ const webpack = require('webpack');
 // Webpack is REQUIRED for some reason for this projec to work.
 // Do not delete the config, files, or dependencies.
 const config = {
-
   context: __dirname,
-
   entry: './src/index.js',
-
   output: {
     path: path.resolve(__dirname, './www'),
     filename: 'index.js'
   },
-
+  node: {
+    fs: 'empty',
+    net: 'empty',
+    tls: 'empty'
+  },
   devtool: 'source-map'
 }
+
 module.exports = config;

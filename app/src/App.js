@@ -1,6 +1,8 @@
 // NOTE: THIS FILE DOES NOT REDEPLOY ON `npm run android`
 // This goes to webpack, which you have to rebuid to test any changes.
 var env = require('../env');
+var request = require("request");
+var jwt = require('jsonwebtoken');
 var Auth0 = require('auth0-js');
 var Auth0Cordova = require('@auth0/cordova');
 var profile;
@@ -105,10 +107,9 @@ function navBar(_this) {
       if (err) {
         console.log("Error loading profile:");
         console.error(err);
-        if (err.code == 401) {
-          // Not authenticated; shouldn't happen with refresh token
-          _this.redirectTo('/login');
-        }
+
+        // Assumes user is somehow not authenticated; easy catch-all solution
+        this.redirectTo('/login');
       }
 
       avatar.src = _profile.picture;
@@ -116,7 +117,7 @@ function navBar(_this) {
     });
   } else {
     // NOTE: May cause issues if some data is changed; how to fix?
-    // Not using localstorage yet because it seems overkill
+    // Not using localStorage yet because it seems overkill
     avatar.src = profile.picture;
   }
 
@@ -177,18 +178,27 @@ App.prototype.login = function(e) {
         console.error(err);
       } else {
         // Now you have the user's information
-        console.log("User information:");
-        console.log(user);
+        var userId = user.sub;
+        console.log("User sub: " + userId);
+
+        // TODO: Use this info to access the SQL database
+        // TODO: How to handle the sub if user logs in a different way?
       }
     });
 
     localStorage.setItem('access_token', authResult.accessToken);
+    localStorage.setItem('refresh_token', authResult.refreshToken);
+    localStorage.setItem('id_token', authResult.idToken);
     self.resumeApp();
   });
 };
 
 App.prototype.logout = function(e) {
+  console.log("Logging user out...");
+
   localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('id_token');
   this.resumeApp();
 };
 
@@ -202,11 +212,50 @@ App.prototype.redirectTo = function(route) {
 
 App.prototype.resumeApp = function() {
   var accessToken = localStorage.getItem('access_token');
+  var refreshToken = localStorage.getItem('refresh_token');
+  var idToken = localStorage.getItem('id_token');
 
   if (accessToken) {
+    // Verifies the access token is still valid
+    var decoded = jwt.decode(idToken);
+    var expDate = decoded.exp;
+    var currentDate = Math.ceil(Date.now() / 1000);
+
+    if (expDate < currentDate) {
+        // Token already expired
+        console.log("Access token expired. Acquiring new access token using refresh token...");
+
+        // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
+        var options = {
+          method: 'POST',
+          url: 'https://couponbooked.auth0.com/oauth/token',
+          headers: {'content-type': 'application/x-www-form-urlencoded'},
+          form: {
+            grant_type: 'refresh_token',
+            client_id: 'eSRrTRp3CHav2n2wvXo9LvRtodKP4Ey8',
+            refresh_token: refreshToken
+          }
+        };
+        
+        // Gets a new access token using the refresh token
+        request(options, function (error, response, body) {
+          if (error) throw new Error(error);
+          
+          // Convert string to JavaScript object
+          body = JSON.parse(body);
+          localStorage.setItem('access_token', body.access_token);
+          console.log("Access token retrieval successful! New access token: " + body.access_token);
+        });
+    } else {
+      console.log("The access token is not yet expired.");
+    }
+
+    console.log("Setting authentication state to true...");
     this.state.authenticated = true;
     this.state.accessToken = accessToken;
   } else {
+    console.log("No access token. Setting authentication state to false...");
+
     this.state.authenticated = false;
     this.state.accessToken = null;
   }
