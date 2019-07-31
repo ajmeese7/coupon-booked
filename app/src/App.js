@@ -57,6 +57,7 @@ App.prototype.state = {
           return this.redirectTo('/home');
         }
 
+        // Login button at bottom of page
         var loginButton = getBySelector('.btn-login');
         loginButton.addEventListener('click', this.login);
       }
@@ -64,38 +65,63 @@ App.prototype.state = {
     '/home': {
       id: 'home',
       onMount: function(page) {
-          if (this.state.authenticated === false) {
-            // With this I can remove the login button for nav
-            return this.redirectTo('/login');
-          }
+        _this = this;
+        navBar(_this);
 
-          _this = this;
-          navBar(_this);
+        $('#createBook button').click(function() {
+          _this.redirectTo('/create');
+        });
+      }
+    },
+    '/create': {
+      id: 'create',
+      onMount: function(page) {
+        _this = this;
+        navBar(_this);
+
+        $('button').click(function() {
+          var name = $(this).text().toLowerCase();
+        });
+
+        // TODO- create JSON for blank CB here, start manipulating (redirect to manipulation route?), store locally until saved
+          // https://stackoverflow.com/a/22162030
+          // For bookId, use small footprint method here: https://www.npmjs.com/package/uuid
+        // TODO- AFTER user clicks save, make this create SQL connection and insert new CB
+          // https://www.w3schools.com/nodejs/nodejs_mysql_select.asp
+      }
+    },
+    '/dashboard': {
+      id: 'dashboard',
+      onMount: function(page) {
+        _this = this;
+        navBar(_this);
       }
     },
     '/profile': {
       id: 'profile',
       onMount: function(page) {
-        if (this.state.authenticated === false) {
-          return this.redirectTo('/login');
-        }
-
         _this = this;
         navBar(_this);
 
-        var logoutButton = getBySelector('.btn-logout');
         var avatar = getBySelector('#avatar');
-        var profileCodeContainer = getBySelector('.profile-json');
-        logoutButton.addEventListener('click', this.logout);
-        
-        profileCodeContainer.textContent = JSON.stringify(profile, null, 4);
         avatar.src = profile.picture;
+
+        var profileCodeContainer = getBySelector('.profile-json');
+        profileCodeContainer.textContent = JSON.stringify(profile, null, 4);
+        
+        var logoutButton = getBySelector('.btn-logout');
+        logoutButton.addEventListener('click', this.logout);
       }
     }
   }
 };
 
 function navBar(_this) {
+  if (_this.state.authenticated === false) {
+    // With this I can remove the login button for nav
+    return _this.redirectTo('/login');
+  }
+
   // Route to home on title or logo click
   var mobile = getBySelector("#mobile");
   mobile.addEventListener('click', function() { _this.redirectTo('/home') });
@@ -121,13 +147,17 @@ function navBar(_this) {
     avatar.src = profile.picture;
   }
 
-  // Logout button on dropdown
-  var logoutButton = getBySelector('.logout');
-  logoutButton.addEventListener('click', _this.logout);
+  // Dashboard button on dropdown
+  var dashboardButton = getBySelector('.dashboard');
+  dashboardButton.addEventListener('click', function() { _this.redirectTo('/dashboard') });
 
   // Profile button on dropdown
   var profileButton = getBySelector('.profile');
   profileButton.addEventListener('click', function() { _this.redirectTo('/profile') });
+
+  // Logout button on dropdown
+  var logoutButton = getBySelector('.logout');
+  logoutButton.addEventListener('click', _this.logout);
 
   // Profile picture dropdown
   $(".account").click(function() {
@@ -299,8 +329,9 @@ App.prototype.render = function() {
   this.container.innerHTML = '';
 
   // Apply nav
-  var navRoutes = ["home", "profile"];
+  var navRoutes = ["home", "create", "dashboard", "profile"];
   if ($.inArray(currRouteId, navRoutes) >= 0) {
+    // IDEA: See if I can include all the nav code here as well
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(nav);
   }

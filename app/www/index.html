@@ -70,7 +70,7 @@
                 <div class="submenu" style="display: none;">
                     <ul class="root">
                         <!-- NOTE: href required to have mouse change to clicker on hover -->
-                        <li><a href="#">Dashboard</a></li>
+                        <li><a href="#" class="dashboard">Dashboard</a></li>
                         <li><a href="#" class="profile"><!--<span class="icon icon-profile"></span> -->Profile</a></li>
                         <li><a href="#" class="logout" id="sign-out"><!--<span class="icon icon-power"></span> -->Log out</a></li>
                     </ul>
@@ -146,8 +146,9 @@
                         </div>
                     </section>
         
-                    <section id="create">
+                    <section id="createBook">
                         <h2>Create Your Own</h2>
+                        <!-- TODO: Style this -->
                         <button>Start here!</button>
                     </section>
                 </div>
@@ -155,6 +156,27 @@
 
             <!-- IDEA: A footer would look real nice here; has good styling already -->
         </div>
+    </template>
+
+    <template id="create">
+        <div style="height: 60px;"></div>
+        <h2>Who is it for?</h2>
+        <div id="buttonContainer">
+            <button>Father</button>
+            <button>Mother</button>
+            <button>Brother</button>
+            <button>Sister</button>
+            <button>Girlfriend</button>
+            <button>Boyfriend</button>
+            <button>Friend</button>
+            <button>Other</button>
+        </div>
+    </template>
+
+    <template id="dashboard">
+        <!-- TODO- Create swipeable menu here for sent/received -->
+        <div style="height: 60px;"></div>
+        <h2>Dashboard</h2>
     </template>
 
     <template id="profile">
