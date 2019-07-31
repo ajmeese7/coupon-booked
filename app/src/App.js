@@ -109,7 +109,7 @@ function navBar(_this) {
         console.error(err);
 
         // Assumes user is somehow not authenticated; easy catch-all solution
-        this.redirectTo('/login');
+        _this.redirectTo('/login');
       }
 
       avatar.src = _profile.picture;
@@ -237,7 +237,7 @@ App.prototype.resumeApp = function() {
           }
         };
         
-        // Gets a new access token using the refresh token
+        // Gets a new access token using the refresh token; TODO: Make this async
         request(options, function (error, response, body) {
           if (error) throw new Error(error);
           
