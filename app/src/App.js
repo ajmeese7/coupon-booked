@@ -153,6 +153,7 @@ App.prototype.loadProfile = function(cb) {
 };
 
 App.prototype.login = function(e) {
+  console.log("/login route...");
   e.target.disabled = true;
 
   var client = new Auth0Cordova({
@@ -211,6 +212,7 @@ App.prototype.redirectTo = function(route) {
 };
 
 App.prototype.resumeApp = function() {
+  _this = this;
   var accessToken = localStorage.getItem('access_token');
   var refreshToken = localStorage.getItem('refresh_token');
   var idToken = localStorage.getItem('id_token');
@@ -221,43 +223,69 @@ App.prototype.resumeApp = function() {
     var expDate = decoded.exp;
     var currentDate = Math.ceil(Date.now() / 1000);
 
+    // NOTE: To test `expired` code, reverse the direction of the angle bracket
     if (expDate < currentDate) {
         // Token already expired
         console.log("Access token expired. Acquiring new access token using refresh token...");
-
-        // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
-        var options = {
-          method: 'POST',
+        
+        function getNewAccessToken() {
+          // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
+          var options = {
+            method: 'POST',
           url: 'https://couponbooked.auth0.com/oauth/token',
           headers: {'content-type': 'application/x-www-form-urlencoded'},
           form: {
             grant_type: 'refresh_token',
             client_id: 'eSRrTRp3CHav2n2wvXo9LvRtodKP4Ey8',
             refresh_token: refreshToken
-          }
-        };
-        
-        // Gets a new access token using the refresh token; TODO: Make this async
-        request(options, function (error, response, body) {
-          if (error) throw new Error(error);
-          
-          // Convert string to JavaScript object
-          body = JSON.parse(body);
-          localStorage.setItem('access_token', body.access_token);
-          console.log("Access token retrieval successful! New access token: " + body.access_token);
+            }
+          };
+
+          // Return new promise
+          return new Promise(function(resolve, reject) {
+            // Gets a new access token using the refresh token
+            request(options, function (error, response, body) {
+              if (error) {
+                reject(error);
+              } else {
+                // Convert string to JavaScript object
+                resolve(JSON.parse(body));
+              }
+            });
+          });
+        }
+
+        var getNewAccessToken = getNewAccessToken();
+        getNewAccessToken.then(function(result) {
+          result = result.access_token;
+          localStorage.setItem('access_token', result);
+          console.log("Access token retrieval successful! New access token: " + result);
+
+          successfulAuth();
+        }, function(error) {
+          console.log("Retrieval of new access token failed! Setting authentication state to false...");
+          console.error(error);
+
+          failedAuth();
         });
     } else {
       console.log("The access token is not yet expired.");
+      successfulAuth();
     }
-
-    console.log("Setting authentication state to true...");
-    this.state.authenticated = true;
-    this.state.accessToken = accessToken;
   } else {
     console.log("No access token. Setting authentication state to false...");
+    failedAuth();
+  }
 
-    this.state.authenticated = false;
-    this.state.accessToken = null;
+  function successfulAuth() {
+    console.log("Setting authentication state to true...");
+    _this.state.authenticated = true;
+    _this.state.accessToken = accessToken;
+  }
+
+  function failedAuth() {
+    _this.state.authenticated = false;
+    _this.state.accessToken = null;
   }
 
   this.render();
