@@ -24,6 +24,7 @@ function getAllByClassName(className) {
 }
 
 function App() {
+  // NOTE- I don't understand what this does, but it might be possible to replicate for SQL database
   this.auth0 = new Auth0.Authentication({
     domain: env.AUTH0_DOMAIN,
     clientID: env.AUTH0_CLIENT_ID
@@ -32,7 +33,7 @@ function App() {
   this.logout = this.logout.bind(this);
 }
 
-var nav, _this; // https://stackoverflow.com/a/1338622
+var nav, userId, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -81,6 +82,10 @@ App.prototype.state = {
 
         $('button').click(function() {
           var name = $(this).text().toLowerCase();
+          getTemplate(name);
+
+          // TODO: Make sure the user clicks "save" first, then add name to JSON (not param)
+          //createNewCouponBook();
         });
 
         // TODO- create JSON for blank CB here, start manipulating (redirect to manipulation route?), store locally until saved
@@ -95,6 +100,9 @@ App.prototype.state = {
       onMount: function(page) {
         _this = this;
         navBar(_this);
+
+        // TODO set the content of the two menu pages in this function
+        //pullUserRelatedBooks();
       }
     },
     '/profile': {
@@ -115,6 +123,54 @@ App.prototype.state = {
     }
   }
 };
+
+/**
+ * Refresh the display with items from the table.
+ */
+function pullUserRelatedBooks() {
+  $.ajax({
+      type: "GET",
+      url: "http://www.couponbooked.com/scripts/getData.php", // TODO add param here !!
+      datatype: "html",
+      success: function(data) {
+        alert(data);
+          // The split makes an array and the '-1' gets rid of an empty index at the end
+          /*var coupons = data.split("}");
+          coupons = coupons.slice(0, coupons.length - 1);
+          applyOnlineCounts(coupons);*/
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        console.log("Error in pullUserRelatedBooks:");
+        console.error(errorThrown);
+      }
+  });
+}
+
+function getTemplate(template) {
+  $.ajax({
+    type: "GET",
+    url: "http://www.couponbooked.com/scripts/getTemplate.php?template=" + template,
+    datatype: "html",
+    success: function(data) {
+      //data = JSON.parse(data);
+      console.log(data);
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in getTemplate:");
+      console.error(errorThrown);
+    }
+});
+}
+
+function createNewCouponBook(book) {
+  // TODO figure out what to do with parameters
+  // https://stackoverflow.com/questions/38824050/get-javascript-and-ajax
+  var xhr = new XMLHttpRequest();
+
+  var params = name + "," + newCount;
+  xhr.open("GET", "http://www.couponbooked.com/scripts/updateData.php?params=" + encodeURIComponent(params), true);
+  xhr.send();
+}
 
 function navBar(_this) {
   if (_this.state.authenticated === false) {
@@ -183,6 +239,7 @@ App.prototype.loadProfile = function(cb) {
 };
 
 App.prototype.login = function(e) {
+  // TODO: Look into this forcing another login after authentication state confirmed
   console.log("/login route...");
   e.target.disabled = true;
 
@@ -209,10 +266,9 @@ App.prototype.login = function(e) {
         console.error(err);
       } else {
         // Now you have the user's information
-        var userId = user.sub;
+        userId = user.sub;
         console.log("User sub: " + userId);
 
-        // TODO: Use this info to access the SQL database
         // TODO: How to handle the sub if user logs in a different way?
       }
     });
@@ -262,12 +318,12 @@ App.prototype.resumeApp = function() {
           // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
           var options = {
             method: 'POST',
-          url: 'https://couponbooked.auth0.com/oauth/token',
-          headers: {'content-type': 'application/x-www-form-urlencoded'},
-          form: {
-            grant_type: 'refresh_token',
-            client_id: 'eSRrTRp3CHav2n2wvXo9LvRtodKP4Ey8',
-            refresh_token: refreshToken
+            url: 'https://couponbooked.auth0.com/oauth/token',
+            headers: {'content-type': 'application/x-www-form-urlencoded'},
+            form: {
+              grant_type: 'refresh_token',
+              client_id: 'eSRrTRp3CHav2n2wvXo9LvRtodKP4Ey8',
+              refresh_token: refreshToken
             }
           };
 
