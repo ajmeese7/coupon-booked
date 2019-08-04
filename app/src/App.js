@@ -80,12 +80,17 @@ App.prototype.state = {
         _this = this;
         navBar(_this);
 
-        $('button').click(function() {
+        // Set button height equal to its width because CSS is annoying
+        var width = $('button').width();
+        var marginBottom = $('button').css("margin-bottom");
+        $('#buttonContainer button').height(width + marginBottom);
+
+        $('#buttonContainer button').click(function() {
           var name = $(this).text().toLowerCase();
           getTemplate(name);
 
-          // TODO: Make sure the user clicks "save" first, then add name to JSON (not param)
-          //createNewCouponBook();
+          // TODO: Make sure the user clicks "save" first, then add name to JSON (not param) {?}
+          $('#save').click(function() {
         });
 
         // TODO- create JSON for blank CB here, start manipulating (redirect to manipulation route?), store locally until saved

@@ -60,3 +60,25 @@ label {
 .dropdown-toggle::after {
     margin-top: 20px;
 }
+
+#row {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+#buttonContainer button {
+    /* TODO: Improve the look of these eventually; especially the edge shading */
+    /* IDEA: On click animation into loaded template, like swirl or something */
+    border-radius: 50%;
+    display: inline-block;
+    width: 35%;
+    padding: 0px;
+    margin-bottom: 10px;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    background-color: #24a0ed; /* TODO: Work on color; https://encycolorpedia.com/24a0ed + https://fvsch.com/styling-buttons/ */
+    border-color: #1183ca;
+    color: rgb(241, 241, 241);
+    /*text-shadow: 0 1px 0 #f3f3f3;*/
+}
