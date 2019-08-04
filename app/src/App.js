@@ -1,11 +1,11 @@
 // NOTE: THIS FILE DOES NOT REDEPLOY ON `npm run android`
 // This goes to webpack, which you have to rebuid to test any changes.
-var env = require('../env');
-var request = require("request");
-var jwt = require('jsonwebtoken');
-var Auth0 = require('auth0-js');
-var Auth0Cordova = require('@auth0/cordova');
-var profile;
+const env = require('../env');
+const request = require("request");
+const jwt = require('jsonwebtoken');
+const Auth0 = require('auth0-js');
+const Auth0Cordova = require('@auth0/cordova');
+const uuidv4 = require('uuid/v4');
 
 function getAllBySelector(arg) {
   return document.querySelectorAll(arg);
@@ -33,7 +33,7 @@ function App() {
   this.logout = this.logout.bind(this);
 }
 
-var nav, userId, _this; // https://stackoverflow.com/a/1338622
+var nav, userId, profile, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -43,7 +43,8 @@ App.prototype.state = {
       id: 'loading',
       onMount: function(page) {
         nav = getBySelector("#nav");
-
+        
+        // TODO: Fix this redirecting to login before authentication code can finish
         if (this.state.authenticated === true) {
           return this.redirectTo('/home');
         } else {
@@ -88,14 +89,18 @@ App.prototype.state = {
         $('#buttonContainer button').click(function() {
           var name = $(this).text().toLowerCase();
           getTemplate(name);
+        });
 
-          // TODO: Make sure the user clicks "save" first, then add name to JSON (not param) {?}
-          $('#save').click(function() {
+        // TODO: Make sure the user clicks "save" first, then add name to JSON (not param) {?}
+        // TODO: Create save button, whether on redirected page or if modifying current
+        $('#save').click(function() {
+          // TODO: Display notification [Spotify style] that it saved successfully or failed;
+          // Add that capability with returning the success/failure from function
+          createBook("testData"); // TODO: Include the actual data here
         });
 
         // TODO- create JSON for blank CB here, start manipulating (redirect to manipulation route?), store locally until saved
           // https://stackoverflow.com/a/22162030
-          // For bookId, use small footprint method here: https://www.npmjs.com/package/uuid
         // TODO- AFTER user clicks save, make this create SQL connection and insert new CB
           // https://www.w3schools.com/nodejs/nodejs_mysql_select.asp
       }
@@ -106,8 +111,10 @@ App.prototype.state = {
         _this = this;
         navBar(_this);
 
-        // TODO set the content of the two menu pages in this function
-        //pullUserRelatedBooks();
+        // TODO: set the content of the two menu pages in this function
+        // NOTE: There is a problem with this being called many more times than it is supposed
+          // when clicking on dashboard more than once; TODO: FIX!
+        pullUserRelatedBooks();
       }
     },
     '/profile': {
@@ -130,51 +137,98 @@ App.prototype.state = {
 };
 
 /**
- * Refresh the display with items from the table.
+ * Retrieve coupon books the user has sent or received.
  */
 function pullUserRelatedBooks() {
+  var userId = localStorage.getItem('user_id');
   $.ajax({
       type: "GET",
-      url: "http://www.couponbooked.com/scripts/getData.php", // TODO add param here !!
+      url: "http://www.couponbooked.com/scripts/getData?userId=" + userId,
       datatype: "html",
       success: function(data) {
-        alert(data);
-          // The split makes an array and the '-1' gets rid of an empty index at the end
-          /*var coupons = data.split("}");
-          coupons = coupons.slice(0, coupons.length - 1);
-          applyOnlineCounts(coupons);*/
+        console.log("User related data:")
+        console.log(data);
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.log("Error in pullUserRelatedBooks:");
         console.error(errorThrown);
+        alert(errorThrown)
+        // TODO: Display some kind of `failed` pop-up to user
       }
   });
 }
 
+/**
+ * Get the template corresponding to the button the user selects.
+ */
 function getTemplate(template) {
   $.ajax({
     type: "GET",
-    url: "http://www.couponbooked.com/scripts/getTemplate.php?template=" + template,
+    url: "http://www.couponbooked.com/scripts/getTemplate?template=" + template,
     datatype: "html",
     success: function(data) {
-      //data = JSON.parse(data);
-      console.log(data);
+      if (data == "") {
+        // Should never happen outside of testing, but just in case.
+        alert("No applicable template. Please try again.")
+      } else {
+        // start editing
+        alert("this is where editing should begin!")
+      }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in getTemplate:");
       console.error(errorThrown);
+      // TODO: stop the process somehow
     }
-});
+  });
 }
 
-function createNewCouponBook(book) {
-  // TODO figure out what to do with parameters
-  // https://stackoverflow.com/questions/38824050/get-javascript-and-ajax
-  var xhr = new XMLHttpRequest();
+/**
+ * Create a new Coupon Book and upload it to the database
+ */
+function createBook(book) {
+  var uuid = uuidv4();
+  var sender = localStorage.getItem('user_id');
+  $.ajax({
+    // TODO: Look into if there are fancier additional settings
+    type: "POST",
+    url: "http://www.couponbooked.com/scripts/createBook",
+    data: { bookId: uuid, sender: sender, bookData: book },
+    crossDomain: true,
+    dataType: "html",
+    cache: false,
+    success: function(success) {
+      // Notify of success; set notification to green
+      var message = "Successfully created coupon book";
+      alert(message);
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in createBook POST:");
+      console.error(errorThrown);
 
-  var params = name + "," + newCount;
-  xhr.open("GET", "http://www.couponbooked.com/scripts/updateData.php?params=" + encodeURIComponent(params), true);
-  xhr.send();
+      // Notify of failure; set notification to red
+      var message = "Error creating coupon book. Please try again later";
+      alert(message);
+    }
+  });
+}
+
+// TODO
+function updateCouponBook(book, bookId) {
+  $.ajax({
+    type: "POST",
+    url: "http://www.couponbooked.com/scripts/updateData",
+    data: { bookData: book, bookId: bookId },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.log(success)
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in updateCouponBook POST:");
+      console.error(errorThrown);
+    }
+  });
 }
 
 function navBar(_this) {
@@ -271,8 +325,9 @@ App.prototype.login = function(e) {
         console.error(err);
       } else {
         // Now you have the user's information
-        userId = user.sub;
+        var userId = user.sub;
         console.log("User sub: " + userId);
+        localStorage.setItem('user_id', userId);
 
         // TODO: How to handle the sub if user logs in a different way?
       }
@@ -288,6 +343,7 @@ App.prototype.login = function(e) {
 App.prototype.logout = function(e) {
   console.log("Logging user out...");
 
+  localStorage.removeItem('user_id');
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
   localStorage.removeItem('id_token');
