@@ -23,8 +23,18 @@ function getAllByClassName(className) {
   return document.getElementsByClassName(className);
 }
 
+var cleanBuild = false;
 function App() {
-  // NOTE- I don't understand what this does, but it might be possible to replicate for SQL database
+  // NOTE: Uncomment this to test with all localStorage erased
+  // cleanBuild = true;
+  if (cleanBuild) {
+    console.log("Wiping local storage...");
+    localStorage.removeItem('user_id');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('id_token');
+  }
+
   this.auth0 = new Auth0.Authentication({
     domain: env.AUTH0_DOMAIN,
     clientID: env.AUTH0_CLIENT_ID
