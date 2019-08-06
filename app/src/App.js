@@ -52,6 +52,8 @@ App.prototype.state = {
     '/': {
       id: 'loading',
       onMount: function(page) {
+        console.log("Please unhide warnings when debugging routing. Otherwise, hide them.");
+        console.warn("/ route...");
         nav = getBySelector("#nav");
         
         // TODO: Fix this redirecting to login before authentication code can finish
@@ -65,6 +67,7 @@ App.prototype.state = {
     '/login': {
       id: 'login',
       onMount: function(page) {
+        console.warn("/login route...");
         if (this.state.authenticated === true) {
           return this.redirectTo('/home');
         }
@@ -77,6 +80,7 @@ App.prototype.state = {
     '/home': {
       id: 'home',
       onMount: function(page) {
+        console.warn("/home route...");
         _this = this;
         navBar(_this);
 
@@ -324,7 +328,6 @@ App.prototype.loadProfile = function(cb) {
 
 App.prototype.login = function(e) {
   // TODO: Look into this forcing another login after authentication state confirmed
-  console.log("/login route...");
   e.target.disabled = true;
 
   var client = new Auth0Cordova({
@@ -351,7 +354,7 @@ App.prototype.login = function(e) {
       } else {
         // Now you have the user's information
         var userId = user.sub;
-        console.log("User sub: " + userId);
+        console.warn("User sub: " + userId);
         localStorage.setItem('user_id', userId);
 
         // TODO: How to handle the sub if user logs in a different way?
@@ -366,7 +369,7 @@ App.prototype.login = function(e) {
 };
 
 App.prototype.logout = function(e) {
-  console.log("Logging user out...");
+  console.warn("Logging user out...");
 
   localStorage.removeItem('user_id');
   localStorage.removeItem('access_token');
@@ -376,6 +379,7 @@ App.prototype.logout = function(e) {
 };
 
 App.prototype.redirectTo = function(route) {
+  console.warn("redirectTo" + route + "...");
   if (!this.state.routes[route]) {
     throw new Error('Unknown route ' + route + '.');
   }
@@ -384,6 +388,7 @@ App.prototype.redirectTo = function(route) {
 };
 
 App.prototype.resumeApp = function() {
+  console.warn("resumeApp...");
   _this = this;
   var accessToken = localStorage.getItem('access_token');
   var refreshToken = localStorage.getItem('refresh_token');
@@ -398,7 +403,7 @@ App.prototype.resumeApp = function() {
     // NOTE: To test `expired` code, reverse the direction of the angle bracket
     if (expDate < currentDate) {
         // Token already expired
-        console.log("Access token expired. Acquiring new access token using refresh token...");
+        console.warn("Access token expired. Acquiring new access token using refresh token...");
         
         function getNewAccessToken() {
           // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
@@ -431,7 +436,7 @@ App.prototype.resumeApp = function() {
         getNewAccessToken.then(function(result) {
           result = result.access_token;
           localStorage.setItem('access_token', result);
-          console.log("Access token retrieval successful! New access token: " + result);
+          console.warn("Access token retrieval successful! New access token: " + result);
 
           successfulAuth();
         }, function(error) {
@@ -441,16 +446,16 @@ App.prototype.resumeApp = function() {
           failedAuth();
         });
     } else {
-      console.log("The access token is not yet expired.");
+      console.warn("The access token is not yet expired.");
       successfulAuth();
     }
   } else {
-    console.log("No access token. Setting authentication state to false...");
+    console.warn("No access token. Setting authentication state to false...");
     failedAuth();
   }
 
   function successfulAuth() {
-    console.log("Setting authentication state to true...");
+    console.warn("Setting authentication state to true...");
     _this.state.authenticated = true;
     _this.state.accessToken = accessToken;
   }
@@ -464,6 +469,7 @@ App.prototype.resumeApp = function() {
 };
 
 App.prototype.render = function() {
+  console.warn("render...");
   var currRoute = this.state.routes[this.state.currentRoute];
   var currRouteEl = getById(currRoute.id);
   var currRouteId = currRouteEl.id;
