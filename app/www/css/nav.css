@@ -76,3 +76,11 @@ a.account {
     top: 42px;
     left: 70px;
 }
+
+/**********************
+       Dashboard
+***********************/
+.col {
+    /* full screen - nav height - dashboard menu height */
+    min-height: calc(100vh - 60px - 48px);
+}

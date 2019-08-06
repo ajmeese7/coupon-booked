@@ -124,22 +124,31 @@ App.prototype.state = {
 
         $('#tabs-swipe-demo').tabs();
 
-        // TODO: Do my own faster animation
-        /*$(document).on('pageinit', function(event){
-          $('div.ui-page').on("swipeleft", function () {
-              var nextpage = $(this).next('div[data-role="page"]');
-              if (nextpage.length > 0) {
-                  $.mobile.changePage(nextpage, { transition: "slide"}, false, true);
-              }
-          });
+        const gestureZone = getById('gestureZone');
+        var touchstartX = 0;
+        var touchendX = 0;
 
-          $('div.ui-page').on("swiperight", function () {
-              var prevpage = $(this).prev('div[data-role="page"]');
-              if (prevpage.length > 0) {
-                  $.mobile.changePage(prevpage, { transition: "slide", reverse: true }, true, true);
-              }
-          });
-        });*/
+        gestureZone.addEventListener('touchstart', function(event) {
+            touchstartX = event.changedTouches[0].screenX;
+        }, false);
+
+        gestureZone.addEventListener('touchend', function(event) {
+            touchendX = event.changedTouches[0].screenX;
+            handleGesture();
+        }, false);
+
+        // Modified from https://gist.github.com/SleepWalker/da5636b1abcbaff48c4d#gistcomment-2555343
+        function handleGesture() {
+          // TODO: Add animation while moving between pages
+          var ratio_horizontal = (touchendX - touchstartX) / $(gestureZone).width();
+          var ratioComparison = .10;
+
+          if (ratio_horizontal > ratioComparison) {
+            console.log('Swiped right');
+          } else if (ratio_horizontal < -ratioComparison) {
+            console.log('Swiped left');
+          }
+        }
 
         // TODO: set the content of the two menu pages in this function
         // NOTE: There is a problem with this being called many more times than it is supposed
