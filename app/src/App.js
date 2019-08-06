@@ -87,6 +87,8 @@ App.prototype.state = {
         $('#buttonContainer button').height(width + marginBottom);
 
         $('#buttonContainer button').click(function() {
+          // TODO- start manipulating (redirect to manipulation route?), store locally until saved
+            // https://stackoverflow.com/a/22162030
           var name = $(this).text().toLowerCase();
           getTemplate(name);
         });
@@ -98,11 +100,6 @@ App.prototype.state = {
           // Add that capability with returning the success/failure from function
           createBook("testData"); // TODO: Include the actual data here
         });
-
-        // TODO- create JSON for blank CB here, start manipulating (redirect to manipulation route?), store locally until saved
-          // https://stackoverflow.com/a/22162030
-        // TODO- AFTER user clicks save, make this create SQL connection and insert new CB
-          // https://www.w3schools.com/nodejs/nodejs_mysql_select.asp
       }
     },
     '/dashboard': {
@@ -111,10 +108,29 @@ App.prototype.state = {
         _this = this;
         navBar(_this);
 
+        $('#tabs-swipe-demo').tabs();
+
+        // TODO: Do my own faster animation
+        /*$(document).on('pageinit', function(event){
+          $('div.ui-page').on("swipeleft", function () {
+              var nextpage = $(this).next('div[data-role="page"]');
+              if (nextpage.length > 0) {
+                  $.mobile.changePage(nextpage, { transition: "slide"}, false, true);
+              }
+          });
+
+          $('div.ui-page').on("swiperight", function () {
+              var prevpage = $(this).prev('div[data-role="page"]');
+              if (prevpage.length > 0) {
+                  $.mobile.changePage(prevpage, { transition: "slide", reverse: true }, true, true);
+              }
+          });
+        });*/
+
         // TODO: set the content of the two menu pages in this function
         // NOTE: There is a problem with this being called many more times than it is supposed
           // when clicking on dashboard more than once; TODO: FIX!
-        pullUserRelatedBooks();
+        //pullUserRelatedBooks();
       }
     },
     '/profile': {
@@ -152,7 +168,6 @@ function pullUserRelatedBooks() {
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.log("Error in pullUserRelatedBooks:");
         console.error(errorThrown);
-        alert(errorThrown)
         // TODO: Display some kind of `failed` pop-up to user
       }
   });
@@ -213,7 +228,6 @@ function createBook(book) {
   });
 }
 
-// TODO
 function updateCouponBook(book, bookId) {
   $.ajax({
     type: "POST",
@@ -222,6 +236,7 @@ function updateCouponBook(book, bookId) {
     crossDomain: true,
     cache: false,
     success: function(success) {
+      // TODO
       console.log(success)
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {

@@ -24,6 +24,7 @@
     <link rel="stylesheet" type="text/css" href="css/main.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" href="css/fontawesome.css" />
+    <link rel="stylesheet" href="css/materialize.css" />
 
     <!-- TODO: Implement https://pointdeveloper.com/add-app-icon-phonegap-build-apps/ in the future -->
     <title>Coupon Booked</title>
@@ -185,7 +186,14 @@
     <template id="dashboard">
         <!-- TODO- Create swipeable menu here for sent/received -->
         <div style="height: 60px;"></div>
-        <h2>Dashboard</h2>
+
+        <!-- TODO: Fix z-index with mobile menu -->
+        <ul id="tabs-swipe-demo" class="tabs">
+            <li class="tab"><a href="#sent" class="active">Sent</a></li>
+            <li class="tab"><a href="#received">Received</a></li>
+        </ul>
+        <div id="sent" class="col">Sent coupon books go here!</div>
+        <div id="received" class="col">Received coupon books go here!</div>
     </template>
 
     <template id="profile">
@@ -211,6 +219,7 @@
     <script src="cordova.js"></script>
     <script src="./index.js"></script>
     <script src="js/jquery.min.js"></script>
+    <script src="js/materialize.min.js"></script> <!-- TODO: Delete most of this; unnecessary -->
 </body>
 
 </html>

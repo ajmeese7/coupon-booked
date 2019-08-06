@@ -82,3 +82,10 @@ label {
     color: rgb(241, 241, 241);
     /*text-shadow: 0 1px 0 #f3f3f3;*/
 }
+
+/* None of this should be necessary, but *might* speed up animations */
+.carousel .carousel-item{
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    width: 100%;
+}
