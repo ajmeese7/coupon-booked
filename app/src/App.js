@@ -123,32 +123,7 @@ App.prototype.state = {
         navBar(_this);
 
         $('#tabs-swipe-demo').tabs();
-
-        const gestureZone = getById('gestureZone');
-        var touchstartX = 0;
-        var touchendX = 0;
-
-        gestureZone.addEventListener('touchstart', function(event) {
-            touchstartX = event.changedTouches[0].screenX;
-        }, false);
-
-        gestureZone.addEventListener('touchend', function(event) {
-            touchendX = event.changedTouches[0].screenX;
-            handleGesture();
-        }, false);
-
-        // Modified from https://gist.github.com/SleepWalker/da5636b1abcbaff48c4d#gistcomment-2555343
-        function handleGesture() {
-          // TODO: Add animation while moving between pages
-          var ratio_horizontal = (touchendX - touchstartX) / $(gestureZone).width();
-          var ratioComparison = .10;
-
-          if (ratio_horizontal > ratioComparison) {
-            console.log('Swiped right');
-          } else if (ratio_horizontal < -ratioComparison) {
-            console.log('Swiped left');
-          }
-        }
+        manageTabMenu();
 
         // TODO: set the content of the two menu pages in this function
         // NOTE: There is a problem with this being called many more times than it is supposed
@@ -324,6 +299,53 @@ function navBar(_this) {
       // TODO: Find a way for scrolling to close it
       $(".submenu").slideUp();
   });
+}
+
+/**
+ * Handle (eventually) swiping for the tab menu
+ */
+function manageTabMenu() {
+  const gestureZone = getById('gestureZone');
+  var touchstartX = 0;
+  var touchendX = 0;
+
+  gestureZone.addEventListener('touchstart', function(event) {
+      touchstartX = event.changedTouches[0].screenX;
+  }, false);
+
+  gestureZone.addEventListener('touchend', function(event) {
+      touchendX = event.changedTouches[0].screenX;
+      handleGesture();
+  }, false);
+
+  // Modified from https://gist.github.com/SleepWalker/da5636b1abcbaff48c4d#gistcomment-2555343
+  function handleGesture() {
+    // TODO: Add animation while moving between pages
+    var ratio_horizontal = (touchendX - touchstartX) / $(gestureZone).width();
+    var ratioComparison = .10;
+
+    // Swipe right
+    if (ratio_horizontal > ratioComparison) {
+      // https://stackoverflow.com/a/5783319/6456163
+      var sentIsActive = $('#sentButton.active').length; // 0 if class doesn't exist, which means false
+      if (sentIsActive) {
+        /*$(function () {
+          $("#sent").animate({
+              width: '100%'
+          }, { duration: 500, queue: false });
+      
+          $("#received").animate({
+              width: '0px'
+          }, { duration: 500, queue: false });
+        });*/
+      }
+    }
+    
+    // Swipe left
+    if (ratio_horizontal < -ratioComparison) {
+      // TODO
+    }
+  }
 }
 
 App.prototype.run = function(id) {

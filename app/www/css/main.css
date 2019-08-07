@@ -8,6 +8,7 @@ label {
 
 .navbar {
     position: fixed;
+    z-index: 98;
     height: 56.3833px;
     width: 100%;
     top: 0;
