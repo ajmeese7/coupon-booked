@@ -456,8 +456,9 @@ App.prototype.resumeApp = function() {
               if (error) {
                 reject(error);
               } else {
-                // Convert string to JavaScript object
-                resolve(JSON.parse(body));
+                // Convert string to JavaScript object and get applicable property
+                var accessToken = JSON.parse(body).access_token;
+                resolve(accessToken);
               }
             });
           });
@@ -512,6 +513,14 @@ App.prototype.render = function() {
     // IDEA: See if I can include all the nav code here as well
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(nav);
+  }
+
+  // Add invisible div for content padding below nav
+  var divRoutes = ["create", "manipulate", "dashboard", "profile"];
+  if ($.inArray(currRouteId, divRoutes) >= 0) {
+    var invisibleDiv = document.createElement('div');
+    invisibleDiv.style.cssText = "height: 60px;";
+    this.container.appendChild(invisibleDiv);
   }
 
   this.container.appendChild(element);
