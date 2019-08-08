@@ -52,7 +52,6 @@ App.prototype.state = {
     '/': {
       id: 'loading',
       onMount: function(page) {
-        console.log("Please unhide warnings when debugging routing. Otherwise, hide them.");
         console.warn("/ route...");
         nav = getBySelector("#nav");
         
@@ -410,7 +409,7 @@ App.prototype.logout = function(e) {
 };
 
 App.prototype.redirectTo = function(route) {
-  console.warn("redirectTo" + route + "...");
+  console.warn("redirectTo " + route + "...");
   if (!this.state.routes[route]) {
     throw new Error('Unknown route ' + route + '.');
   }
@@ -419,6 +418,7 @@ App.prototype.redirectTo = function(route) {
 };
 
 App.prototype.resumeApp = function() {
+  console.log("Please unhide warnings when debugging routing. Otherwise, hide them.");
   console.warn("resumeApp...");
   _this = this;
   var accessToken = localStorage.getItem('access_token');
@@ -465,10 +465,9 @@ App.prototype.resumeApp = function() {
 
         var getNewAccessToken = getNewAccessToken();
         getNewAccessToken.then(function(result) {
-          result = result.access_token;
-          localStorage.setItem('access_token', result);
           console.warn("Access token retrieval successful! New access token: " + result);
-
+          localStorage.setItem('access_token', result);
+          
           successfulAuth();
         }, function(error) {
           console.log("Retrieval of new access token failed! Setting authentication state to false...");
@@ -489,14 +488,14 @@ App.prototype.resumeApp = function() {
     console.warn("Setting authentication state to true...");
     _this.state.authenticated = true;
     _this.state.accessToken = accessToken;
+    _this.render();
   }
 
   function failedAuth() {
     _this.state.authenticated = false;
     _this.state.accessToken = null;
+    _this.render();
   }
-
-  this.render();
 };
 
 App.prototype.render = function() {
