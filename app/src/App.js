@@ -55,7 +55,6 @@ App.prototype.state = {
         console.warn("/ route...");
         nav = getBySelector("#nav");
         
-        // TODO: Fix this redirecting to login before authentication code can finish
         if (this.state.authenticated === true) {
           return this.redirectTo('/home');
         } else {
@@ -172,6 +171,7 @@ function pullUserRelatedBooks() {
 
 /**
  * Get the template corresponding to the button the user selects.
+ * @param {string} template 
  */
 function getTemplate(template) {
   $.ajax({
@@ -197,6 +197,7 @@ function getTemplate(template) {
 
 /**
  * Create a new Coupon Book and upload it to the database
+ * @param {string} book 
  */
 function createBook(book) {
   var uuid = uuidv4();
@@ -225,6 +226,11 @@ function createBook(book) {
   });
 }
 
+/**
+ * Update book, whether by adding more coupons or changing the counts.
+ * @param {string} book 
+ * @param {string} bookId 
+ */
 function updateCouponBook(book, bookId) {
   $.ajax({
     type: "POST",
@@ -243,6 +249,10 @@ function updateCouponBook(book, bookId) {
   });
 }
 
+/**
+ * Insert navigation elements into routes requiring them
+ * @param {*} _this 
+ */
 function navBar(_this) {
   if (_this.state.authenticated === false) {
     // With this I can remove the login button for nav
@@ -508,19 +518,18 @@ App.prototype.render = function() {
   this.container.innerHTML = '';
 
   // Apply nav
-  var navRoutes = ["home", "create", "dashboard", "profile"];
-  if ($.inArray(currRouteId, navRoutes) >= 0) {
-    // IDEA: See if I can include all the nav code here as well
+  var routes = ["home", "create", "manipulate", "dashboard", "profile"];
+  if ($.inArray(currRouteId, routes) >= 0) {
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(nav);
-  }
 
-  // Add invisible div for content padding below nav
-  var divRoutes = ["create", "manipulate", "dashboard", "profile"];
-  if ($.inArray(currRouteId, divRoutes) >= 0) {
-    var invisibleDiv = document.createElement('div');
-    invisibleDiv.style.cssText = "height: 60px;";
-    this.container.appendChild(invisibleDiv);
+    // Looks bad to have padding on home
+    if (currRouteId != "home") {
+      // Add invisible div for content padding below nav
+      var invisibleDiv = document.createElement('div');
+      invisibleDiv.style.cssText = "height: 60px;";
+      this.container.appendChild(invisibleDiv);
+    }
   }
 
   this.container.appendChild(element);
