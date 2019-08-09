@@ -43,7 +43,8 @@ function App() {
   this.logout = this.logout.bind(this);
 }
 
-var nav, userId, profile, _this; // https://stackoverflow.com/a/1338622
+// TODO: Fix problem with many more redirects being called than necessary as time goes on
+var nav, book, userId, profile, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -123,10 +124,12 @@ App.prototype.state = {
         $('#tabs-swipe-demo').tabs();
         manageTabMenu();
 
-        // TODO: set the content of the two menu pages in this function
-        // NOTE: There is a problem with this being called many more times than it is supposed
-          // when clicking on dashboard more than once; TODO: FIX!
-        //pullUserRelatedBooks();
+        // User clicks "Send one now!" and they're redirected to the create route
+        $('#start').click(function() {
+          _this.redirectTo('/create');
+        });
+
+        pullUserRelatedBooks();
       }
     },
     '/profile': {
@@ -158,8 +161,30 @@ function pullUserRelatedBooks() {
       url: "http://www.couponbooked.com/scripts/getData?userId=" + userId,
       datatype: "html",
       success: function(data) {
-        console.log("User related data:")
-        console.log(data);
+        data = JSON.parse(data);
+
+        // Go over sent and received arrays
+        $.each(data, function(arrayNumber, array) {
+            var isSent = arrayNumber == 0;
+            var applicableElement = isSent ? getById("sent") : getById("received");
+
+            // Go over each coupon book in sent {0} or received array {1}
+            $.each(array, function(couponNumber, couponBook) {
+                if (couponBook) {
+                  // TODO: improve this by showing image, title, other person
+                  var node = document.createElement('div');
+                  node.innerHTML = couponBook.bookData;
+                  applicableElement.appendChild(node);
+
+                  console.log(couponBook)
+                } else {
+                  var element = isSent ? $("#noneSent") : $("#noneReceived");
+                  if (element.hasClass("hidden")) {
+                    element.removeClass("hidden");
+                  }
+                }
+            });
+        });
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.log("Error in pullUserRelatedBooks:");
@@ -183,14 +208,17 @@ function getTemplate(template) {
         // Should never happen outside of testing, but just in case.
         alert("No applicable template. Please try again.")
       } else {
-        // start editing
-        alert("this is where editing should begin!")
+        console.log(data)
+        book = JSON.parse(data); // IDEA: Parse here?
+        console.log(book)
+        
+        _this.redirectTo('/manipulate');
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in getTemplate:");
       console.error(errorThrown);
-      // TODO: stop the process somehow
+      // TODO: use Materialize to show failure pop-up
     }
   });
 }
@@ -335,8 +363,7 @@ function manageTabMenu() {
 
     // Swipe right
     if (ratio_horizontal > ratioComparison) {
-      // https://stackoverflow.com/a/5783319/6456163
-      var sentIsActive = $('#sentButton.active').length; // 0 if class doesn't exist, which means false
+      var sentIsActive = $('#sentButton').hasClass('active');
       if (sentIsActive) {
         /*$(function () {
           $("#sent").animate({

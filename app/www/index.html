@@ -189,8 +189,20 @@
             <li class="tab"><a id="receivedButton" href="#received">Received</a></li>
         </ul>
         <div id="gestureZone">
-            <div id="sent" class="col">Sent coupon books go here!</div>
-            <div id="received" class="col">Received coupon books go here!</div>
+            <div id="sent" class="col">
+                <div id="noneSent" class="hidden">
+                    <!-- Formatted like this in case I decide to add something else to message; if not, will switch to paragraph -->
+                    You haven't sent any Books yet. <br />
+                    <a id="start">Send one now!</a>
+                </div>
+            </div>
+            <div id="received" class="col">
+                <div id="noneReceived" class="hidden">
+                    <!-- TODO: Work on the idea of requesting coupon books -->
+                    You haven't received any Books yet. <br />
+                    Want to <a>request one</a>?
+                </div>
+            </div>
         </div>
     </template>
 
