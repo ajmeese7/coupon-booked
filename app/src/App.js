@@ -43,7 +43,6 @@ function App() {
   this.logout = this.logout.bind(this);
 }
 
-// TODO: Fix problem with many more redirects being called than necessary as time goes on
 var nav, book, userId, profile, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
@@ -73,7 +72,7 @@ App.prototype.state = {
 
         // Login button at bottom of page
         var loginButton = getBySelector('.btn-login');
-        loginButton.addEventListener('click', this.login);
+        $(loginButton).unbind().click(this.login);
       }
     },
     '/home': {
@@ -83,7 +82,7 @@ App.prototype.state = {
         _this = this;
         navBar(_this);
 
-        $('#createBook button').click(function() {
+        $('#createBook button').unbind().click(function() {
           _this.redirectTo('/create');
         });
       }
@@ -99,7 +98,7 @@ App.prototype.state = {
         var marginBottom = $('button').css("margin-bottom");
         $('#buttonContainer button').height(width + marginBottom);
 
-        $('#buttonContainer button').click(function() {
+        $('#buttonContainer button').unbind().click(function() {
           // TODO- start manipulating (redirect to manipulation route?), store locally until saved
             // https://stackoverflow.com/a/22162030
           var name = $(this).text().toLowerCase();
@@ -125,7 +124,7 @@ App.prototype.state = {
         manageTabMenu();
 
         // User clicks "Send one now!" and they're redirected to the create route
-        $('#start').click(function() {
+        $('#start').unbind().click(function() {
           _this.redirectTo('/create');
         });
 
@@ -145,7 +144,7 @@ App.prototype.state = {
         profileCodeContainer.textContent = JSON.stringify(profile, null, 4);
         
         var logoutButton = getBySelector('.btn-logout');
-        logoutButton.addEventListener('click', this.logout);
+        $(logoutButton).unbind().click(this.logout);
       }
     }
   }
@@ -225,7 +224,7 @@ function getTemplate(template) {
 
 /**
  * Create a new Coupon Book and upload it to the database
- * @param {string} book 
+ * @param {string} book stringified version of JSON
  */
 function createBook(book) {
   var uuid = uuidv4();
@@ -256,8 +255,8 @@ function createBook(book) {
 
 /**
  * Update book, whether by adding more coupons or changing the counts.
- * @param {string} book 
- * @param {string} bookId 
+ * @param {string} book the new bookData of the book, post-stringification
+ * @param {string} bookId the UUID of the book
  */
 function updateCouponBook(book, bookId) {
   $.ajax({
@@ -279,7 +278,7 @@ function updateCouponBook(book, bookId) {
 
 /**
  * Insert navigation elements into routes requiring them
- * @param {*} _this 
+ * @param {*} _this passing the `this` reference as parameter from calling route
  */
 function navBar(_this) {
   if (_this.state.authenticated === false) {
@@ -289,7 +288,7 @@ function navBar(_this) {
 
   // Route to home on title or logo click
   var mobile = getBySelector("#mobile");
-  mobile.addEventListener('click', function() { _this.redirectTo('/home') });
+  $(mobile).unbind().click(function() { _this.redirectTo('/home') });
 
   // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
   var avatar = getBySelector('.profile-image');
@@ -314,25 +313,25 @@ function navBar(_this) {
 
   // Dashboard button on dropdown
   var dashboardButton = getBySelector('.dashboard');
-  dashboardButton.addEventListener('click', function() { _this.redirectTo('/dashboard') });
+  $(dashboardButton).unbind().click(function() { _this.redirectTo('/dashboard') });
 
   // Profile button on dropdown
   var profileButton = getBySelector('.profile');
-  profileButton.addEventListener('click', function() { _this.redirectTo('/profile') });
+  $(profileButton).unbind().click(function() { _this.redirectTo('/profile') });
 
   // Logout button on dropdown
   var logoutButton = getBySelector('.logout');
-  logoutButton.addEventListener('click', _this.logout);
+  $(logoutButton).unbind().click( _this.logout );
 
   // Profile picture dropdown
-  $(".account").click(function() {
+  $(".account").unbind().click(function() {
       // TODO: See if it is possible to have the shadow visible before the entire element is unrolled
       // IDEA: Container element?
       if (!$('.submenu').is(':visible')) {
         $(".submenu").slideDown();
       }
   });
-  $(document).mouseup(function() {
+  $(document).unbind().mouseup(function() {
       // TODO: Find a way for scrolling to close it
       $(".submenu").slideUp();
   });
@@ -394,7 +393,6 @@ App.prototype.loadProfile = function(cb) {
 };
 
 App.prototype.login = function(e) {
-  // TODO: Look into this forcing another login after authentication state confirmed
   e.target.disabled = true;
 
   var client = new Auth0Cordova({
