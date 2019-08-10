@@ -54,6 +54,9 @@ App.prototype.state = {
       onMount: function(page) {
         console.warn("/ route...");
         nav = getBySelector("#nav");
+
+        // Don't want to have to code an annoying landscape layout
+        screen.orientation.lock('portrait');
         
         if (this.state.authenticated === true) {
           return this.redirectTo('/home');
