@@ -20,7 +20,8 @@ table by hand with the desired coupon names and counts. This is possible to do
 dynamically, but in my case it was easier to do it manually because I only had
 twelve coupons.
 
+The app is reduced to approximately 10mb once deployed to Android, so don't make
+the mistake I made and think you need to minify the massive node_modules folder.
+
 ## TODO
-Eventually I need to minimize all the library use to reduce the size of the app,
-but that is something to handle farther down the road when I have a working
-prototype.
+

@@ -19,8 +19,7 @@ a {
 }
 
 section {
-    /* TODO: Make this work better for when viewing desktop mode on mobile */
-    min-height: 100vh;
+    min-height: calc(100vh - 60px);
     width: 100vw;
 }
 
@@ -29,7 +28,6 @@ section {
     display: none;
 }
 
-/* NOTE: Could use class toggle with hide instead; commit eec9c44241e78171254e6c677ddbc0338104c0f2 */
 #deviceReady {
     display: none;
 }
@@ -37,6 +35,7 @@ section {
 /* WHY */
 
 #why {
+    min-height: 100vh;
     background-image: url("../images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
     background-repeat: no-repeat;
     background-position: center;
