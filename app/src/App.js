@@ -113,8 +113,7 @@ App.prototype.state = {
         // TODO: Make sure the user clicks "save" first, then add name to JSON (not param) {?}
         // TODO: Create save button, whether on redirected page or if modifying current
         $('#save').click(function() {
-          // TODO: Display notification [Spotify style] that it saved successfully or failed;
-          // Add that capability with returning the success/failure from function
+          createBook(JSON.stringify(book));
           createBook("testData"); // TODO: Include the actual data here
         });
       }
@@ -157,6 +156,7 @@ App.prototype.state = {
 
 /**
  * Establish connection with the database so no load times later on.
+ * TODO: Secure PHP files so no malicious requests are made.
  */
 function createConnection() {
   $.ajax({
@@ -174,7 +174,8 @@ function createConnection() {
 }
 
 /**
- * Retrieve coupon books the user has sent or received.
+ * Retrieve coupon books the user has sent or received and
+ * add the applicable HTML to the page.
  */
 function pullUserRelatedBooks() {
   var userId = localStorage.getItem('user_id');
@@ -251,8 +252,9 @@ function pullUserRelatedBooks() {
 }
 
 /**
- * Get the template corresponding to the button the user selects.
- * @param {string} template 
+ * Get the template corresponding to the button the user selects
+ * and send the user to the manipulation page.
+ * @param {string} template the name of the template to be retreived
  */
 function getTemplate(template) {
   $.ajax({
@@ -280,17 +282,57 @@ function getTemplate(template) {
 }
 
 /**
+ * Development-only function. Meant to aid in the process of creating
+ * templates and adding them to the template table in the database.
+ * @param {string} name the name of the template to be created
+ * @param {string} templateData stringified JSON that comprises the coupons
+ */
+function createTemplate(name, templateData) {
+  // IDEA: Option on manipulate page if userId is mine to send data as template;
+  // Obviously remove before production to avoid hackers
+  $.ajax({
+    type: "POST",
+    url: "http://www.couponbooked.com/scripts/createTemplate",
+    data: { name: name, templateData: templateData },
+    crossDomain: true,
+    dataType: "html",
+    cache: false,
+    success: function(success) {
+      // PHP echos a message if name already exists; if it doesn't, PHP is silent
+      if (success) {
+        // Notify of failure; set notification to red
+        var message = "Template by name '" + name + "' already exists. Please choose another name.";
+      } else {
+        // Notify of success; set notification to green
+        var message = "Successfully created template";
+      }
+      
+      alert(message);
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in createTemplate:");
+      console.error(errorThrown);
+
+      // Notify of failure; set notification to red
+      var message = "Error creating coupon book. Please try again later.";
+      alert(message);
+    }
+  });
+}
+
+/**
  * Create a new Coupon Book and upload it to the database
  * @param {string} book stringified version of JSON
  */
-function createBook(book) {
+function createBook(bookData) {
   var uuid = uuidv4();
   var sender = localStorage.getItem('user_id');
   $.ajax({
+    // TODO: Display notification [Spotify style] that it saved successfully or failed
     // TODO: Look into if there are fancier additional settings
     type: "POST",
     url: "http://www.couponbooked.com/scripts/createBook",
-    data: { bookId: uuid, sender: sender, bookData: book },
+    data: { bookId: uuid, sender: sender, bookData: bookData },
     crossDomain: true,
     dataType: "html",
     cache: false,
@@ -335,7 +377,7 @@ function updateCouponBook(book, bookId) {
 
 /**
  * Insert navigation elements into routes requiring them
- * @param {*} _this passing the `this` reference as parameter from calling route
+ * @param {object} _this passing the `this` reference as parameter from calling route
  */
 function navBar(_this) {
   if (_this.state.authenticated === false) {
