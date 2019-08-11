@@ -101,3 +101,25 @@ label {
     top: calc(50% - 60px); /* Subtract nav height for better-looking vertical center */
     transform: translateY(-50%);
 }
+
+.bookPreview {
+    width: 49%;
+    display: inline-block;
+    text-align: center;
+    margin-top: 15px;
+    margin-left: .25%;
+}
+.bookImage {
+    line-height: 1.175;
+    display: block;
+    margin: auto;
+    width: 80%;
+}
+.bookName {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 0;
+}
+.receiverText, .senderText {
+    color: #7E7E7E;
+}

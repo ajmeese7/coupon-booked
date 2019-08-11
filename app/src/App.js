@@ -85,6 +85,8 @@ App.prototype.state = {
         _this = this;
         navBar(_this);
 
+        createConnection();
+
         $('#createBook button').unbind().click(function() {
           _this.redirectTo('/create');
         });
@@ -154,6 +156,24 @@ App.prototype.state = {
 };
 
 /**
+ * Establish connection with the database so no load times later on.
+ */
+function createConnection() {
+  $.ajax({
+    type: "GET",
+    url: "http://www.couponbooked.com/scripts/createConnection",
+    datatype: "html",
+    success: function(data) {
+      console.warn("Successfully established database connection.");
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error establishing connection:");
+      console.error(errorThrown);
+    }
+  });
+}
+
+/**
  * Retrieve coupon books the user has sent or received.
  */
 function pullUserRelatedBooks() {
@@ -173,13 +193,47 @@ function pullUserRelatedBooks() {
             // Go over each coupon book in sent {0} or received array {1}
             $.each(array, function(couponNumber, couponBook) {
                 if (couponBook) {
-                  // TODO: improve this by showing image, title, other person
-                  var node = document.createElement('div');
-                  node.innerHTML = couponBook.bookData;
-                  applicableElement.appendChild(node);
-
                   console.log(couponBook)
+                  var node = document.createElement('div');
+                  node.setAttribute("class", "bookPreview");
+
+                  // Image to represent book
+                  if (couponBook.image) {
+                    node.innerHTML += "<img class='bookImage' src='" + couponBook.bookData.image + "' />";
+                  } else {
+                    // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
+                    node.innerHTML += "<img class='bookImage' src='images/gift.png' />";
+                  }
+
+                  // Name of coupon book
+                  node.innerHTML += "<p class='bookName'>" + couponBook.bookData + "</p>"; /* TODO: .name*/
+
+                  // TODO: Test line wrapping or something for longer book names
+                  if (isSent) {
+                    // Sent books
+                    var receiver = couponBook.receiver;
+                    if (receiver) {
+                      // Who the book is sent to
+                      // TODO: How to store reciever name in way that is readable?
+                      node.innerHTML += "<p class='receiverText'>Sent to " + receiver + "</p>";
+                    } else {
+                      node.innerHTML += "<p class='receiverText'>Not sent yet</p>";
+                    }
+                  } else {
+                    // Received books
+                    var sender = couponBook.sender;
+                    if (sender) {
+                      // Who the book is sent from
+                      node.innerHTML += "<p class='senderText'>Sent from " + sender + "</p>";
+                    } else {
+                      // Don't know how this would ever happen, but just in case
+                      node.innerHTML += "<p class='senderText'>Sender unavailable</p>";
+                    }
+                  }
+
+                  applicableElement.appendChild(node);
                 } else {
+                  // Let the user know there are no books of the specifed type
                   var element = isSent ? $("#noneSent") : $("#noneReceived");
                   if (element.hasClass("hidden")) {
                     element.removeClass("hidden");
