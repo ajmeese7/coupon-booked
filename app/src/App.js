@@ -260,7 +260,11 @@ function pullUserRelatedBooks() {
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.log("Error in pullUserRelatedBooks:");
         console.error(errorThrown);
-        // TODO: Display some kind of `failed` pop-up to user
+
+        SimpleNotification.error({
+          title: 'Error retreiving info',
+          text: 'Please try again later.'
+        }, notificationOptions);
       }
   });
 }
