@@ -162,3 +162,19 @@ label {
     color: white;
     background-color: #0b98de;
 }
+
+.gn-wrapper {
+    top: auto;
+    bottom: auto;
+    width: 100%;
+}
+.gn-top-right {
+    top: auto !important;
+}
+.gn-notification>h1 {
+    font-size: large;
+}
+.gn-notification {
+    margin-right: auto !important;
+    margin-left: auto !important;
+}

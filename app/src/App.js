@@ -43,6 +43,8 @@ function App() {
   this.logout = this.logout.bind(this);
 }
 
+// Should this close on click or reset timer default behavior?
+var notificationOptions = { fadeout: 500, closeOnClick: true, duration: 3000 };
 var nav, book, userId, profile, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
@@ -277,17 +279,23 @@ function getTemplate(template) {
     success: function(data) {
       if (data == "") {
         // Should never happen outside of testing, but just in case.
-        alert("No applicable template. Please try again.")
+        SimpleNotification.error({
+          title: 'No applicable template',
+          text: 'Please try again.'
+        }, notificationOptions);
       } else {
         book = JSON.parse(data);
-        
         _this.redirectTo('/manipulate');
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in getTemplate:");
       console.error(errorThrown);
-      // TODO: use something to show failure pop-up
+
+      SimpleNotification.error({
+        title: 'Error retreiving template!',
+        text: 'Please try again later.'
+      }, notificationOptions);
     }
   });
 }
@@ -311,22 +319,25 @@ function createTemplate(name, templateData) {
     success: function(success) {
       // PHP echos a message if name already exists; if it doesn't, PHP is silent
       if (success) {
-        // Notify of failure; set notification to red
-        var message = "Template by name '" + name + "' already exists. Please choose another name.";
+        SimpleNotification.warning({
+          title: 'Please choose another name!',
+          text: 'Template by name ' + name + ' already exists.'
+        }, notificationOptions);
       } else {
-        // Notify of success; set notification to green
-        var message = "Successfully created template";
+        SimpleNotification.success({
+          title: 'Successfully created template!',
+          text: 'Good for you. Keep up the great work!'
+        }, notificationOptions);
       }
-      
-      alert(message);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in createTemplate:");
       console.error(errorThrown);
 
-      // Notify of failure; set notification to red
-      var message = "Error creating coupon book. Please try again later.";
-      alert(message);
+      SimpleNotification.error({
+        title: 'Error creating template',
+        text: 'Please try again later.'
+      }, notificationOptions);
     }
   });
 }
@@ -348,17 +359,21 @@ function createBook(bookData) {
     dataType: "html",
     cache: false,
     success: function(success) {
-      // Notify of success; set notification to green
-      var message = "Successfully created coupon book";
-      alert(message);
+      SimpleNotification.success({
+        text: 'Successfully saved book' // Created looks better; can I use?
+      }, notificationOptions);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in createBook POST:");
+      console.log("Error in createBook:");
       console.error(errorThrown);
 
-      // Notify of failure; set notification to red
-      var message = "Error creating coupon book. Please try again later";
-      alert(message);
+      SimpleNotification.error({
+        // TODO: Try jQuery slideDown animation
+        // TODO: Delete on page change! Something with routing? Or modify JS to add to .app
+        // TODO: Test if it's possible to have better close animation
+        title: 'Error creating book!',
+        text: 'Please try again later.'
+      }, notificationOptions);
     }
   });
 }
