@@ -5,6 +5,10 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Temporary; https://fonts.google.com/ */
 }
 
+html {
+    min-height: 100vh;
+}
+
 body {
   	background-color: #f9f9f9 !important;
     margin: 0px;
@@ -16,6 +20,12 @@ body {
 
 a {
     text-decoration: none;
+}
+button {
+    border: .5px solid black;
+}
+button:focus, a:focus {
+    outline: none;
 }
 
 section {

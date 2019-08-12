@@ -91,6 +91,7 @@ label {
     width: 100%;
 }
 
+/* For dashboard tab menu */
 .col {
     padding: 0px;
 }
@@ -102,6 +103,7 @@ label {
     transform: translateY(-50%);
 }
 
+/* Dashboard page elements */
 .bookPreview {
     width: 49%;
     display: inline-block;
@@ -122,4 +124,41 @@ label {
 }
 .receiverText, .senderText {
     color: #7E7E7E;
+}
+
+#save {
+    float: right;
+}
+
+/* Manipulate page elements */
+#manipulateTopbar {
+    width: 100%;
+    height: 40px;
+    margin-top: -5px;
+    background-color: #EEEEEE;
+}
+#manipulateTopbar a {
+    /* TODO Style these a LOT better */
+    font-size: 18.5px;
+    line-height: 40px;
+}
+#back {
+    margin-left: 13px;
+}
+#save {
+    margin-right: 13px;
+}
+#plus {
+    /* TODO: For all important buttons, add click animation effect */
+    border-radius: 50%;
+    position: absolute;
+    z-index: 99;
+    right: 0;
+    bottom: 0;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    width: 50px;
+    height: 50px;
+    color: white;
+    background-color: #0b98de;
 }

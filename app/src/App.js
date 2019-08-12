@@ -109,12 +109,24 @@ App.prototype.state = {
           var name = $(this).text().toLowerCase();
           getTemplate(name);
         });
+      }
+    },
+    '/manipulate': {
+      id: 'manipulate',
+      onMount: function(page) {
+        _this = this;
+        navBar(_this);
 
-        // TODO: Make sure the user clicks "save" first, then add name to JSON (not param) {?}
-        // TODO: Create save button, whether on redirected page or if modifying current
-        $('#save').click(function() {
+        // For example, in case you change your mind and want to use a different template
+        $('#back').unbind().click(function() {
+          book = null;
+          _this.redirectTo('/create');
+        });
+
+        $('#save').unbind().click(function() {
+          // IDEA: Have this function called saveBook and update if existing and create if not;
+            // instead can I just check if book already has a UUID?
           createBook(JSON.stringify(book));
-          createBook("testData"); // TODO: Include the actual data here
         });
       }
     },
@@ -131,7 +143,7 @@ App.prototype.state = {
         $('#start').unbind().click(function() {
           _this.redirectTo('/create');
         });
-
+        
         pullUserRelatedBooks();
       }
     },
@@ -253,7 +265,8 @@ function pullUserRelatedBooks() {
 
 /**
  * Get the template corresponding to the button the user selects
- * and send the user to the manipulation page.
+ * and send the user to the manipulation page. Sets the requested
+ * data to the global book variable.
  * @param {string} template the name of the template to be retreived
  */
 function getTemplate(template) {
@@ -266,9 +279,7 @@ function getTemplate(template) {
         // Should never happen outside of testing, but just in case.
         alert("No applicable template. Please try again.")
       } else {
-        console.log(data)
-        book = JSON.parse(data); // IDEA: Parse here?
-        console.log(book)
+        book = JSON.parse(data);
         
         _this.redirectTo('/manipulate');
       }
@@ -276,7 +287,7 @@ function getTemplate(template) {
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in getTemplate:");
       console.error(errorThrown);
-      // TODO: use Materialize to show failure pop-up
+      // TODO: use something to show failure pop-up
     }
   });
 }
