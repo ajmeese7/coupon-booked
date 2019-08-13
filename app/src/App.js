@@ -354,7 +354,6 @@ function createBook(bookData) {
   var uuid = uuidv4();
   var sender = localStorage.getItem('user_id');
   $.ajax({
-    // TODO: Display notification [Spotify style] that it saved successfully or failed
     // TODO: Look into if there are fancier additional settings
     type: "POST",
     url: "http://www.couponbooked.com/scripts/createBook",
