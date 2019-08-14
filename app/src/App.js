@@ -230,12 +230,12 @@ function pullUserRelatedBooks() {
             // Go over each coupon book in sent {0} or received array {1}
             $.each(array, function(couponNumber, couponBook) {
                 if (couponBook) {
-                  console.warn(couponBook);
+                  var bookData = JSON.parse(couponBook.bookData);
                   var node = document.createElement('div');
                   node.setAttribute("class", "bookPreview");
 
                   // Image to represent book
-                  var image = couponBook.bookData.image;
+                  var image = bookData.image;
                   if (image) {
                     node.innerHTML += "<img class='bookImage' src='" + image + "' />";
                   } else {
@@ -245,7 +245,7 @@ function pullUserRelatedBooks() {
                   }
 
                   // Name of coupon book
-                  node.innerHTML += "<p class='bookName'>" + couponBook.bookData.name + "</p>";
+                  node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
 
                   if (isSent) {
                     // Who the book is sent to
@@ -295,16 +295,18 @@ function pullUserRelatedBooks() {
  */
 function displayBook() {
   // TODO: Implement way to rearrange organization of coupons; also change
-  // display options like default, alphabetical, count remaining, etc.
+  // display options like default, alphabetical, count remaining, etc.;
+  // should changing display preference permenantly update the order?
   $.each(book.coupons, function(couponNumber, coupon) {
     console.warn("Coupon #" + couponNumber + ":");
     console.warn(coupon);
 
+    // TODO: Figure out how to display image licenses if not paying for yearly subscription
     var node = document.createElement('div');
     node.setAttribute("class", "couponPreview");
     node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
     node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
-    node.innerHTML += "<p class='couponCount'>Count: " + coupon.count + "</p>"; // TODO: Think about better ways to show
+    node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
     getById("bookContent").appendChild(node);
   });
 }
@@ -330,6 +332,12 @@ function getTemplate(name) {
       } else {
         book = JSON.parse(data);
         book = JSON.parse(book.templateData);
+
+        // Capitalize name; looks better
+        var name = book.name;
+        name = name.charAt(0).toUpperCase() + name.slice(1)
+        book.name = name;
+
         _this.redirectTo('/manipulate');
       }
     },
@@ -427,10 +435,6 @@ function updateTemplate() {
 function createCoupon() {
   // IDEA: Store all these tiny images locally and cut out server except for custom images
   var coupon = new Object();
-  /*coupon.name = "Fold Laundry";
-  coupon.description = "Will fold every piece of laundry and deliver them to the right person.";
-  coupon.image = "https://res.cloudinary.com/couponbooked/image/upload/v1565447650/cleaning/011-towels_aokzfg.png";
-  coupon.count = 3;*/
   /*coupon.name = "Clean counters";
   coupon.description = "Will clean every dirty surface in the kitchen and bathrooms.";
   coupon.image = "https://res.cloudinary.com/couponbooked/image/upload/v1565447652/cleaning/029-wipe_pilprj.png";
