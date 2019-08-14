@@ -26,9 +26,9 @@ function getAllByClassName(className) {
 var cleanBuild = false;
 function App() {
   // NOTE: Uncomment this to test with all localStorage erased
-  // cleanBuild = true;
+  //cleanBuild = true;
   if (cleanBuild) {
-    console.log("Wiping local storage...");
+    console.warn("Wiping local storage...");
     localStorage.removeItem('user_id');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -43,8 +43,12 @@ function App() {
   this.logout = this.logout.bind(this);
 }
 
+// TODO: Try jQuery slideDown animation
+// TODO: Delete on page change! Something with routing? Or modify JS to add to .app
+// TODO: Test if it's possible to have better close animation
 // Should this close on click or reset timer default behavior?
-var notificationOptions = { fadeout: 500, closeOnClick: true, duration: 3000 };
+var notificationOptions = { fadeout: 500, closeButton: false, duration: 3000 };
+
 var nav, book, userId, profile, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
@@ -106,8 +110,7 @@ App.prototype.state = {
         $('#buttonContainer button').height(width + marginBottom);
 
         $('#buttonContainer button').unbind().click(function() {
-          // TODO- start manipulating (redirect to manipulation route?), store locally until saved
-            // https://stackoverflow.com/a/22162030
+          // getTemplate handles the redirect to manipulation
           var name = $(this).text().toLowerCase();
           getTemplate(name);
         });
@@ -119,6 +122,8 @@ App.prototype.state = {
         _this = this;
         navBar(_this);
 
+        displayBook();
+
         // For example, in case you change your mind and want to use a different template
         $('#back').unbind().click(function() {
           book = null;
@@ -128,7 +133,12 @@ App.prototype.state = {
         $('#save').unbind().click(function() {
           // IDEA: Have this function called saveBook and update if existing and create if not;
             // instead can I just check if book already has a UUID?
-          createBook(JSON.stringify(book));
+
+            createBook();
+        });
+        // Shows user UI to create a new coupon to add to the book
+        $('#plus').unbind().click(function() {
+          console.log("Plus button clicked")
         });
       }
     },
@@ -202,43 +212,43 @@ function pullUserRelatedBooks() {
 
         // Go over sent and received arrays
         $.each(data, function(arrayNumber, array) {
+            /** If true, book was sent. If false, it was received. */
             var isSent = arrayNumber == 0;
             var applicableElement = isSent ? getById("sent") : getById("received");
 
             // Go over each coupon book in sent {0} or received array {1}
             $.each(array, function(couponNumber, couponBook) {
                 if (couponBook) {
-                  console.log(couponBook)
+                  console.warn(couponBook);
                   var node = document.createElement('div');
                   node.setAttribute("class", "bookPreview");
 
                   // Image to represent book
-                  if (couponBook.image) {
-                    node.innerHTML += "<img class='bookImage' src='" + couponBook.bookData.image + "' />";
+                  var image = couponBook.bookData.image;
+                  if (image) {
+                    node.innerHTML += "<img class='bookImage' src='" + image + "' />";
                   } else {
                     // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
+                    // IDEA: Instead of doing this, just set as src for coupon book on creation
                     node.innerHTML += "<img class='bookImage' src='images/gift.png' />";
                   }
 
                   // Name of coupon book
-                  node.innerHTML += "<p class='bookName'>" + couponBook.bookData + "</p>"; /* TODO: .name*/
+                  node.innerHTML += "<p class='bookName'>" + couponBook.bookData.name + "</p>";
 
-                  // TODO: Test line wrapping or something for longer book names
                   if (isSent) {
-                    // Sent books
+                    // Who the book is sent to
                     var receiver = couponBook.receiver;
                     if (receiver) {
-                      // Who the book is sent to
                       // TODO: How to store reciever name in way that is readable?
                       node.innerHTML += "<p class='receiverText'>Sent to " + receiver + "</p>";
                     } else {
                       node.innerHTML += "<p class='receiverText'>Not sent yet</p>";
                     }
                   } else {
-                    // Received books
+                    // Who the book is sent from
                     var sender = couponBook.sender;
                     if (sender) {
-                      // Who the book is sent from
                       node.innerHTML += "<p class='senderText'>Sent from " + sender + "</p>";
                     } else {
                       // Don't know how this would ever happen, but just in case
@@ -270,15 +280,34 @@ function pullUserRelatedBooks() {
 }
 
 /**
+ * Takes the current book JSON data and adds it to the page.
+ */
+function displayBook() {
+  // TODO: Implement way to rearrange organization of coupons; also change
+  // display options like default, alphabetical, count remaining, etc.
+  $.each(book.coupons, function(couponNumber, coupon) {
+    console.warn("Coupon #" + couponNumber + ":");
+    console.warn(coupon);
+
+    var node = document.createElement('div');
+    node.setAttribute("class", "couponPreview");
+    node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
+    node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
+    node.innerHTML += "<p class='couponCount'>Count: " + coupon.count + "</p>"; // TODO: Think about better ways to show
+    getById("bookContent").appendChild(node);
+  });
+}
+
+/**
  * Get the template corresponding to the button the user selects
  * and send the user to the manipulation page. Sets the requested
  * data to the global book variable.
- * @param {string} template the name of the template to be retreived
+ * @param {string} name the name of the template to be retreived
  */
-function getTemplate(template) {
+function getTemplate(name) {
   $.ajax({
     type: "GET",
-    url: "http://www.couponbooked.com/scripts/getTemplate?template=" + template,
+    url: "http://www.couponbooked.com/scripts/getTemplate?template=" + name,
     datatype: "html",
     success: function(data) {
       if (data == "") {
@@ -289,6 +318,7 @@ function getTemplate(template) {
         }, notificationOptions);
       } else {
         book = JSON.parse(data);
+        book = JSON.parse(book.templateData);
         _this.redirectTo('/manipulate');
       }
     },
@@ -348,22 +378,21 @@ function createTemplate(name, templateData) {
 
 /**
  * Create a new Coupon Book and upload it to the database
- * @param {string} book stringified version of JSON
  */
-function createBook(bookData) {
+function createBook() {
   var uuid = uuidv4();
   var sender = localStorage.getItem('user_id');
   $.ajax({
     // TODO: Look into if there are fancier additional settings
     type: "POST",
     url: "http://www.couponbooked.com/scripts/createBook",
-    data: { bookId: uuid, sender: sender, bookData: bookData },
+    data: { bookId: uuid, sender: sender, bookData: JSON.stringify(book) },
     crossDomain: true,
     dataType: "html",
     cache: false,
     success: function(success) {
       SimpleNotification.success({
-        text: 'Successfully saved book' // Created looks better; can I use?
+        text: 'Successfully created book'
       }, notificationOptions);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -371,9 +400,6 @@ function createBook(bookData) {
       console.error(errorThrown);
 
       SimpleNotification.error({
-        // TODO: Try jQuery slideDown animation
-        // TODO: Delete on page change! Something with routing? Or modify JS to add to .app
-        // TODO: Test if it's possible to have better close animation
         title: 'Error creating book!',
         text: 'Please try again later.'
       }, notificationOptions);
@@ -581,7 +607,7 @@ App.prototype.redirectTo = function(route) {
 };
 
 App.prototype.resumeApp = function() {
-  console.log("Please unhide warnings when debugging routing. Otherwise, hide them.");
+  console.log("Please unhide warnings if debugging. Otherwise, you might want to hide them.");
   console.warn("resumeApp...");
   _this = this;
   var accessToken = localStorage.getItem('access_token');

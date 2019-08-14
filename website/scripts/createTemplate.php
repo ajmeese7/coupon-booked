@@ -7,7 +7,8 @@
 
   // In case template with that name already exists
   if ($result->num_rows > 0) {
-      echo "name already exists";
+    // Not replacing with error codes because this works better (can display warning)
+    echo "name already exists";
   } else {
     $templateData = $_POST["templateData"];
     $sql = "INSERT INTO templates (name, templateData) VALUES ('$name', '$templateData')";

@@ -191,10 +191,14 @@
         <!-- Will create new coupon -->
         <button id="plus">+</button>
         
-        <div id="bookContent">
+        <div id="bookContent" class="col">
             <!-- IDEA: Put everything editing here and make other stuff top bar like dashboard -->
             <!-- IDEA: When you click on one, pencil icon instead of plus to modify name, count, image -->
         </div>
+
+        <form class="hide">
+            <!-- TODO: Figure out a good way to display a form when I need to -->
+        </form>
     </template>
 
     <template id="dashboard">
@@ -243,7 +247,7 @@
     <script src="cordova.js"></script>
     <script src="./index.js"></script>
     <script src="js/jquery.min.js"></script>
-    <script src="js/materialize.js"></script> <!-- TODO: Minimize eventually -->
+    <script src="js/materialize.js"></script>
     <script src="js/simpleNotification.min.js"></script>
 </body>
 

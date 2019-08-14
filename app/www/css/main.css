@@ -81,7 +81,6 @@ label {
     background-color: #24a0ed; /* TODO: Work on color; https://encycolorpedia.com/24a0ed + https://fvsch.com/styling-buttons/ */
     border-color: #1183ca;
     color: rgb(241, 241, 241);
-    /*text-shadow: 0 1px 0 #f3f3f3;*/
 }
 
 /* None of this should be necessary, but *might* speed up animations */
@@ -104,25 +103,32 @@ label {
 }
 
 /* Dashboard page elements */
-.bookPreview {
-    width: 49%;
+.bookPreview, .couponPreview {
     display: inline-block;
     text-align: center;
     margin-top: 15px;
+}
+.bookPreview {
+    width: 49%;
     margin-left: .25%;
 }
-.bookImage {
-    line-height: 1.175;
-    display: block;
+.couponPreview {
+    /* Numbers don't add up, but it's what looks prettiest to me right now */
+    float: left;
+    width: 45%;
+    margin-left: 3.25%;
+}
+.bookImage, .couponImage {
     margin: auto;
     width: 80%;
 }
-.bookName {
+.bookName, .couponName {
+    line-height: 1.4;
     font-size: 18px;
     font-weight: bold;
     margin-bottom: 0;
 }
-.receiverText, .senderText {
+.receiverText, .senderText, .couponCount {
     color: #7E7E7E;
 }
 
@@ -151,7 +157,7 @@ label {
 #plus {
     /* TODO: For all important buttons, add click animation effect */
     border-radius: 50%;
-    position: absolute;
+    position: fixed;
     z-index: 99;
     right: 0;
     bottom: 0;
