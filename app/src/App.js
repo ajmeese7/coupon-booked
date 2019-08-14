@@ -43,6 +43,9 @@ function App() {
   this.logout = this.logout.bind(this);
 }
 
+/** True means book will be published to template database; false is normal */
+var development = false;
+
 // TODO: Try jQuery slideDown animation
 // TODO: Delete on page change! Something with routing? Or modify JS to add to .app
 // TODO: Test if it's possible to have better close animation
@@ -132,10 +135,15 @@ App.prototype.state = {
 
         $('#save').unbind().click(function() {
           // IDEA: Have this function called saveBook and update if existing and create if not;
-            // instead can I just check if book already has a UUID?
+          // instead can I just check if book already has a UUID?
 
+          if (development) {
+            updateTemplate();
+          } else {
             createBook();
+          }
         });
+
         // Shows user UI to create a new coupon to add to the book
         $('#plus').unbind().click(function() {
           console.log("Plus button clicked")
@@ -156,6 +164,9 @@ App.prototype.state = {
           _this.redirectTo('/create');
         });
         
+        // TODO: Add functionality where you click on the book tile and it redirects
+        // you to the manipulate page with the data stored in `book`? What should
+        // be done for redemptions, and should you be able to edit after sending?
         pullUserRelatedBooks();
       }
     },
@@ -338,15 +349,18 @@ function getTemplate(name) {
  * Development-only function. Meant to aid in the process of creating
  * templates and adding them to the template table in the database.
  * @param {string} name the name of the template to be created
- * @param {string} templateData stringified JSON that comprises the coupons
  */
-function createTemplate(name, templateData) {
-  // IDEA: Option on manipulate page if userId is mine to send data as template;
-  // Obviously remove before production to avoid hackers
+function createTemplate(name) {
+  // TODO: Implement images here and on create page after other stuff figured out
+  var emptyTemplate = { name:name, /*image:"images/logo.png",*/ coupons:[] };
+  emptyTemplate = JSON.stringify(emptyTemplate);
+  console.warn("emptyTemplate:");
+  console.warn(emptyTemplate);
+
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/createTemplate",
-    data: { name: name, templateData: templateData },
+    data: { name: name, templateData: emptyTemplate },
     crossDomain: true,
     dataType: "html",
     cache: false,
@@ -374,6 +388,55 @@ function createTemplate(name, templateData) {
       }, notificationOptions);
     }
   });
+}
+
+/**
+ * Development-only function. Same as updateBook, but for templates.
+ */
+function updateTemplate() {
+  $.ajax({
+    type: "POST",
+    url: "http://www.couponbooked.com/scripts/updateTemplate",
+    data: { name: book.name, templateData: JSON.stringify(book) },
+    crossDomain: true,
+    dataType: "html",
+    cache: false,
+    success: function(success) {
+      if (success) {
+        console.warn("updateTemplate success:");
+        console.warn(success);
+      }
+
+      SimpleNotification.success({
+        text: 'Successfully updated template'
+      }, notificationOptions);
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in createTemplate:");
+      console.error(errorThrown);
+
+      SimpleNotification.error({
+        title: 'Error updating template',
+        text: 'Please try again later.'
+      }, notificationOptions);
+    }
+  });
+}
+
+// IDEA: Make JSON object out of field data and pass that as parameter
+function createCoupon() {
+  // IDEA: Store all these tiny images locally and cut out server except for custom images
+  var coupon = new Object();
+  /*coupon.name = "Fold Laundry";
+  coupon.description = "Will fold every piece of laundry and deliver them to the right person.";
+  coupon.image = "https://res.cloudinary.com/couponbooked/image/upload/v1565447650/cleaning/011-towels_aokzfg.png";
+  coupon.count = 3;*/
+  /*coupon.name = "Clean counters";
+  coupon.description = "Will clean every dirty surface in the kitchen and bathrooms.";
+  coupon.image = "https://res.cloudinary.com/couponbooked/image/upload/v1565447652/cleaning/029-wipe_pilprj.png";
+  coupon.count = 5;*/
+  
+  book.coupons.push(coupon);
 }
 
 /**
@@ -409,23 +472,37 @@ function createBook() {
 
 /**
  * Update book, whether by adding more coupons or changing the counts.
- * @param {string} book the new bookData of the book, post-stringification
- * @param {string} bookId the UUID of the book
+ * @param {string} bookId the UUID of the book; 
+ * TODO: Where is this coming from? TODO: Store in JSON
  */
-function updateCouponBook(book, bookId) {
+function updateBook(bookId) {
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/updateData",
-    data: { bookData: book, bookId: bookId },
+    data: { bookData: JSON.stringify(book), bookId: bookId },
     crossDomain: true,
     cache: false,
     success: function(success) {
-      // TODO
-      console.log(success)
+      // For debugging purposes
+      console.warn("updateCouponBook success:");
+      console.warn(success);
+
+      SimpleNotification.success({
+        text: 'Successfully updated coupon book'
+      }, notificationOptions);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in updateCouponBook POST:");
       console.error(errorThrown);
+
+      // TODO: Think of a good way to resolve bugs for users; some log data saved?
+      // IDEA: Have a 'report bug' thing somewhere that includes logs in report; send it where?
+      SimpleNotification.error({
+        // IDEA: Something in error messages about 'sorry for the inconvenience'?
+        // Would make them awfully long but seems like a professional thing to do.
+        title: 'Error updating coupon book!',
+        text: 'Please try again later.'
+      }, notificationOptions);
     }
   });
 }

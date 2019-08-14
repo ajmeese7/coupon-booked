@@ -20,8 +20,15 @@ table by hand with the desired coupon names and counts. This is possible to do
 dynamically, but in my case it was easier to do it manually because I only had
 twelve coupons.
 
+## Information
+Between the table rows and the JSON data stored under either bookData or 
+templateData, several bits of data are shared. This is because it is fastest
+to search in SQL through clear pieces of data, such as the UUIDs, but easiest
+in JavaScript to get that information directly from an object created from
+the JSON.
+
 The app is reduced to approximately 10mb once deployed to Android, so don't make
 the mistake I made and think you need to minify the massive node_modules folder.
 
 ## TODO
-
+- Try to add an animated book splashscreen
