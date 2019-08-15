@@ -126,28 +126,7 @@ App.prototype.state = {
         navBar(_this);
 
         displayBook();
-
-        // For example, in case you change your mind and want to use a different template
-        $('#back').unbind().click(function() {
-          book = null;
-          _this.redirectTo('/create');
-        });
-
-        $('#save').unbind().click(function() {
-          // IDEA: Have this function called saveBook and update if existing and create if not;
-          // instead can I just check if book already has a UUID?
-
-          if (development) {
-            updateTemplate();
-          } else {
-            createBook();
-          }
-        });
-
-        // Shows user UI to create a new coupon to add to the book
-        $('#plus').unbind().click(function() {
-          console.log("Plus button clicked")
-        });
+        addManipulateEventListeners();
       }
     },
     '/dashboard': {
@@ -431,16 +410,21 @@ function updateTemplate() {
   });
 }
 
-// IDEA: Make JSON object out of field data and pass that as parameter
+/**
+ * Take data from form fields and add it to `book`.
+ */
 function createCoupon() {
-  // IDEA: Store all these tiny images locally and cut out server except for custom images
-  var coupon = new Object();
-  /*coupon.name = "Clean counters";
-  coupon.description = "Will clean every dirty surface in the kitchen and bathrooms.";
-  coupon.image = "https://res.cloudinary.com/couponbooked/image/upload/v1565447652/cleaning/029-wipe_pilprj.png";
-  coupon.count = 5;*/
+  console.warn("Creating coupon...");
+  var form = $('#newCouponForm').serializeArray();
+
+  // https://stackoverflow.com/a/51175100/6456163
+  var coupon = {};
+  for (var i = 0; i < form.length; i++) {
+    coupon[form[i].name] = form[i].value;
+  }
   
-  book.coupons.push(coupon);
+  // Leaving commented out until image input is supported
+  //book.coupons.push(coupon);
 }
 
 /**
@@ -477,7 +461,7 @@ function createBook() {
 /**
  * Update book, whether by adding more coupons or changing the counts.
  * @param {string} bookId the UUID of the book; 
- * TODO: Where is this coming from? TODO: Store in JSON
+ * TODO: Where is this coming from? IDEA: Store in JSON
  */
 function updateBook(bookId) {
   $.ajax({
@@ -569,6 +553,69 @@ function navBar(_this) {
   $(document).unbind().mouseup(function() {
       // TODO: Find a way for scrolling to close it
       $(".submenu").slideUp();
+  });
+}
+
+/**
+ * This needs to be easily collapsible because it is huge in
+ * the route. As it says, just handles the event listeners.
+ */
+function addManipulateEventListeners() {
+  // For example, in case you change your mind and want to use a different template
+  $('#back').unbind().click(function() {
+    // TODO: Add support for native back button here and elsewhere
+    book = null;
+    _this.redirectTo('/create');
+  });
+
+  $('#save').unbind().click(function() {
+    if (development) {
+      updateTemplate();
+    } else {
+      // IDEA: Have this function called saveBook and update if existing and create if not;
+      // instead can I just check if book already has a UUID? How...
+      createBook();
+    }
+  });
+
+  // Shows user UI to create a new coupon to add to the book
+  $('#plus').unbind().click(function() {
+    fadeBetweenElements("#bookContent", "#newCouponForm");
+
+    // Set back button to take you back to coupon list
+    $('#back').unbind().click(function() {
+      fadeBetweenElements("#newCouponForm", "#bookContent");
+
+      $('#back').unbind().click(function() {
+        book = null;
+        _this.redirectTo('/create');
+      });
+
+      $('#save').unbind().click(function() {
+        if (development) {
+          updateTemplate();
+        } else {
+          createBook();
+        }
+      });
+    });
+
+    $('#save').unbind().click(function() {
+      createCoupon();
+    });
+  });
+}
+
+/**
+ * Function to fade between elements so it is easy to adjust
+ * the timings without changing in multiple places.
+ * @param {string} fadeOut the selector of the element to disappear
+ * @param {string} fadeIn the selector of the element to appear
+ */
+function fadeBetweenElements(fadeOut, fadeIn) {
+  console.warn("Fading out " + fadeOut + " and fading in " + fadeIn + "...");
+  $(fadeOut).fadeOut(150, function() {
+    $(fadeIn).fadeIn(400);
   });
 }
 

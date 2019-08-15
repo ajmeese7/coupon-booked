@@ -168,3 +168,24 @@ label {
     color: white;
     background-color: #0b98de;
 }
+
+label {
+    /* NOTE: Will probably have to test this on other screen sizes; Sizzy? */
+    margin-bottom: .5rem;
+}
+input[type=text] {
+    width: 85%;
+}
+#newCouponForm label {
+    margin-top: 12.5px;
+}
+#newCouponForm label,
+#newCouponForm input[type=text],
+#count {
+    margin-left: 7.5%;
+}
+#newCouponImage {
+    /* NOTE: Probably going to have to institute max-width when starting to test tablets */
+    width: 50%;
+    margin: 15px 25%;
+}
