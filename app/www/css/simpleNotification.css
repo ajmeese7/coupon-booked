@@ -16,14 +16,16 @@
     }
 }
 
+/* NOTE: Actually animates from bottom; until I have time to update
+the official library, this workaround will do. */
 @keyframes insert-right {
     from {
-        transform: rotateY(-70deg);
-        transform-origin: right;
+        transform: rotateX(-70deg);
+        transform-origin: bottom;
     }
     to {
-        transform: rotateY(0deg);
-        transform-origin: right;
+        transform: rotateX(0deg);
+        transform-origin: bottom;
     }
 }
 

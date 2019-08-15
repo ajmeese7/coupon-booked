@@ -46,7 +46,6 @@ function App() {
 /** True means book will be published to template database; false is normal */
 var development = false;
 
-// TODO: Try jQuery slideDown animation
 // TODO: Delete on page change! Something with routing? Or modify JS to add to .app
 // TODO: Test if it's possible to have better close animation
 // Should this close on click or reset timer default behavior?
