@@ -5,6 +5,7 @@
     $bookId = $_POST["bookId"];
     $sender = $_POST["sender"];
     $bookData = $_POST["bookData"];
+    
     $sql = "INSERT INTO couponBooks (bookId, sender, bookData) VALUES ('$bookId', '$sender', '$bookData')";
     $result = $conn->query($sql) or die($conn->error);
     // TODO: How to check if PHP error exists here?

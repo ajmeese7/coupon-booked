@@ -48,7 +48,7 @@ var development = false;
 
 // TODO: Delete on page change! Something with routing? Or modify JS to add to .app
 // TODO: Test if it's possible to have better close animation
-// Should this close on click or reset timer default behavior?
+// IDEA: Switch to better-maintained https://ned.im/noty or Toastify
 var notificationOptions = { fadeout: 500, closeButton: false, duration: 3000 };
 
 var nav, book, userId, profile, _this; // https://stackoverflow.com/a/1338622
@@ -490,6 +490,61 @@ function updateBook(bookId) {
         title: 'Error updating coupon book!',
         text: 'Please try again later.'
       }, notificationOptions);
+    }
+  });
+}
+
+/**
+ * Generates a share code and adds it to the book's entry 
+ * in the database.
+ * @param {string} bookId the UUID of the book; same TODO as other
+ */
+function createShareCode(bookId) {
+  var ALPHABET = '23456789abdegjkmnpqrvwxyz';
+  var ID_LENGTH = 8;
+  var shareCode = function() {
+    // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
+    var rtn = '';
+    for (var i = 0; i < ID_LENGTH; i++) {
+      rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
+    }
+    return rtn;
+  }
+
+  $.ajax({
+    type: "POST",
+    url: "http://www.couponbooked.com/scripts/createShareCode",
+    data: { bookId: bookId, shareCode: shareCode },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      // For debugging purposes
+      console.warn("createShareCode success:");
+      console.warn(success);
+
+      // NOTE: Should think of better messages here
+      if (success == "Receiver exists") {
+        // NOTE: Should probably add in headers
+        SimpleNotification.warning({
+          text: 'Book has already been sent.'
+        }, notificationOptions);
+      } else if (success == "Share code exists") {
+        SimpleNotification.warning({
+          text: 'Share code already generated.'
+        }, notificationOptions);
+      } else {
+        // TODO: Redirect to share page or something here
+        console.log("Success!")
+      }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in createShareCode:");
+      console.error(errorThrown);
+
+      /*SimpleNotification.error({
+        title: 'Error sending coupon book!',
+        text: 'Please try again later.'
+      }, notificationOptions);*/
     }
   });
 }
