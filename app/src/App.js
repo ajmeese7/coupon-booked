@@ -441,9 +441,17 @@ function createBook() {
     dataType: "html",
     cache: false,
     success: function(success) {
-      SimpleNotification.success({
-        text: 'Successfully created book'
-      }, notificationOptions);
+      console.warn("createBook success:");
+      console.warn(success);
+
+      if (success == "bookId in use") {
+        // Try again with a new bookId
+        createBook();
+      } else {
+        SimpleNotification.success({
+          text: 'Successfully created book'
+        }, notificationOptions);
+      }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in createBook:");
