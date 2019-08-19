@@ -1,7 +1,7 @@
 <?php
   include('createConnection.php');
 
-  if (isset($_POST['userId'])) {
+  if (isset($_GET['userId'])) {
     $userId = $_GET['userId'];
     $sql = "SELECT bookData, receiver FROM couponBooks WHERE sender='$userId'";
     $result = $conn->query($sql) or die($conn->error); // TODO: Somehow handle errors

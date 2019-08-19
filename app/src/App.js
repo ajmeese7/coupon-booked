@@ -213,14 +213,7 @@ function pullUserRelatedBooks() {
                   node.setAttribute("class", "bookPreview");
 
                   // Image to represent book
-                  var image = bookData.image;
-                  if (image) {
-                    node.innerHTML += "<img class='bookImage' src='" + image + "' />";
-                  } else {
-                    // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
-                    // IDEA: Instead of doing this, just set as src for coupon book on creation
-                    node.innerHTML += "<img class='bookImage' src='images/gift.png' />";
-                  }
+                  node.innerHTML += "<img class='bookImage' src='" + bookData.image + "' />";
 
                   // Name of coupon book
                   node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
@@ -337,8 +330,8 @@ function getTemplate(name) {
  * @param {string} name the name of the template to be created
  */
 function createTemplate(name) {
-  // TODO: Implement images here and on create page after other stuff figured out
-  var emptyTemplate = { name:name, /*image:"images/logo.png",*/ coupons:[] };
+  // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
+  var emptyTemplate = { name:name, image:"images/gift.png", coupons:[] };
   emptyTemplate = JSON.stringify(emptyTemplate);
   console.warn("emptyTemplate:");
   console.warn(emptyTemplate);
