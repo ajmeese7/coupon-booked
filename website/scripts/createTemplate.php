@@ -3,7 +3,7 @@
 
   if (isset($_POST['name']) && isset($_POST['templateData'])) {
     $name = $_POST["name"];
-    $sql = "SELECT templateData from templates where name='$name'";
+    $sql = "SELECT templateData FROM templates WHERE name='$name'";
     $result = $conn->query($sql) or die($conn->error);
 
     // In case template with that name already exists

@@ -523,7 +523,11 @@ function createShareCode(bookId) {
       console.warn(success);
 
       // NOTE: Should think of better messages here
-      if (success == "Receiver exists") {
+      if (success == "Code in use") {
+        // Try again with a new share code
+        console.warn("Share code in use. Generating new code...");
+        createShareCode(bookId);
+      } else if (success == "Receiver exists") {
         // NOTE: Should probably add in headers
         SimpleNotification.warning({
           text: 'Book has already been sent.'
