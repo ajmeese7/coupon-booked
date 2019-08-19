@@ -12,7 +12,7 @@
     "author": "ajmeese7",
     "dependencies": {
         "@auth0/cordova": "^0.2.0",
-        "auth0-js": "~>9.3.0",
+        "auth0-js": "9.11.2",
         "cordova-android": "^7.1.1",
         "cordova-plugin-customurlscheme": "~4.2.0",
         "cordova-plugin-inappbrowser": "~1.7.1",

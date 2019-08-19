@@ -531,6 +531,7 @@ function createShareCode() {
       } else if (success == "Receiver exists") {
         // NOTE: Should probably add in headers
         SimpleNotification.warning({
+          // IDEA: Warning symbol for images; yellow might not be enough
           text: 'Book has already been sent.'
         }, notificationOptions);
       } else if (success == "Share code exists") {
@@ -540,16 +541,17 @@ function createShareCode() {
       } else {
         // TODO: Redirect to share page or something here
         console.log("Success!")
+
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in createShareCode:");
       console.error(errorThrown);
 
-      /*SimpleNotification.error({
-        title: 'Error sending coupon book!',
+      SimpleNotification.error({
+        title: 'Error creating share code!',
         text: 'Please try again later.'
-      }, notificationOptions);*/
+      }, notificationOptions);
     }
   });
 }
@@ -733,6 +735,7 @@ App.prototype.loadProfile = function(cb) {
   this.auth0.userInfo(this.state.accessToken, cb);
 };
 
+// TODO: Fix this not properly displaying the page because of SSO
 App.prototype.login = function(e) {
   e.target.disabled = true;
 
@@ -767,6 +770,7 @@ App.prototype.login = function(e) {
       }
     });
 
+    // TODO: Stop generating new refresh tokens; delete old ones
     localStorage.setItem('access_token', authResult.accessToken);
     localStorage.setItem('refresh_token', authResult.refreshToken);
     localStorage.setItem('id_token', authResult.idToken);
@@ -774,6 +778,7 @@ App.prototype.login = function(e) {
   });
 };
 
+// TODO: Fix this allowing user to immediately login again without credentials
 App.prototype.logout = function(e) {
   console.warn("Logging user out...");
 
@@ -781,6 +786,7 @@ App.prototype.logout = function(e) {
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
   localStorage.removeItem('id_token');
+  
   this.resumeApp();
 };
 
