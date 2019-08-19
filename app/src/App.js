@@ -331,7 +331,7 @@ function getTemplate(name) {
  */
 function createTemplate(name) {
   // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
-  var emptyTemplate = { name:name, image:"images/gift.png", coupons:[] };
+  var emptyTemplate = { name:name, image:"images/gift.png", bookId:null, coupons:[] };
   emptyTemplate = JSON.stringify(emptyTemplate);
   console.warn("emptyTemplate:");
   console.warn(emptyTemplate);
@@ -425,6 +425,7 @@ function createCoupon() {
 function createBook() {
   var uuid = uuidv4();
   var sender = localStorage.getItem('user_id');
+  book.bookId = uuid;
   $.ajax({
     // TODO: Look into if there are fancier additional settings
     type: "POST",
@@ -460,14 +461,13 @@ function createBook() {
 
 /**
  * Update book, whether by adding more coupons or changing the counts.
- * @param {string} bookId the UUID of the book; 
- * TODO: Where is this coming from? IDEA: Store in JSON
  */
-function updateBook(bookId) {
+function updateBook() {
+  var bookId = book.bookId;
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/updateData",
-    data: { bookData: JSON.stringify(book), bookId: bookId },
+    data: { bookId: bookId, bookData: JSON.stringify(book) },
     crossDomain: true,
     cache: false,
     success: function(success) {
@@ -498,9 +498,8 @@ function updateBook(bookId) {
 /**
  * Generates a share code and adds it to the book's entry 
  * in the database.
- * @param {string} bookId the UUID of the book; same TODO as other
  */
-function createShareCode(bookId) {
+function createShareCode() {
   var ALPHABET = '23456789abdegjkmnpqrvwxyz';
   var ID_LENGTH = 8;
   var shareCode = function() {
@@ -512,6 +511,7 @@ function createShareCode(bookId) {
     return rtn;
   }
 
+  var bookId = book.bookId;
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/createShareCode",
