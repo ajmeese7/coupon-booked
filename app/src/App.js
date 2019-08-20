@@ -816,7 +816,7 @@ App.prototype.resumeApp = function() {
     // NOTE: To test `expired` code, reverse the direction of the angle bracket
     if (expDate < currentDate) {
         // Token already expired
-        console.warn("Access token expired. Acquiring new access token using refresh token...");
+        console.warn("Tokens expired. Acquiring new tokens using refresh token...");
         
         function getNewAccessToken() {
           // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
@@ -838,8 +838,12 @@ App.prototype.resumeApp = function() {
               if (error) {
                 reject(error);
               } else {
-                // Convert string to JavaScript object and get applicable property
-                var accessToken = JSON.parse(body).access_token;
+                var body = JSON.parse(body);
+                var idToken = body.id_token;
+                console.warn("ID token retrieval successful! New ID token: " + idToken);
+                localStorage.setItem('id_token', idToken);
+
+                var accessToken = body.access_token;
                 resolve(accessToken);
               }
             });
@@ -859,7 +863,7 @@ App.prototype.resumeApp = function() {
           failedAuth();
         });
     } else {
-      console.warn("The access token is not yet expired.");
+      console.warn("The tokens are not yet expired.");
       successfulAuth();
     }
   } else {
