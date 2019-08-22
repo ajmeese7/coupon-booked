@@ -184,7 +184,7 @@
     <template id="manipulate">
         <div id="topbar">
             <!-- TODO: Make this fancier eventually (arrow) -->
-            <a id="back">Back</a>
+            <img class="ionicon" id="backArrow" src="images/back.svg" />
             <a id="save">Save</a>
         </div>
         
@@ -201,7 +201,7 @@
             <!-- https://picnicss.com/documentation#dropimage -->
             <!-- https://stackoverflow.com/questions/4112575/client-checking-file-size-using-html5 -->
             <!-- IDEA: Store all these tiny images locally and cut out server except for custom images -->
-            <img id="newCouponImage" src="images/gift.png" />
+            <img id="couponImage" src="images/gift.png" />
 
             <!-- IDEA: Cycle through an array of these for examples; appropriate to template? 
                 could be paired arrays to have description matched with name, or objects & pull fields -->
@@ -225,7 +225,6 @@
         </div>
 
         <h4 id="shareHeader">Your book is ready to be sent!</h4>
-
         <div id="shareCodeDiv">
             <!--<label for="shareCodeText">Share Code</label>-->
             <div class="copytooltip">

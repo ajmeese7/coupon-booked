@@ -273,6 +273,9 @@ function pullUserRelatedBooks() {
                     }
                   }
 
+                  // TODO: Add event listeners to all here for shareCode func and other things;
+                  // onClick set book equal to the clicked data: book = bookData;
+
                   applicableElement.appendChild(node);
                 } else {
                   // Let the user know there are no books of the specifed type
@@ -298,6 +301,10 @@ function pullUserRelatedBooks() {
 
 /**
  * Takes the current book JSON data and adds it to the page.
+ * IDEA: Display book info at top or somewhere, ex. image + shareCode (if sent);
+ * Can have bold display with image and title and everything, then as you scroll
+ * down it collapses to a fixed nav with image on left and title right and on click
+ * it scrolls back up to the big info
  */
 function displayBook() {
   // TODO: Implement way to rearrange organization of coupons; also change
@@ -413,7 +420,7 @@ function updateTemplate() {
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/updateTemplate",
-    data: { name: book.name, templateData: JSON.stringify(book) },
+    data: { name: book.name.toLowerCase(), templateData: JSON.stringify(book) },
     crossDomain: true,
     dataType: "html",
     cache: false,
@@ -664,7 +671,7 @@ function navBar() {
  */
 function addManipulateEventListeners() {
   // For example, in case you change your mind and want to use a different template
-  $('#back').unbind().click(function() {
+  $('#backArrow').unbind().click(function() {
     // TODO: Add support for native back button here and elsewhere
     book = null;
     _this.redirectTo('/create');
@@ -675,23 +682,24 @@ function addManipulateEventListeners() {
       updateTemplate();
     } else {
       // IDEA: Have this function called saveBook and update if existing and create if not;
-      // instead can I just check if book already has a UUID? How...
+      // instead I can just check if book already has a bookId
       createBook();
     }
   });
 
   // Shows user UI to create a new coupon to add to the book
   $('#plus').unbind().click(function() {
-    fadeBetweenElements("#bookContent", "#newCouponForm");
+      // TODO: Add same or similar listeners to edit functionality for coupons
+      fadeBetweenElements("#bookContent", "#newCouponForm");
 
-    // Set back button to take you back to coupon list
-    $('#back').unbind().click(function() {
-      fadeBetweenElements("#newCouponForm", "#bookContent");
+      // Set back button to take you back to coupon list
+      $('#backArrow').unbind().click(function() {
+          fadeBetweenElements("#newCouponForm", "#bookContent");
 
-      $('#back').unbind().click(function() {
-        book = null;
-        _this.redirectTo('/create');
-      });
+          $('#backArrow').unbind().click(function() {
+            book = null;
+            _this.redirectTo('/create');
+          });
 
       $('#save').unbind().click(function() {
         if (development) {
