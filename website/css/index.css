@@ -31,6 +31,7 @@ section {
 /* WHY */
 
 #why {
+    /* TODO: Dramatically decrease load times for image; store on other server? */
     background-image: url("../images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
     background-repeat: no-repeat;
     background-position: center;
