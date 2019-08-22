@@ -182,7 +182,7 @@
     </template>
 
     <template id="manipulate">
-        <div id="manipulateTopbar">
+        <div id="topbar">
             <!-- TODO: Make this fancier eventually (arrow) -->
             <a id="back">Back</a>
             <a id="save">Save</a>
@@ -217,6 +217,36 @@
         </form>
     </template>
 
+    <template id="shareCode">
+        <link rel="stylesheet" type="text/css" href="css/shareCode.css" />
+        <div id="topbar">
+            <!-- TODO: Finish styling -->
+            <img class="ionicon" id="backArrow" src="images/back.svg" />
+        </div>
+
+        <h4 id="shareHeader">Your book is ready to be sent!</h4>
+
+        <div id="shareCodeDiv">
+            <!--<label for="shareCodeText">Share Code</label>-->
+            <div class="copytooltip">
+                <span class="copytooltiptext" style="opacity: 0;">Copied to clipboard</span>
+            </div>
+
+            <p id="shareCodeText">88888888</p>
+            <img id="copyButton" class="ionicon" src="images/copy.svg" />
+            <!-- https://ionicons.com/ -->
+        </div>
+
+        <p id="shareCodeDescription">
+            Send this code to whoever you want to receive your Coupon Book.
+            They must create an account if they don't already have one to 
+            redeem the code.
+        </p>
+
+        <!-- Handled in Node -->
+        <iframe id="shareFrame" seamless></iframe>
+    </template>
+
     <template id="dashboard">
         <!-- TODO: Add swipe support with animation -->
         <ul id="tabs-swipe-demo" class="tabs">
@@ -235,7 +265,7 @@
                 <div id="noneReceived" class="hidden">
                     <!-- TODO: Work on the idea of requesting coupon books -->
                     You haven't received any Books yet. <br />
-                    Want to <a>request one</a>?
+                    Want to <a id="request">request one</a>?
                 </div>
             </div>
         </div>

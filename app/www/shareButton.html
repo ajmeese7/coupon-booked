@@ -1,0 +1,34 @@
+<link rel="stylesheet" type="text/css" href="css/auth0.min.css" />
+<link rel="stylesheet" type="text/css" href="css/app.css" />
+
+<!-- Purpose of this is it allows me to use icons stored in Auth0 CSS without 
+me having to minify the file and spend a lot of time cutting things. Available 
+icon list here: https://styleguide.auth0.com/resources/icons -->
+<body style="background-color: transparent;">
+    <div class="flex hor-centered">
+        <button id="shareButton" class="btn btn-success">
+            <style>
+                .icon-budicon-341::before {
+                    content: "";
+                }
+                .icon-budicon-447::before {
+                    content: "";
+                }
+            </style>
+
+            <script>
+                // Gets platform passed by URL from Node
+                var platform = window.location.href.split('?')[1];
+                var shareButton = document.getElementById("shareButton");
+                if (platform == "Android") {
+                    shareButton.innerHTML += '<span class="btn-icon icon-budicon-341"></span>';
+                } else {
+                    shareButton.innerHTML += '<span class="btn-icon icon-budicon-447"></span>';
+                }
+
+                // TODO: Use this https://www.npmjs.com/package/cordova-plugin-x-socialsharing to add functionality
+                shareButton.innerHTML += '<span>Share</span>';
+            </script>
+        </button>
+    </div>
+</body>

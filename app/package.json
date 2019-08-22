@@ -14,7 +14,9 @@
         "@auth0/cordova": "^0.2.0",
         "auth0-js": "9.11.2",
         "cordova-android": "^7.1.1",
+        "cordova-clipboard": "^1.3.0",
         "cordova-plugin-customurlscheme": "~4.2.0",
+        "cordova-plugin-device": "^2.0.3",
         "cordova-plugin-inappbrowser": "~1.7.1",
         "cordova-plugin-safariviewcontroller": "~1.4.7",
         "cordova-plugin-screen-orientation": "^3.0.2",
@@ -44,7 +46,9 @@
             "cordova-plugin-whitelist": {},
             "cordova-plugin-safariviewcontroller": {},
             "cordova-plugin-inappbrowser": {},
-            "cordova-plugin-screen-orientation": {}
+            "cordova-plugin-screen-orientation": {},
+            "cordova-clipboard": {},
+            "cordova-plugin-device": {}
         }
     }
 }

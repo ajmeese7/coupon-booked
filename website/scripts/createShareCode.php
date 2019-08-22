@@ -2,8 +2,9 @@
   include('createConnection.php');
 
   // Make sure necessary variables exist
-  if (isset($_POST['bookId']) && isset($_POST['shareCode'])) {
+  if (isset($_POST['bookId']) && isset($_POST['bookData']) && isset($_POST['shareCode'])) {
     $bookId = $_POST["bookId"];
+    $bookData = $_POST["bookData"];
     $shareCode = $_POST["shareCode"];
 
     // Probably the longest query; any way to speed up if it becomes an issue?
@@ -21,11 +22,20 @@
       if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         if (!$row["receiver"] && !$row["shareCode"]) {
-          $sql = "UPDATE couponBooks SET shareCode='$shareCode' WHERE bookId='$bookId'";
+          // Update bookData so JSON also has shareCode;
+          // NOTE: Means I also have to set that to null on code redemption
+          $bookData = json_decode($bookData);
+          $bookData->shareCode = $shareCode;
+          $bookData = json_encode($bookData);
+          
+          $sql = "UPDATE couponBooks SET shareCode='$shareCode', bookData='$bookData' WHERE bookId='$bookId'";
           $result = $conn->query($sql) or die($conn->error);
         } else if (!$row["receiver"]) {
+          // Book already has a share code set
           echo "Share code exists";
         } else {
+          // Book has alreay been sent and cannot be sent again;
+          // IDEA: clone feature?
           echo "Receiver exists";
         }
 

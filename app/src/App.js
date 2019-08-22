@@ -141,11 +141,46 @@ App.prototype.state = {
         $('#start').unbind().click(function() {
           _this.redirectTo('/create');
         });
+
+        // NOTE: This is EXTREMELY temporary and used to test /shareCode until permenant
+        // location is established
+        $('#request').unbind().click(function() {
+          _this.redirectTo('/shareCode');
+        });
         
         // TODO: Add functionality where you click on the book tile and it redirects
         // you to the manipulate page with the data stored in `book`? What should
         // be done for redemptions, and should you be able to edit after sending?
         pullUserRelatedBooks();
+      }
+    },
+    '/shareCode': {
+      id: 'shareCode',
+      onMount: function(page) {
+        _this = this;
+        navBar(_this);
+
+        // IDEA: Use fadeBetweenElements here instead of another route
+        $('#backArrow').unbind().click(function() {
+          // TODO: Add support for native back button here and elsewhere
+          // TODO: Decide what the back button is to do
+          //_this.redirectTo('/create');
+        });
+        
+        // Display tooltip when box or icon is clicked and copy to clipboard
+        var tooltip = $(".copytooltip .copytooltiptext");
+        $('#copyButton, #shareCodeText').unbind().click(function() {
+          cordova.plugins.clipboard.copy($("#shareCodeText").text());
+
+          $(tooltip).finish().fadeTo(400, 1).delay(1500).fadeTo(400, 0);
+        });
+
+        getById("shareCodeText").innerText = book.shareCode;
+
+        // Pass platform to iframe to display correct image
+        var platform = device.platform;
+        console.warn("Platform: " + platform);
+        $('#shareFrame').attr('src', "shareButton.html?" + platform);
       }
     },
     '/profile': {
@@ -181,7 +216,7 @@ function createConnection() {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error establishing connection:");
-      console.error(errorThrown);
+      console.error(XMLHttpRequest.responseText);
     }
   });
 }
@@ -251,7 +286,7 @@ function pullUserRelatedBooks() {
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.log("Error in pullUserRelatedBooks:");
-        console.error(errorThrown);
+        console.error(XMLHttpRequest.responseText);
 
         SimpleNotification.error({
           title: 'Error retreiving info',
@@ -303,6 +338,8 @@ function getTemplate(name) {
       } else {
         book = JSON.parse(data);
         book = JSON.parse(book.templateData);
+        console.warn("getTemplate book:");
+        console.warn(book);
 
         // Capitalize name; looks better
         var name = book.name;
@@ -314,7 +351,7 @@ function getTemplate(name) {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in getTemplate:");
-      console.error(errorThrown);
+      console.error(XMLHttpRequest.responseText);
 
       SimpleNotification.error({
         title: 'Error retreiving template!',
@@ -331,7 +368,7 @@ function getTemplate(name) {
  */
 function createTemplate(name) {
   // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
-  var emptyTemplate = { name:name, image:"images/gift.png", bookId:null, coupons:[] };
+  var emptyTemplate = { name:name, image:"images/gift.png", bookId:null, shareCode:null, coupons:[] };
   emptyTemplate = JSON.stringify(emptyTemplate);
   console.warn("emptyTemplate:");
   console.warn(emptyTemplate);
@@ -359,7 +396,7 @@ function createTemplate(name) {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in createTemplate:");
-      console.error(errorThrown);
+      console.error(XMLHttpRequest.responseText);
 
       SimpleNotification.error({
         title: 'Error creating template',
@@ -392,7 +429,7 @@ function updateTemplate() {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in createTemplate:");
-      console.error(errorThrown);
+      console.error(XMLHttpRequest.responseText);
 
       SimpleNotification.error({
         title: 'Error updating template',
@@ -426,8 +463,8 @@ function createBook() {
   var uuid = uuidv4();
   var sender = localStorage.getItem('user_id');
   book.bookId = uuid;
+
   $.ajax({
-    // TODO: Look into if there are fancier additional settings
     type: "POST",
     url: "http://www.couponbooked.com/scripts/createBook",
     data: { bookId: uuid, sender: sender, bookData: JSON.stringify(book) },
@@ -449,7 +486,7 @@ function createBook() {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in createBook:");
-      console.error(errorThrown);
+      console.error(XMLHttpRequest.responseText);
 
       SimpleNotification.error({
         title: 'Error creating book!',
@@ -463,11 +500,10 @@ function createBook() {
  * Update book, whether by adding more coupons or changing the counts.
  */
 function updateBook() {
-  var bookId = book.bookId;
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/updateData",
-    data: { bookId: bookId, bookData: JSON.stringify(book) },
+    data: { bookId: book.bookId, bookData: JSON.stringify(book) },
     crossDomain: true,
     cache: false,
     success: function(success) {
@@ -480,8 +516,8 @@ function updateBook() {
       }, notificationOptions);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in updateCouponBook POST:");
-      console.error(errorThrown);
+      console.log("Error in updateCouponBook:");
+      console.error(XMLHttpRequest.responseText);
 
       // TODO: Think of a good way to resolve bugs for users; some log data saved?
       // IDEA: Have a 'report bug' thing somewhere that includes logs in report; send it where?
@@ -498,12 +534,16 @@ function updateBook() {
 /**
  * Generates a share code and adds it to the book's entry 
  * in the database.
+ * TODO: How to handle this when dealing with multiple books?
+ * Will book always be set to the current book as it should?
  */
+// TODO: Determine where to call this; after pay wall?
 function createShareCode() {
+  // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
   var ALPHABET = '23456789abdegjkmnpqrvwxyz';
   var ID_LENGTH = 8;
-  var shareCode = function() {
-    // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
+  var shareCode = shareCode();
+  function shareCode() {
     var rtn = '';
     for (var i = 0; i < ID_LENGTH; i++) {
       rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
@@ -511,11 +551,13 @@ function createShareCode() {
     return rtn;
   }
 
-  var bookId = book.bookId;
+  console.warn("createShareCode book:");
+  console.warn(book);
+
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/createShareCode",
-    data: { bookId: bookId, shareCode: shareCode },
+    data: { bookId: book.bookId, bookData: JSON.stringify(book), shareCode: shareCode },
     crossDomain: true,
     cache: false,
     success: function(success) {
@@ -527,7 +569,7 @@ function createShareCode() {
       if (success == "Code in use") {
         // Try again with a new share code
         console.warn("Share code in use. Generating new code...");
-        createShareCode(bookId);
+        createShareCode();
       } else if (success == "Receiver exists") {
         // NOTE: Should probably add in headers
         SimpleNotification.warning({
@@ -539,14 +581,14 @@ function createShareCode() {
           text: 'Share code already generated.'
         }, notificationOptions);
       } else {
-        // TODO: Redirect to share page or something here
-        console.log("Success!")
-
+        // Share code created successfully
+        book.shareCode = shareCode;
+        _this.redirectTo('/shareCode');
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.log("Error in createShareCode:");
-      console.error(errorThrown);
+      console.error(XMLHttpRequest.responseText);
 
       SimpleNotification.error({
         title: 'Error creating share code!',
@@ -894,7 +936,7 @@ App.prototype.render = function() {
   this.container.innerHTML = '';
 
   // Apply nav
-  var routes = ["home", "create", "manipulate", "dashboard", "profile"];
+  var routes = ["home", "create", "manipulate", "dashboard", "shareCode", "profile"];
   if ($.inArray(currRouteId, routes) >= 0) {
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(nav);
