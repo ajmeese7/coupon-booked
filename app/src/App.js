@@ -91,7 +91,7 @@ App.prototype.state = {
       onMount: function(page) {
         console.warn("/home route...");
         _this = this;
-        navBar(_this);
+        navBar();
 
         createConnection();
 
@@ -104,7 +104,7 @@ App.prototype.state = {
       id: 'create',
       onMount: function(page) {
         _this = this;
-        navBar(_this);
+        navBar();
 
         // Set button height equal to its width because CSS is annoying
         var width = $('button').width();
@@ -122,7 +122,7 @@ App.prototype.state = {
       id: 'manipulate',
       onMount: function(page) {
         _this = this;
-        navBar(_this);
+        navBar();
 
         displayBook();
         addManipulateEventListeners();
@@ -132,7 +132,7 @@ App.prototype.state = {
       id: 'dashboard',
       onMount: function(page) {
         _this = this;
-        navBar(_this);
+        navBar();
 
         $('#tabs-swipe-demo').tabs();
         manageTabMenu();
@@ -158,7 +158,7 @@ App.prototype.state = {
       id: 'shareCode',
       onMount: function(page) {
         _this = this;
-        navBar(_this);
+        navBar();
 
         // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
@@ -187,7 +187,7 @@ App.prototype.state = {
       id: 'profile',
       onMount: function(page) {
         _this = this;
-        navBar(_this);
+        navBar();
 
         var avatar = getBySelector('#avatar');
         avatar.src = profile.picture;
@@ -600,9 +600,8 @@ function createShareCode() {
 
 /**
  * Insert navigation elements into routes requiring them
- * @param {object} _this passing the `this` reference as parameter from calling route
  */
-function navBar(_this) {
+function navBar() {
   if (_this.state.authenticated === false) {
     // With this I can remove the login button for nav
     return _this.redirectTo('/login');
