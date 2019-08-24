@@ -51,7 +51,7 @@ var development = false;
 // IDEA: Switch to better-maintained https://ned.im/noty or Toastify
 var notificationOptions = { fadeout: 500, closeButton: false, duration: 3000 };
 
-var nav, book, userId, profile, _this; // https://stackoverflow.com/a/1338622
+var nav, book, userId, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -106,6 +106,8 @@ App.prototype.state = {
         _this = this;
         navBar();
 
+        backButtonTarget = "/create";
+
         // Set button height equal to its width because CSS is annoying
         var width = $('button').width();
         var marginBottom = $('button').css("margin-bottom");
@@ -125,7 +127,7 @@ App.prototype.state = {
         navBar();
 
         displayBook();
-        addManipulateEventListeners();
+        manipulateListeners();
       }
     },
     '/dashboard': {
@@ -134,6 +136,7 @@ App.prototype.state = {
         _this = this;
         navBar();
 
+        // Initialize tab menu
         $('#tabs-swipe-demo').tabs();
         manageTabMenu();
 
@@ -142,15 +145,13 @@ App.prototype.state = {
           _this.redirectTo('/create');
         });
 
-        // NOTE: This is EXTREMELY temporary and used to test /shareCode until permenant
-        // location is established
         $('#request').unbind().click(function() {
-          _this.redirectTo('/shareCode');
+          // TODO: Create a request route similar to /shareCode
+          //_this.redirectTo('/request');
         });
         
-        // TODO: Add functionality where you click on the book tile and it redirects
-        // you to the manipulate page with the data stored in `book`? What should
-        // be done for redemptions, and should you be able to edit after sending?
+        // TODO: What should be done for redemptions?
+        // Should you be able to edit after sending?
         pullUserRelatedBooks();
       }
     },
@@ -247,36 +248,47 @@ function pullUserRelatedBooks() {
                   var node = document.createElement('div');
                   node.setAttribute("class", "bookPreview");
 
-                  // Image to represent book
+                  // Image and name
                   node.innerHTML += "<img class='bookImage' src='" + bookData.image + "' />";
-
-                  // Name of coupon book
                   node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
 
                   if (isSent) {
-                    // Who the book is sent to
+                    // IDEA: Get associated first name of userId for receiver;
+                    // if shareCode generated say 'Code generated...' instead
                     var receiver = couponBook.receiver;
-                    if (receiver) {
-                      // TODO: How to store reciever name in way that is readable?
-                      node.innerHTML += "<p class='receiverText'>Sent to " + receiver + "</p>";
-                    } else {
-                      node.innerHTML += "<p class='receiverText'>Not sent yet</p>";
-                    }
+                    node.innerHTML += "<p class='receiverText'>" +
+                      (receiver ? "Sent to " + receiver : "Not sent yet") +
+                      "</p>";
                   } else {
-                    // Who the book is sent from
+                    // Who the book is sent from; should always exist, but failsafe in case it doesn't
                     var sender = couponBook.sender;
-                    if (sender) {
-                      node.innerHTML += "<p class='senderText'>Sent from " + sender + "</p>";
-                    } else {
-                      // Don't know how this would ever happen, but just in case
-                      node.innerHTML += "<p class='senderText'>Sender unavailable</p>";
-                    }
+                    node.innerHTML += "<p class='senderText'>" +
+                      (sender ? "Sent from " + sender : "Sender unavailable") +
+                      "</p>";
                   }
 
-                  // TODO: Add event listeners to all here for shareCode func and other things;
-                  // onClick set book equal to the clicked data: book = bookData;
-
+                  // https://api.jquery.com/data/
+                  $(node).data("bookData", bookData);
+                  $(node).data("isSent", isSent);
                   applicableElement.appendChild(node);
+                  
+                  $(node).unbind().click(function() {
+                    // Set the book in the global scope until another one is selected
+                    book = $(this).data("bookData");
+
+                    // TODO: Add some kind of delay to give content time to load in;
+                    // IDEA: begin fading #app out, redirect, and start fading new content
+                    // in after a very slight delay (to fade between routes)
+                    backButtonTarget = "/dashboard";
+
+                    var isSent = $(this).data("isSent");
+                    if (isSent) {
+                      // An area to view the books and manipulate if desired
+                      _this.redirectTo('/manipulate');
+                    } else {
+                      // TODO: Add a route for redeeming coupons or think of alternative idea
+                    }
+                  });
                 } else {
                   // Let the user know there are no books of the specifed type
                   var element = isSent ? $("#noneSent") : $("#noneReceived");
@@ -307,6 +319,11 @@ function pullUserRelatedBooks() {
  * it scrolls back up to the big info
  */
 function displayBook() {
+  console.warn("displayBook...");
+
+  // Reset to default code so when refreshed it isn't populated twice
+  getById("bookContent").innerHTML = '<button id="plus">+</button>';
+
   // TODO: Implement way to rearrange organization of coupons; also change
   // display options like default, alphabetical, count remaining, etc.;
   // should changing display preference permenantly update the order?
@@ -320,7 +337,54 @@ function displayBook() {
     node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
     node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
     node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
+    $(node).data("coupon", coupon);
     getById("bookContent").appendChild(node);
+
+    // Called from /manipulate; so a good place to add coupon listeners
+    $(node).unbind().click(function() {
+      var $this = this;
+      fadeBetweenElements("#bookContent", "#couponPreview");
+      $('#backArrow').unbind().click(function() {
+        fadeBetweenElements("#couponPreview", "#bookContent");
+        manipulateListeners();
+      });
+
+      var coupon = $(this).data("coupon");
+      getById("imgPreview").src = coupon.image;
+      getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+      getById("descPreview").innerText = coupon.description;
+
+      // It is only viewable before clicking the edit button
+      $("#edit").unbind().click(function() {
+          fadeBetweenElements("#couponPreview", "#couponForm");
+          $('#backArrow').unbind().click(function() {
+              fadeBetweenElements("#couponForm", "#couponPreview");
+              $('#backArrow').unbind().click(function() {
+                fadeBetweenElements("#couponPreview", "#bookContent");
+                manipulateListeners();
+                displayBook();
+              });
+
+              // Repopulate with new data
+              var coupon = $($this).data("coupon");
+              getById("imgPreview").src = coupon.image;
+              getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+              getById("descPreview").innerText = coupon.description;
+          });
+
+          $('#save').unbind().click(function() {
+            if (couponFormIsValid()) {
+              updateCoupon(coupon, $this);
+            }
+          });
+
+          var coupon = $($this).data("coupon");
+          getById("couponImage").src   = coupon.image;
+          getById("name").value        = coupon.name;
+          getById("description").value = coupon.description;
+          getById("count").value       = coupon.count;
+      });
+    });
   });
 }
 
@@ -451,20 +515,67 @@ function updateTemplate() {
  */
 function createCoupon() {
   console.warn("Creating coupon...");
-  var form = $('#newCouponForm').serializeArray();
+  var form = $('#couponForm').serializeArray();
 
   // https://stackoverflow.com/a/51175100/6456163
   var coupon = {};
   for (var i = 0; i < form.length; i++) {
     coupon[form[i].name] = form[i].value;
   }
+
+  // Convert from string to number
+  coupon.count = parseInt(coupon.count);
+
+  console.warn("New coupon:");
+  console.warn(coupon);
+
+  // NOTE: Temporary until image input is supported
+  coupon.image = "images/gift.png";
   
-  // Leaving commented out until image input is supported
-  //book.coupons.push(coupon);
+  book.coupons.push(coupon);
 }
 
 /**
- * Create a new Coupon Book and upload it to the database
+ * Replace the old coupon with the updated one.
+ * @param {Object} oldCoupon the JSON of previous coupon
+ * @param {Object} $this reference to the applicable couponPreview node
+ */
+function updateCoupon(oldCoupon, $this) {
+  // TODO: Add option to delete coupon
+  console.warn("Updating coupon...");
+  var form = $('#couponForm').serializeArray();
+
+  var newCoupon = {};
+  newCoupon.image = oldCoupon.image; // NOTE: Temporary
+  for (var i = 0; i < form.length; i++) {
+    newCoupon[form[i].name] = form[i].value;
+  }
+
+  // Convert from string to number
+  newCoupon.count = parseInt(newCoupon.count);
+
+  // Iterate over coupons until the one with the previous name is found
+  var name = oldCoupon.name;
+  $.each(book.coupons, function(couponNumber, coupon) {
+    if (coupon.name == name) {
+      console.warn("Old coupon:");
+      console.warn(oldCoupon);
+      console.warn("New coupon:");
+      console.warn(newCoupon);
+
+      coupon = newCoupon;
+      book.coupons[couponNumber] = newCoupon;
+
+      $($this).data("coupon", newCoupon);
+      SimpleNotification.success({
+        text: 'Updated coupon'
+      }, notificationOptions);
+    }
+  });
+}
+
+/**
+ * Create a new Coupon Book and upload it to the database.
  */
 function createBook() {
   var uuid = uuidv4();
@@ -666,15 +777,15 @@ function navBar() {
 }
 
 /**
- * This needs to be easily collapsible because it is huge in
- * the route. As it says, just handles the event listeners.
+ * The normal listeners for the /manipulate route.
  */
-function addManipulateEventListeners() {
+function manipulateListeners() {
+  console.warn("manipulateListeners...");
   // For example, in case you change your mind and want to use a different template
   $('#backArrow').unbind().click(function() {
     // TODO: Add support for native back button here and elsewhere
     book = null;
-    _this.redirectTo('/create');
+    _this.redirectTo(backButtonTarget);
   });
 
   $('#save').unbind().click(function() {
@@ -689,31 +800,86 @@ function addManipulateEventListeners() {
 
   // Shows user UI to create a new coupon to add to the book
   $('#plus').unbind().click(function() {
-      // TODO: Add same or similar listeners to edit functionality for coupons
-      fadeBetweenElements("#bookContent", "#newCouponForm");
+      fadeBetweenElements("#bookContent", "#couponForm");
+
+      // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
+      if (device.platform == "iOS") {
+        $('#edit img').attr('src', "images/ios-edit.svg");
+      }
 
       // Set back button to take you back to coupon list
       $('#backArrow').unbind().click(function() {
-          fadeBetweenElements("#newCouponForm", "#bookContent");
-
-          $('#backArrow').unbind().click(function() {
-            book = null;
-            _this.redirectTo('/create');
-          });
+          fadeBetweenElements("#couponForm", "#bookContent");
+          manipulateListeners();
+          displayBook();
+      });
 
       $('#save').unbind().click(function() {
-        if (development) {
-          updateTemplate();
-        } else {
-          createBook();
+        // Make sure name isn't taken
+        var uniqueName = true, name = getById("name").value;
+        $.each(book.coupons, function(couponNumber, coupon) {
+          if (name == coupon.name) {
+            uniqueName = false;
+
+            SimpleNotification.warning({
+              title: 'Already used this name',
+              text: 'Please enter a unique name.'
+            }, notificationOptions);
+          }
+        });
+
+        if (uniqueName && couponFormIsValid()) {
+          // Form is properly filled out
+          createCoupon();
+
+          SimpleNotification.success({
+            text: 'Created coupon'
+          }, notificationOptions);
         }
       });
-    });
-
-    $('#save').unbind().click(function() {
-      createCoupon();
-    });
   });
+}
+
+/**
+ * Ensure all the conditions for a valid coupon are met.
+ * @returns {boolean} whether or not the form is valid
+ */
+function couponFormIsValid() {
+  var image = getById("couponImage");
+  var name = getById("name").value;
+  var count = getById("count").value;
+  var desc = getById("description").value;
+
+  // Validate that form is filled out properly
+  if (!image) {
+    // image input
+    // TODO: Add proper if conditions after creating input field
+  } else if (name.length < 1) {
+    // No name
+    SimpleNotification.warning({
+      text: 'Please enter a name'
+    }, notificationOptions);
+  } else if (name.length > 99) {
+    // Name too long
+    SimpleNotification.warning({
+      title: 'Name too long',
+      text: 'Please enter a shorter name'
+    }, notificationOptions);
+  } else if (isNaN(count) || count < 1 || count > 99) {
+    SimpleNotification.warning({
+      title: 'Invalid count entered',
+      text: 'Please enter a number between 1 and 99'
+    }, notificationOptions);
+  } else if (desc.length > 99) {
+    // TODO: Determine better max length; Tweet?
+    SimpleNotification.warning({
+      text: 'Please enter a shorter description'
+    }, notificationOptions);
+  } else {
+    return true;
+  }
+
+  return false;
 }
 
 /**

@@ -156,7 +156,7 @@ label {
     margin-right: 13px;
 }
 
-#plus {
+#plus, #edit {
     /* TODO: For all important buttons, add click animation effect */
     border-radius: 50%;
     position: fixed;
@@ -178,18 +178,27 @@ label {
 input[type=text] {
     width: 85%;
 }
-#newCouponForm label {
+#couponForm label {
     margin-top: 12.5px;
+    font-weight: bold;
 }
-#newCouponForm label,
-#newCouponForm input[type=text],
+#couponForm label,
+#couponForm input[type=text],
 #count {
     margin-left: 7.5%;
 }
-#couponImage {
+#couponImage, #imgPreview {
     /* NOTE: Probably going to have to institute max-width when starting to test tablets */
     width: 50%;
     margin: 15px 25%;
+}
+
+#namePreview {
+    display: inline-block;
+    width: 100%;
+    margin: 0;
+    margin-top: 12px;
+    text-align: center;
 }
 
 /* Share code page */
@@ -224,7 +233,7 @@ input[type=text] {
     margin-left: 10px;
 }
 
-#shareCodeDescription {
+#shareCodeDescription, #descPreview {
     /* NOTE: Will also have to make this different for tablets */
     width: 90%;
     margin: auto;

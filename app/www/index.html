@@ -183,24 +183,28 @@
 
     <template id="manipulate">
         <div id="topbar">
-            <!-- TODO: Make this fancier eventually (arrow) -->
             <img class="ionicon" id="backArrow" src="images/back.svg" />
-            <a id="save">Save</a>
+            <a id="save">Save</a> <!-- IDEA: Save icon? -->
         </div>
-        
-        <!-- Will create new coupon -->
-        <button id="plus">+</button>
         
         <div id="bookContent" class="col">
-            <!-- IDEA: When you click on one, pencil icon instead of plus to modify name, count, image;
-                will direct you to form but current info is already filled out -->
+            <!-- Will create new coupon -->
+            <button id="plus">+</button>
         </div>
 
-        <!-- TODO: Change this to also reflect editing coupons; CSS and JS too -->
-        <form id="newCouponForm" class="hide col">
+        <div id="couponPreview" class="hide col">
+            <h3 id="namePreview"></h3>
+            <hr />
+            <img id="imgPreview" src="images/gift.png" />
+            <p id="descPreview"></p> <!-- TODO: Make this look better for short descriptions -->
+
+            <!-- If iOS, icon is changed in Node -->
+            <button id="edit"><img src="images/md-edit.svg" /></button>
+        </div>
+
+        <form id="couponForm" class="hide col">
             <!-- https://picnicss.com/documentation#dropimage -->
             <!-- https://stackoverflow.com/questions/4112575/client-checking-file-size-using-html5 -->
-            <!-- IDEA: Store all these tiny images locally and cut out server except for custom images -->
             <img id="couponImage" src="images/gift.png" />
 
             <!-- IDEA: Cycle through an array of these for examples; appropriate to template? 
@@ -226,7 +230,6 @@
 
         <h4 id="shareHeader">Your book is ready to be sent!</h4>
         <div id="shareCodeDiv">
-            <!--<label for="shareCodeText">Share Code</label>-->
             <div class="copytooltip">
                 <span class="copytooltiptext" style="opacity: 0;">Copied to clipboard</span>
             </div>
