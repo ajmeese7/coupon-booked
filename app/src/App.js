@@ -652,8 +652,6 @@ function updateBook() {
 /**
  * Generates a share code and adds it to the book's entry 
  * in the database.
- * TODO: How to handle this when dealing with multiple books?
- * Will book always be set to the current book as it should?
  */
 // TODO: Determine where to call this; after pay wall?
 function createShareCode() {
@@ -896,7 +894,7 @@ function fadeBetweenElements(fadeOut, fadeIn) {
 }
 
 /**
- * Handle (eventually) swiping for the tab menu
+ * Handle swiping for the tab menu.
  */
 function manageTabMenu() {
   const gestureZone = getById('gestureZone');
@@ -914,29 +912,18 @@ function manageTabMenu() {
 
   // Modified from https://gist.github.com/SleepWalker/da5636b1abcbaff48c4d#gistcomment-2555343
   function handleGesture() {
-    // TODO: Add animation while moving between pages
+    // TODO: Add animation while moving between pages; is this possible with Materialize?
     var ratio_horizontal = (touchendX - touchstartX) / $(gestureZone).width();
     var ratioComparison = .10;
 
     // Swipe right
     if (ratio_horizontal > ratioComparison) {
-      var sentIsActive = $('#sentButton').hasClass('active');
-      if (sentIsActive) {
-        /*$(function () {
-          $("#sent").animate({
-              width: '100%'
-          }, { duration: 500, queue: false });
-      
-          $("#received").animate({
-              width: '0px'
-          }, { duration: 500, queue: false });
-        });*/
-      }
+        $('#tabs-swipe-demo').tabs('select', 'sent');
     }
-    
+
     // Swipe left
     if (ratio_horizontal < -ratioComparison) {
-      // TODO
+      $('#tabs-swipe-demo').tabs('select', 'received');
     }
   }
 }
