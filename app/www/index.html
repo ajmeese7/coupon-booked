@@ -182,6 +182,7 @@
     </template>
 
     <template id="manipulate">
+        <!-- NOTE: Also in redeem -->
         <div id="topbar">
             <img class="ionicon" id="backArrow" src="images/back.svg" />
             <a id="save">Save</a> <!-- IDEA: Save icon? -->
@@ -249,6 +250,21 @@
         <iframe id="shareFrame" seamless></iframe>
     </template>
 
+    <template id="redeemCode">
+        <div id="topbar">
+            <img class="ionicon" id="backArrow" src="images/back.svg" />
+        </div>
+
+        <h3 id="redeemHeader">Enter your code below</h3>
+
+        <div>
+            <!-- TODO: Style spacing and page better; bland and crowded. -->
+            <input id="redeemBox" maxlength='8' />
+        </div>
+
+        <button id="redeemButton">Redeem</button>
+    </template>
+
     <template id="dashboard">
         <!-- TODO: Add swipe support with animation -->
         <ul id="tabs-swipe-demo" class="tabs">
@@ -258,7 +274,8 @@
         <div id="gestureZone">
             <div id="sent" class="col">
                 <div id="noneSent" class="hidden">
-                    <!-- Formatted like this in case I decide to add something else to message; if not, will switch to paragraph -->
+                    <!-- Formatted like this in case I decide to add something else to message; 
+                        if not, will switch to paragraph -->
                     You haven't sent any Books yet. <br />
                     <a id="start">Send one now!</a>
                 </div>
@@ -269,6 +286,10 @@
                     You haven't received any Books yet. <br />
                     Want to <a id="request">request one</a>?
                 </div>
+
+                <!-- Should probably use something other than a div;
+                    TODO: think of better way to link to /redeem -->
+                <div id="redeemLink">Redeem a code!</div>
             </div>
         </div>
     </template>

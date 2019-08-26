@@ -46,6 +46,7 @@ function App() {
 /** True means book will be published to template database; false is normal */
 var development = false;
 
+// TODO: Delete any existing instances of notifications when a new one is popping up
 // TODO: Delete on page change! Something with routing? Or modify JS to add to .app
 // TODO: Test if it's possible to have better close animation
 // IDEA: Switch to better-maintained https://ned.im/noty or Toastify
@@ -149,10 +150,33 @@ App.prototype.state = {
           // TODO: Create a request route similar to /shareCode
           //_this.redirectTo('/request');
         });
+
+        $('#redeemLink').unbind().click(function() {
+          _this.redirectTo('/redeemCode');
+        });
         
         // TODO: What should be done for redemptions?
         // Should you be able to edit after sending?
         pullUserRelatedBooks();
+      }
+    },
+    '/redeemCode': {
+      id: 'redeemCode',
+      onMount: function(page) {
+        _this = this;
+        navBar();
+
+        // IDEA: Use fadeBetweenElements here instead of another route
+        $('#backArrow').unbind().click(function() {
+          _this.redirectTo('/dashboard');
+        });
+
+        $('#redeemButton').unbind().click(function() {
+          var code = getById("redeemBox").value.toLowerCase();
+          if (codeIsValid(code)) {
+            redeemCode(code);
+          }
+        });
       }
     },
     '/shareCode': {
@@ -163,7 +187,6 @@ App.prototype.state = {
 
         // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
-          // TODO: Add support for native back button here and elsewhere
           // TODO: Decide what the back button is to do
           //_this.redirectTo('/create');
         });
@@ -253,8 +276,8 @@ function pullUserRelatedBooks() {
                   node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
 
                   if (isSent) {
-                    // IDEA: Get associated first name of userId for receiver;
-                    // if shareCode generated say 'Code generated...' instead
+                    // TODO: Get associated first name of userId for receiver
+                    // TODO: if shareCode generated say 'Code generated...' instead
                     var receiver = couponBook.receiver;
                     node.innerHTML += "<p class='receiverText'>" +
                       (receiver ? "Sent to " + receiver : "Not sent yet") +
@@ -316,7 +339,8 @@ function pullUserRelatedBooks() {
  * IDEA: Display book info at top or somewhere, ex. image + shareCode (if sent);
  * Can have bold display with image and title and everything, then as you scroll
  * down it collapses to a fixed nav with image on left and title right and on click
- * it scrolls back up to the big info
+ * it scrolls back up to the big info.
+ * TODO: Decompose function
  */
 function displayBook() {
   console.warn("displayBook...");
@@ -324,12 +348,14 @@ function displayBook() {
   // Reset to default code so when refreshed it isn't populated twice
   getById("bookContent").innerHTML = '<button id="plus">+</button>';
 
+  // TODO: Hide save button while inside coupon until edit screen
+
   // TODO: Implement way to rearrange organization of coupons; also change
   // display options like default, alphabetical, count remaining, etc.;
   // should changing display preference permenantly update the order?
   $.each(book.coupons, function(couponNumber, coupon) {
-    console.warn("Coupon #" + couponNumber + ":");
-    console.warn(coupon);
+    //console.warn("Coupon #" + couponNumber + ":");
+    //console.warn(coupon);
 
     // TODO: Figure out how to display image licenses if not paying for yearly subscription
     var node = document.createElement('div');
@@ -409,8 +435,8 @@ function getTemplate(name) {
       } else {
         book = JSON.parse(data);
         book = JSON.parse(book.templateData);
-        console.warn("getTemplate book:");
-        console.warn(book);
+        //console.warn("getTemplate book:");
+        //console.warn(book);
 
         // Capitalize name; looks better
         var name = book.name;
@@ -649,6 +675,11 @@ function updateBook() {
   });
 }
 
+/* The characters allowed in the share code and the code length.
+ * Needed for createShareCode and redeemCode. */
+var ALPHABET = '23456789abdegjkmnpqrvwxyz';
+var ID_LENGTH = 8;
+
 /**
  * Generates a share code and adds it to the book's entry 
  * in the database.
@@ -656,8 +687,6 @@ function updateBook() {
 // TODO: Determine where to call this; after pay wall?
 function createShareCode() {
   // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
-  var ALPHABET = '23456789abdegjkmnpqrvwxyz';
-  var ID_LENGTH = 8;
   var shareCode = shareCode();
   function shareCode() {
     var rtn = '';
@@ -715,7 +744,86 @@ function createShareCode() {
 }
 
 /**
- * Insert navigation elements into routes requiring them
+ * Checks if code characters are all within the defined
+ * alphabet and if it is the right length.
+ * @param {string} shareCode 
+ */
+function codeIsValid(shareCode) {
+  if (shareCode.length == ID_LENGTH) {
+    var validCode = true;
+    for (var i = 0; i < ID_LENGTH; i++) {
+      if (!ALPHABET.includes(shareCode.charAt(i))) {
+        validCode = false;
+      }
+    }
+
+    if (validCode) {
+      return true;
+    } else {
+      SimpleNotification.warning({
+        title: 'Invalid code',
+        text: 'Please try again.'
+      }, notificationOptions);
+
+      return false;
+    }
+  } else {
+    SimpleNotification.warning({
+      title: 'Not long enough',
+      text: 'Please enter your eight digit code.'
+    }, notificationOptions);
+
+    return false;
+  }
+}
+
+/**
+ * Sends code to server to see if it is valid, and redeems it to
+ * the current user if it is.
+ * @param {string} shareCode the code to be redeemed for access
+ * to a coupon book.
+ */
+function redeemCode(shareCode) {
+  var userId = localStorage.getItem("user_id");
+  $.ajax({
+    type: "POST",
+    url: "http://www.couponbooked.com/scripts/redeemCode",
+    data: { userId: userId, shareCode: shareCode },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      // TODO: Something to prevent spam, i.e. IP limiting
+      if (success == "Not valid") {
+        SimpleNotification.warning({
+          title: 'Invalid code',
+          text: 'Please try again.'
+        }, notificationOptions);
+      } else if (success == "Sent to self") {
+        SimpleNotification.warning({
+          title: 'This is your code!',
+          text: 'Please send it to someone else.'
+        }, notificationOptions);
+      } else {
+        SimpleNotification.success({
+          title: 'Successfully redeemed code!',
+          text: 'Check your dashboard.'
+        }, notificationOptions);
+      }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in redeemCode:");
+      console.error(XMLHttpRequest.responseText);
+
+      SimpleNotification.error({
+        title: 'Error redeeming code!',
+        text: 'Please try again later.'
+      }, notificationOptions);
+    }
+  });
+}
+
+/**
+ * Insert navigation elements into routes requiring them.
  */
 function navBar() {
   if (_this.state.authenticated === false) {
@@ -781,18 +889,31 @@ function manipulateListeners() {
   console.warn("manipulateListeners...");
   // For example, in case you change your mind and want to use a different template
   $('#backArrow').unbind().click(function() {
-    // TODO: Add support for native back button here and elsewhere
     book = null;
     _this.redirectTo(backButtonTarget);
   });
 
   $('#save').unbind().click(function() {
+    // IDEA: Switch to ? functions to shorten
     if (development) {
-      updateTemplate();
+        // TODO: Get a condition here that works or scrap entirely;
+        // could have separate buttons + form that only show up when in dev mode
+        if (book.name) {
+          console.log("Updating template...");
+          //updateTemplate();
+        } else {
+          console.log("Creating template...");
+          // TODO: Where to get name?
+          //createTemplate();
+        }
     } else {
-      // IDEA: Have this function called saveBook and update if existing and create if not;
-      // instead I can just check if book already has a bookId
-      createBook();
+        if (book.bookId) {
+          console.warn("Updating book...");
+          updateBook();
+        } else {
+          console.warn("Creating book...");
+          createBook();
+        }
     }
   });
 
@@ -1096,7 +1217,7 @@ App.prototype.render = function() {
   this.container.innerHTML = '';
 
   // Apply nav
-  var routes = ["home", "create", "manipulate", "dashboard", "shareCode", "profile"];
+  var routes = ["home", "create", "manipulate", "dashboard", "redeemCode", "shareCode", "profile"];
   if ($.inArray(currRouteId, routes) >= 0) {
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(nav);

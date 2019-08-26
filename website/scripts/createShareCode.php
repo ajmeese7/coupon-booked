@@ -22,8 +22,6 @@
       if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         if (!$row["receiver"] && !$row["shareCode"]) {
-          // Update bookData so JSON also has shareCode;
-          // NOTE: Means I also have to set that to null on code redemption
           $bookData = json_decode($bookData);
           $bookData->shareCode = $shareCode;
           $bookData = json_encode($bookData);
