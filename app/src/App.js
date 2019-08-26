@@ -351,8 +351,6 @@ function displayBook() {
   // Reset to default code so when refreshed it isn't populated twice
   getById("bookContent").innerHTML = '<button id="plus">+</button>';
 
-  // TODO: Hide save button while inside coupon until edit screen
-
   // TODO: Implement way to rearrange organization of coupons; also change
   // display options like default, alphabetical, count remaining, etc.;
   // should changing display preference permenantly update the order?
@@ -372,8 +370,10 @@ function displayBook() {
     // Called from /manipulate; so a good place to add coupon listeners
     $(node).unbind().click(function() {
       var $this = this;
+      $('#save').hide();
       fadeBetweenElements("#bookContent", "#couponPreview");
       $('#backArrow').unbind().click(function() {
+        $('#save').show(25);
         fadeBetweenElements("#couponPreview", "#bookContent");
         manipulateListeners();
       });
@@ -385,10 +385,13 @@ function displayBook() {
 
       // It is only viewable before clicking the edit button
       $("#edit").unbind().click(function() {
+          $('#save').show(25);
           fadeBetweenElements("#couponPreview", "#couponForm");
           $('#backArrow').unbind().click(function() {
+              $('#save').hide();
               fadeBetweenElements("#couponForm", "#couponPreview");
               $('#backArrow').unbind().click(function() {
+                $('#save').show(25);
                 fadeBetweenElements("#couponPreview", "#bookContent");
                 manipulateListeners();
                 displayBook();
