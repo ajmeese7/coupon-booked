@@ -52,7 +52,7 @@ var development = false;
 // IDEA: Switch to better-maintained https://ned.im/noty or Toastify
 var notificationOptions = { fadeout: 500, closeButton: false, duration: 3000 };
 
-var nav, book, userId, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
+var nav, book, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -91,9 +91,12 @@ App.prototype.state = {
       id: 'home',
       onMount: function(page) {
         console.warn("/home route...");
+        if (this.state.authenticated === false) {
+          return this.redirectTo('/login');
+        }
+
         _this = this;
         navBar();
-
         createConnection();
 
         $('#createBook button').unbind().click(function() {
@@ -1058,7 +1061,6 @@ App.prototype.loadProfile = function(cb) {
   this.auth0.userInfo(this.state.accessToken, cb);
 };
 
-// TODO: Fix this not properly displaying the page because of SSO
 App.prototype.login = function(e) {
   e.target.disabled = true;
 
@@ -1101,17 +1103,47 @@ App.prototype.login = function(e) {
   });
 };
 
-// TODO: Fix this allowing user to immediately login again without credentials
 App.prototype.logout = function(e) {
-  console.warn("Logging user out...");
-
   localStorage.removeItem('user_id');
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
   localStorage.removeItem('id_token');
-  
+
+  // https://auth0.com/authenticate/cordova/auth0-oidc/
+  var url = getRedirectUrl();
+  openUrl(url);
   this.resumeApp();
 };
+
+function getRedirectUrl() {
+  var returnTo = env.PACKAGE_ID + '://' + env.AUTH0_DOMAIN + '/cordova/' + env.PACKAGE_ID + '/callback';
+  var url = 'https://' + env.AUTH0_DOMAIN + '/v2/logout?client_id=' + env.AUTH0_CLIENT_ID + '&returnTo=' + returnTo;
+  return url;
+}
+
+function openUrl(url) {
+  SafariViewController.isAvailable(function (available) {
+    if (available) {
+      SafariViewController.show({
+            url: url
+          },
+          function(result) {
+            if (result.event === 'opened') {
+              console.warn('Opened logout connection...');
+            } else if (result.event === 'loaded') {
+              console.warn('Logging user out...');
+            } else if (result.event === 'closed') {
+              console.warn('Logout successful!');
+            }
+          },
+          function(msg) {
+            console.log("KO: " + JSON.stringify(msg));
+          })
+    } else {
+      window.open(url, '_system');
+    }
+  })
+}
 
 App.prototype.redirectTo = function(route) {
   console.warn("redirectTo " + route + "...");
