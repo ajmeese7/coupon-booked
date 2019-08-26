@@ -131,7 +131,6 @@ App.prototype.state = {
         navBar();
 
         displayBook();
-        manipulateListeners();
       }
     },
     '/dashboard': {
@@ -343,18 +342,19 @@ function pullUserRelatedBooks() {
  * Can have bold display with image and title and everything, then as you scroll
  * down it collapses to a fixed nav with image on left and title right and on click
  * it scrolls back up to the big info.
- * TODO: Decompose function
  */
 function displayBook() {
   console.warn("displayBook...");
 
   // Reset to default code so when refreshed it isn't populated twice
   getById("bookContent").innerHTML = '<button id="plus">+</button>';
+  manipulateListeners();
 
   // TODO: Implement way to rearrange organization of coupons; also change
   // display options like default, alphabetical, count remaining, etc.;
   // should changing display preference permenantly update the order?
   $.each(book.coupons, function(couponNumber, coupon) {
+    // Uncomment if debugging coupons
     //console.warn("Coupon #" + couponNumber + ":");
     //console.warn(coupon);
 
@@ -368,55 +368,148 @@ function displayBook() {
     getById("bookContent").appendChild(node);
 
     // Called from /manipulate; so a good place to add coupon listeners
-    $(node).unbind().click(function() {
-      var $this = this;
-      $('#save').hide();
-      fadeBetweenElements("#bookContent", "#couponPreview");
-      $('#backArrow').unbind().click(function() {
-        $('#save').show(25);
-        fadeBetweenElements("#couponPreview", "#bookContent");
-        manipulateListeners();
-      });
+    addCouponListeners(node);
+  });
+}
 
-      var coupon = $(this).data("coupon");
-      getById("imgPreview").src = coupon.image;
-      getById("namePreview").innerText = coupon.name + ": " + coupon.count;
-      getById("descPreview").innerText = coupon.description;
+/**
+ * Adds click listeners to the specified coupon element.
+ * @param {node} node the coupon element
+ */
+function addCouponListeners(node) {
+  $(node).unbind().click(function() {
+    /** Allows coupon node to be passed as parameter to functions */
+    var $this = this;
+    showCouponPreviewPage($this);
 
-      // It is only viewable before clicking the edit button
-      $("#edit").unbind().click(function() {
-          $('#save').show(25);
-          fadeBetweenElements("#couponPreview", "#couponForm");
-          $('#backArrow').unbind().click(function() {
-              $('#save').hide();
-              fadeBetweenElements("#couponForm", "#couponPreview");
-              $('#backArrow').unbind().click(function() {
-                $('#save').show(25);
-                fadeBetweenElements("#couponPreview", "#bookContent");
-                manipulateListeners();
-                displayBook();
-              });
-
-              // Repopulate with new data
-              var coupon = $($this).data("coupon");
-              getById("imgPreview").src = coupon.image;
-              getById("namePreview").innerText = coupon.name + ": " + coupon.count;
-              getById("descPreview").innerText = coupon.description;
-          });
-
-          $('#save').unbind().click(function() {
-            if (couponFormIsValid()) {
-              updateCoupon(coupon, $this);
-            }
-          });
-
-          var coupon = $($this).data("coupon");
-          getById("couponImage").src   = coupon.image;
-          getById("name").value        = coupon.name;
-          getById("description").value = coupon.description;
-          getById("count").value       = coupon.count;
-      });
+    $("#edit").unbind().click(function() {
+      showCouponEditPage($this);
     });
+  });
+}
+
+/**
+ * Hides the `/manipulate` route and shows the preview of the coupon 
+ * that was selected. Also adds listeners for going back to `/manipulate`.
+ */
+function showCouponPreviewPage($this) {
+  $('#save').hide();
+  fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
+
+  $('#backArrow').unbind().click(function() {
+    $('#save').show(25);
+    fadeBetweenElements("#couponPreview", "#bookContent");
+    manipulateListeners();
+
+    // Calls this again in case data was updated and needs to be redisplayed
+    displayBook();
+  });
+
+  // Updates preview fields with actual coupon's data
+  var coupon = $($this).data("coupon");
+  getById("imgPreview").src = coupon.image;
+  getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+  getById("descPreview").innerText = coupon.description;
+}
+
+/**
+ * Updates edit page's form with the current coupon data and
+ * displays the edit page.
+ */
+function showCouponEditPage($this) {
+  $('#save').show(25);
+  fadeBetweenElements("#couponPreview", "#couponForm");
+
+  // NOTE: On press, error for reading `image` of undefined... why?
+  $('#backArrow').unbind().click(function() {
+    // Will show the new data
+    showCouponPreviewPage();
+  });
+
+  $('#save').unbind().click(function() {
+    if (couponFormIsValid()) {
+      updateCoupon(coupon, $this);
+    }
+  });
+
+  // IDEA: Some way to clear form or just description
+  var coupon = $($this).data("coupon");
+  getById("couponImage").src   = coupon.image;
+  getById("name").value        = coupon.name;
+  getById("description").value = coupon.description;
+  getById("count").value       = coupon.count;
+}
+
+/**
+ * Take data from form fields and add it to `book.coupons`.
+ */
+function createCoupon() {
+  console.warn("Creating coupon...");
+  var form = $('#couponForm').serializeArray();
+
+  // https://stackoverflow.com/a/51175100/6456163
+  var coupon = {};
+  for (var i = 0; i < form.length; i++) {
+    coupon[form[i].name] = form[i].value;
+  }
+
+  // Convert from string to number
+  coupon.count = parseInt(coupon.count);
+
+  // Uncomment for debugging coupon creation
+  //console.warn("New coupon:");
+  //console.warn(coupon);
+
+  // NOTE: Temporary until image input is supported
+  coupon.image = "images/gift.png";
+
+  // TODO: Make sure name doesn't already exist
+  book.coupons.push(coupon);
+}
+
+/**
+ * Replace the old coupon with the updated one in `book.coupons`.
+ * @param {Object} oldCoupon the JSON of previous coupon
+ * @param {Object} $this reference to the applicable couponPreview node
+ */
+function updateCoupon(oldCoupon, $this) {
+  // TODO: Add option to delete coupon
+  console.warn("Updating coupon...");
+  var form = $('#couponForm').serializeArray();
+
+  var newCoupon = {};
+  newCoupon.image = oldCoupon.image; // NOTE: Temporary
+  for (var i = 0; i < form.length; i++) {
+    newCoupon[form[i].name] = form[i].value;
+  }
+
+  // Convert from string to number
+  newCoupon.count = parseInt(newCoupon.count);
+
+  // TODO: Make sure new name doesn't already exist
+  // Iterate over coupons until the one with the previous name is found
+  var name = oldCoupon.name;
+  $.each(book.coupons, function(couponNumber, coupon) {
+    if (coupon.name == name) {
+      // Uncomment for debugging coupon updating
+      /*console.warn("Old coupon:");
+      console.warn(oldCoupon);
+      console.warn("New coupon:");
+      console.warn(newCoupon);*/
+
+      coupon = newCoupon;
+      book.coupons[couponNumber] = newCoupon;
+
+      $($this).data("coupon", newCoupon);
+      displayBook();
+
+      // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
+      $('#bookContent p:contains(' + newCoupon.name + ')').parent()[0].click();
+
+      SimpleNotification.success({
+        text: 'Updated coupon'
+      }, notificationOptions);
+    }
   });
 }
 
@@ -537,70 +630,6 @@ function updateTemplate() {
       SimpleNotification.error({
         title: 'Error updating template',
         text: 'Please try again later.'
-      }, notificationOptions);
-    }
-  });
-}
-
-/**
- * Take data from form fields and add it to `book`.
- */
-function createCoupon() {
-  console.warn("Creating coupon...");
-  var form = $('#couponForm').serializeArray();
-
-  // https://stackoverflow.com/a/51175100/6456163
-  var coupon = {};
-  for (var i = 0; i < form.length; i++) {
-    coupon[form[i].name] = form[i].value;
-  }
-
-  // Convert from string to number
-  coupon.count = parseInt(coupon.count);
-
-  console.warn("New coupon:");
-  console.warn(coupon);
-
-  // NOTE: Temporary until image input is supported
-  coupon.image = "images/gift.png";
-  
-  book.coupons.push(coupon);
-}
-
-/**
- * Replace the old coupon with the updated one.
- * @param {Object} oldCoupon the JSON of previous coupon
- * @param {Object} $this reference to the applicable couponPreview node
- */
-function updateCoupon(oldCoupon, $this) {
-  // TODO: Add option to delete coupon
-  console.warn("Updating coupon...");
-  var form = $('#couponForm').serializeArray();
-
-  var newCoupon = {};
-  newCoupon.image = oldCoupon.image; // NOTE: Temporary
-  for (var i = 0; i < form.length; i++) {
-    newCoupon[form[i].name] = form[i].value;
-  }
-
-  // Convert from string to number
-  newCoupon.count = parseInt(newCoupon.count);
-
-  // Iterate over coupons until the one with the previous name is found
-  var name = oldCoupon.name;
-  $.each(book.coupons, function(couponNumber, coupon) {
-    if (coupon.name == name) {
-      console.warn("Old coupon:");
-      console.warn(oldCoupon);
-      console.warn("New coupon:");
-      console.warn(newCoupon);
-
-      coupon = newCoupon;
-      book.coupons[couponNumber] = newCoupon;
-
-      $($this).data("coupon", newCoupon);
-      SimpleNotification.success({
-        text: 'Updated coupon'
       }, notificationOptions);
     }
   });
@@ -926,6 +955,12 @@ function manipulateListeners() {
   // Shows user UI to create a new coupon to add to the book
   $('#plus').unbind().click(function() {
       fadeBetweenElements("#bookContent", "#couponForm");
+
+      // Reset form to blank in case it is clicked after editing a coupon
+      getById("couponImage").src   = "images/gift.png";
+      getById("name").value        = "";
+      getById("description").value = "";
+      getById("count").value       = "";
 
       // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
       if (device.platform == "iOS") {
