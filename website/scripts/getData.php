@@ -17,7 +17,7 @@
       $sentArray[] = null;
     }
 
-    $sql = "SELECT bookData, sender FROM couponBooks WHERE receiver='$userId'";
+    $sql = "SELECT bookData, senderName FROM couponBooks WHERE receiver='$userId'";
     $result = $conn->query($sql) or die($conn->error);
 
     if ($result->num_rows > 0) {

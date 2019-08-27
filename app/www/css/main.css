@@ -190,8 +190,9 @@ label {
     margin-left: -62px; /* Half of width */
 }
 
-#save {
+#save, #delete {
     float: right;
+    margin-right: 13px;
 }
 
 /* Manipulate page elements */
@@ -211,9 +212,6 @@ label {
 #backArrow {
     margin-top: 2px;
     margin-left: 13px;
-}
-#save {
-    margin-right: 13px;
 }
 
 #plus, #edit {

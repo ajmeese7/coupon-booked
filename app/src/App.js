@@ -380,6 +380,7 @@ function displayBook() {
     node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
     node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
     $(node).data("coupon", coupon);
+    $(node).data("couponNumber", couponNumber);
     getById("bookContent").appendChild(node);
 
     // Called from /manipulate; so a good place to add coupon listeners
@@ -408,16 +409,26 @@ function addCouponListeners(node) {
  * that was selected. Also adds listeners for going back to `/manipulate`.
  */
 function showCouponPreviewPage($this) {
-  $('#save').hide();
+  saveAndDeleteToggle();
   fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
 
   $('#backArrow').unbind().click(function() {
-    $('#save').show(25);
+    saveAndDeleteToggle();
     fadeBetweenElements("#couponPreview", "#bookContent");
     manipulateListeners();
 
     // Calls this again in case data was updated and needs to be redisplayed
     displayBook();
+  });
+
+  $('#delete').unbind().click(function() {
+    // TODO: add alert prompt to confirm deletion
+    var couponNumber = $($this).data("couponNumber");
+    book.coupons.splice(couponNumber, 1);
+
+    displayBook();
+    saveAndDeleteToggle();
+    fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
   });
 
   // Updates preview fields with actual coupon's data
@@ -432,7 +443,7 @@ function showCouponPreviewPage($this) {
  * displays the edit page.
  */
 function showCouponEditPage($this) {
-  $('#save').show(25);
+  saveAndDeleteToggle();
   fadeBetweenElements("#couponPreview", "#couponForm");
 
   // NOTE: On press, error for reading `image` of undefined... why?
@@ -453,6 +464,19 @@ function showCouponEditPage($this) {
   getById("name").value        = coupon.name;
   getById("description").value = coupon.description;
   getById("count").value       = coupon.count;
+}
+
+/**
+ * If save element is visible, it fades out and the delete
+ * element fades in. If not, then the reverse happens.
+ */
+function saveAndDeleteToggle() {
+  var saveShowing = $("#save").is(':visible');
+  if (saveShowing) {
+    fadeBetweenElements("#save", "#delete");
+  } else {
+    fadeBetweenElements("#delete", "#save");
+  }
 }
 
 /**
@@ -480,6 +504,7 @@ function createCoupon() {
 
   // TODO: Make sure name doesn't already exist
   book.coupons.push(coupon);
+  displayBook();
 }
 
 /**
@@ -488,7 +513,6 @@ function createCoupon() {
  * @param {Object} $this reference to the applicable couponPreview node
  */
 function updateCoupon(oldCoupon, $this) {
-  // TODO: Add option to delete coupon
   console.warn("Updating coupon...");
   var form = $('#couponForm').serializeArray();
 
@@ -1016,12 +1040,17 @@ function manipulateListeners() {
         });
 
         if (uniqueName && couponFormIsValid()) {
-          // Form is properly filled out
-          createCoupon();
+            // Form is properly filled out
+            createCoupon();
+            
+            // Calling the back function here doesn't work properly, so the content is copied.
+            fadeBetweenElements("#couponForm", "#bookContent");
+            manipulateListeners();
+            displayBook();
 
-          SimpleNotification.success({
-            text: 'Created coupon'
-          }, notificationOptions);
+            SimpleNotification.success({
+              text: 'Created coupon'
+            }, notificationOptions);
         }
       });
   });
