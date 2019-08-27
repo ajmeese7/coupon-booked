@@ -63,6 +63,7 @@ App.prototype.state = {
       onMount: function(page) {
         console.warn("/ route...");
         nav = getBySelector("#nav");
+        createConnection();
 
         // Don't want to have to code an annoying landscape layout
         screen.orientation.lock('portrait');
@@ -91,13 +92,9 @@ App.prototype.state = {
       id: 'home',
       onMount: function(page) {
         console.warn("/home route...");
-        if (this.state.authenticated === false) {
-          return this.redirectTo('/login');
-        }
 
         _this = this;
         navBar();
-        createConnection();
 
         $('#createBook button').unbind().click(function() {
           _this.redirectTo('/create');
@@ -157,7 +154,6 @@ App.prototype.state = {
           _this.redirectTo('/redeemCode');
         });
         
-        // TODO: What should be done for redemptions?
         // Should you be able to edit after sending?
         pullUserRelatedBooks();
       }
@@ -230,8 +226,8 @@ App.prototype.state = {
 
 /**
  * Establish connection with the database so no load times later on.
- * TODO: Secure PHP files so no malicious requests are made.
  */
+// TODO: Secure PHP files so no malicious requests are made.
 function createConnection() {
   $.ajax({
     type: "GET",
@@ -264,56 +260,11 @@ function pullUserRelatedBooks() {
         $.each(data, function(arrayNumber, array) {
             /** If true, book was sent. If false, it was received. */
             var isSent = arrayNumber == 0;
-            var applicableElement = isSent ? getById("sent") : getById("received");
 
             // Go over each coupon book in sent {0} or received array {1}
             $.each(array, function(couponNumber, couponBook) {
                 if (couponBook) {
-                  var bookData = JSON.parse(couponBook.bookData);
-                  var node = document.createElement('div');
-                  node.setAttribute("class", "bookPreview");
-
-                  // Image and name
-                  node.innerHTML += "<img class='bookImage' src='" + bookData.image + "' />";
-                  node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
-
-                  if (isSent) {
-                    // TODO: Get associated first name of userId for receiver
-                    // TODO: if shareCode generated say 'Code generated...' instead
-                    var receiver = couponBook.receiver;
-                    node.innerHTML += "<p class='receiverText'>" +
-                      (receiver ? "Sent to " + receiver : "Not sent yet") +
-                      "</p>";
-                  } else {
-                    // Who the book is sent from; should always exist, but failsafe in case it doesn't
-                    var sender = couponBook.sender;
-                    node.innerHTML += "<p class='senderText'>" +
-                      (sender ? "Sent from " + sender : "Sender unavailable") +
-                      "</p>";
-                  }
-
-                  // https://api.jquery.com/data/
-                  $(node).data("bookData", bookData);
-                  $(node).data("isSent", isSent);
-                  applicableElement.appendChild(node);
-                  
-                  $(node).unbind().click(function() {
-                    // Set the book in the global scope until another one is selected
-                    book = $(this).data("bookData");
-
-                    // TODO: Add some kind of delay to give content time to load in;
-                    // IDEA: begin fading #app out, redirect, and start fading new content
-                    // in after a very slight delay (to fade between routes)
-                    backButtonTarget = "/dashboard";
-
-                    var isSent = $(this).data("isSent");
-                    if (isSent) {
-                      // An area to view the books and manipulate if desired
-                      _this.redirectTo('/manipulate');
-                    } else {
-                      // TODO: Add a route for redeeming coupons or think of alternative idea
-                    }
-                  });
+                  addBookToPage(couponBook, isSent);
                 } else {
                   // Let the user know there are no books of the specifed type
                   var element = isSent ? $("#noneSent") : $("#noneReceived");
@@ -333,6 +284,70 @@ function pullUserRelatedBooks() {
           text: 'Please try again later.'
         }, notificationOptions);
       }
+  });
+}
+
+/**
+ * Creates a node, fills it with the data from the retreived
+ * book, and appends the node to the document.
+ * @param {object} couponBook the data related to the coupon book
+ * @param {boolean} isSent true for sent book, false for received
+ */
+function addBookToPage(couponBook, isSent) {
+  var bookData = JSON.parse(couponBook.bookData);
+  var applicableElement = isSent ? getById("sent") : getById("received");
+
+  // Create node and give CSS class that applies styles
+  var node = document.createElement('div');
+  node.setAttribute("class", "bookPreview");
+
+  // Image and name
+  node.innerHTML += "<img class='bookImage' src='" + bookData.image + "' />";
+  node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
+
+  if (isSent) {
+    // TODO: Get associated first name of userId for receiver
+    // TODO: if shareCode generated say 'Code generated...' instead
+    var receiver = couponBook.receiver;
+    node.innerHTML += "<p class='receiverText'>" +
+      (receiver ? "Sent to " + receiver : "Not sent yet") +
+      "</p>";
+  } else {
+    // Who the book is sent from; should always exist, but failsafe in case it doesn't
+    var senderName = couponBook.senderName;
+    node.innerHTML += "<p class='senderText'>" +
+      (senderName ? "Sent from " + senderName : "Sender unavailable") +
+      "</p>";
+  }
+
+  // https://api.jquery.com/data/
+  $(node).data("bookData", bookData);
+  $(node).data("isSent", isSent);
+  applicableElement.appendChild(node);
+  addBookListeners(node);
+}
+
+/**
+ * Assigns click listener to each book preview.
+ * @param {element} node the coupon book preview in the document
+ */
+function addBookListeners(node) {
+  $(node).unbind().click(function() {
+    // Set the book in the global scope until another one is selected
+    book = $(this).data("bookData");
+
+    // TODO: Add some kind of delay to give content time to load in;
+    // IDEA: begin fading #app out, redirect, and start fading new content
+    // in after a very slight delay (to fade between routes)
+    backButtonTarget = "/dashboard";
+
+    var isSent = $(this).data("isSent");
+    if (isSent) {
+      // An area to view the books and manipulate if desired
+      _this.redirectTo('/manipulate');
+    } else {
+      // TODO: Add a route for redeeming coupons or think of alternative idea
+    }
   });
 }
 
@@ -641,18 +656,29 @@ function updateTemplate() {
 function createBook() {
   var uuid = uuidv4();
   var sender = localStorage.getItem('user_id');
+
+  // IDEA: Option to update sender name before sharing; allows
+  // for another level of personalization with nicknames.
+  if (profile.given_name) {
+    // Through Google; name should be whole name
+    var senderName = profile.name;
+  } else {
+    // Through Auth0; nickname should be first part of email
+    var senderName = profile.nickname;
+  }
   book.bookId = uuid;
 
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/createBook",
-    data: { bookId: uuid, sender: sender, bookData: JSON.stringify(book) },
+    data: { bookId: uuid, sender: sender, senderName: senderName, bookData: JSON.stringify(book) },
     crossDomain: true,
     dataType: "html",
     cache: false,
     success: function(success) {
-      console.warn("createBook success:");
-      console.warn(success);
+      // Uncomment to debug book creation
+      //console.warn("createBook success:");
+      //console.warn(success);
 
       if (success == "bookId in use") {
         // Try again with a new bookId
@@ -859,6 +885,7 @@ function redeemCode(shareCode) {
 
 /**
  * Insert navigation elements into routes requiring them.
+ * Redirects to login if user not authenticated.
  */
 function navBar() {
   if (_this.state.authenticated === false) {
@@ -1142,6 +1169,7 @@ App.prototype.login = function(e) {
 };
 
 App.prototype.logout = function(e) {
+  profile = null;
   localStorage.removeItem('user_id');
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
