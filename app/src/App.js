@@ -46,11 +46,10 @@ function App() {
 /** True means book will be published to template database; false is normal */
 var development = false;
 
-// TODO: Delete any existing instances of notifications when a new one is popping up
 // TODO: Delete on page change! Something with routing? Or modify JS to add to .app
 // TODO: Test if it's possible to have better close animation
 // IDEA: Switch to better-maintained https://ned.im/noty or Toastify
-var notificationOptions = { fadeout: 500, closeButton: false, duration: 3000 };
+var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay: true, duration: 3000 };
 
 var nav, book, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
