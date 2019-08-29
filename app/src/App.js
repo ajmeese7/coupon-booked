@@ -1409,18 +1409,44 @@ function manageTabMenu() {
   // Modified from https://gist.github.com/SleepWalker/da5636b1abcbaff48c4d#gistcomment-2555343
   function handleGesture() {
     // TODO: Add animation while moving between pages; is this possible with Materialize?
+    // TODO: Switch from method here to mocking Materialize with :hover selector, because
+      // this is not a complete replication
     var ratio_horizontal = (touchendX - touchstartX) / $(gestureZone).width();
     var ratioComparison = .10;
+    var sentButton = $('#sentButton');
+    var receivedButton = $('#receivedButton');
 
-    // Swipe right
+    // Swipe right (select sent)
     if (ratio_horizontal > ratioComparison) {
-        $('#tabs-swipe-demo').tabs('select', 'sent');
+      $('#tabs-swipe-demo').tabs('select', 'sent');
+      sentButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
+      receivedButton.css('background-color', 'transparent');
+      sentButton.css('text-decoration', 'underline');
+      receivedButton.css('text-decoration', 'none');
     }
+    // Click sent tab
+    sentButton.unbind().click(function() {
+      sentButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
+      receivedButton.css('background-color', 'transparent');
+      sentButton.css('text-decoration', 'underline');
+      receivedButton.css('text-decoration', 'none');
+    });
 
-    // Swipe left
+    // Swipe left (select received)
     if (ratio_horizontal < -ratioComparison) {
       $('#tabs-swipe-demo').tabs('select', 'received');
+      receivedButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
+      sentButton.css('background-color', 'transparent');
+      receivedButton.css('text-decoration', 'underline');
+      sentButton.css('text-decoration', 'none');
     }
+    // Click received tab
+    receivedButton.unbind().click(function() {
+      receivedButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
+      sentButton.css('background-color', 'transparent');
+      receivedButton.css('text-decoration', 'underline');
+      sentButton.css('text-decoration', 'none');
+    });
   }
 }
 
