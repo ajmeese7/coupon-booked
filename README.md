@@ -27,6 +27,10 @@ to search in SQL through clear pieces of data, such as the UUIDs, but easiest
 in JavaScript to get that information directly from an object created from
 the JSON.
 
+The SQL server is two hours behind my timezone, putting it in Pacific Daylight
+Time. This may be important for running analytics or finding the proper last 
+modified time.
+
 The app is reduced to approximately 10mb once deployed to Android, so don't make
 the mistake I made and think you need to minify the massive node_modules folder.
 

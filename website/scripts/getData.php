@@ -3,7 +3,7 @@
 
   if (isset($_GET['userId'])) {
     $userId = $_GET['userId'];
-    $sql = "SELECT bookData, receiver FROM couponBooks WHERE sender='$userId'";
+    $sql = "SELECT receiver, bookData, deleted FROM couponBooks WHERE sender='$userId'";
     $result = $conn->query($sql) or die($conn->error); // TODO: Somehow handle errors
 
     $dataArray = array();
@@ -11,18 +11,24 @@
     $receivedArray = array();
     if ($result->num_rows > 0) {
       while ($row = $result->fetch_assoc()) {
-        $sentArray[] = $row;
+        // Not deleted (0 is false in SQL)
+        if ($row["deleted"] == 0) {
+          $sentArray[] = $row;
+        }
       }
     } else {
       $sentArray[] = null;
     }
 
-    $sql = "SELECT bookData, senderName FROM couponBooks WHERE receiver='$userId'";
+    $sql = "SELECT senderName, bookData, deleted FROM couponBooks WHERE receiver='$userId'";
     $result = $conn->query($sql) or die($conn->error);
 
     if ($result->num_rows > 0) {
       while ($row = $result->fetch_assoc()) {
-        $receivedArray[] = $row;
+        // Not deleted (0 is false in SQL)
+        if ($row["deleted"] == 0) {
+          $receivedArray[] = $row;
+        }
       }
     } else {
       $receivedArray[] = null;

@@ -137,7 +137,34 @@ label {
     color: #7E7E7E;
 }
 
-/* Temporary solution to lack of an idea where to put redemption route link */
+#invisiblePreviewClearance {
+    height: 175px;
+    display: inline-block;
+}
+#miniPreview {
+    display: inline-block;
+    width: 100%;
+}
+#miniPreviewImage {
+    float: left;
+    height: 150px;
+    margin-left: 25px;
+    margin-top: 25px;
+}
+#previewText {
+    float: right;
+    margin-top: 20px;
+    width: calc(100% - 175px); /* Image width is 175px because 25px margin */
+    text-align: center;
+}
+#deleteBook {
+    position: absolute;
+    right: 0;
+    top: 161px;
+    margin-right: 4px;
+}
+
+/* "Temporary" solution to lack of an idea where to put redemption route link */
 #redeemLink {
     width: 140px;
     height: 34px;

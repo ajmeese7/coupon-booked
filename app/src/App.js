@@ -51,7 +51,7 @@ var development = false;
 // IDEA: Switch to better-maintained https://ned.im/noty or Toastify
 var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay: true, duration: 3000 };
 
-var nav, book, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
+var nav, book, previousBook, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -184,8 +184,7 @@ App.prototype.state = {
 
         // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
-          // TODO: Decide what the back button is to do
-          //_this.redirectTo('/create');
+          _this.redirectTo('/manipulate');
         });
         
         // Display tooltip when box or icon is clicked and copy to clipboard
@@ -305,7 +304,6 @@ function addBookToPage(couponBook, isSent) {
   node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
 
   if (isSent) {
-    // TODO: Get associated first name of userId for receiver
     // TODO: if shareCode generated say 'Code generated...' instead
     var receiver = couponBook.receiver;
     node.innerHTML += "<p class='receiverText'>" +
@@ -322,6 +320,7 @@ function addBookToPage(couponBook, isSent) {
   // https://api.jquery.com/data/
   $(node).data("bookData", bookData);
   $(node).data("isSent", isSent);
+  $(node).data("receiver", couponBook.receiver);
   applicableElement.appendChild(node);
   addBookListeners(node);
 }
@@ -334,21 +333,117 @@ function addBookListeners(node) {
   $(node).unbind().click(function() {
     // Set the book in the global scope until another one is selected
     book = $(this).data("bookData");
+    book.receiver = $(this).data("receiver");
+    previousBook = clone(book);
 
     // TODO: Add some kind of delay to give content time to load in;
     // IDEA: begin fading #app out, redirect, and start fading new content
-    // in after a very slight delay (to fade between routes)
+    // in after a very slight delay (to fade between routes);
+    // Could put in a loading screen for a short period of time,
+    // or try clicking (jQuery) between the two tabs
     backButtonTarget = "/dashboard";
 
     var isSent = $(this).data("isSent");
     if (isSent) {
-      // An area to view the books and manipulate if desired
+      // An area to view the books and manipulate if desired;
+      // IDEA: Get rid of `if` and handle all sent vs. received stuff in /manipulate?
+        // Ex. if received then show redeem buttons instead of edit and plus
       _this.redirectTo('/manipulate');
     } else {
       // TODO: Add a route for redeeming coupons or think of alternative idea
     }
   });
 }
+
+/**
+ * Deep clones specified object to the returned object.
+ * Copied from https://stackoverflow.com/a/4460624/6456163 
+ * @param {object} item object to be cloned
+ */
+function clone(item) {
+  if (!item) { return item; } // null, undefined values check
+
+  var types = [ Number, String, Boolean ], 
+      result;
+
+  // normalizing primitives if someone did new String('aaa'), or new Number('444');
+  types.forEach(function(type) {
+      if (item instanceof type) {
+          result = type( item );
+      }
+  });
+
+  if (typeof result == "undefined") {
+      if (Object.prototype.toString.call( item ) === "[object Array]") {
+          result = [];
+          item.forEach(function(child, index, array) { 
+              result[index] = clone( child );
+          });
+      } else if (typeof item == "object") {
+          // testing that this is DOM
+          if (item.nodeType && typeof item.cloneNode == "function") {
+              result = item.cloneNode( true );    
+          } else if (!item.prototype) { // check that this is a literal
+              if (item instanceof Date) {
+                  result = new Date(item);
+              } else {
+                  // it is an object literal
+                  result = {};
+                  for (var i in item) {
+                      result[i] = clone( item[i] );
+                  }
+              }
+          } else {
+              // depending what you would like here,
+              // just keep the reference, or create new object
+              if (false && item.constructor) {
+                  // would not advice to do that, reason? Read below
+                  result = new item.constructor();
+              } else {
+                  result = item;
+              }
+          }
+      } else {
+          result = item;
+      }
+  }
+
+  return result;
+}
+
+/**
+ * Performs deep object comparison between obj1 and obj2.
+ * Shamelessly stolen from https://gist.github.com/nicbell/6081098
+ * @param {object} obj1 
+ * @param {object} obj2 
+ */
+function isSameObject(obj1, obj2) {
+  // Loop through properties in object 1
+  for (var p in obj1) {
+      // Check property exists on both objects
+      if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
+
+      switch (typeof (obj1[p])) {
+          // Deep compare objects
+          case 'object':
+              if (!isSameObject(obj1[p], obj2[p])) return false;
+              break;
+          // Compare function code
+          case 'function':
+              if (typeof (obj2[p]) == 'undefined' || (p != 'compare' && obj1[p].toString() != obj2[p].toString())) return false;
+              break;
+          // Compare values
+          default:
+              if (obj1[p] != obj2[p]) return false;
+      }
+  }
+
+  // Check object 2 for any extra properties
+  for (var p in obj2) {
+      if (typeof (obj1[p]) == 'undefined') return false;
+  }
+  return true;
+};
 
 /**
  * Takes the current book JSON data and adds it to the page.
@@ -359,20 +454,72 @@ function addBookListeners(node) {
  */
 function displayBook() {
   console.warn("displayBook...");
+  var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
-  getById("bookContent").innerHTML = '<button id="plus">+</button>';
+  bookContent.innerHTML = '<button id="plus">+</button>';
+
+  // Dynamically create preview of book at top of display
+  var miniPreview = document.createElement('div');
+  miniPreview.setAttribute("id", "miniPreview");
+  miniPreview.innerHTML += "<div id='invisiblePreviewClearance'></div>";
+  miniPreview.innerHTML += "<img id='miniPreviewImage' src='" + book.image + "' />";
+
+  var previewText = document.createElement('div');
+  previewText.setAttribute("id", "previewText");
+  previewText.innerHTML += "<h4>" + book.name + "</h4>";
+
+  // Sets receiver text based on the current state of the book
+  // TODO: Test ALL of this!
+  if (book.receiver) {
+    // Book has been sent and code redeemed
+    var receiver = "<p>Sent to " + book.receiver;
+  } else if (book.shareCode) {
+    // Code generated but not yet redeemed
+    // TODO: Style this better
+    var receiver = "<p id='shareCodePreview'>Share code:\n" + book.shareCode;
+  } else {
+    // No code generated and not sent
+    // TODO: Add share button (to route) here
+    var receiver = "<p><a id='shareButton'>Share</a>";
+  }
+  receiver += "</p>";
+  previewText.innerHTML += receiver;
+  miniPreview.appendChild(previewText);
+
+  // Sets delete icon based on OS
+  var deleteImg = "<img id='deleteBook' class='ionicon' src='images/";
+  deleteImg += device.platform == "iOS" ? "ios" : "md";
+  deleteImg += "-trash.svg' />";
+  miniPreview.innerHTML += deleteImg;
+  
+  miniPreview.innerHTML += "<hr>";
+  bookContent.appendChild(miniPreview);
+
+  $("#shareCodePreview").unbind().click(function() {
+    // Will give users the chance again to share their code;
+    // Need some way to indicate that as clicking is not immediately obvious
+    _this.redirectTo('/shareCode');
+  });
+  $("#shareButton").unbind().click(function() {
+    // TODO: Pay wall here
+    createShareCode();
+  });
+  
+  addDeleteListeners();
   manipulateListeners();
 
   // TODO: Implement way to rearrange organization of coupons; also change
   // display options like default, alphabetical, count remaining, etc.;
   // should changing display preference permenantly update the order?
+  // Option to hide coupons with 0 count; display 3 to a row
   $.each(book.coupons, function(couponNumber, coupon) {
     // Uncomment if debugging coupons
     //console.warn("Coupon #" + couponNumber + ":");
     //console.warn(coupon);
 
     // TODO: Figure out how to display image licenses if not paying for yearly subscription
+    // TODO: Exclude this file from UglifyJS so I can use template literals
     var node = document.createElement('div');
     node.setAttribute("class", "couponPreview");
     node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
@@ -380,10 +527,33 @@ function displayBook() {
     node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
     $(node).data("coupon", coupon);
     $(node).data("couponNumber", couponNumber);
-    getById("bookContent").appendChild(node);
+    bookContent.appendChild(node);
 
     // Called from /manipulate; so a good place to add coupon listeners
     addCouponListeners(node);
+  });
+}
+
+/**
+ * Adds click listener to trash can icon in miniPreview.
+ */
+function addDeleteListeners() {
+  $("#deleteBook").unbind().click(function() {
+    function onConfirm(buttonIndex) {
+      // NOTE: Button 0 is clicking out of confirmation box;
+      // 1 is delete and 2 is cancel
+      if (buttonIndex == 1) {
+        deleteBook();
+        $("#backArrow").click();
+      }
+    }
+    
+    navigator.notification.confirm(
+        'Are you sure you want to delete this book?', // message
+        onConfirm, // callback function
+        'Delete book confirmation', // title
+        ['Delete it', 'Wait, stop!'] // buttonLabels; added to page from right to left
+    );
   });
 }
 
@@ -421,13 +591,23 @@ function showCouponPreviewPage($this) {
   });
 
   $('#delete').unbind().click(function() {
-    // TODO: add alert prompt to confirm deletion
-    var couponNumber = $($this).data("couponNumber");
-    book.coupons.splice(couponNumber, 1);
-
-    displayBook();
-    saveAndDeleteToggle();
-    fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
+    function onConfirm(buttonIndex) {
+      if (buttonIndex == 1) {
+        var couponNumber = $($this).data("couponNumber");
+        book.coupons.splice(couponNumber, 1);
+        
+        displayBook();
+        saveAndDeleteToggle();
+        fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
+      }
+    }
+    
+    navigator.notification.confirm(
+        'Are you sure you want to delete this coupon?',
+        onConfirm,
+        'Delete coupon confirmation',
+        ['Delete it', 'Cancel']
+    );
   });
 
   // Updates preview fields with actual coupon's data
@@ -501,18 +681,23 @@ function createCoupon() {
   // NOTE: Temporary until image input is supported
   coupon.image = "images/gift.png";
 
-  // TODO: Make sure name doesn't already exist
-  book.coupons.push(coupon);
-  displayBook();
+  // Makes sure name doesn't already exist before creating coupon
+  if (nameAlreadyExists(coupon.name)) {
+    newNameWarning();
+  } else {
+    book.coupons.push(coupon);
+    displayBook();
+  }
 }
 
 /**
- * Replace the old coupon with the updated one in `book.coupons`.
+ * Replace the old coupon with the updated one in `book.coupons`,
+ * if there is not already a coupon by that name.
  * @param {Object} oldCoupon the JSON of previous coupon
  * @param {Object} $this reference to the applicable couponPreview node
  */
 function updateCoupon(oldCoupon, $this) {
-  console.warn("Updating coupon...");
+  console.warn("Attempting to update coupon...");
   var form = $('#couponForm').serializeArray();
 
   var newCoupon = {};
@@ -524,10 +709,13 @@ function updateCoupon(oldCoupon, $this) {
   // Convert from string to number
   newCoupon.count = parseInt(newCoupon.count);
 
-  // TODO: Make sure new name doesn't already exist
-  // Iterate over coupons until the one with the previous name is found
-  var name = oldCoupon.name;
-  $.each(book.coupons, function(couponNumber, coupon) {
+  // TODO: Consider decomposing
+  if (nameAlreadyExists(newCoupon.name)) {
+    newNameWarning();
+  } else {
+    // Iterate over coupons until the one with the previous name is found
+    var name = oldCoupon.name;
+    $.each(book.coupons, function(couponNumber, coupon) {
     if (coupon.name == name) {
       // Uncomment for debugging coupon updating
       /*console.warn("Old coupon:");
@@ -541,14 +729,42 @@ function updateCoupon(oldCoupon, $this) {
       $($this).data("coupon", newCoupon);
       displayBook();
 
-      // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
-      $('#bookContent p:contains(' + newCoupon.name + ')').parent()[0].click();
+        // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
+        $('#bookContent p:contains(' + newCoupon.name + ')').parent()[0].click();
+        
+        console.warn("Coupon updated!");
+        SimpleNotification.success({
+          text: 'Updated coupon'
+        }, notificationOptions);
+      }
+    });
+  }
+}
 
-      SimpleNotification.success({
-        text: 'Updated coupon'
-      }, notificationOptions);
+/**
+ * Checks if the new name already exists in the book.
+ * @param {string} name name of the new coupon
+ */
+function nameAlreadyExists(name) {
+  // Makes sure new name doesn't already exist
+  var nameAlreadyExists = false;
+  $.each(book.coupons, function(couponNumber, coupon) {
+    if (coupon.name == name) {
+      nameAlreadyExists = true;
     }
   });
+
+  return nameAlreadyExists;
+}
+
+/**
+ * Shows a warning notification that a unique name is required.
+ */
+function newNameWarning() {
+  SimpleNotification.warning({
+    title: 'Already used this name',
+    text: 'Please enter a unique name.'
+  }, notificationOptions);
 }
 
 /**
@@ -572,13 +788,12 @@ function getTemplate(name) {
       } else {
         book = JSON.parse(data);
         book = JSON.parse(book.templateData);
-        //console.warn("getTemplate book:");
-        //console.warn(book);
 
         // Capitalize name; looks better
         var name = book.name;
         name = name.charAt(0).toUpperCase() + name.slice(1)
         book.name = name;
+        previousBook = clone(book);
 
         _this.redirectTo('/manipulate');
       }
@@ -735,10 +950,11 @@ function updateBook() {
     crossDomain: true,
     cache: false,
     success: function(success) {
-      // For debugging purposes
-      console.warn("updateCouponBook success:");
-      console.warn(success);
+      // Uncomment to debug updating books
+      //console.warn("updateCouponBook success:");
+      //console.warn(success);
 
+      previousBook = clone(book);
       SimpleNotification.success({
         text: 'Successfully updated coupon book'
       }, notificationOptions);
@@ -759,6 +975,50 @@ function updateBook() {
   });
 }
 
+/**
+ * Sets the deleted column in the database to true, which will remove
+ * it from all user searches but not delete it entirely so it can still
+ * be used for analytics.
+ */
+function deleteBook() {
+  var bookId = book.bookId;
+  if (bookId) {
+    console.warn("Deleting book...");
+    $.ajax({
+      type: "POST",
+      url: "http://www.couponbooked.com/scripts/deleteBook",
+      data: { bookId: book.bookId },
+      crossDomain: true,
+      cache: false,
+      success: function(success) {
+        // Uncomment to debug deleting books
+        //console.warn("deleteBook success:");
+        //console.warn(success);
+
+        // Updates display without deleted book
+        displayBook();
+
+        SimpleNotification.success({
+          text: 'Successfully deleted book'
+        }, notificationOptions);
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        console.log("Error in deleteBook:");
+        console.error(XMLHttpRequest.responseText);
+
+        SimpleNotification.error({
+          title: 'Error deleting coupon book!',
+          text: 'Please try again later.'
+        }, notificationOptions);
+      }
+    });
+  } else {
+    // In case someone tries to delete the template without saving it first
+    console.warn("Can't delete book that hasn't been saved yet! Going back...");
+    $("#backArrow").click();
+  }
+}
+
 /* The characters allowed in the share code and the code length.
  * Needed for createShareCode and redeemCode. */
 var ALPHABET = '23456789abdegjkmnpqrvwxyz';
@@ -768,7 +1028,6 @@ var ID_LENGTH = 8;
  * Generates a share code and adds it to the book's entry 
  * in the database.
  */
-// TODO: Determine where to call this; after pay wall?
 function createShareCode() {
   // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
   var shareCode = shareCode();
@@ -972,10 +1231,33 @@ function navBar() {
  */
 function manipulateListeners() {
   console.warn("manipulateListeners...");
-  // For example, in case you change your mind and want to use a different template
+  // Returns you to your previous location; asks for confirmation
+  // if you have unsaved changes
   $('#backArrow').unbind().click(function() {
-    book = null;
-    _this.redirectTo(backButtonTarget);
+    function goBack() {
+      previousBook = null;
+      book = null;
+      _this.redirectTo(backButtonTarget);
+    }
+
+    if (!isSameObject(book, previousBook)) {
+      function onConfirm(buttonIndex) {
+        // 1 is "Discard them"
+        if (buttonIndex == 1) {
+          goBack();
+        }
+      }
+      
+      navigator.notification.confirm(
+          'Are you sure you want to discard your changes?',
+          onConfirm,
+          'Discard all changes',
+          ["Discard them","Wait, no!"]
+      );
+    } else {
+      // Book hasn't been modified
+      goBack();
+    }
   });
 
   $('#save').unbind().click(function() {
@@ -993,8 +1275,15 @@ function manipulateListeners() {
         }
     } else {
         if (book.bookId) {
-          console.warn("Updating book...");
-          updateBook();
+          if (!isSameObject(book, previousBook)) {
+            console.warn("Updating book...");
+            updateBook();
+          } else {
+            // Book hasn't been modified
+            SimpleNotification.info({
+              text: 'You haven\'t changed anything!'
+            }, notificationOptions);
+          }
         } else {
           console.warn("Creating book...");
           createBook();
@@ -1025,20 +1314,10 @@ function manipulateListeners() {
       });
 
       $('#save').unbind().click(function() {
-        // Make sure name isn't taken
-        var uniqueName = true, name = getById("name").value;
-        $.each(book.coupons, function(couponNumber, coupon) {
-          if (name == coupon.name) {
-            uniqueName = false;
-
-            SimpleNotification.warning({
-              title: 'Already used this name',
-              text: 'Please enter a unique name.'
-            }, notificationOptions);
-          }
-        });
-
-        if (uniqueName && couponFormIsValid()) {
+          var name = getById("name").value;
+          if (nameAlreadyExists(name)) {
+            newNameWarning();
+          } else if (couponFormIsValid()) {
             // Form is properly filled out
             createCoupon();
             
