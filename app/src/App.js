@@ -652,13 +652,14 @@ function updateCoupon(oldCoupon, $this) {
   newCoupon.count = parseInt(newCoupon.count);
 
   // TODO: Consider decomposing
-  if (nameAlreadyExists(newCoupon.name)) {
+  var oldName = oldCoupon.name;
+  var newName = newCoupon.name;
+  if (newName != oldName && nameAlreadyExists(newName)) {
     newNameWarning();
   } else {
     // Iterate over coupons until the one with the previous name is found
-    var name = oldCoupon.name;
     $.each(book.coupons, function(couponNumber, coupon) {
-      if (coupon.name == name) {
+      if (coupon.name == oldName) {
         // Uncomment for debugging coupon updating
         /*console.warn("Old coupon:");
         console.warn(oldCoupon);
@@ -672,7 +673,7 @@ function updateCoupon(oldCoupon, $this) {
         displayBook();
   
         // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
-        $('#bookContent p:contains(' + newCoupon.name + ')').parent()[0].click();
+        $('#bookContent p:contains(' + newName + ')').parent()[0].click();
         
         console.warn("Coupon updated!");
         SimpleNotification.success({
