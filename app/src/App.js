@@ -191,16 +191,19 @@ App.prototype.state = {
         var tooltip = $(".copytooltip .copytooltiptext");
         $('#copyButton, #shareCodeText').unbind().click(function() {
           cordova.plugins.clipboard.copy($("#shareCodeText").text());
-
           $(tooltip).finish().fadeTo(400, 1).delay(1500).fadeTo(400, 0);
         });
 
         getById("shareCodeText").innerText = book.shareCode;
 
-        // Pass platform to iframe to display correct image
+        // Display share icon based on platform
         var platform = device.platform;
-        console.warn("Platform: " + platform);
-        $('#shareFrame').attr('src', "shareButton.html?" + platform);
+        var shareIcon = getById("shareIcon");
+        (platform == "Android") ? shareIcon.src = "images/md-share.svg" : shareIcon.src = "images/ios-share.svg";
+
+        $("#bigShareButton").unbind().click(function() {
+          shareCode();
+        });
       }
     },
     '/profile': {
@@ -221,6 +224,29 @@ App.prototype.state = {
     }
   }
 };
+
+/**
+ * Opens native share function of device populated with the coded options.
+ */
+function shareCode() {
+  // TODO: Test on iOS, as site said there may be some special requirements
+  var options = {
+    // TODO: Think about how to display sender name in message
+    subject: "You've been Coupon Booked!", // for email
+    message: "You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: " + book.shareCode,
+    //chooserTitle: 'Pick an app', // Android only, you can override the default share sheet title
+  };
+  var onSuccess = function(result) {
+    // On Android result.app since plugin version 5.4.0 this is no longer empty.
+    // On iOS it's empty when sharing is cancelled (result.completed=false)
+    console.warn("Shared to app: " + result.app);
+  };
+  var onError = function(msg) {
+    console.error("Sharing failed with message: " + msg);
+  };
+
+  window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+}
 
 /**
  * Establish connection with the database so no load times later on.
@@ -716,19 +742,19 @@ function updateCoupon(oldCoupon, $this) {
     // Iterate over coupons until the one with the previous name is found
     var name = oldCoupon.name;
     $.each(book.coupons, function(couponNumber, coupon) {
-    if (coupon.name == name) {
-      // Uncomment for debugging coupon updating
-      /*console.warn("Old coupon:");
-      console.warn(oldCoupon);
-      console.warn("New coupon:");
-      console.warn(newCoupon);*/
-
-      coupon = newCoupon;
-      book.coupons[couponNumber] = newCoupon;
-
-      $($this).data("coupon", newCoupon);
-      displayBook();
-
+      if (coupon.name == name) {
+        // Uncomment for debugging coupon updating
+        /*console.warn("Old coupon:");
+        console.warn(oldCoupon);
+        console.warn("New coupon:");
+        console.warn(newCoupon);*/
+  
+        coupon = newCoupon;
+        book.coupons[couponNumber] = newCoupon;
+  
+        $($this).data("coupon", newCoupon);
+        displayBook();
+  
         // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
         $('#bookContent p:contains(' + newCoupon.name + ')').parent()[0].click();
         
@@ -1229,6 +1255,7 @@ function navBar() {
 /**
  * The normal listeners for the /manipulate route.
  */
+// TODO: Decompose
 function manipulateListeners() {
   console.warn("manipulateListeners...");
   // Returns you to your previous location; asks for confirmation
@@ -1329,7 +1356,7 @@ function manipulateListeners() {
             SimpleNotification.success({
               text: 'Created coupon'
             }, notificationOptions);
-        }
+          }
       });
   });
 }
@@ -1394,6 +1421,8 @@ function fadeBetweenElements(fadeOut, fadeIn) {
  */
 function manageTabMenu() {
   const gestureZone = getById('gestureZone');
+  var sentButton = $('#sentButton');
+  var receivedButton = $('#receivedButton');
   var touchstartX = 0;
   var touchendX = 0;
 
@@ -1413,8 +1442,6 @@ function manageTabMenu() {
       // this is not a complete replication
     var ratio_horizontal = (touchendX - touchstartX) / $(gestureZone).width();
     var ratioComparison = .10;
-    var sentButton = $('#sentButton');
-    var receivedButton = $('#receivedButton');
 
     // Swipe right (select sent)
     if (ratio_horizontal > ratioComparison) {
@@ -1424,14 +1451,6 @@ function manageTabMenu() {
       sentButton.css('text-decoration', 'underline');
       receivedButton.css('text-decoration', 'none');
     }
-    // Click sent tab
-    sentButton.unbind().click(function() {
-      sentButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
-      receivedButton.css('background-color', 'transparent');
-      sentButton.css('text-decoration', 'underline');
-      receivedButton.css('text-decoration', 'none');
-    });
-
     // Swipe left (select received)
     if (ratio_horizontal < -ratioComparison) {
       $('#tabs-swipe-demo').tabs('select', 'received');
@@ -1440,14 +1459,23 @@ function manageTabMenu() {
       receivedButton.css('text-decoration', 'underline');
       sentButton.css('text-decoration', 'none');
     }
-    // Click received tab
-    receivedButton.unbind().click(function() {
-      receivedButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
-      sentButton.css('background-color', 'transparent');
-      receivedButton.css('text-decoration', 'underline');
-      sentButton.css('text-decoration', 'none');
-    });
+    
   }
+
+  // Click sent tab
+  sentButton.unbind().click(function() {
+    sentButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
+    receivedButton.css('background-color', 'transparent');
+    sentButton.css('text-decoration', 'underline');
+    receivedButton.css('text-decoration', 'none');
+  });
+  // Click received tab
+  receivedButton.unbind().click(function() {
+    receivedButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
+    sentButton.css('background-color', 'transparent');
+    receivedButton.css('text-decoration', 'underline');
+    sentButton.css('text-decoration', 'none');
+  });
 }
 
 App.prototype.run = function(id) {

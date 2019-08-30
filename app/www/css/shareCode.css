@@ -26,3 +26,26 @@
 .copytooltip:hover .copytooltiptext {
     opacity: 1;
 }
+
+#bigShareButton {
+    color: #fff;
+    background-color: #eb5424;
+    border-color: #e14615;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 1px;
+    border-radius: 3px;
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 50px;
+    left: 50%;
+    width: 125px;
+    margin-left: -62.5px; /* Half of width */
+}
+#shareIcon {
+    border-right: 1px solid rgba(255,255,255,.15);
+    padding-right: 13px;
+    margin-right: 16px;
+    width: 32px;
+    margin-left: -5.5px;
+}

@@ -22,6 +22,7 @@
         "cordova-plugin-safariviewcontroller": "~1.4.7",
         "cordova-plugin-screen-orientation": "^3.0.2",
         "cordova-plugin-whitelist": "~1.3.2",
+        "cordova-plugin-x-socialsharing": "^5.4.7",
         "es6-promise-plugin": "^4.2.2",
         "jsonwebtoken": "^8.5.1",
         "request": "^2.88.0",
@@ -51,7 +52,10 @@
             "cordova-plugin-screen-orientation": {},
             "cordova-clipboard": {},
             "cordova-plugin-device": {},
-            "cordova-plugin-dialogs": {}
+            "cordova-plugin-dialogs": {},
+            "cordova-plugin-x-socialsharing": {
+                "ANDROID_SUPPORT_V4_VERSION": "24.1.1+"
+            }
         }
     }
 }
