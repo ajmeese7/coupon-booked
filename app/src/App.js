@@ -46,7 +46,6 @@ function App() {
 /** True means book will be published to template database; false is normal */
 var development = false;
 
-// TODO: Delete on page change! Something with routing? Or modify JS to add to .app
 // TODO: Test if it's possible to have better close animation
 // IDEA: Switch to better-maintained https://ned.im/noty or Toastify
 var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay: true, duration: 3000 };
@@ -226,29 +225,6 @@ App.prototype.state = {
 };
 
 /**
- * Opens native share function of device populated with the coded options.
- */
-function shareCode() {
-  // TODO: Test on iOS, as site said there may be some special requirements
-  var options = {
-    // TODO: Think about how to display sender name in message
-    subject: "You've been Coupon Booked!", // for email
-    message: "You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: " + book.shareCode,
-    //chooserTitle: 'Pick an app', // Android only, you can override the default share sheet title
-  };
-  var onSuccess = function(result) {
-    // On Android result.app since plugin version 5.4.0 this is no longer empty.
-    // On iOS it's empty when sharing is cancelled (result.completed=false)
-    console.warn("Shared to app: " + result.app);
-  };
-  var onError = function(msg) {
-    console.error("Sharing failed with message: " + msg);
-  };
-
-  window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
-}
-
-/**
  * Establish connection with the database so no load times later on.
  */
 // TODO: Secure PHP files so no malicious requests are made.
@@ -382,96 +358,6 @@ function addBookListeners(node) {
 }
 
 /**
- * Deep clones specified object to the returned object.
- * Copied from https://stackoverflow.com/a/4460624/6456163 
- * @param {object} item object to be cloned
- */
-function clone(item) {
-  if (!item) { return item; } // null, undefined values check
-
-  var types = [ Number, String, Boolean ], 
-      result;
-
-  // normalizing primitives if someone did new String('aaa'), or new Number('444');
-  types.forEach(function(type) {
-      if (item instanceof type) {
-          result = type( item );
-      }
-  });
-
-  if (typeof result == "undefined") {
-      if (Object.prototype.toString.call( item ) === "[object Array]") {
-          result = [];
-          item.forEach(function(child, index, array) { 
-              result[index] = clone( child );
-          });
-      } else if (typeof item == "object") {
-          // testing that this is DOM
-          if (item.nodeType && typeof item.cloneNode == "function") {
-              result = item.cloneNode( true );    
-          } else if (!item.prototype) { // check that this is a literal
-              if (item instanceof Date) {
-                  result = new Date(item);
-              } else {
-                  // it is an object literal
-                  result = {};
-                  for (var i in item) {
-                      result[i] = clone( item[i] );
-                  }
-              }
-          } else {
-              // depending what you would like here,
-              // just keep the reference, or create new object
-              if (false && item.constructor) {
-                  // would not advice to do that, reason? Read below
-                  result = new item.constructor();
-              } else {
-                  result = item;
-              }
-          }
-      } else {
-          result = item;
-      }
-  }
-
-  return result;
-}
-
-/**
- * Performs deep object comparison between obj1 and obj2.
- * Shamelessly stolen from https://gist.github.com/nicbell/6081098
- * @param {object} obj1 
- * @param {object} obj2 
- */
-function isSameObject(obj1, obj2) {
-  // Loop through properties in object 1
-  for (var p in obj1) {
-      // Check property exists on both objects
-      if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
-
-      switch (typeof (obj1[p])) {
-          // Deep compare objects
-          case 'object':
-              if (!isSameObject(obj1[p], obj2[p])) return false;
-              break;
-          // Compare function code
-          case 'function':
-              if (typeof (obj2[p]) == 'undefined' || (p != 'compare' && obj1[p].toString() != obj2[p].toString())) return false;
-              break;
-          // Compare values
-          default:
-              if (obj1[p] != obj2[p]) return false;
-      }
-  }
-
-  // Check object 2 for any extra properties
-  for (var p in obj2) {
-      if (typeof (obj1[p]) == 'undefined') return false;
-  }
-  return true;
-};
-
-/**
  * Takes the current book JSON data and adds it to the page.
  * IDEA: Display book info at top or somewhere, ex. image + shareCode (if sent);
  * Can have bold display with image and title and everything, then as you scroll
@@ -580,337 +466,6 @@ function addDeleteListeners() {
         'Delete book confirmation', // title
         ['Delete it', 'Wait, stop!'] // buttonLabels; added to page from right to left
     );
-  });
-}
-
-/**
- * Adds click listeners to the specified coupon element.
- * @param {node} node the coupon element
- */
-function addCouponListeners(node) {
-  $(node).unbind().click(function() {
-    /** Allows coupon node to be passed as parameter to functions */
-    var $this = this;
-    showCouponPreviewPage($this);
-
-    $("#edit").unbind().click(function() {
-      showCouponEditPage($this);
-    });
-  });
-}
-
-/**
- * Hides the `/manipulate` route and shows the preview of the coupon 
- * that was selected. Also adds listeners for going back to `/manipulate`.
- */
-function showCouponPreviewPage($this) {
-  saveAndDeleteToggle();
-  fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
-
-  $('#backArrow').unbind().click(function() {
-    saveAndDeleteToggle();
-    fadeBetweenElements("#couponPreview", "#bookContent");
-    manipulateListeners();
-
-    // Calls this again in case data was updated and needs to be redisplayed
-    displayBook();
-  });
-
-  $('#delete').unbind().click(function() {
-    function onConfirm(buttonIndex) {
-      if (buttonIndex == 1) {
-        var couponNumber = $($this).data("couponNumber");
-        book.coupons.splice(couponNumber, 1);
-        
-        displayBook();
-        saveAndDeleteToggle();
-        fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
-      }
-    }
-    
-    navigator.notification.confirm(
-        'Are you sure you want to delete this coupon?',
-        onConfirm,
-        'Delete coupon confirmation',
-        ['Delete it', 'Cancel']
-    );
-  });
-
-  // Updates preview fields with actual coupon's data
-  var coupon = $($this).data("coupon");
-  getById("imgPreview").src = coupon.image;
-  getById("namePreview").innerText = coupon.name + ": " + coupon.count;
-  getById("descPreview").innerText = coupon.description;
-}
-
-/**
- * Updates edit page's form with the current coupon data and
- * displays the edit page.
- */
-function showCouponEditPage($this) {
-  saveAndDeleteToggle();
-  fadeBetweenElements("#couponPreview", "#couponForm");
-
-  // NOTE: On press, error for reading `image` of undefined... why?
-  $('#backArrow').unbind().click(function() {
-    // Will show the new data
-    showCouponPreviewPage();
-  });
-
-  $('#save').unbind().click(function() {
-    if (couponFormIsValid()) {
-      updateCoupon(coupon, $this);
-    }
-  });
-
-  // IDEA: Some way to clear form or just description
-  var coupon = $($this).data("coupon");
-  getById("couponImage").src   = coupon.image;
-  getById("name").value        = coupon.name;
-  getById("description").value = coupon.description;
-  getById("count").value       = coupon.count;
-}
-
-/**
- * If save element is visible, it fades out and the delete
- * element fades in. If not, then the reverse happens.
- */
-function saveAndDeleteToggle() {
-  var saveShowing = $("#save").is(':visible');
-  if (saveShowing) {
-    fadeBetweenElements("#save", "#delete");
-  } else {
-    fadeBetweenElements("#delete", "#save");
-  }
-}
-
-/**
- * Take data from form fields and add it to `book.coupons`.
- */
-function createCoupon() {
-  console.warn("Creating coupon...");
-  var form = $('#couponForm').serializeArray();
-
-  // https://stackoverflow.com/a/51175100/6456163
-  var coupon = {};
-  for (var i = 0; i < form.length; i++) {
-    coupon[form[i].name] = form[i].value;
-  }
-
-  // Convert from string to number
-  coupon.count = parseInt(coupon.count);
-
-  // Uncomment for debugging coupon creation
-  //console.warn("New coupon:");
-  //console.warn(coupon);
-
-  // NOTE: Temporary until image input is supported
-  coupon.image = "images/gift.png";
-
-  // Makes sure name doesn't already exist before creating coupon
-  if (nameAlreadyExists(coupon.name)) {
-    newNameWarning();
-  } else {
-    book.coupons.push(coupon);
-    displayBook();
-  }
-}
-
-/**
- * Replace the old coupon with the updated one in `book.coupons`,
- * if there is not already a coupon by that name.
- * @param {Object} oldCoupon the JSON of previous coupon
- * @param {Object} $this reference to the applicable couponPreview node
- */
-function updateCoupon(oldCoupon, $this) {
-  console.warn("Attempting to update coupon...");
-  var form = $('#couponForm').serializeArray();
-
-  var newCoupon = {};
-  newCoupon.image = oldCoupon.image; // NOTE: Temporary
-  for (var i = 0; i < form.length; i++) {
-    newCoupon[form[i].name] = form[i].value;
-  }
-
-  // Convert from string to number
-  newCoupon.count = parseInt(newCoupon.count);
-
-  // TODO: Consider decomposing
-  if (nameAlreadyExists(newCoupon.name)) {
-    newNameWarning();
-  } else {
-    // Iterate over coupons until the one with the previous name is found
-    var name = oldCoupon.name;
-    $.each(book.coupons, function(couponNumber, coupon) {
-      if (coupon.name == name) {
-        // Uncomment for debugging coupon updating
-        /*console.warn("Old coupon:");
-        console.warn(oldCoupon);
-        console.warn("New coupon:");
-        console.warn(newCoupon);*/
-  
-        coupon = newCoupon;
-        book.coupons[couponNumber] = newCoupon;
-  
-        $($this).data("coupon", newCoupon);
-        displayBook();
-  
-        // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
-        $('#bookContent p:contains(' + newCoupon.name + ')').parent()[0].click();
-        
-        console.warn("Coupon updated!");
-        SimpleNotification.success({
-          text: 'Updated coupon'
-        }, notificationOptions);
-      }
-    });
-  }
-}
-
-/**
- * Checks if the new name already exists in the book.
- * @param {string} name name of the new coupon
- */
-function nameAlreadyExists(name) {
-  // Makes sure new name doesn't already exist
-  var nameAlreadyExists = false;
-  $.each(book.coupons, function(couponNumber, coupon) {
-    if (coupon.name == name) {
-      nameAlreadyExists = true;
-    }
-  });
-
-  return nameAlreadyExists;
-}
-
-/**
- * Shows a warning notification that a unique name is required.
- */
-function newNameWarning() {
-  SimpleNotification.warning({
-    title: 'Already used this name',
-    text: 'Please enter a unique name.'
-  }, notificationOptions);
-}
-
-/**
- * Get the template corresponding to the button the user selects
- * and send the user to the manipulation page. Sets the requested
- * data to the global book variable.
- * @param {string} name the name of the template to be retreived
- */
-function getTemplate(name) {
-  $.ajax({
-    type: "GET",
-    url: "http://www.couponbooked.com/scripts/getTemplate?template=" + name,
-    datatype: "html",
-    success: function(data) {
-      if (data == "") {
-        // Should never happen outside of testing, but just in case.
-        SimpleNotification.error({
-          title: 'No applicable template',
-          text: 'Please try again.'
-        }, notificationOptions);
-      } else {
-        book = JSON.parse(data);
-        book = JSON.parse(book.templateData);
-
-        // Capitalize name; looks better
-        var name = book.name;
-        name = name.charAt(0).toUpperCase() + name.slice(1)
-        book.name = name;
-        previousBook = clone(book);
-
-        _this.redirectTo('/manipulate');
-      }
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in getTemplate:");
-      console.error(XMLHttpRequest.responseText);
-
-      SimpleNotification.error({
-        title: 'Error retreiving template!',
-        text: 'Please try again later.'
-      }, notificationOptions);
-    }
-  });
-}
-
-/**
- * Development-only function. Meant to aid in the process of creating
- * templates and adding them to the template table in the database.
- * @param {string} name the name of the template to be created
- */
-function createTemplate(name) {
-  // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
-  var emptyTemplate = { name:name, image:"images/gift.png", bookId:null, shareCode:null, coupons:[] };
-  emptyTemplate = JSON.stringify(emptyTemplate);
-  console.warn("emptyTemplate:");
-  console.warn(emptyTemplate);
-
-  $.ajax({
-    type: "POST",
-    url: "http://www.couponbooked.com/scripts/createTemplate",
-    data: { name: name, templateData: emptyTemplate },
-    crossDomain: true,
-    dataType: "html",
-    cache: false,
-    success: function(success) {
-      // PHP echos a message if name already exists; if it doesn't, PHP is silent
-      if (success) {
-        SimpleNotification.warning({
-          title: 'Please choose another name!',
-          text: 'Template by name ' + name + ' already exists.'
-        }, notificationOptions);
-      } else {
-        SimpleNotification.success({
-          title: 'Successfully created template!',
-          text: 'Good for you. Keep up the great work!'
-        }, notificationOptions);
-      }
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in createTemplate:");
-      console.error(XMLHttpRequest.responseText);
-
-      SimpleNotification.error({
-        title: 'Error creating template',
-        text: 'Please try again later.'
-      }, notificationOptions);
-    }
-  });
-}
-
-/**
- * Development-only function. Same as updateBook, but for templates.
- */
-function updateTemplate() {
-  $.ajax({
-    type: "POST",
-    url: "http://www.couponbooked.com/scripts/updateTemplate",
-    data: { name: book.name.toLowerCase(), templateData: JSON.stringify(book) },
-    crossDomain: true,
-    dataType: "html",
-    cache: false,
-    success: function(success) {
-      if (success) {
-        console.warn("updateTemplate success:");
-        console.warn(success);
-      }
-
-      SimpleNotification.success({
-        text: 'Successfully updated template'
-      }, notificationOptions);
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in createTemplate:");
-      console.error(XMLHttpRequest.responseText);
-
-      SimpleNotification.error({
-        title: 'Error updating template',
-        text: 'Please try again later.'
-      }, notificationOptions);
-    }
   });
 }
 
@@ -1043,6 +598,334 @@ function deleteBook() {
     console.warn("Can't delete book that hasn't been saved yet! Going back...");
     $("#backArrow").click();
   }
+}
+
+/**
+ * Take data from form fields and add it to `book.coupons`.
+ */
+function createCoupon() {
+  console.warn("Creating coupon...");
+  var form = $('#couponForm').serializeArray();
+
+  // https://stackoverflow.com/a/51175100/6456163
+  var coupon = {};
+  for (var i = 0; i < form.length; i++) {
+    coupon[form[i].name] = form[i].value;
+  }
+
+  // Convert from string to number
+  coupon.count = parseInt(coupon.count);
+
+  // Uncomment for debugging coupon creation
+  //console.warn("New coupon:");
+  //console.warn(coupon);
+
+  // NOTE: Temporary until image input is supported
+  coupon.image = "images/gift.png";
+
+  // Makes sure name doesn't already exist before creating coupon
+  if (nameAlreadyExists(coupon.name)) {
+    newNameWarning();
+  } else {
+    book.coupons.push(coupon);
+    displayBook();
+  }
+}
+
+/**
+ * Replace the old coupon with the updated one in `book.coupons`,
+ * if there is not already a coupon by that name.
+ * @param {Object} oldCoupon the JSON of previous coupon
+ * @param {Object} $this reference to the applicable couponPreview node
+ */
+function updateCoupon(oldCoupon, $this) {
+  console.warn("Attempting to update coupon...");
+  var form = $('#couponForm').serializeArray();
+
+  var newCoupon = {};
+  newCoupon.image = oldCoupon.image; // NOTE: Temporary
+  for (var i = 0; i < form.length; i++) {
+    newCoupon[form[i].name] = form[i].value;
+  }
+
+  // Convert from string to number
+  newCoupon.count = parseInt(newCoupon.count);
+
+  // TODO: Consider decomposing
+  if (nameAlreadyExists(newCoupon.name)) {
+    newNameWarning();
+  } else {
+    // Iterate over coupons until the one with the previous name is found
+    var name = oldCoupon.name;
+    $.each(book.coupons, function(couponNumber, coupon) {
+      if (coupon.name == name) {
+        // Uncomment for debugging coupon updating
+        /*console.warn("Old coupon:");
+        console.warn(oldCoupon);
+        console.warn("New coupon:");
+        console.warn(newCoupon);*/
+  
+        coupon = newCoupon;
+        book.coupons[couponNumber] = newCoupon;
+  
+        $($this).data("coupon", newCoupon);
+        displayBook();
+  
+        // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
+        $('#bookContent p:contains(' + newCoupon.name + ')').parent()[0].click();
+        
+        console.warn("Coupon updated!");
+        SimpleNotification.success({
+          text: 'Updated coupon'
+        }, notificationOptions);
+      }
+    });
+  }
+}
+
+/**
+ * Adds click listeners to the specified coupon element.
+ * @param {node} node the coupon element
+ */
+function addCouponListeners(node) {
+  $(node).unbind().click(function() {
+    /** Allows coupon node to be passed as parameter to functions */
+    var $this = this;
+    showCouponPreviewPage($this);
+
+    $("#edit").unbind().click(function() {
+      showCouponEditPage($this);
+    });
+  });
+}
+
+/**
+ * Hides the `/manipulate` route and shows the preview of the coupon 
+ * that was selected. Also adds listeners for going back to `/manipulate`.
+ */
+function showCouponPreviewPage($this) {
+  saveAndDeleteToggle();
+  fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
+
+  $('#backArrow').unbind().click(function() {
+    saveAndDeleteToggle();
+    fadeBetweenElements("#couponPreview", "#bookContent");
+    manipulateListeners();
+
+    // Calls this again in case data was updated and needs to be redisplayed
+    displayBook();
+  });
+
+  $('#delete').unbind().click(function() {
+    function onConfirm(buttonIndex) {
+      if (buttonIndex == 1) {
+        var couponNumber = $($this).data("couponNumber");
+        book.coupons.splice(couponNumber, 1);
+        
+        displayBook();
+        saveAndDeleteToggle();
+        fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
+      }
+    }
+    
+    navigator.notification.confirm(
+        'Are you sure you want to delete this coupon?',
+        onConfirm,
+        'Delete coupon confirmation',
+        ['Delete it', 'Cancel']
+    );
+  });
+
+  // Updates preview fields with actual coupon's data
+  var coupon = $($this).data("coupon");
+  getById("imgPreview").src = coupon.image;
+  getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+  getById("descPreview").innerText = coupon.description;
+}
+
+/**
+ * Updates edit page's form with the current coupon data and
+ * displays the edit page.
+ */
+function showCouponEditPage($this) {
+  saveAndDeleteToggle();
+  fadeBetweenElements("#couponPreview", "#couponForm");
+
+  // NOTE: On press, error for reading `image` of undefined... why?
+  $('#backArrow').unbind().click(function() {
+    // Will show the new data
+    showCouponPreviewPage();
+  });
+
+  $('#save').unbind().click(function() {
+    if (couponFormIsValid()) {
+      updateCoupon(coupon, $this);
+    }
+  });
+
+  // IDEA: Some way to clear form or just description
+  var coupon = $($this).data("coupon");
+  getById("couponImage").src   = coupon.image;
+  getById("name").value        = coupon.name;
+  getById("description").value = coupon.description;
+  getById("count").value       = coupon.count;
+}
+
+/**
+ * If save element is visible, it fades out and the delete
+ * element fades in. If not, then the reverse happens.
+ */
+function saveAndDeleteToggle() {
+  var saveShowing = $("#save").is(':visible');
+  if (saveShowing) {
+    fadeBetweenElements("#save", "#delete");
+  } else {
+    fadeBetweenElements("#delete", "#save");
+  }
+}
+
+/**
+ * Checks if the new name already exists in the book.
+ * @param {string} name name of the new coupon
+ */
+function nameAlreadyExists(name) {
+  // Makes sure new name doesn't already exist
+  var nameAlreadyExists = false;
+  $.each(book.coupons, function(couponNumber, coupon) {
+    if (coupon.name == name) {
+      nameAlreadyExists = true;
+    }
+  });
+
+  return nameAlreadyExists;
+}
+
+/**
+ * Shows a warning notification that a unique name is required.
+ */
+function newNameWarning() {
+  SimpleNotification.warning({
+    title: 'Already used this name',
+    text: 'Please enter a unique name.'
+  }, notificationOptions);
+}
+
+/**
+ * Get the template corresponding to the button the user selects
+ * and send the user to the manipulation page. Sets the requested
+ * data to the global book variable.
+ * @param {string} name the name of the template to be retreived
+ */
+function getTemplate(name) {
+  $.ajax({
+    type: "GET",
+    url: "http://www.couponbooked.com/scripts/getTemplate?template=" + name,
+    datatype: "html",
+    success: function(data) {
+      if (data == "") {
+        // Should never happen outside of testing, but just in case.
+        SimpleNotification.error({
+          title: 'No applicable template',
+          text: 'Please try again.'
+        }, notificationOptions);
+      } else {
+        book = JSON.parse(data);
+        book = JSON.parse(book.templateData);
+
+        // Capitalize name; looks better
+        var name = book.name;
+        name = name.charAt(0).toUpperCase() + name.slice(1)
+        book.name = name;
+        previousBook = clone(book);
+
+        _this.redirectTo('/manipulate');
+      }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in getTemplate:");
+      console.error(XMLHttpRequest.responseText);
+
+      SimpleNotification.error({
+        title: 'Error retreiving template!',
+        text: 'Please try again later.'
+      }, notificationOptions);
+    }
+  });
+}
+
+/**
+ * Development-only function. Meant to aid in the process of creating
+ * templates and adding them to the template table in the database.
+ * @param {string} name the name of the template to be created
+ */
+function createTemplate(name) {
+  // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
+  var emptyTemplate = { name:name, image:"images/gift.png", bookId:null, shareCode:null, coupons:[] };
+  emptyTemplate = JSON.stringify(emptyTemplate);
+  console.warn("emptyTemplate:");
+  console.warn(emptyTemplate);
+
+  $.ajax({
+    type: "POST",
+    url: "http://www.couponbooked.com/scripts/createTemplate",
+    data: { name: name, templateData: emptyTemplate },
+    crossDomain: true,
+    dataType: "html",
+    cache: false,
+    success: function(success) {
+      // PHP echos a message if name already exists; if it doesn't, PHP is silent
+      if (success) {
+        newNameWarning();
+      } else {
+        SimpleNotification.success({
+          title: 'Successfully created template!',
+          text: 'Good for you. Keep up the great work!'
+        }, notificationOptions);
+      }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in createTemplate:");
+      console.error(XMLHttpRequest.responseText);
+
+      SimpleNotification.error({
+        title: 'Error creating template',
+        text: 'Please try again later.'
+      }, notificationOptions);
+    }
+  });
+}
+
+/**
+ * Development-only function. Same as updateBook, but for templates.
+ */
+function updateTemplate() {
+  $.ajax({
+    type: "POST",
+    url: "http://www.couponbooked.com/scripts/updateTemplate",
+    data: { name: book.name.toLowerCase(), templateData: JSON.stringify(book) },
+    crossDomain: true,
+    dataType: "html",
+    cache: false,
+    success: function(success) {
+      if (success) {
+        console.warn("updateTemplate success:");
+        console.warn(success);
+      }
+
+      SimpleNotification.success({
+        text: 'Successfully updated template'
+      }, notificationOptions);
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.log("Error in createTemplate:");
+      console.error(XMLHttpRequest.responseText);
+
+      SimpleNotification.error({
+        title: 'Error updating template',
+        text: 'Please try again later.'
+      }, notificationOptions);
+    }
+  });
 }
 
 /* The characters allowed in the share code and the code length.
@@ -1189,6 +1072,29 @@ function redeemCode(shareCode) {
       }, notificationOptions);
     }
   });
+}
+
+/**
+ * Opens native share function of device populated with the coded options.
+ */
+function shareCode() {
+  // TODO: Test on iOS, as site said there may be some special requirements
+  var options = {
+    // TODO: Think about how to display sender name in message
+    subject: "You've been Coupon Booked!", // for email
+    message: "You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: " + book.shareCode,
+    //chooserTitle: 'Pick an app', // Android only, you can override the default share sheet title
+  };
+  var onSuccess = function(result) {
+    // On Android result.app since plugin version 5.4.0 this is no longer empty.
+    // On iOS it's empty when sharing is cancelled (result.completed=false)
+    console.warn("Shared to app: " + result.app);
+  };
+  var onError = function(msg) {
+    console.error("Sharing failed with message: " + msg);
+  };
+
+  window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
 }
 
 /**
@@ -1477,6 +1383,96 @@ function manageTabMenu() {
     sentButton.css('text-decoration', 'none');
   });
 }
+
+/**
+ * Deep clones specified object to the returned object.
+ * Copied from https://stackoverflow.com/a/4460624/6456163 
+ * @param {object} item object to be cloned
+ */
+function clone(item) {
+  if (!item) { return item; } // null, undefined values check
+
+  var types = [ Number, String, Boolean ], 
+      result;
+
+  // normalizing primitives if someone did new String('aaa'), or new Number('444');
+  types.forEach(function(type) {
+      if (item instanceof type) {
+          result = type( item );
+      }
+  });
+
+  if (typeof result == "undefined") {
+      if (Object.prototype.toString.call( item ) === "[object Array]") {
+          result = [];
+          item.forEach(function(child, index, array) { 
+              result[index] = clone( child );
+          });
+      } else if (typeof item == "object") {
+          // testing that this is DOM
+          if (item.nodeType && typeof item.cloneNode == "function") {
+              result = item.cloneNode( true );    
+          } else if (!item.prototype) { // check that this is a literal
+              if (item instanceof Date) {
+                  result = new Date(item);
+              } else {
+                  // it is an object literal
+                  result = {};
+                  for (var i in item) {
+                      result[i] = clone( item[i] );
+                  }
+              }
+          } else {
+              // depending what you would like here,
+              // just keep the reference, or create new object
+              if (false && item.constructor) {
+                  // would not advice to do that, reason? Read below
+                  result = new item.constructor();
+              } else {
+                  result = item;
+              }
+          }
+      } else {
+          result = item;
+      }
+  }
+
+  return result;
+}
+
+/**
+ * Performs deep object comparison between obj1 and obj2.
+ * Shamelessly stolen from https://gist.github.com/nicbell/6081098
+ * @param {object} obj1 
+ * @param {object} obj2 
+ */
+function isSameObject(obj1, obj2) {
+  // Loop through properties in object 1
+  for (var p in obj1) {
+      // Check property exists on both objects
+      if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
+
+      switch (typeof (obj1[p])) {
+          // Deep compare objects
+          case 'object':
+              if (!isSameObject(obj1[p], obj2[p])) return false;
+              break;
+          // Compare function code
+          case 'function':
+              if (typeof (obj2[p]) == 'undefined' || (p != 'compare' && obj1[p].toString() != obj2[p].toString())) return false;
+              break;
+          // Compare values
+          default:
+              if (obj1[p] != obj2[p]) return false;
+      }
+  }
+
+  // Check object 2 for any extra properties
+  for (var p in obj2) {
+      if (typeof (obj1[p]) == 'undefined') return false;
+  }
+  return true;
+};
 
 App.prototype.run = function(id) {
   this.container = getBySelector(id);
