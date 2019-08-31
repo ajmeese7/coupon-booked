@@ -183,7 +183,7 @@
         </div>
     </template>
 
-    <template id="manipulate">
+    <template id="sentBook">
         <!-- NOTE: Also in redeem -->
         <div id="topbar">
             <img id="backArrow" class="ionicon" src="images/back.svg" />
@@ -223,6 +223,39 @@
             <label for="count">Count</label>
             <input type="number" id="count" name="count" min="1" max="99" placeholder="3">
         </form>
+
+        <!-- TODO: Add way to see this and functionality. Use updateBook and add desc and image to bookData,
+            and only call when save button is clicked. -->
+        <form id="bookForm" class="hide col">
+            <img id="couponImage" src="images/gift.png" />
+
+            <label for="name">Book Name</label>
+            <input type="text" id="name" name="name" placeholder="#1 Dad">
+
+            <label for="desc">Description</label>
+            <input type="text" id="description" name="description" placeholder="Thanks for being there for me always.">
+        </form>
+    </template>
+
+    <template id="receivedBook">
+        <div id="topbar">
+            <img id="backArrow" class="ionicon" src="images/back.svg" />
+            <a id="delete" class="hide">Delete</a> <!-- TODO: Decide if this is needed -->
+        </div>
+        
+        <div id="bookContent" class="col">
+            <!-- TODO: Figure out if anything is needed by default-->
+        </div>
+
+        <div id="couponPreview" class="hide col">
+            <h3 id="namePreview"></h3>
+            <hr />
+            <img id="imgPreview" src="images/gift.png" />
+            <p id="descPreview"></p> <!-- TODO: Make this look better for short descriptions -->
+
+            <!-- TODO: Change this to do what it should -->
+            <div id="redeemCoupon">Redeem coupon</div>
+        </div>
     </template>
 
     <template id="shareCode">

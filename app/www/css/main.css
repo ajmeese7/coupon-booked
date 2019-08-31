@@ -165,7 +165,7 @@ label {
 }
 
 /* "Temporary" solution to lack of an idea where to put redemption route link */
-#redeemLink {
+#redeemLink, #redeemCoupon {
     width: 140px;
     height: 34px;
     text-align: center;

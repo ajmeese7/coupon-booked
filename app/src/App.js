@@ -119,15 +119,25 @@ App.prototype.state = {
         });
       }
     },
-    '/manipulate': {
-      id: 'manipulate',
+    '/sentBook': {
+      id: 'sentBook',
       onMount: function(page) {
         _this = this;
         navBar();
 
-        displayBook();
+        displaySentBook();
       }
     },
+    '/receivedBook': {
+      id: 'receivedBook',
+      onMount: function(page) {
+        _this = this;
+        navBar();
+
+        displayReceivedBook();
+      }
+    },
+    // TODO: Greatly speed up loading of books somehow; caching until change?
     '/dashboard': {
       id: 'dashboard',
       onMount: function(page) {
@@ -183,7 +193,7 @@ App.prototype.state = {
 
         // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
-          _this.redirectTo('/manipulate');
+          _this.redirectTo('/sentBook');
         });
         
         // Display tooltip when box or icon is clicked and copy to clipboard
@@ -306,11 +316,14 @@ function addBookToPage(couponBook, isSent) {
   node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
 
   if (isSent) {
-    // TODO: if shareCode generated say 'Code generated...' instead
-    var receiver = couponBook.receiver;
-    node.innerHTML += "<p class='receiverText'>" +
-      (receiver ? "Sent to " + receiver : "Not sent yet") +
-      "</p>";
+    if (book.shareCode) {
+      // TODO: if shareCode generated say 'Code generated...' instead
+    } else {
+      var receiver = couponBook.receiver;
+      node.innerHTML += "<p class='receiverText'>" +
+        (receiver ? "Sent to " + receiver : "Not sent yet") +
+        "</p>";
+    }
   } else {
     // Who the book is sent from; should always exist, but failsafe in case it doesn't
     var senderName = couponBook.senderName;
@@ -323,6 +336,7 @@ function addBookToPage(couponBook, isSent) {
   $(node).data("bookData", bookData);
   $(node).data("isSent", isSent);
   $(node).data("receiver", couponBook.receiver);
+  $(node).data("sender", couponBook.senderName);
   applicableElement.appendChild(node);
   addBookListeners(node);
 }
@@ -347,44 +361,41 @@ function addBookListeners(node) {
 
     var isSent = $(this).data("isSent");
     if (isSent) {
-      // An area to view the books and manipulate if desired;
-      // IDEA: Get rid of `if` and handle all sent vs. received stuff in /manipulate?
-        // Ex. if received then show redeem buttons instead of edit and plus
-      _this.redirectTo('/manipulate');
+      _this.redirectTo('/sentBook');
     } else {
-      // TODO: Add a route for redeeming coupons or think of alternative idea
+      _this.redirectTo('/receivedBook');
     }
   });
 }
 
 /**
  * Takes the current book JSON data and adds it to the page.
- * IDEA: Display book info at top or somewhere, ex. image + shareCode (if sent);
- * Can have bold display with image and title and everything, then as you scroll
- * down it collapses to a fixed nav with image on left and title right and on click
- * it scrolls back up to the big info.
  */
-function displayBook() {
-  console.warn("displayBook...");
+function displaySentBook() {
+  console.warn("displaySentBook...");
   var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
   bookContent.innerHTML = '<button id="plus">+</button>';
 
-  // Dynamically create preview of book at top of display
+  // Create preview of book at top of display
+  /* Can have bold display with image and title and everything, then as you scroll
+    down it collapses to a fixed nav with image on left and title right and on click
+    it scrolls back up to the big info. */
   var miniPreview = document.createElement('div');
   miniPreview.setAttribute("id", "miniPreview");
   miniPreview.innerHTML += "<div id='invisiblePreviewClearance'></div>";
   miniPreview.innerHTML += "<img id='miniPreviewImage' src='" + book.image + "' />";
+  // TODO: Add edit button somewhere for book details
 
   var previewText = document.createElement('div');
   previewText.setAttribute("id", "previewText");
   previewText.innerHTML += "<h4>" + book.name + "</h4>";
 
   // Sets receiver text based on the current state of the book
-  // TODO: Test ALL of this!
   if (book.receiver) {
     // Book has been sent and code redeemed
+    // TODO: Test and style
     var receiver = "<p>Sent to " + book.receiver;
   } else if (book.shareCode) {
     // Code generated but not yet redeemed
@@ -392,7 +403,6 @@ function displayBook() {
     var receiver = "<p id='shareCodePreview'>Share code:\n" + book.shareCode;
   } else {
     // No code generated and not sent
-    // TODO: Add share button (to route) here
     var receiver = "<p><a id='shareButton'>Share</a>";
   }
   receiver += "</p>";
@@ -419,30 +429,116 @@ function displayBook() {
   });
   
   addDeleteListeners();
-  manipulateListeners();
+  sentBookListeners();
+  addCouponsToPage();
+}
 
-  // TODO: Implement way to rearrange organization of coupons; also change
-  // display options like default, alphabetical, count remaining, etc.;
-  // should changing display preference permenantly update the order?
-  // Option to hide coupons with 0 count; display 3 to a row
-  $.each(book.coupons, function(couponNumber, coupon) {
-    // Uncomment if debugging coupons
-    //console.warn("Coupon #" + couponNumber + ":");
-    //console.warn(coupon);
+/**
+ * The normal listeners for the /sentBook route.
+ */
+// TODO: Decompose
+function sentBookListeners() {
+  console.warn("sentBookListeners...");
+  // Returns you to your previous location; asks for confirmation
+  // if you have unsaved changes
+  $('#backArrow').unbind().click(function() {
+    function goBack() {
+      previousBook = null;
+      book = null;
+      _this.redirectTo(backButtonTarget);
+    }
 
-    // TODO: Figure out how to display image licenses if not paying for yearly subscription
-    // TODO: Exclude this file from UglifyJS so I can use template literals
-    var node = document.createElement('div');
-    node.setAttribute("class", "couponPreview");
-    node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
-    node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
-    node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
-    $(node).data("coupon", coupon);
-    $(node).data("couponNumber", couponNumber);
-    bookContent.appendChild(node);
+    if (!isSameObject(book, previousBook)) {
+      function onConfirm(buttonIndex) {
+        // 1 is "Discard them"
+        if (buttonIndex == 1) {
+          goBack();
+        }
+      }
+      
+      navigator.notification.confirm(
+          'Are you sure you want to discard your changes?',
+          onConfirm,
+          'Discard all changes',
+          ["Discard them","Wait, no!"]
+      );
+    } else {
+      // Book hasn't been modified
+      goBack();
+    }
+  });
 
-    // Called from /manipulate; so a good place to add coupon listeners
-    addCouponListeners(node);
+  $('#save').unbind().click(function() {
+    // IDEA: Switch to ? functions to shorten
+    if (development) {
+        // TODO: Get a condition here that works or scrap entirely;
+        // could have separate buttons + form that only show up when in dev mode
+        if (book.name) {
+          console.log("Updating template...");
+          //updateTemplate();
+        } else {
+          console.log("Creating template...");
+          // TODO: Where to get name?
+          //createTemplate();
+        }
+    } else {
+        if (book.bookId) {
+          if (!isSameObject(book, previousBook)) {
+            console.warn("Updating book...");
+            updateBook();
+          } else {
+            // Book hasn't been modified
+            SimpleNotification.info({
+              text: 'You haven\'t changed anything!'
+            }, notificationOptions);
+          }
+        } else {
+          console.warn("Creating book...");
+          createBook();
+        }
+    }
+  });
+
+  // Shows user UI to create a new coupon to add to the book
+  $('#plus').unbind().click(function() {
+      fadeBetweenElements("#bookContent", "#couponForm");
+
+      // Reset form to blank in case it is clicked after editing a coupon
+      getById("couponImage").src   = "images/gift.png";
+      getById("name").value        = "";
+      getById("description").value = "";
+      getById("count").value       = "";
+
+      // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
+      if (device.platform == "iOS") {
+        $('#edit img').attr('src', "images/ios-edit.svg");
+      }
+
+      // Set back button to take you back to coupon list
+      $('#backArrow').unbind().click(function() {
+          fadeBetweenElements("#couponForm", "#bookContent");
+          sentBookListeners();
+          displaySentBook();
+      });
+
+      $('#save').unbind().click(function() {
+          var name = getById("name").value;
+          if (nameAlreadyExists(name)) {
+            newNameWarning();
+          } else if (couponFormIsValid()) {
+            // Form is properly filled out
+            createCoupon();
+            
+            // Calling the back function here doesn't work properly, so the content is copied.
+            fadeBetweenElements("#couponForm", "#bookContent");
+            sentBookListeners();
+            displaySentBook();
+
+            SimpleNotification.success({
+              text: 'Created coupon'
+            }, notificationOptions);
+          }
+      });
   });
 }
 
@@ -450,6 +546,7 @@ function displayBook() {
  * Adds click listener to trash can icon in miniPreview.
  */
 function addDeleteListeners() {
+  console.warn("addDeleteListeners...");
   $("#deleteBook").unbind().click(function() {
     function onConfirm(buttonIndex) {
       // NOTE: Button 0 is clicking out of confirmation box;
@@ -467,6 +564,203 @@ function addDeleteListeners() {
         ['Delete it', 'Wait, stop!'] // buttonLabels; added to page from right to left
     );
   });
+}
+
+/**
+ * Displays the received UI for the current book.
+ */
+function displayReceivedBook() {
+  console.warn("displayReceivedBook...");
+  var bookContent = getById("bookContent");
+
+  // Reset to default code so when refreshed it isn't populated twice
+  // TODO: Determine what the default code should be
+  bookContent.innerHTML = "";
+
+  // Dynamically create preview of book at top of display
+  var miniPreview = document.createElement('div');
+  miniPreview.setAttribute("id", "miniPreview");
+  miniPreview.innerHTML += "<div id='invisiblePreviewClearance'></div>";
+  miniPreview.innerHTML += "<img id='miniPreviewImage' src='" + book.image + "' />";
+
+  var previewText = document.createElement('div');
+  previewText.setAttribute("id", "previewText");
+  previewText.innerHTML += "<h4>" + book.name + "</h4>";
+
+  // TODO: Style like count for coupons (subtle)
+  var sender = book.sender;
+  var senderText = "<p>";
+  senderText += book.sender ? "Sent from " + sender : "Sender unavailable";
+  senderText += "</p>";
+  previewText.innerHTML += senderText;
+  miniPreview.appendChild(previewText);
+  
+  miniPreview.innerHTML += "<hr>";
+  bookContent.appendChild(miniPreview);
+  
+  // IDEA: Could replace delete with hide (eye) icon? And not tell sender...
+  receivedBookListeners();
+}
+
+/**
+ * The normal listeners for the /receivedBook route.
+ */
+function receivedBookListeners() {
+  console.warn("receivedBookListeners...");
+  $('#backArrow').unbind().click(function() {
+    // NOTE: previousBook probably isn't needed here, but better safe than dead
+    previousBook = null;
+    book = null;
+    _this.redirectTo(backButtonTarget);
+  });
+
+  // TODO: Add listeners for #redeemCoupon
+
+  $.each(book.coupons, function(couponNumber, coupon) {
+    // TODO: Possibly remove this block and put in separate function for sent and recevied?
+    var node = document.createElement('div');
+    node.setAttribute("class", "couponPreview");
+    node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
+    node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
+    node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
+    $(node).data("coupon", coupon);
+    $(node).data("couponNumber", couponNumber);
+    getById("bookContent").appendChild(node);
+
+    // Display coupon info when clicked
+    $(node).unbind().click(function() {
+      fadeBetweenElements("#bookContent", "#couponPreview");
+
+      $('#backArrow').unbind().click(function() {
+        fadeBetweenElements("#couponPreview", "#bookContent");
+        displayReceivedBook();
+      });
+
+      // Updates preview fields with actual coupon's data
+      var coupon = $(this).data("coupon");
+      getById("imgPreview").src = coupon.image;
+      getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+      getById("descPreview").innerText = coupon.description;
+    });
+  });
+}
+
+/**
+ * Adds all the sent book's coupons to the display once 
+ * the book is clicked.
+ */
+function addCouponsToPage() {
+  console.warn("addCouponsToPage...");
+  // NOTE: Solutions implemented here should be added in receivedBookListeners()
+  // TODO: Implement way to rearrange organization of coupons; also change
+  // display options like default, alphabetical, count remaining, etc.;
+  // should changing display preference permenantly update the order?
+  // Option to hide coupons with 0 count; display 3 to a row
+  $.each(book.coupons, function(couponNumber, coupon) {
+    // TODO: Figure out how to display image licenses if not paying for yearly subscription
+    // TODO: Exclude this file from UglifyJS so I can use template literals
+    var node = document.createElement('div');
+    node.setAttribute("class", "couponPreview");
+    node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
+    node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
+    node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
+    $(node).data("coupon", coupon);
+    $(node).data("couponNumber", couponNumber);
+    getById("bookContent").appendChild(node);
+
+    // IDEA: Combine this and receivedBookListeners with an if statement
+    // for what to do at the end
+    addCouponListeners(node);
+  });
+}
+
+/**
+ * Adds click listeners to the specified coupon element.
+ * @param {node} node the coupon element
+ */
+function addCouponListeners(node) {
+  console.warn("addCouponListeners...");
+  $(node).unbind().click(function() {
+    /** Allows coupon node to be passed as parameter to functions */
+    var $this = this;
+    showSentCouponPreview($this);
+
+    $("#edit").unbind().click(function() {
+      showCouponEditPage($this);
+    });
+  });
+}
+
+/**
+ * Hides the `/sentBook` route and shows the preview of the coupon 
+ * that was selected. Also adds listeners for going back to `/sentBook`.
+ */
+function showSentCouponPreview($this) {
+  console.warn("showSentCouponPreview...");
+  saveAndDeleteToggle();
+  fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
+
+  $('#backArrow').unbind().click(function() {
+    saveAndDeleteToggle();
+    fadeBetweenElements("#couponPreview", "#bookContent");
+
+    // Calls this again in case data was updated and needs to be redisplayed
+    displaySentBook();
+  });
+
+  $('#delete').unbind().click(function() {
+    function onConfirm(buttonIndex) {
+      if (buttonIndex == 1) {
+        var couponNumber = $($this).data("couponNumber");
+        book.coupons.splice(couponNumber, 1);
+        
+        displaySentBook();
+        saveAndDeleteToggle();
+        fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
+      }
+    }
+    
+    navigator.notification.confirm(
+        'Are you sure you want to delete this coupon?',
+        onConfirm,
+        'Delete coupon confirmation',
+        ['Delete it', 'Cancel']
+    );
+  });
+
+  // Updates preview fields with actual coupon's data
+  var coupon = $($this).data("coupon");
+  getById("imgPreview").src = coupon.image;
+  getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+  getById("descPreview").innerText = coupon.description;
+}
+
+/**
+ * Updates edit page's form with the current coupon data and
+ * displays the edit page.
+ */
+function showCouponEditPage($this) {
+  saveAndDeleteToggle();
+  fadeBetweenElements("#couponPreview", "#couponForm");
+
+  // NOTE: On press, error for reading `image` of undefined... why?
+  $('#backArrow').unbind().click(function() {
+    // Will show the new data
+    showSentCouponPreview();
+  });
+
+  $('#save').unbind().click(function() {
+    if (couponFormIsValid()) {
+      updateCoupon(coupon, $this);
+    }
+  });
+
+  // IDEA: Some way to clear form or just description
+  var coupon = $($this).data("coupon");
+  getById("couponImage").src   = coupon.image;
+  getById("name").value        = coupon.name;
+  getById("description").value = coupon.description;
+  getById("count").value       = coupon.count;
 }
 
 /**
@@ -577,7 +871,7 @@ function deleteBook() {
         //console.warn(success);
 
         // Updates display without deleted book
-        displayBook();
+        displaySentBook();
 
         SimpleNotification.success({
           text: 'Successfully deleted book'
@@ -628,7 +922,7 @@ function createCoupon() {
     newNameWarning();
   } else {
     book.coupons.push(coupon);
-    displayBook();
+    displaySentBook();
   }
 }
 
@@ -670,7 +964,7 @@ function updateCoupon(oldCoupon, $this) {
         book.coupons[couponNumber] = newCoupon;
   
         $($this).data("coupon", newCoupon);
-        displayBook();
+        displaySentBook();
   
         // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
         $('#bookContent p:contains(' + newName + ')').parent()[0].click();
@@ -685,91 +979,45 @@ function updateCoupon(oldCoupon, $this) {
 }
 
 /**
- * Adds click listeners to the specified coupon element.
- * @param {node} node the coupon element
+ * Ensure all the conditions for a valid coupon are met.
+ * @returns {boolean} whether or not the form is valid
  */
-function addCouponListeners(node) {
-  $(node).unbind().click(function() {
-    /** Allows coupon node to be passed as parameter to functions */
-    var $this = this;
-    showCouponPreviewPage($this);
+function couponFormIsValid() {
+  var image = getById("couponImage");
+  var name = getById("name").value;
+  var count = getById("count").value;
+  var desc = getById("description").value;
 
-    $("#edit").unbind().click(function() {
-      showCouponEditPage($this);
-    });
-  });
-}
+  // Validate that form is filled out properly
+  if (!image) {
+    // image input
+    // TODO: Add proper if conditions after creating input field
+  } else if (name.length < 1) {
+    // No name
+    SimpleNotification.warning({
+      text: 'Please enter a name'
+    }, notificationOptions);
+  } else if (name.length > 99) {
+    // Name too long
+    SimpleNotification.warning({
+      title: 'Name too long',
+      text: 'Please enter a shorter name'
+    }, notificationOptions);
+  } else if (isNaN(count) || count < 1 || count > 99) {
+    SimpleNotification.warning({
+      title: 'Invalid count entered',
+      text: 'Please enter a number between 1 and 99'
+    }, notificationOptions);
+  } else if (desc.length > 99) {
+    // TODO: Determine better max length; Tweet?
+    SimpleNotification.warning({
+      text: 'Please enter a shorter description'
+    }, notificationOptions);
+  } else {
+    return true;
+  }
 
-/**
- * Hides the `/manipulate` route and shows the preview of the coupon 
- * that was selected. Also adds listeners for going back to `/manipulate`.
- */
-function showCouponPreviewPage($this) {
-  saveAndDeleteToggle();
-  fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
-
-  $('#backArrow').unbind().click(function() {
-    saveAndDeleteToggle();
-    fadeBetweenElements("#couponPreview", "#bookContent");
-    manipulateListeners();
-
-    // Calls this again in case data was updated and needs to be redisplayed
-    displayBook();
-  });
-
-  $('#delete').unbind().click(function() {
-    function onConfirm(buttonIndex) {
-      if (buttonIndex == 1) {
-        var couponNumber = $($this).data("couponNumber");
-        book.coupons.splice(couponNumber, 1);
-        
-        displayBook();
-        saveAndDeleteToggle();
-        fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
-      }
-    }
-    
-    navigator.notification.confirm(
-        'Are you sure you want to delete this coupon?',
-        onConfirm,
-        'Delete coupon confirmation',
-        ['Delete it', 'Cancel']
-    );
-  });
-
-  // Updates preview fields with actual coupon's data
-  var coupon = $($this).data("coupon");
-  getById("imgPreview").src = coupon.image;
-  getById("namePreview").innerText = coupon.name + ": " + coupon.count;
-  getById("descPreview").innerText = coupon.description;
-}
-
-/**
- * Updates edit page's form with the current coupon data and
- * displays the edit page.
- */
-function showCouponEditPage($this) {
-  saveAndDeleteToggle();
-  fadeBetweenElements("#couponPreview", "#couponForm");
-
-  // NOTE: On press, error for reading `image` of undefined... why?
-  $('#backArrow').unbind().click(function() {
-    // Will show the new data
-    showCouponPreviewPage();
-  });
-
-  $('#save').unbind().click(function() {
-    if (couponFormIsValid()) {
-      updateCoupon(coupon, $this);
-    }
-  });
-
-  // IDEA: Some way to clear form or just description
-  var coupon = $($this).data("coupon");
-  getById("couponImage").src   = coupon.image;
-  getById("name").value        = coupon.name;
-  getById("description").value = coupon.description;
-  getById("count").value       = coupon.count;
+  return false;
 }
 
 /**
@@ -839,7 +1087,7 @@ function getTemplate(name) {
         book.name = name;
         previousBook = clone(book);
 
-        _this.redirectTo('/manipulate');
+        _this.redirectTo('/sentBook');
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -1160,157 +1408,6 @@ function navBar() {
 }
 
 /**
- * The normal listeners for the /manipulate route.
- */
-// TODO: Decompose
-function manipulateListeners() {
-  console.warn("manipulateListeners...");
-  // Returns you to your previous location; asks for confirmation
-  // if you have unsaved changes
-  $('#backArrow').unbind().click(function() {
-    function goBack() {
-      previousBook = null;
-      book = null;
-      _this.redirectTo(backButtonTarget);
-    }
-
-    if (!isSameObject(book, previousBook)) {
-      function onConfirm(buttonIndex) {
-        // 1 is "Discard them"
-        if (buttonIndex == 1) {
-          goBack();
-        }
-      }
-      
-      navigator.notification.confirm(
-          'Are you sure you want to discard your changes?',
-          onConfirm,
-          'Discard all changes',
-          ["Discard them","Wait, no!"]
-      );
-    } else {
-      // Book hasn't been modified
-      goBack();
-    }
-  });
-
-  $('#save').unbind().click(function() {
-    // IDEA: Switch to ? functions to shorten
-    if (development) {
-        // TODO: Get a condition here that works or scrap entirely;
-        // could have separate buttons + form that only show up when in dev mode
-        if (book.name) {
-          console.log("Updating template...");
-          //updateTemplate();
-        } else {
-          console.log("Creating template...");
-          // TODO: Where to get name?
-          //createTemplate();
-        }
-    } else {
-        if (book.bookId) {
-          if (!isSameObject(book, previousBook)) {
-            console.warn("Updating book...");
-            updateBook();
-          } else {
-            // Book hasn't been modified
-            SimpleNotification.info({
-              text: 'You haven\'t changed anything!'
-            }, notificationOptions);
-          }
-        } else {
-          console.warn("Creating book...");
-          createBook();
-        }
-    }
-  });
-
-  // Shows user UI to create a new coupon to add to the book
-  $('#plus').unbind().click(function() {
-      fadeBetweenElements("#bookContent", "#couponForm");
-
-      // Reset form to blank in case it is clicked after editing a coupon
-      getById("couponImage").src   = "images/gift.png";
-      getById("name").value        = "";
-      getById("description").value = "";
-      getById("count").value       = "";
-
-      // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
-      if (device.platform == "iOS") {
-        $('#edit img').attr('src', "images/ios-edit.svg");
-      }
-
-      // Set back button to take you back to coupon list
-      $('#backArrow').unbind().click(function() {
-          fadeBetweenElements("#couponForm", "#bookContent");
-          manipulateListeners();
-          displayBook();
-      });
-
-      $('#save').unbind().click(function() {
-          var name = getById("name").value;
-          if (nameAlreadyExists(name)) {
-            newNameWarning();
-          } else if (couponFormIsValid()) {
-            // Form is properly filled out
-            createCoupon();
-            
-            // Calling the back function here doesn't work properly, so the content is copied.
-            fadeBetweenElements("#couponForm", "#bookContent");
-            manipulateListeners();
-            displayBook();
-
-            SimpleNotification.success({
-              text: 'Created coupon'
-            }, notificationOptions);
-          }
-      });
-  });
-}
-
-/**
- * Ensure all the conditions for a valid coupon are met.
- * @returns {boolean} whether or not the form is valid
- */
-function couponFormIsValid() {
-  var image = getById("couponImage");
-  var name = getById("name").value;
-  var count = getById("count").value;
-  var desc = getById("description").value;
-
-  // Validate that form is filled out properly
-  if (!image) {
-    // image input
-    // TODO: Add proper if conditions after creating input field
-  } else if (name.length < 1) {
-    // No name
-    SimpleNotification.warning({
-      text: 'Please enter a name'
-    }, notificationOptions);
-  } else if (name.length > 99) {
-    // Name too long
-    SimpleNotification.warning({
-      title: 'Name too long',
-      text: 'Please enter a shorter name'
-    }, notificationOptions);
-  } else if (isNaN(count) || count < 1 || count > 99) {
-    SimpleNotification.warning({
-      title: 'Invalid count entered',
-      text: 'Please enter a number between 1 and 99'
-    }, notificationOptions);
-  } else if (desc.length > 99) {
-    // TODO: Determine better max length; Tweet?
-    SimpleNotification.warning({
-      text: 'Please enter a shorter description'
-    }, notificationOptions);
-  } else {
-    return true;
-  }
-
-  return false;
-}
-
-/**
  * Function to fade between elements so it is easy to adjust
  * the timings without changing in multiple places.
  * @param {string} fadeOut the selector of the element to disappear
@@ -1468,10 +1565,12 @@ function isSameObject(obj1, obj2) {
       }
   }
 
-  // Check object 2 for any extra properties
-  for (var p in obj2) {
+  // Check object 2 for any extra properties;
+  // NOTE: This is problematic when left in tact, but hopefully 
+  // removing it won't cause any unintended issues
+  /*for (var p in obj2) {
       if (typeof (obj1[p]) == 'undefined') return false;
-  }
+  }*/
   return true;
 };
 
@@ -1665,7 +1764,7 @@ App.prototype.resumeApp = function() {
 };
 
 App.prototype.render = function() {
-  console.warn("render...");
+  //console.warn("render...");
   var currRoute = this.state.routes[this.state.currentRoute];
   var currRouteEl = getById(currRoute.id);
   var currRouteId = currRouteEl.id;
@@ -1673,7 +1772,7 @@ App.prototype.render = function() {
   this.container.innerHTML = '';
 
   // Apply nav
-  var routes = ["home", "create", "manipulate", "dashboard", "redeemCode", "shareCode", "profile"];
+  var routes = ["home", "create", "sentBook", "receivedBook", "dashboard", "redeemCode", "shareCode", "profile"];
   if ($.inArray(currRouteId, routes) >= 0) {
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(nav);
