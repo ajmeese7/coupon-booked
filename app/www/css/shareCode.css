@@ -2,6 +2,7 @@
     display: inline-block;
 }
 .copytooltip .copytooltiptext {
+    /* TODO: Work on this */
     width: 180px;
     background-color: #555;
     color: #fff;
@@ -9,9 +10,10 @@
     border-radius: 6px;
     padding: 5px;
     position: absolute;
-    margin-top: -82px; /* TODO: Test on other screen sizes */
+    margin-top: -97px; /* TODO: Fix on other screen sizes */
     opacity: 0;
     transition: opacity 0.3s;
+    overflow: visible;
 }
 .copytooltip .copytooltiptext::after {
     content: "";

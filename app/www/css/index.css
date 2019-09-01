@@ -3,6 +3,8 @@
 * {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Temporary; https://fonts.google.com/ */
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 html {
@@ -14,7 +16,6 @@ body {
     margin: 0px;
     padding: 0px;
     width: 100%;
-    overflow-x: hidden;
     text-transform: none !important; /* Should I let this be uppercase like Cordova does? */
 }
 
@@ -29,7 +30,7 @@ button:focus, a:focus {
 }
 
 section {
-    min-height: calc(100vh - 60px);
+    min-height: calc(100vh - 56.3833px);
     width: 100vw;
 }
 

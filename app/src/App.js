@@ -46,8 +46,8 @@ function App() {
 /** True means book will be published to template database; false is normal */
 var development = false;
 
-// TODO: Test if it's possible to have better close animation
-// IDEA: Switch to better-maintained https://ned.im/noty or Toastify
+// TODO: Switch to better close animation when library is updated;
+// also transition hacky way of animating to officially supported option (DL new commit)
 var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay: true, duration: 3000 };
 
 var nav, book, previousBook, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
@@ -109,16 +109,16 @@ App.prototype.state = {
 
         // Set button height equal to its width because CSS is annoying
         var width = $('button').width();
-        var marginBottom = $('button').css("margin-bottom");
-        $('#buttonContainer button').height(width + marginBottom);
+        $('#buttonContainer button').height(width);
 
         $('#buttonContainer button').unbind().click(function() {
-          // getTemplate handles the redirect to manipulation
+          // getTemplate handles the redirect to /sentBook
           var name = $(this).text().toLowerCase();
           getTemplate(name);
         });
       }
     },
+    // https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_navbar_shrink_scroll
     '/sentBook': {
       id: 'sentBook',
       onMount: function(page) {
@@ -144,7 +144,7 @@ App.prototype.state = {
         _this = this;
         navBar();
 
-        // Initialize tab menu
+        // Initialize tab menu; TODO: When coming back here, remember which tab user was on last.
         $('#tabs-swipe-demo').tabs();
         manageTabMenu();
 
@@ -224,6 +224,7 @@ App.prototype.state = {
         var avatar = getBySelector('#avatar');
         avatar.src = profile.picture;
 
+        // IDEA: Permenantly update displayed name for sent books here
         var profileCodeContainer = getBySelector('.profile-json');
         profileCodeContainer.textContent = JSON.stringify(profile, null, 4);
         
@@ -316,9 +317,13 @@ function addBookToPage(couponBook, isSent) {
   node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
 
   if (isSent) {
-    if (book.shareCode) {
-      // TODO: if shareCode generated say 'Code generated...' instead
+    var shareCode = bookData.shareCode;
+    if (shareCode) {
+      // TODO: Choose what to display as message here
+      node.innerHTML += "<p class='receiverText'>Code: " + shareCode + "</p>";
     } else {
+      // TODO: Make this not move the div up when longer than one line, and instead
+      // drop the text while keeping the images level
       var receiver = couponBook.receiver;
       node.innerHTML += "<p class='receiverText'>" +
         (receiver ? "Sent to " + receiver : "Not sent yet") +
@@ -326,6 +331,7 @@ function addBookToPage(couponBook, isSent) {
     }
   } else {
     // Who the book is sent from; should always exist, but failsafe in case it doesn't
+    // TODO: Make this less lengthy to display better; get feedback from others
     var senderName = couponBook.senderName;
     node.innerHTML += "<p class='senderText'>" +
       (senderName ? "Sent from " + senderName : "Sender unavailable") +
@@ -335,7 +341,7 @@ function addBookToPage(couponBook, isSent) {
   // https://api.jquery.com/data/
   $(node).data("bookData", bookData);
   $(node).data("isSent", isSent);
-  $(node).data("receiver", couponBook.receiver);
+  $(node).data("receiver", couponBook.receiver); // TOOD: Add column with receiver's name to make this readable
   $(node).data("sender", couponBook.senderName);
   applicableElement.appendChild(node);
   addBookListeners(node);
@@ -350,6 +356,7 @@ function addBookListeners(node) {
     // Set the book in the global scope until another one is selected
     book = $(this).data("bookData");
     book.receiver = $(this).data("receiver");
+    book.sender = $(this).data("sender");
     previousBook = clone(book);
 
     // TODO: Add some kind of delay to give content time to load in;
@@ -399,10 +406,11 @@ function displaySentBook() {
     var receiver = "<p>Sent to " + book.receiver;
   } else if (book.shareCode) {
     // Code generated but not yet redeemed
-    // TODO: Style this better
-    var receiver = "<p id='shareCodePreview'>Share code:\n" + book.shareCode;
+    // TODO: Style this in a way that lets people know they should click it
+    var receiver = "<p id='shareCodePreview'>Share code: " + book.shareCode;
   } else {
     // No code generated and not sent
+    // TODO: Update book in server with share code by using previousBook
     var receiver = "<p><a id='shareButton'>Share</a>";
   }
   receiver += "</p>";
@@ -438,7 +446,7 @@ function displaySentBook() {
  */
 // TODO: Decompose
 function sentBookListeners() {
-  console.warn("sentBookListeners...");
+  //console.warn("sentBookListeners...");
   // Returns you to your previous location; asks for confirmation
   // if you have unsaved changes
   $('#backArrow').unbind().click(function() {
@@ -546,14 +554,18 @@ function sentBookListeners() {
  * Adds click listener to trash can icon in miniPreview.
  */
 function addDeleteListeners() {
-  console.warn("addDeleteListeners...");
+  //console.warn("addDeleteListeners...");
   $("#deleteBook").unbind().click(function() {
     function onConfirm(buttonIndex) {
       // NOTE: Button 0 is clicking out of confirmation box;
       // 1 is delete and 2 is cancel
       if (buttonIndex == 1) {
         deleteBook();
-        $("#backArrow").click();
+        previousBook = null;
+        book = null;
+
+        // NOTE: This doesn't always pull the new data in time. How to fix?
+        _this.redirectTo(backButtonTarget);
       }
     }
     
@@ -570,11 +582,11 @@ function addDeleteListeners() {
  * Displays the received UI for the current book.
  */
 function displayReceivedBook() {
-  console.warn("displayReceivedBook...");
+  //console.warn("displayReceivedBook...");
   var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
-  // TODO: Determine what the default code should be
+  // TODO: Determine what the default code should be, if any
   bookContent.innerHTML = "";
 
   // Dynamically create preview of book at top of display
@@ -587,9 +599,8 @@ function displayReceivedBook() {
   previewText.setAttribute("id", "previewText");
   previewText.innerHTML += "<h4>" + book.name + "</h4>";
 
-  // TODO: Style like count for coupons (subtle)
   var sender = book.sender;
-  var senderText = "<p>";
+  var senderText = "<p class='senderText'>";
   senderText += book.sender ? "Sent from " + sender : "Sender unavailable";
   senderText += "</p>";
   previewText.innerHTML += senderText;
@@ -606,15 +617,13 @@ function displayReceivedBook() {
  * The normal listeners for the /receivedBook route.
  */
 function receivedBookListeners() {
-  console.warn("receivedBookListeners...");
+  //console.warn("receivedBookListeners...");
   $('#backArrow').unbind().click(function() {
     // NOTE: previousBook probably isn't needed here, but better safe than dead
     previousBook = null;
     book = null;
-    _this.redirectTo(backButtonTarget);
+    _this.redirectTo("/dashboard");
   });
-
-  // TODO: Add listeners for #redeemCoupon
 
   $.each(book.coupons, function(couponNumber, coupon) {
     // TODO: Possibly remove this block and put in separate function for sent and recevied?
@@ -650,7 +659,7 @@ function receivedBookListeners() {
  * the book is clicked.
  */
 function addCouponsToPage() {
-  console.warn("addCouponsToPage...");
+  //console.warn("addCouponsToPage...");
   // NOTE: Solutions implemented here should be added in receivedBookListeners()
   // TODO: Implement way to rearrange organization of coupons; also change
   // display options like default, alphabetical, count remaining, etc.;
@@ -679,13 +688,15 @@ function addCouponsToPage() {
  * @param {node} node the coupon element
  */
 function addCouponListeners(node) {
-  console.warn("addCouponListeners...");
+  //console.warn("addCouponListeners...");
   $(node).unbind().click(function() {
     /** Allows coupon node to be passed as parameter to functions */
     var $this = this;
     showSentCouponPreview($this);
 
     $("#edit").unbind().click(function() {
+      // TODO: Validate that coupon has been changed before saving;
+      // same way it was done with book
       showCouponEditPage($this);
     });
   });
@@ -696,7 +707,7 @@ function addCouponListeners(node) {
  * that was selected. Also adds listeners for going back to `/sentBook`.
  */
 function showSentCouponPreview($this) {
-  console.warn("showSentCouponPreview...");
+  //console.warn("showSentCouponPreview...");
   saveAndDeleteToggle();
   fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
 
@@ -870,9 +881,6 @@ function deleteBook() {
         //console.warn("deleteBook success:");
         //console.warn(success);
 
-        // Updates display without deleted book
-        displaySentBook();
-
         SimpleNotification.success({
           text: 'Successfully deleted book'
         }, notificationOptions);
@@ -997,8 +1005,9 @@ function couponFormIsValid() {
     SimpleNotification.warning({
       text: 'Please enter a name'
     }, notificationOptions);
-  } else if (name.length > 99) {
-    // Name too long
+  } else if (name.length > 280) {
+    // Name too long; TODO: Give an indication of characters used 
+    // out of total allowed, like a textArea. Switch?
     SimpleNotification.warning({
       title: 'Name too long',
       text: 'Please enter a shorter name'
@@ -1187,32 +1196,35 @@ var ID_LENGTH = 8;
  * in the database.
  */
 function createShareCode() {
-  // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
-  var shareCode = shareCode();
-  function shareCode() {
+  // If this is null, book hasn't been saved yet. Will prompt user to save it.
+  // IDEA: Save automatically? Decide later.
+  if (book.bookId) {
+      // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
+      var shareCode = shareCode();
+      function shareCode() {
     var rtn = '';
     for (var i = 0; i < ID_LENGTH; i++) {
       rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
     }
-    return rtn;
-  }
+        return rtn;
+      }
 
-  console.warn("createShareCode book:");
-  console.warn(book);
+      //console.warn("createShareCode book:");
+      //console.warn(book);
 
-  $.ajax({
-    type: "POST",
+      $.ajax({
+        type: "POST",
     url: "http://www.couponbooked.com/scripts/createShareCode",
     data: { bookId: book.bookId, bookData: JSON.stringify(book), shareCode: shareCode },
     crossDomain: true,
-    cache: false,
-    success: function(success) {
-      // For debugging purposes
-      console.warn("createShareCode success:");
-      console.warn(success);
+        cache: false,
+        success: function(success) {
+          // For debugging purposes
+          //console.warn("createShareCode success:");
+          //console.warn(success);
 
-      // NOTE: Should think of better messages here
-      if (success == "Code in use") {
+          // NOTE: Should think of better messages here
+          if (success == "Code in use") {
         // Try again with a new share code
         console.warn("Share code in use. Generating new code...");
         createShareCode();
@@ -1237,11 +1249,17 @@ function createShareCode() {
       console.error(XMLHttpRequest.responseText);
 
       SimpleNotification.error({
-        title: 'Error creating share code!',
-        text: 'Please try again later.'
-      }, notificationOptions);
-    }
-  });
+            title: "Error creating share code!",
+            text: "Please try again later."
+          }, notificationOptions);
+        }
+      });
+  } else {
+    SimpleNotification.info({
+      title: "Book isn't saved yet!",
+      text: "Please save before sharing."
+    }, notificationOptions);
+  }
 }
 
 /**
@@ -1262,16 +1280,16 @@ function codeIsValid(shareCode) {
       return true;
     } else {
       SimpleNotification.warning({
-        title: 'Invalid code',
-        text: 'Please try again.'
+        title: "Invalid code",
+        text: "Please try again."
       }, notificationOptions);
 
       return false;
     }
   } else {
     SimpleNotification.warning({
-      title: 'Not long enough',
-      text: 'Please enter your eight digit code.'
+      title: "Not long enough",
+      text: "Please enter your eight digit code."
     }, notificationOptions);
 
     return false;
@@ -1771,19 +1789,11 @@ App.prototype.render = function() {
   var element = document.importNode(currRouteEl.content, true);
   this.container.innerHTML = '';
 
-  // Apply nav
+  // Apply nav; IDEA: Just do everything except login? What else is there?
   var routes = ["home", "create", "sentBook", "receivedBook", "dashboard", "redeemCode", "shareCode", "profile"];
   if ($.inArray(currRouteId, routes) >= 0) {
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(nav);
-
-    // Looks bad to have padding on home
-    if (currRouteId != "home") {
-      // Add invisible div for content padding below nav
-      var invisibleDiv = document.createElement('div');
-      invisibleDiv.style.cssText = "height: 60px;";
-      this.container.appendChild(invisibleDiv);
-    }
   }
 
   this.container.appendChild(element);

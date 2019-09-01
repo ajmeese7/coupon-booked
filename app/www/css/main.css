@@ -4,6 +4,7 @@ label {
 }
 #main-content {
     min-height: 550px;
+    margin-top: -56.3833px;
 }
 
 .navbar {
@@ -12,7 +13,7 @@ label {
     height: 56.3833px;
     width: 100%;
     top: 0;
-    padding: 0; /* Should expermient with this vs. default; normal height 87px */
+    padding: 0;
     padding-top: 5px;
     margin-bottom: 0px !important;
     background-color: #0b98de !important;
@@ -136,6 +137,12 @@ label {
 .receiverText, .senderText, .couponCount {
     color: #7E7E7E;
 }
+.senderText, .receiverText {
+    /* TODO: Play with this */
+    width: 95%;
+    margin: auto;
+    line-height: 1.15;
+}
 
 #invisiblePreviewClearance {
     height: 175px;
@@ -146,8 +153,13 @@ label {
     width: 100%;
 }
 #miniPreviewImage {
+    /* Testing on smaller device and it's a problem;
+    TODO: Make div height adapt according to image height in JS, not CSS file;
+    also adapt previewText width calculations in JS; same with invisiblePreviewClearance
+    and trash can icon */
     float: left;
-    height: 150px;
+    width: 150px;
+    max-width: 38%; /* NOTE: Not finalized, but better looking on smaller screen */
     margin-left: 25px;
     margin-top: 25px;
 }
@@ -228,7 +240,7 @@ label {
         I want to prevent typing in the count field from making it scroll up */
     width: 100%;
     height: 40px;
-    margin-top: -5px;
+    margin-top: -2px;
     background-color: #EEEEEE;
 }
 #topbar a {
@@ -242,7 +254,8 @@ label {
 }
 
 #plus, #edit {
-    /* TODO: For all important buttons, add click animation effect */
+    /* TODO: For all important buttons (and div simulators), 
+    add click animation effect */
     border-radius: 50%;
     position: fixed;
     z-index: 99;
@@ -273,7 +286,8 @@ input[type=text] {
     margin-left: 7.5%;
 }
 #couponImage, #imgPreview {
-    /* NOTE: Probably going to have to institute max-width when starting to test tablets */
+    /* NOTE: Probably going to have to institute max-width when starting to test tablets;
+    breaking into different column sizes in JS will likely work better */
     width: 50%;
     margin: 15px 25%;
 }
@@ -313,8 +327,7 @@ input[type=text] {
     background-color: white;
 }
 #copyButton {
-    /* NOTE: Not great solution; keep thinking about how to improve UI */
-    margin-top: -10px;
+    vertical-align: super;
     margin-left: 10px;
 }
 
@@ -323,6 +336,7 @@ input[type=text] {
     width: 90%;
     margin: auto;
     margin-top: 25px;
+    text-align: center; /* TODO: Make this look prettier */
 }
 #shareFrame {
     /* TODO: Work on appearance */
