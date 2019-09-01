@@ -11,7 +11,7 @@
       // Not replacing with error codes because this works better (can display warning)
       echo "name already exists";
     } else {
-      $templateData = $_POST["templateData"];
+      $templateData = $conn->real_escape_string($_POST["templateData"]);
       $sql = "INSERT INTO templates (name, templateData) VALUES ('$name', '$templateData')";
       $result = $conn->query($sql) or die($conn->error);
     }

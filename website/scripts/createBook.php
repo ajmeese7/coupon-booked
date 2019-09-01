@@ -5,8 +5,8 @@
   isset($_POST['senderName']) && isset($_POST['bookData'])) {
     $bookId = $_POST["bookId"];
     $sender = $_POST["sender"];
-    $senderName = $_POST["senderName"];
-    $bookData = $_POST["bookData"];
+    $senderName = $conn->real_escape_string($_POST["senderName"]);
+    $bookData = $conn->real_escape_string($_POST["bookData"]);
 
     $sql = "SELECT * FROM couponBooks WHERE bookId='$bookId'";
     $result = $conn->query($sql) or die($conn->error);
@@ -26,5 +26,7 @@
     exit("Missing POST variable.");
   }
 
+  // TODO: Test performance with and w/o this; persistent connections probably a bad idea,
+  // but letting PHP close connection automatically might be smart.
   $conn->close();
 ?>

@@ -9,7 +9,7 @@
 
     if ($result->num_rows > 0) {
       // Template by that name exists
-      $templateData = $_POST["templateData"];
+      $templateData = $conn->real_escape_string($_POST["templateData"]);
       $sql = "UPDATE templates SET templateData='$templateData' WHERE name='$name'";
       $result = $conn->query($sql) or die($conn->error);
     } else {

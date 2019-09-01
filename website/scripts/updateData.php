@@ -2,7 +2,8 @@
   include('createConnection.php');
 
   if (isset($_POST['bookData']) && isset($_POST['bookId'])) {
-    $bookData = $_POST["bookData"];
+    // https://stackoverflow.com/a/2687891/6456163
+    $bookData = $conn->real_escape_string($_POST["bookData"]);
     $bookId = $_POST["bookId"];
     $sql = "UPDATE couponBooks SET bookData='$bookData' WHERE bookId='$bookId'";
     $result = $conn->query($sql) or die($conn->error);
