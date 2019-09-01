@@ -3,8 +3,8 @@
 
   if (isset($_POST['bookId']) && isset($_POST['sender']) && 
   isset($_POST['senderName']) && isset($_POST['bookData'])) {
-    $bookId = $_POST["bookId"];
-    $sender = $_POST["sender"];
+    $bookId = $conn->real_escape_string($_POST["bookId"]);
+    $sender = $conn->real_escape_string($_POST["sender"]);
     $senderName = $conn->real_escape_string($_POST["senderName"]);
     $bookData = $conn->real_escape_string($_POST["bookData"]);
 

@@ -3,8 +3,8 @@
 
   // Make sure necessary variables exist
   if (isset($_POST['userId']) && isset($_POST['shareCode'])) {
-    $userId = $_POST["userId"];
-    $shareCode = $_POST["shareCode"];
+    $userId = $conn->real_escape_string($_POST["userId"]);
+    $shareCode = $conn->real_escape_string($_POST["shareCode"]);
 
     $sql = "SELECT sender, bookData FROM couponBooks WHERE shareCode='$shareCode'";
     $result = $conn->query($sql) or die($conn->error);

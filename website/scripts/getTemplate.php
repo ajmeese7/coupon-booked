@@ -2,7 +2,7 @@
   include('createConnection.php');
 
   if (isset($_GET['template'])) {
-    $template = $_GET['template'];
+    $template = $conn->real_escape_string($_GET['template']);
     $sql = "SELECT templateData FROM templates WHERE name='$template'";
     $result = $conn->query($sql) or die($conn->error); // https://stackoverflow.com/a/35669638
   

@@ -2,7 +2,7 @@
   include('createConnection.php');
 
   if (isset($_POST['bookId'])) {
-    $bookId = $_POST["bookId"];
+    $bookId = $conn->real_escape_string($_POST["bookId"]);
     $sql = "UPDATE couponBooks SET deleted='1' WHERE bookId='$bookId'";
     $result = $conn->query($sql) or die($conn->error);
   } else {

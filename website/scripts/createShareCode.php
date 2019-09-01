@@ -3,9 +3,9 @@
 
   // Make sure necessary variables exist
   if (isset($_POST['bookId']) && isset($_POST['bookData']) && isset($_POST['shareCode'])) {
-    $bookId = $_POST["bookId"];
-    $bookData = $_POST["bookData"];
-    $shareCode = $_POST["shareCode"];
+    $bookId = $conn->real_escape_string($_POST["bookId"]);
+    $bookData = $conn->real_escape_string($_POST["bookData"]);
+    $shareCode = $conn->real_escape_string($_POST["shareCode"]);
 
     // Probably the longest query; any way to speed up if it becomes an issue?
     $sql = "SELECT * FROM couponBooks WHERE shareCode='$shareCode'";

@@ -2,7 +2,7 @@
   include('createConnection.php');
 
   if (isset($_GET['userId'])) {
-    $userId = $_GET['userId'];
+    $userId = $conn->real_escape_string($_GET['userId']);
     $sql = "SELECT receiver, bookData, deleted FROM couponBooks WHERE sender='$userId'";
     $result = $conn->query($sql) or die($conn->error); // TODO: Somehow handle errors
 
