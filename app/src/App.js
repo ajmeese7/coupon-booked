@@ -263,7 +263,7 @@ function pullUserRelatedBooks() {
   $.ajax({
       type: "GET",
       url: "http://www.couponbooked.com/scripts/getData?userId=" + userId,
-      datatype: "html",
+      datatype: "json",
       success: function(data) {
         data = JSON.parse(data);
 
