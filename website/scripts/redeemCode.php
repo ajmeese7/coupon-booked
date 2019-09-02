@@ -2,8 +2,9 @@
   include('createConnection.php');
 
   // Make sure necessary variables exist
-  if (isset($_POST['userId']) && isset($_POST['shareCode'])) {
+  if (isset($_POST['userId']) && isset($_POST['receiverName']) && isset($_POST['shareCode'])) {
     $userId = $conn->real_escape_string($_POST["userId"]);
+    $receiverName = $conn->real_escape_string($_POST["receiverName"]);
     $shareCode = $conn->real_escape_string($_POST["shareCode"]);
 
     $sql = "SELECT sender, bookData FROM couponBooks WHERE shareCode='$shareCode'";
@@ -20,7 +21,8 @@
           $bookData->shareCode = null;
           $bookData = json_encode($bookData);
 
-          $sql = "UPDATE couponBooks SET receiver='$userId', bookData='$bookData', shareCode=null WHERE shareCode='$shareCode'";
+          $sql = "UPDATE couponBooks SET receiver='$userId', receiverName='$receiverName',
+            bookData='$bookData', shareCode=null WHERE shareCode='$shareCode'";
           $result = $conn->query($sql) or die($conn->error);
         }
       }

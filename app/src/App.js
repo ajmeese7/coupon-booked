@@ -324,7 +324,7 @@ function addBookToPage(couponBook, isSent) {
     } else {
       // TODO: Make this not move the div up when longer than one line, and instead
       // drop the text while keeping the images level
-      var receiver = couponBook.receiver;
+      var receiver = couponBook.receiverName;
       node.innerHTML += "<p class='receiverText'>" +
         (receiver ? "Sent to " + receiver : "Not sent yet") +
         "</p>";
@@ -341,7 +341,7 @@ function addBookToPage(couponBook, isSent) {
   // https://api.jquery.com/data/
   $(node).data("bookData", bookData);
   $(node).data("isSent", isSent);
-  $(node).data("receiver", couponBook.receiver); // TOOD: Add column with receiver's name to make this readable
+  $(node).data("receiver", couponBook.receiverName);
   $(node).data("sender", couponBook.senderName);
   applicableElement.appendChild(node);
   addBookListeners(node);
@@ -403,7 +403,7 @@ function displaySentBook() {
   if (book.receiver) {
     // Book has been sent and code redeemed
     // TODO: Test and style
-    var receiver = "<p>Sent to " + book.receiver;
+    var receiver = "<p class='receiverText'>Sent to " + book.receiver;
   } else if (book.shareCode) {
     // Code generated but not yet redeemed
     // TODO: Style this in a way that lets people know they should click it
@@ -783,13 +783,7 @@ function createBook() {
 
   // IDEA: Option to update sender name before sharing; allows
   // for another level of personalization with nicknames.
-  if (profile.given_name) {
-    // Through Google; name should be whole name
-    var senderName = profile.name;
-  } else {
-    // Through Auth0; nickname should be first part of email
-    var senderName = profile.nickname;
-  }
+  var senderName = getUserName();
   book.bookId = uuid;
 
   $.ajax({
@@ -1069,6 +1063,22 @@ function newNameWarning() {
 }
 
 /**
+ * Gets the name of the current user. NOTE: May be updated
+ * if I switch to using a user-selected name in the future
+ * like several TODOs mention.
+ * @returns {string}
+ */
+function getUserName() {
+  if (profile.given_name) {
+    // Through Google; name should be whole name
+    return profile.name;
+  } else {
+    // Through Auth0; nickname should be first part of email
+    return profile.nickname;
+  }
+}
+
+/**
  * Get the template corresponding to the button the user selects
  * and send the user to the manipulation page. Sets the requested
  * data to the global book variable.
@@ -1307,7 +1317,7 @@ function redeemCode(shareCode) {
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/redeemCode",
-    data: { userId: userId, shareCode: shareCode },
+    data: { userId: userId, receiverName: getUserName(), shareCode: shareCode },
     crossDomain: true,
     cache: false,
     success: function(success) {
