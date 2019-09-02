@@ -391,7 +391,6 @@ function displaySentBook() {
     it scrolls back up to the big info. */
   var miniPreview = document.createElement('div');
   miniPreview.setAttribute("id", "miniPreview");
-  miniPreview.innerHTML += "<div id='invisiblePreviewClearance'></div>";
   miniPreview.innerHTML += "<img id='miniPreviewImage' src='" + book.image + "' />";
   // TODO: Add edit button somewhere for book details
 
@@ -423,8 +422,8 @@ function displaySentBook() {
   deleteImg += "-trash.svg' />";
   miniPreview.innerHTML += deleteImg;
   
-  miniPreview.innerHTML += "<hr>";
   bookContent.appendChild(miniPreview);
+  bookContent.innerHTML += "<hr>";
 
   $("#shareCodePreview").unbind().click(function() {
     // Will give users the chance again to share their code;
@@ -592,7 +591,6 @@ function displayReceivedBook() {
   // Dynamically create preview of book at top of display
   var miniPreview = document.createElement('div');
   miniPreview.setAttribute("id", "miniPreview");
-  miniPreview.innerHTML += "<div id='invisiblePreviewClearance'></div>";
   miniPreview.innerHTML += "<img id='miniPreviewImage' src='" + book.image + "' />";
 
   var previewText = document.createElement('div');
@@ -606,8 +604,8 @@ function displayReceivedBook() {
   previewText.innerHTML += senderText;
   miniPreview.appendChild(previewText);
   
-  miniPreview.innerHTML += "<hr>";
   bookContent.appendChild(miniPreview);
+  bookContent.innerHTML += "<hr>";
   
   // IDEA: Could replace delete with hide (eye) icon? And not tell sender...
   receivedBookListeners();

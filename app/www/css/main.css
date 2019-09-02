@@ -142,12 +142,9 @@ label {
     width: 95%;
     margin: auto;
     line-height: 1.15;
+    text-overflow: ellipsis;
 }
 
-#invisiblePreviewClearance {
-    height: 175px;
-    display: inline-block;
-}
 #miniPreview {
     display: inline-block;
     width: 100%;
@@ -155,8 +152,7 @@ label {
 #miniPreviewImage {
     /* Testing on smaller device and it's a problem;
     TODO: Make div height adapt according to image height in JS, not CSS file;
-    also adapt previewText width calculations in JS; same with invisiblePreviewClearance
-    and trash can icon */
+    also adapt previewText width calculations in JS; same with trash can icon */
     float: left;
     width: 150px;
     max-width: 38%; /* NOTE: Not finalized, but better looking on smaller screen */
