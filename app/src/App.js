@@ -597,9 +597,8 @@ function displayReceivedBook() {
   previewText.setAttribute("id", "previewText");
   previewText.innerHTML += "<h4>" + book.name + "</h4>";
 
-  var sender = book.sender;
   var senderText = "<p class='senderText'>";
-  senderText += book.sender ? "Sent from " + sender : "Sender unavailable";
+  senderText += book.sender ? "Sent from " + book.sender : "Sender unavailable";
   senderText += "</p>";
   previewText.innerHTML += senderText;
   miniPreview.appendChild(previewText);
@@ -648,8 +647,83 @@ function receivedBookListeners() {
       getById("imgPreview").src = coupon.image;
       getById("namePreview").innerText = coupon.name + ": " + coupon.count;
       getById("descPreview").innerText = coupon.description;
+
+      // This is here to pass current coupon to redeemCoupon(). TODO: Decompose
+      $('#redeemCoupon').unbind().click(function() {
+        function onConfirm(buttonIndex) {
+          if (buttonIndex == 1) {
+            redeemCoupon(coupon);
+            $('#backArrow').click();
+          }
+        }
+        
+        navigator.notification.confirm(
+            "Do you want to redeem this coupon?",
+            onConfirm,
+            "Redemption confirmation",
+            ["Redeem it", "Cancel"]
+        );
+      });
     });
   });
+}
+
+/**
+ * If the current coupon count is greater than zero and able to 
+ * be redeemed, the count is decremented, the update sent to the 
+ * server and saved locally, and a notification is sent to the 
+ * book's sender that the coupon has been redeemed.
+ * @param {object} coupon the coupon data for the previewed coupon
+ */
+function redeemCoupon(coupon) {
+  console.warn("Redeeming coupon...");
+
+  function noneLeft() {
+    SimpleNotification.warning({
+      title: "No coupons remaining",
+      text: "Try something else or ask for more!"
+      // TODO: Decide if this should be an option / how to do
+    }, notificationOptions);
+  }
+
+  if (coupon.count > 0) {
+    // TODO: Somehow also send a notification to sender
+    var userId = localStorage.getItem("user_id");
+    $.ajax({
+      type: "POST",
+      url: "http://www.couponbooked.com/scripts/redeemCoupon",
+      data: { bookId: book.bookId, userId: userId, couponName: coupon.name },
+      crossDomain: true,
+      cache: false,
+      success: function(success) {
+        // Uncomment to debug redeeming coupons
+        console.warn("redeemCoupon success:");
+        console.warn(success);
+        
+        if (success == "None left") {
+          noneLeft();
+        } else {
+          coupon.count--;
+          displayReceivedBook();
+
+          SimpleNotification.success({
+            text: 'Successfully redeemed coupon'
+          }, notificationOptions);
+        }
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        console.log("Error in redeemCoupon:");
+        console.error(XMLHttpRequest.responseText);
+
+        SimpleNotification.error({
+          title: 'Error redeeming coupon!',
+          text: 'Please try again later.'
+        }, notificationOptions);
+      }
+    });
+  } else {
+    noneLeft();
+  }
 }
 
 /**
