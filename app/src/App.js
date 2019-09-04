@@ -33,6 +33,9 @@ function App() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('id_token');
+
+    var url = getRedirectUrl();
+    openUrl(url);
   }
 
   this.auth0 = new Auth0.Authentication({
@@ -137,7 +140,7 @@ App.prototype.state = {
         displayReceivedBook();
       }
     },
-    // TODO: Greatly speed up loading of books somehow; caching until change?
+    // TODO: Speed up loading of books somehow; caching until change?
     '/dashboard': {
       id: 'dashboard',
       onMount: function(page) {
@@ -401,7 +404,6 @@ function displaySentBook() {
   // Sets receiver text based on the current state of the book
   if (book.receiver) {
     // Book has been sent and code redeemed
-    // TODO: Test and style
     var receiver = "<p class='receiverText'>Sent to " + book.receiver;
   } else if (book.shareCode) {
     // Code generated but not yet redeemed
@@ -478,16 +480,8 @@ function sentBookListeners() {
   $('#save').unbind().click(function() {
     // IDEA: Switch to ? functions to shorten
     if (development) {
-        // TODO: Get a condition here that works or scrap entirely;
-        // could have separate buttons + form that only show up when in dev mode
-        if (book.name) {
-          console.log("Updating template...");
-          //updateTemplate();
-        } else {
-          console.log("Creating template...");
-          // TODO: Where to get name?
-          //createTemplate();
-        }
+      console.log("Updating template...");
+      updateTemplate();
     } else {
         if (book.bookId) {
           if (!isSameObject(book, previousBook)) {
@@ -581,11 +575,10 @@ function addDeleteListeners() {
  * Displays the received UI for the current book.
  */
 function displayReceivedBook() {
-  //console.warn("displayReceivedBook...");
+  console.warn("displayReceivedBook...");
   var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
-  // TODO: Determine what the default code should be, if any
   bookContent.innerHTML = "";
 
   // Dynamically create preview of book at top of display
@@ -677,15 +670,6 @@ function receivedBookListeners() {
  */
 function redeemCoupon(coupon) {
   console.warn("Redeeming coupon...");
-
-  function noneLeft() {
-    SimpleNotification.warning({
-      title: "No coupons remaining",
-      text: "Try something else or ask for more!"
-      // TODO: Decide if this should be an option / how to do
-    }, notificationOptions);
-  }
-
   if (coupon.count > 0) {
     // TODO: Somehow also send a notification to sender
     var userId = localStorage.getItem("user_id");
@@ -723,6 +707,14 @@ function redeemCoupon(coupon) {
     });
   } else {
     noneLeft();
+  }
+
+  function noneLeft() {
+    SimpleNotification.warning({
+      title: "No coupons remaining",
+      text: "Try something else or ask for more!"
+      // TODO: Decide if this should be an option / how to do
+    }, notificationOptions);
   }
 }
 
@@ -1157,6 +1149,7 @@ function getUserName() {
  * @param {string} name the name of the template to be retreived
  */
 function getTemplate(name) {
+  console.warn("Getting template '" + name + "'...");
   $.ajax({
     type: "GET",
     url: "http://www.couponbooked.com/scripts/getTemplate?template=" + name,
@@ -1164,18 +1157,33 @@ function getTemplate(name) {
     success: function(data) {
       if (data == "") {
         // Should never happen outside of testing, but just in case.
-        SimpleNotification.error({
-          title: 'No applicable template',
-          text: 'Please try again.'
-        }, notificationOptions);
+        if (development) {
+          function onConfirm(buttonIndex) {
+            if (buttonIndex == 1) {
+              createTemplate(name);
+            }
+          }
+          
+          navigator.notification.confirm(
+              "Template doesn't exist yet. Do you want to create it?",
+              onConfirm,
+              "No applicable template",
+              ["Create it", "Not right now"]
+          );
+        } else {
+          SimpleNotification.error({
+            title: 'No applicable template',
+            text: 'Please try again.'
+          }, notificationOptions);
+        }
       } else {
         book = JSON.parse(data);
         book = JSON.parse(book.templateData);
 
         // Capitalize name; looks better
-        var name = book.name;
-        name = name.charAt(0).toUpperCase() + name.slice(1)
-        book.name = name;
+        var bookName = book.name;
+        bookName = bookName.charAt(0).toUpperCase() + bookName.slice(1)
+        book.name = bookName;
         previousBook = clone(book);
 
         _this.redirectTo('/sentBook');
@@ -1199,11 +1207,12 @@ function getTemplate(name) {
  * @param {string} name the name of the template to be created
  */
 function createTemplate(name) {
+  console.warn("Creating template " + name + "...");
   // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
   var emptyTemplate = { name:name, image:"images/gift.png", bookId:null, shareCode:null, coupons:[] };
   emptyTemplate = JSON.stringify(emptyTemplate);
-  console.warn("emptyTemplate:");
-  console.warn(emptyTemplate);
+  //console.warn("emptyTemplate:");
+  //console.warn(emptyTemplate);
 
   $.ajax({
     type: "POST",
@@ -1217,6 +1226,8 @@ function createTemplate(name) {
       if (success) {
         newNameWarning();
       } else {
+        getTemplate(name);
+
         SimpleNotification.success({
           title: 'Successfully created template!',
           text: 'Good for you. Keep up the great work!'
@@ -1251,6 +1262,8 @@ function updateTemplate() {
         console.warn("updateTemplate success:");
         console.warn(success);
       }
+
+      previousBook = clone(book);
 
       SimpleNotification.success({
         text: 'Successfully updated template'
@@ -1465,15 +1478,16 @@ function navBar() {
   if (profile == null) {
     _this.loadProfile(function(err, _profile) {
       if (err) {
+        // TODO: If 401 error, reauthenticate with refresh token or something
         console.log("Error loading profile:");
         console.error(err);
 
         // Assumes user is somehow not authenticated; easy catch-all solution
-        _this.redirectTo('/login');
+        _this.logout;
+      } else {
+        avatar.src = _profile.picture;
+        profile = _profile;
       }
-
-      avatar.src = _profile.picture;
-      profile = _profile;
     });
   } else {
     // NOTE: May cause issues if some data is changed; how to fix?
@@ -1514,7 +1528,7 @@ function navBar() {
  * @param {string} fadeIn the selector of the element to appear
  */
 function fadeBetweenElements(fadeOut, fadeIn) {
-  console.warn("Fading out " + fadeOut + " and fading in " + fadeIn + "...");
+  //console.warn("Fading out " + fadeOut + " and fading in " + fadeIn + "...");
   $(fadeOut).fadeOut(150, function() {
     $(fadeIn).fadeIn(400);
   });

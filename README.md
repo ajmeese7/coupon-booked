@@ -34,5 +34,11 @@ modified time.
 The app is reduced to approximately 10mb once deployed to Android, so don't make
 the mistake I made and think you need to minify the massive node_modules folder.
 
+I'm probably going to switch to Azure SQL eventually, as I'm sure it is faster and 
+can't be more expensive than GoDaddy, but for now I'm going to stick with what is 
+working because Azure is a BIG pain in the ass for me to work with as it has a rather
+steep learning curve from my experience. It has been down more than it has been up
+lately, which is pretty damn useless for a service that guarantees 99.99% uptime.
+
 ## TODO
 - Try to add an animated book splashscreen
