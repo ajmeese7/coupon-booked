@@ -52,6 +52,12 @@ var development = false;
 // TODO: Switch to better close animation when library is updated;
 // also transition hacky way of animating to officially supported option (DL new commit)
 var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay: true, duration: 3000 };
+// IDEA: Make it when you click back from a coupon preview it takes you to where you were scrolled;
+  // perhaps with a tags that automatically save id as you scroll with name? Need to handle name updating...
+// IDEA: Press and hold coupon to preview it or something to avoid a lot of clicking;
+  // Maybe dropdown instead of entire other preview page?
+// IDEA: Display book animation on app open, but you have to click it to get it to open then go into app?
+  // Still have to redo home page...
 
 var nav, book, previousBook, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
@@ -381,6 +387,9 @@ function addBookListeners(node) {
 /**
  * Takes the current book JSON data and adds it to the page.
  */
+// TODO: For coupon previews, when one gets too long, have it displayed
+// in rows so the other one is pushed down just as much instead of removing
+// float left and having the columns uneven
 function displaySentBook() {
   console.warn("displaySentBook...");
   var bookContent = getById("bookContent");

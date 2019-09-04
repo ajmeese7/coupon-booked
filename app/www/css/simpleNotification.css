@@ -30,7 +30,7 @@ the official library, this workaround will do. */
 }
 
 .gn-wrapper {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     width: 100%;
     overflow: hidden;

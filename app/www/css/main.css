@@ -289,8 +289,9 @@ input[type=text] {
 }
 
 #namePreview {
-    display: inline-block;
-    width: 100%;
+    /* Trying to make it not look bad for longer names; TODO: still work to be done */
+    width: 90%;
+    padding-left: 10%;
     margin: 0;
     margin-top: 12px;
     text-align: center;
