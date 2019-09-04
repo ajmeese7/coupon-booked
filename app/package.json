@@ -25,6 +25,7 @@
         "cordova-plugin-x-socialsharing": "^5.4.7",
         "es6-promise-plugin": "^4.2.2",
         "jsonwebtoken": "^8.5.1",
+        "onesignal-cordova-plugin": "2.5.2",
         "request": "^2.88.0",
         "uuid": "^3.3.2"
     },
@@ -55,7 +56,8 @@
             "cordova-plugin-dialogs": {},
             "cordova-plugin-x-socialsharing": {
                 "ANDROID_SUPPORT_V4_VERSION": "24.1.1+"
-            }
+            },
+            "onesignal-cordova-plugin": {}
         }
     }
 }
