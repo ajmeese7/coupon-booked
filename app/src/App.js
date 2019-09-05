@@ -49,7 +49,9 @@ function App() {
 /** True means book will be published to template database; false is normal */
 var development = false;
 
-var notificationOptions = { fadeout: 500, position: "bottom-center", closeButton: false, removeAllOnDisplay: true, duration: 3000 };
+// TODO: Switch to better close animation when library is updated;
+// also transition hacky way of animating to officially supported option (DL new commit)
+var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay: true, duration: 3000 };
 // IDEA: Make it when you click back from a coupon preview it takes you to where you were scrolled;
   // perhaps with a tags that automatically save id as you scroll with name? Need to handle name updating...
 // IDEA: Press and hold coupon to preview it or something to avoid a lot of clicking;
