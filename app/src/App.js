@@ -487,7 +487,6 @@ function sentBookListeners() {
   });
 
   $('#save').unbind().click(function() {
-    // IDEA: Switch to ? functions to shorten
     if (development) {
       console.log("Updating template...");
       updateTemplate();
@@ -557,6 +556,12 @@ function sentBookListeners() {
  */
 function addDeleteListeners() {
   //console.warn("addDeleteListeners...");
+
+  // Set position of trash can icon based on displayed height of container
+  var previewHeight = $("#miniPreview").height();
+  var iconHeight = $("#deleteBook").height();
+  $("#deleteBook").css("top", previewHeight - (iconHeight / 2));
+
   $("#deleteBook").unbind().click(function() {
     function onConfirm(buttonIndex) {
       // NOTE: Button 0 is clicking out of confirmation box;
