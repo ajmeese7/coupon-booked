@@ -259,8 +259,7 @@ function createConnection() {
       console.warn("Successfully established database connection.");
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error establishing connection:");
-      console.error(XMLHttpRequest.responseText);
+      console.error("Error establishing connection: ", XMLHttpRequest.responseText);
     }
   });
 }
@@ -295,14 +294,13 @@ function pullUserRelatedBooks() {
                   }
                 }
             });
-        });
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        console.log("Error in pullUserRelatedBooks:");
-        console.error(XMLHttpRequest.responseText);
+      });
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error in pullUserRelatedBooks: ", XMLHttpRequest.responseText);
 
-        SimpleNotification.error({
-          title: 'Error retreiving info',
+      SimpleNotification.error({
+        title: 'Error retreiving info',
           text: 'Please try again later.'
         }, notificationOptions);
       }
@@ -901,25 +899,23 @@ function createBook() {
     cache: false,
     success: function(success) {
       // Uncomment to debug book creation
-      //console.warn("createBook success:");
-      //console.warn(success);
+      //console.warn("createBook success: ", success);
 
       if (success == "bookId in use") {
         // Try again with a new bookId
         createBook();
       } else {
         SimpleNotification.success({
-          text: 'Successfully created book'
+          text: "Successfully created book"
         }, notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in createBook:");
-      console.error(XMLHttpRequest.responseText);
+      console.error("Error in createBook: ", XMLHttpRequest.responseText);
 
       SimpleNotification.error({
-        title: 'Error creating book!',
-        text: 'Please try again later.'
+        title: "Error creating book!",
+        text: "Please try again later."
       }, notificationOptions);
     }
   });
@@ -937,25 +933,23 @@ function updateBook() {
     cache: false,
     success: function(success) {
       // Uncomment to debug updating books
-      //console.warn("updateCouponBook success:");
-      //console.warn(success);
+      //console.warn("updateCouponBook success: ", success);
 
       previousBook = clone(book);
       SimpleNotification.success({
-        text: 'Successfully updated coupon book'
+        text: "Successfully updated coupon book"
       }, notificationOptions);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in updateCouponBook:");
-      console.error(XMLHttpRequest.responseText);
+      console.error("Error in updateCouponBook: ", XMLHttpRequest.responseText);
 
       // TODO: Think of a good way to resolve bugs for users; some log data saved?
       // IDEA: Have a 'report bug' thing somewhere that includes logs in report; send it where?
       SimpleNotification.error({
         // IDEA: Something in error messages about 'sorry for the inconvenience'?
         // Would make them awfully long but seems like a professional thing to do.
-        title: 'Error updating coupon book!',
-        text: 'Please try again later.'
+        title: "Error updating coupon book!",
+        text: "Please try again later."
       }, notificationOptions);
     }
   });
@@ -978,20 +972,18 @@ function deleteBook() {
       cache: false,
       success: function(success) {
         // Uncomment to debug deleting books
-        //console.warn("deleteBook success:");
-        //console.warn(success);
+        //console.warn("deleteBook success: ", success);
 
         SimpleNotification.success({
-          text: 'Successfully deleted book'
+          text: "Successfully deleted book"
         }, notificationOptions);
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
-        console.log("Error in deleteBook:");
-        console.error(XMLHttpRequest.responseText);
+        console.error("Error in deleteBook: ", XMLHttpRequest.responseText);
 
         SimpleNotification.error({
-          title: 'Error deleting coupon book!',
-          text: 'Please try again later.'
+          title: "Error deleting coupon book!",
+          text: "Please try again later."
         }, notificationOptions);
       }
     });
@@ -1079,7 +1071,7 @@ function updateCoupon(oldCoupon, $this) {
         
         console.warn("Coupon updated!");
         SimpleNotification.success({
-          text: 'Updated coupon'
+          text: "Updated coupon"
         }, notificationOptions);
       }
     });
@@ -1103,24 +1095,24 @@ function couponFormIsValid() {
   } else if (name.length < 1) {
     // No name
     SimpleNotification.warning({
-      text: 'Please enter a name'
+      text: "Please enter a name"
     }, notificationOptions);
-  } else if (name.length > 280) {
-    // Name too long; TODO: Give an indication of characters used 
-    // out of total allowed, like a textArea. Switch?
+  } else if (name.length > 99) {
+    // Name too long
     SimpleNotification.warning({
-      title: 'Name too long',
-      text: 'Please enter a shorter name'
+      title: "Name too long",
+      text: "Please enter a shorter name"
     }, notificationOptions);
   } else if (isNaN(count) || count < 1 || count > 99) {
     SimpleNotification.warning({
-      title: 'Invalid count entered',
-      text: 'Please enter a number between 1 and 99'
+      title: "Invalid count entered",
+      text: "Please enter a number between 1 and 99"
     }, notificationOptions);
-  } else if (desc.length > 99) {
-    // TODO: Determine better max length; Tweet?
+  } else if (desc.length > 280) {
+    // TODO: Give an indication of characters used 
+    // out of total allowed, like a textArea. Switch?
     SimpleNotification.warning({
-      text: 'Please enter a shorter description'
+      text: "Please enter a shorter description"
     }, notificationOptions);
   } else {
     return true;
@@ -1163,8 +1155,8 @@ function nameAlreadyExists(name) {
  */
 function newNameWarning() {
   SimpleNotification.warning({
-    title: 'Already used this name',
-    text: 'Please enter a unique name.'
+    title: "Already used this name",
+    text: "Please enter a unique name."
   }, notificationOptions);
 }
 
@@ -1214,8 +1206,8 @@ function getTemplate(name) {
           );
         } else {
           SimpleNotification.error({
-            title: 'No applicable template',
-            text: 'Please try again.'
+            title: "No applicable template",
+            text: "Please try again."
           }, notificationOptions);
         }
       } else {
@@ -1232,12 +1224,11 @@ function getTemplate(name) {
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in getTemplate:");
-      console.error(XMLHttpRequest.responseText);
+      console.error("Error in getTemplate: ", XMLHttpRequest.responseText);
 
       SimpleNotification.error({
-        title: 'Error retreiving template!',
-        text: 'Please try again later.'
+        title: "Error retreiving template!",
+        text: "Please try again later."
       }, notificationOptions);
     }
   });
@@ -1271,18 +1262,17 @@ function createTemplate(name) {
         getTemplate(name);
 
         SimpleNotification.success({
-          title: 'Successfully created template!',
-          text: 'Good for you. Keep up the great work!'
+          title: "Successfully created template!",
+          text: "Good for you. Keep up the great work!"
         }, notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in createTemplate:");
-      console.error(XMLHttpRequest.responseText);
+      console.error("Error in createTemplate: ", XMLHttpRequest.responseText);
 
       SimpleNotification.error({
-        title: 'Error creating template',
-        text: 'Please try again later.'
+        title: "Error creating template",
+        text: "Please try again later."
       }, notificationOptions);
     }
   });
@@ -1301,23 +1291,21 @@ function updateTemplate() {
     cache: false,
     success: function(success) {
       if (success) {
-        console.warn("updateTemplate success:");
-        console.warn(success);
+        console.warn("updateTemplate success: ", success);
       }
 
       previousBook = clone(book);
 
       SimpleNotification.success({
-        text: 'Successfully updated template'
+        text: "Successfully updated template"
       }, notificationOptions);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in createTemplate:");
-      console.error(XMLHttpRequest.responseText);
+      console.error("Error in createTemplate: ", XMLHttpRequest.responseText);
 
       SimpleNotification.error({
-        title: 'Error updating template',
-        text: 'Please try again later.'
+        title: "Error updating template",
+        text: "Please try again later."
       }, notificationOptions);
     }
   });
@@ -1357,8 +1345,7 @@ function createShareCode() {
         cache: false,
         success: function(success) {
           // For debugging purposes
-          //console.warn("createShareCode success:");
-          //console.warn(success);
+          //console.warn("createShareCode success: ", success);
 
           // NOTE: Should think of better messages here
           if (success == "Code in use") {
@@ -1366,26 +1353,25 @@ function createShareCode() {
         console.warn("Share code in use. Generating new code...");
         createShareCode();
       } else if (success == "Receiver exists") {
-        // NOTE: Should probably add in headers
-        SimpleNotification.warning({
-          // IDEA: Warning symbol for images; yellow might not be enough
-          text: 'Book has already been sent.'
-        }, notificationOptions);
-      } else if (success == "Share code exists") {
-        SimpleNotification.warning({
-          text: 'Share code already generated.'
-        }, notificationOptions);
-      } else {
-        // Share code created successfully
+            // NOTE: Should probably add in headers
+            SimpleNotification.warning({
+              // IDEA: Warning symbol for images; yellow might not be enough
+              text: "Book has already been sent."
+            }, notificationOptions);
+          } else if (success == "Share code exists") {
+            SimpleNotification.warning({
+              text: "Share code already generated."
+            }, notificationOptions);
+          } else {
+            // Share code created successfully
         book.shareCode = shareCode;
         _this.redirectTo('/shareCode');
-      }
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in createShareCode:");
-      console.error(XMLHttpRequest.responseText);
+          }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.error("Error in createShareCode: ", XMLHttpRequest.responseText);
 
-      SimpleNotification.error({
+          SimpleNotification.error({
             title: "Error creating share code!",
             text: "Please try again later."
           }, notificationOptions);
@@ -1451,28 +1437,27 @@ function redeemCode(shareCode) {
       // TODO: Something to prevent spam, i.e. IP limiting
       if (success == "Not valid") {
         SimpleNotification.warning({
-          title: 'Invalid code',
-          text: 'Please try again.'
+          title: "Invalid code",
+          text: "Please try again."
         }, notificationOptions);
       } else if (success == "Sent to self") {
         SimpleNotification.warning({
-          title: 'This is your code!',
-          text: 'Please send it to someone else.'
+          title: "This is your code!",
+          text: "Please send it to someone else."
         }, notificationOptions);
       } else {
         SimpleNotification.success({
-          title: 'Successfully redeemed code!',
-          text: 'Check your dashboard.'
+          title: "Successfully redeemed code!",
+          text: "Check your dashboard."
         }, notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.log("Error in redeemCode:");
-      console.error(XMLHttpRequest.responseText);
+      console.error("Error in redeemCode: ", XMLHttpRequest.responseText);
 
       SimpleNotification.error({
-        title: 'Error redeeming code!',
-        text: 'Please try again later.'
+        title: "Error redeeming code!",
+        text: "Please try again later."
       }, notificationOptions);
     }
   });
@@ -1484,7 +1469,7 @@ function redeemCode(shareCode) {
 function shareCode() {
   // TODO: Test on iOS, as site said there may be some special requirements
   var options = {
-    // TODO: Think about how to display sender name in message
+    // TODO: Display sender name in message -> getUserName()
     subject: "You've been Coupon Booked!", // for email
     message: "You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: " + book.shareCode,
     //chooserTitle: 'Pick an app', // Android only, you can override the default share sheet title
