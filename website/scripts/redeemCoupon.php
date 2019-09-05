@@ -7,7 +7,7 @@
     $userId = $conn->real_escape_string($_POST["userId"]);
     $couponName = $conn->real_escape_string($_POST["couponName"]);
 
-    $sql = "SELECT receiver, bookData FROM couponBooks WHERE bookId='$bookId'";
+    $sql = "SELECT sender, receiver, bookData FROM couponBooks WHERE bookId='$bookId'";
     $result = $conn->query($sql) or die($conn->error);
 
     if ($result->num_rows > 0) {
@@ -25,6 +25,9 @@
                 $coupon->count--;
                 $bookData->coupons = $coupons;
                 $bookData = json_encode($bookData);
+
+                // TODO: Make sure nothing can go wrong with this method
+                echo $row["sender"];
     
                 $sql = "UPDATE couponBooks SET bookData='$bookData' WHERE bookId='$bookId'";
                 $result = $conn->query($sql) or die($conn->error);

@@ -59,6 +59,8 @@ var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay
 // IDEA: Display book animation on app open, but you have to click it to get it to open then go into app?
   // Still have to redo home page...
 
+/** Used for position trash can icon for sent books */
+var trashIconTop = null;
 var nav, book, previousBook, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
@@ -436,6 +438,14 @@ function displaySentBook() {
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
 
+  if (!trashIconTop) {
+    // Set position of trash can icon based on displayed height of container
+    var previewHeight = $("#miniPreview").height();
+    var iconHeight = $("#deleteBook").height();
+    trashIconTop = previewHeight - (iconHeight / 2);
+  }
+  $("#deleteBook").css("top", trashIconTop);
+
   $("#shareCodePreview").unbind().click(function() {
     // Will give users the chance again to share their code;
     // Need some way to indicate that as clicking is not immediately obvious
@@ -556,12 +566,6 @@ function sentBookListeners() {
  */
 function addDeleteListeners() {
   //console.warn("addDeleteListeners...");
-
-  // Set position of trash can icon based on displayed height of container
-  var previewHeight = $("#miniPreview").height();
-  var iconHeight = $("#deleteBook").height();
-  $("#deleteBook").css("top", previewHeight - (iconHeight / 2));
-
   $("#deleteBook").unbind().click(function() {
     function onConfirm(buttonIndex) {
       // NOTE: Button 0 is clicking out of confirmation box;
@@ -685,7 +689,6 @@ function receivedBookListeners() {
 function redeemCoupon(coupon) {
   console.warn("Redeeming coupon...");
   if (coupon.count > 0) {
-    // TODO: Somehow also send a notification to sender
     var userId = localStorage.getItem("user_id");
     $.ajax({
       type: "POST",
@@ -701,12 +704,37 @@ function redeemCoupon(coupon) {
         if (success == "None left") {
           noneLeft();
         } else {
-          coupon.count--;
-          displayReceivedBook();
+            // success should be sender ID
+            var title = getUserName() + " redeemed \"" + coupon.name + "!\"";
+            var message = "Coupon description: " + coupon.description; // IDEA: Current count or something?
+            var notificationObj = { headings: {en: title},
+                                    contents: {en: message},
+                                    include_external_user_ids: [success]};
+            window.plugins.OneSignal.postNotification(notificationObj,
+              function(successResponse) {
+                coupon.count--;
+                displayReceivedBook();
 
-          SimpleNotification.success({
-            text: 'Successfully redeemed coupon'
-          }, notificationOptions);
+                console.warn("Notification Post Success:", successResponse);
+                SimpleNotification.success({
+                  text: 'Successfully redeemed coupon'
+                }, notificationOptions);
+              },
+              function (failedResponse) {
+                console.error("Notification Post Failed: ", failedResponse);
+                // TODO: Refund coupon somehow if notification sending fails;
+                  // IDEA: Same file but variable parameter whether to increment
+                  // or decrement once file is secured?
+                
+                // TODO: If error that person doesn't exist, notify them that the 
+                // sender has deactivated their account and hide the book or 
+                // something and let there be a note in the SQL
+                SimpleNotification.error({
+                  title: "Error redeeming coupon",
+                  text: "Please try again later."
+                }, notificationOptions);
+              }
+            );
         }
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -1741,11 +1769,11 @@ App.prototype.login = function(e) {
         console.warn("User sub: " + userId);
         localStorage.setItem('user_id', userId);
 
-        // TODO: How to handle the sub if user logs in a different way?
+        // Need to be able to access easily from my server
+        window.plugins.OneSignal.setExternalUserId(userId);
       }
     });
 
-    // TODO: Stop generating new refresh tokens; delete old ones
     localStorage.setItem('access_token', authResult.accessToken);
     localStorage.setItem('refresh_token', authResult.refreshToken);
     localStorage.setItem('id_token', authResult.idToken);
@@ -1753,7 +1781,12 @@ App.prototype.login = function(e) {
   });
 };
 
+// NOTE: This code is pasted into App() and navBar(), so any changes
+// made here should be made there as well.
 App.prototype.logout = function(e) {
+  // TODO: Once decided if going to use this, copy it over to other places;
+    // https://documentation.onesignal.com/docs/cordova-sdk#section--removeexternaluserid-
+  // window.plugins.OneSignal.removeExternalUserId();
   profile = null;
   localStorage.removeItem('user_id');
   localStorage.removeItem('access_token');
