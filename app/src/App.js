@@ -59,8 +59,6 @@ var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay
 // IDEA: Display book animation on app open, but you have to click it to get it to open then go into app?
   // Still have to redo home page...
 
-/** Used for position trash can icon for sent books */
-var trashIconTop = null;
 var nav, book, previousBook, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
@@ -435,14 +433,6 @@ function displaySentBook() {
   
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
-
-  if (!trashIconTop) {
-    // Set position of trash can icon based on displayed height of container
-    var previewHeight = $("#miniPreview").height();
-    var iconHeight = $("#deleteBook").height();
-    trashIconTop = previewHeight - (iconHeight / 2);
-  }
-  $("#deleteBook").css("top", trashIconTop);
 
   $("#shareCodePreview").unbind().click(function() {
     // Will give users the chance again to share their code;

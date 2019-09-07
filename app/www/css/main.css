@@ -147,6 +147,8 @@ label {
 
 #miniPreview {
     display: inline-block;
+    position: relative;
+    overflow: visible;
     width: 100%;
 }
 #miniPreviewImage {
@@ -168,7 +170,9 @@ label {
 #deleteBook {
     position: absolute;
     right: 0;
+    bottom: 0;
     margin-right: 4px;
+    margin-bottom: -20px; /* Half of icon height */
 }
 
 /* "Temporary" solution to lack of an idea where to put redemption route link */
