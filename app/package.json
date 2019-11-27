@@ -32,7 +32,6 @@
     "devDependencies": {
         "cordova": "^9.0.0",
         "expose-loader": "^0.7.3",
-        "hard-source-webpack-plugin": "^0.13.1",
         "mem": ">=4.0.0",
         "webpack": "^3.5.2"
     },

@@ -1,6 +1,5 @@
 const path = require('path');
 const webpack = require('webpack');
-const HardSourceWebpackPlugin = require('hard-source-webpack-plugin');
 
 // BEWARE TO ALL FROM THE FUTURE:
 // Webpack is REQUIRED for this project to work.
@@ -17,8 +16,5 @@ module.exports = {
     net: 'empty',
     tls: 'empty'
   },
-  devtool: 'source-map',
-  plugins: [
-    new HardSourceWebpackPlugin()
-  ]
+  devtool: 'source-map'
 };
