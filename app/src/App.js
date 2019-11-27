@@ -449,20 +449,24 @@ function displaySentBook() {
   addCouponsToPage();
 }
 
+/** Changes the current page to the target assigned in
+  * backButtonTarget. */
+function goBack() {
+  previousBook = null;
+  book = null;
+  _this.redirectTo(backButtonTarget);
+}
+
 /**
  * The normal listeners for the /sentBook route.
  */
 // TODO: Decompose
 function sentBookListeners() {
-  //console.warn("sentBookListeners...");
+  console.warn("sentBookListeners...");
   // Returns you to your previous location; asks for confirmation
   // if you have unsaved changes
   $('#backArrow').unbind().click(function() {
-    function goBack() {
-      previousBook = null;
-      book = null;
-      _this.redirectTo(backButtonTarget);
-    }
+    goBack();
 
     if (!isSameObject(book, previousBook)) {
       function onConfirm(buttonIndex) {
@@ -484,8 +488,11 @@ function sentBookListeners() {
     }
   });
 
+  // TODO: Test in development mode without existing book
   $('#save').unbind().click(function() {
+    console.log(development)
     if (development) {
+      // TODO: Institute similar check to normal books
       console.log("Updating template...");
       updateTemplate();
     } else {
@@ -500,6 +507,7 @@ function sentBookListeners() {
             }, notificationOptions);
           }
         } else {
+          console.log(book)
           console.warn("Creating book...");
           createBook();
         }
@@ -560,11 +568,9 @@ function addDeleteListeners() {
       // 1 is delete and 2 is cancel
       if (buttonIndex == 1) {
         deleteBook();
-        previousBook = null;
-        book = null;
 
         // NOTE: This doesn't always pull the new data in time. How to fix?
-        _this.redirectTo(backButtonTarget);
+        goBack();
       }
     }
     
@@ -612,6 +618,7 @@ function displayReceivedBook() {
 /**
  * The normal listeners for the /receivedBook route.
  */
+// TODO: Look into decomposing
 function receivedBookListeners() {
   //console.warn("receivedBookListeners...");
   $('#backArrow').unbind().click(function() {
@@ -1312,6 +1319,7 @@ function createTemplate(name) {
  * Development-only function. Same as updateBook, but for templates.
  */
 function updateTemplate() {
+  console.warn("Updating template...");
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/updateTemplate",
@@ -1532,23 +1540,36 @@ function navBar() {
 
   // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
   var avatar = getBySelector('.profile-image');
-  if (profile == null) {
+  if (!profile) {
     _this.loadProfile(function(err, _profile) {
       if (err) {
-        // TODO: If 401 error, reauthenticate with refresh token or something
-        console.log("Error loading profile:");
-        console.error(err);
+        // TODO: If 401 error, reauthenticate with refresh token or something;
+          // Test this as soon as it appears again w/ new logging
+        console.error("Error loading profile: ", err);
+        console.log(localStorage.getItem('user_id'))
+        console.log(localStorage.getItem('access_token'))
+        console.log(localStorage.getItem('refresh_token'))
+        console.log(localStorage.getItem('id_token'))
 
         // Assumes user is somehow not authenticated; easy catch-all solution
-        _this.logout;
+        profile = null;
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('id_token');
+        _this.state.authenticated = false;
+        var url = getRedirectUrl();
+        openUrl(url);
+
+        // NOTE: On old phone the deployment is the below code; above is new; TODO: Test both
+        
       } else {
         avatar.src = _profile.picture;
         profile = _profile;
       }
     });
   } else {
-    // NOTE: May cause issues if some data is changed; how to fix?
-    // Not using localStorage yet because it seems overkill
+    // IDEA: Switch to localStorage to avoid profile bug? Does that solve the problem, or
+    // just give the appearance of solving it?
     avatar.src = profile.picture;
   }
 
@@ -1833,6 +1854,7 @@ function openUrl(url) {
               console.warn('Logging user out...');
             } else if (result.event === 'closed') {
               console.warn('Logout successful!');
+              _this.redirectTo("/login");
             }
           },
           function(msg) {
