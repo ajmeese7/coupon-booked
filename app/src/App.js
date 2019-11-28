@@ -280,12 +280,14 @@ function pullUserRelatedBooks() {
             /** If true, book was sent. If false, it was received. */
             var isSent = arrayNumber == 0;
 
-            // Go over each coupon book in sent {0} or received array {1}
-            $.each(array, function(couponNumber, couponBook) {
-                if (couponBook) {
-                  addBookToPage(couponBook, isSent);
-                } else {
-                  // Let the user know there are no books of the specifed type
+          // Go over each coupon book in sent {0} or received array {1}
+          $.each(array, function(couponNumber, couponBook) {
+              if (couponBook) {
+                // TODO: Fix books being duplicated on first click of back button
+                // from sent page on the display.
+                addBookToPage(couponBook, isSent);
+              } else {
+                // Let the user know there are no books of the specifed type
                   var element = isSent ? $("#noneSent") : $("#noneReceived");
                   if (element.hasClass("hidden")) {
                     element.removeClass("hidden");
@@ -504,7 +506,7 @@ function sentBookListeners() {
 
   // TODO: Test in development mode without existing book
   $('#save').unbind().click(function() {
-    console.log(development)
+    console.log("Development:", development)
     if (development) {
       // TODO: Institute similar check to normal books
       console.log("Updating template...");
@@ -545,6 +547,7 @@ function sentBookListeners() {
 
       // Set back button to take you back to coupon list
       $('#backArrow').unbind().click(function() {
+          // TODO: Decompose this in the 3 places it appears to a single function
           fadeBetweenElements("#couponForm", "#bookContent");
           sentBookListeners();
           displaySentBook();
@@ -1543,6 +1546,7 @@ function shareCode() {
  * Redirects to login if user not authenticated.
  */
 function navBar() {
+  console.warn("navBar...");
   if (_this.state.authenticated === false) {
     // With this I can remove the login button for nav
     return _this.redirectTo('/login');
@@ -1805,18 +1809,17 @@ App.prototype.login = function(e) {
   var self = this;
   client.authorize(options, function(err, authResult) {
     if (err) {
-      console.log(err);
+      console.error("Problem with login:", err);
       return (e.target.disabled = false);
     }
 
     client.client.userInfo(authResult.accessToken, function(err, user) {
       if (err) {
-        console.log("Error in userInfo():");
-        console.error(err);
+        console.error("Problem in userInfo():", err);
       } else {
         // Now you have the user's information
         var userId = user.sub;
-        console.warn("User sub: " + userId);
+        console.warn("User sub:", userId);
         localStorage.setItem('user_id', userId);
 
         // Need to be able to access easily from my server
