@@ -14,10 +14,10 @@
         * Enable eval(): add 'unsafe-eval' to default-src
     * Create your own at http://cspisawesome.com
     -->
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com http://*.couponbooked.com; default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com; style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com http://*.couponbooked.com; default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://checkout.stripe.com; style-src 'self' 'unsafe-inline' https://cdn.auth0.com https://checkout.stripe.com; media-src *; img-src *; font-src *;" />
 
     <!-- https://auth0.com/docs/quickstart/native/cordova/01-login;
-        used this to change from single page web app to native -->                
+        used this to change from single page web app to native -->
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
     <link rel="stylesheet" type="text/css" href="css/auth0-theme.min.css" />
@@ -235,6 +235,27 @@
             <label for="desc">Description</label>
             <input type="text" id="description" name="description" placeholder="Thanks for being there for me always.">
         </form>
+
+        <!-- https://remysharp.com/2016/12/23/beginners-guide-to-stripe-integration -->
+        <div id="checkoutFormContainer" class="hide">
+            <!-- TODO: See if I can pull the data-key from the env file based on whether
+                it's running in production or development mode. Could potentially create form
+                in JS with access to variables using https://github.com/daffl/jquery.dform -->
+            <form action="http://couponbooked.com/stripe" method="POST">
+                <!-- IDEA: Try using locally hosted image to reduce fingerprint -->
+                <script
+                  src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                  data-key="pk_test_EAwuFkepc11nHEyPnzAH2XF600aoA16vHm"
+                  data-amount="299"
+                  data-currency="USD"
+                  data-zip-code="true"
+                  data-name="Coupon Booked"
+                  data-description="The perfect gift."
+                  data-image="https://files.stripe.com/links/fl_live_QVe1DWVY3XrIaMOpAIRWfvEb"
+                  data-locale="auto">
+                </script>
+            </form>
+        </div>
     </template>
 
     <template id="receivedBook">

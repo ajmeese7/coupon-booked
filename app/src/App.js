@@ -433,15 +433,29 @@ function displaySentBook() {
   
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
-
+  
+  // NOTE: Is this programmed to where it only shows the correct one?
   $("#shareCodePreview").unbind().click(function() {
     // Will give users the chance again to share their code;
     // Need some way to indicate that as clicking is not immediately obvious
     _this.redirectTo('/shareCode');
   });
   $("#shareButton").unbind().click(function() {
-    // TODO: Pay wall here
-    createShareCode();
+    console.log("Share button pressed");
+
+    fadeBetweenElements("#bookContent, #couponForm, #save", "#checkoutFormContainer");
+    $('#backArrow').unbind().click(function() {
+      // TODO: Replace 'share' button with Stripe button on the same page
+      // so I can eliminate the need for all this extra stuff
+      fadeBetweenElements("#checkoutFormContainer", "#bookContent, #couponForm, #save");
+      sentBookListeners();
+      displaySentBook();
+    });
+
+    // TODO: See if I can get information back from the POST request by moving it from
+    // form action to the JS so as to call the below function if successful and have
+    // some form of local error handling if it is not.
+    //createShareCode();
   });
   
   addDeleteListeners();
