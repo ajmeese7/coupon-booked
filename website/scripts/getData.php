@@ -3,7 +3,7 @@
 
   if (isset($_GET['userId'])) {
     $userId = $conn->real_escape_string($_GET['userId']);
-    $sql = "SELECT receiverName, bookData, deleted FROM couponBooks WHERE sender='$userId'";
+    $sql = "SELECT receiverName, bookData, paymentStatus, deleted FROM couponBooks WHERE sender='$userId'";
     $result = $conn->query($sql) or die($conn->error); // TODO: Somehow handle errors
 
     $dataArray = array();

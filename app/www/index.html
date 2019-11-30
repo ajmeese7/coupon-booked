@@ -241,7 +241,11 @@
             <!-- TODO: See if I can pull the data-key from the env file based on whether
                 it's running in production or development mode. Could potentially create form
                 in JS with access to variables using https://github.com/daffl/jquery.dform -->
-            <form action="http://couponbooked.com/stripe" method="POST">
+            <!-- IDEA: Set a temporary SQL paymentResult column in SQL that only pulls the 
+                necessary info from the JSON and access that in the Node.js somehow after; 
+                redirect to shareCode page on return somehow and have that handle it all?
+                Just need to see if that's a possibility. -->
+            <form id="checkoutForm" action="http://couponbooked.com/stripe" method="POST">
                 <!-- IDEA: Try using locally hosted image to reduce fingerprint -->
                 <script
                   src="https://checkout.stripe.com/checkout.js" class="stripe-button"

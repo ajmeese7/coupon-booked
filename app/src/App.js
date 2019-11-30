@@ -349,6 +349,7 @@ function addBookToPage(couponBook, isSent) {
 
   // https://api.jquery.com/data/
   $(node).data("bookData", bookData);
+  $(node).data("paymentStatus", couponBook.paymentStatus);
   $(node).data("isSent", isSent);
   $(node).data("receiver", couponBook.receiverName);
   $(node).data("sender", couponBook.senderName);
@@ -366,6 +367,7 @@ function addBookListeners(node) {
     book = $(this).data("bookData");
     book.receiver = $(this).data("receiver");
     book.sender = $(this).data("sender");
+    book.paymentStatus = $(this).data("paymentStatus");
     previousBook = clone(book);
 
     // TODO: Add some kind of delay to give content time to load in;
@@ -443,26 +445,45 @@ function displaySentBook() {
     _this.redirectTo('/shareCode');
   });
   $("#shareButton").unbind().click(function() {
+    // TODO: Now just need redirect to this page after successful form action
     console.log("Share button pressed");
-
-    fadeBetweenElements("#bookContent, #couponForm, #save", "#checkoutFormContainer");
-    $('#backArrow').unbind().click(function() {
-      // TODO: Replace 'share' button with Stripe button on the same page
+    if (book.paymentStatus == "succeeded") {
+      // TODO: Add proper error handling in other cases; could use null detection
+      // for this parameter then handle it all within this block
+      createShareCode();
+    } else {
+      fadeBetweenElements("#bookContent, #couponForm, #save", "#checkoutFormContainer");
+      $('#backArrow').unbind().click(function() {
+        // TODO: Replace 'share' button with Stripe button on the same page
       // so I can eliminate the need for all this extra stuff
       fadeBetweenElements("#checkoutFormContainer", "#bookContent, #couponForm, #save");
       sentBookListeners();
-      displaySentBook();
-    });
-
-    // TODO: See if I can get information back from the POST request by moving it from
-    // form action to the JS so as to call the below function if successful and have
-    // some form of local error handling if it is not.
-    //createShareCode();
+        displaySentBook();
+      });
+  
+      sneakFormData();
+    }
   });
   
   addDeleteListeners();
   sentBookListeners();
   addCouponsToPage();
+}
+
+/**
+ * Needed to include the bookId for SQL purposes once the POST
+ * request for payment goes through, and this is called right when the 
+ * form is pulled up, so it's the perfect way to sneak that data into
+ * the request for PHP access via $_POST.
+ */
+function sneakFormData() {
+  // https://stripe.com/docs/payments/accept-a-payment-charges#web-submit-payment
+  var form = getById('checkoutForm');
+  var hiddenInput = document.createElement('input');
+  hiddenInput.setAttribute('type', 'hidden');
+  hiddenInput.setAttribute('name', 'bookId');
+  hiddenInput.setAttribute('value', book.bookId);
+  form.appendChild(hiddenInput);
 }
 
 /** Changes the current page to the target assigned in
@@ -710,7 +731,7 @@ function redeemCoupon(coupon) {
       cache: false,
       success: function(success) {
         // Uncomment to debug redeeming coupons
-        console.warn("redeemCoupon success: ", success);
+        console.warn("redeemCoupon success:", success);
         
         if (success == "None left") {
           noneLeft();
@@ -719,7 +740,7 @@ function redeemCoupon(coupon) {
         }
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
-        console.error("Error in redeemCoupon: ", XMLHttpRequest.responseText);
+        console.error("Error in redeemCoupon:", XMLHttpRequest.responseText);
 
         SimpleNotification.error({
           title: "Error redeeming coupon!",
@@ -1113,7 +1134,8 @@ function updateCoupon(oldCoupon, $this) {
         console.warn(oldCoupon);
         console.warn("New coupon:");
         console.warn(newCoupon);*/
-  
+
+        // TODO: Check for special character support, i.e. other languages
         coupon = newCoupon;
         book.coupons[couponNumber] = newCoupon;
   
@@ -1389,12 +1411,9 @@ function createShareCode() {
         return rtn;
       }
 
-      //console.warn("createShareCode book:");
-      //console.warn(book);
-
       $.ajax({
         type: "POST",
-    url: "http://www.couponbooked.com/scripts/createShareCode",
+        url: "http://www.couponbooked.com/scripts/createShareCode",
     data: { bookId: book.bookId, bookData: JSON.stringify(book), shareCode: shareCode },
     crossDomain: true,
         cache: false,

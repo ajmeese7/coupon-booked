@@ -2,6 +2,7 @@
   include('createConnection.php');
 
   if (isset($_POST['bookId'])) {
+    // NOTE: Booleans in SQL are 0/1
     $bookId = $conn->real_escape_string($_POST["bookId"]);
     $sql = "UPDATE couponBooks SET deleted='1' WHERE bookId='$bookId'";
     $result = $conn->query($sql) or die($conn->error);

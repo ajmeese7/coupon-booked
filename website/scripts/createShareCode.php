@@ -3,11 +3,11 @@
 
   // Make sure necessary variables exist
   if (isset($_POST['bookId']) && isset($_POST['bookData']) && isset($_POST['shareCode'])) {
+    $bookData = $_POST["bookData"];
     $bookId = $conn->real_escape_string($_POST["bookId"]);
-    $bookData = $conn->real_escape_string($_POST["bookData"]);
     $shareCode = $conn->real_escape_string($_POST["shareCode"]);
 
-    // Probably the longest query; any way to speed up if it becomes an issue?
+    // NOTE: Probably the longest query; any way to speed up if it becomes an issue?
     $sql = "SELECT * FROM couponBooks WHERE shareCode='$shareCode'";
     $result = $conn->query($sql) or die($conn->error);
 
@@ -26,19 +26,23 @@
           $bookData->shareCode = $shareCode;
           $bookData = json_encode($bookData);
           
-          $sql = "UPDATE couponBooks SET shareCode='$shareCode', bookData='$bookData' WHERE bookId='$bookId'";
-          $result = $conn->query($sql) or die($conn->error);
+          // https://www.w3schools.com/php/php_mysql_prepared_statements.asp;
+          // TODO: Switch to this more secure method everywhere and test thoroughly.
+          $stmt = $conn->prepare("UPDATE couponBooks SET shareCode=?, bookData=? WHERE bookId=?");
+          $stmt->bind_param("sss", $shareCode, $bookData, $bookId);
+          $stmt->execute();
+          $stmt->close();
         } else if (!$row["receiver"]) {
           // Book already has a share code set
           echo "Share code exists";
         } else {
           // Book has alreay been sent and cannot be sent again;
-          // IDEA: clone feature?
+          // IDEA: clone feature for sending same book to multiple people
           echo "Receiver exists";
         }
 
         // IDEA: must have requried ID (sender/receiver) to manipulate book?
-        // Except for my master ID; how to protect?
+        // Except for my master ID; how to protect? Env file?
       } else {
         // TODO: Look further into which headers to use
         header('HTTP/1.1 400 Bad Request');
