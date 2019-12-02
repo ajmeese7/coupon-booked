@@ -528,14 +528,18 @@ function sentBookListeners() {
   });
 
   $('#save').unbind().click(function() {
-    console.log("Development:", development)
+    //console.log("Development:", development)
     if (development) {
       if (!isSameObject(book, previousBook)) {
         console.warn("Updating template...", book);
         updateTemplate();
       } else {
+        //console.warn("Previous template:", previousBook);
+        //console.warn("New template:", book);
+
         // Template hasn't been modified
         SimpleNotification.info({
+          title: 'Development mode',
           text: 'You haven\'t changed anything!'
         }, notificationOptions);
       }
@@ -545,6 +549,9 @@ function sentBookListeners() {
             console.warn("Updating book...", book);
             updateBook();
           } else {
+            //console.warn("Previous book:", previousBook);
+            //console.warn("New book:", book);
+
             // Book hasn't been modified
             SimpleNotification.info({
               text: 'You haven\'t changed anything!'
@@ -1330,19 +1337,19 @@ function createTemplate(name) {
   // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
   var emptyTemplate = { name:name, image:"images/gift.png", bookId:null, shareCode:null, coupons:[] };
   emptyTemplate = JSON.stringify(emptyTemplate);
-  //console.warn("emptyTemplate:");
-  //console.warn(emptyTemplate);
+  var userId = localStorage.getItem("user_id");
 
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/createTemplate",
-    data: { name: name, templateData: emptyTemplate },
+    data: { name: name, templateData: emptyTemplate, userId: userId },
     crossDomain: true,
     dataType: "html",
     cache: false,
     success: function(success) {
       // PHP echos a message if name already exists; if it doesn't, PHP is silent
       if (success) {
+        console.warn("createTemplate success:", success);
         newNameWarning();
       } else {
         getTemplate(name);
@@ -1354,12 +1361,22 @@ function createTemplate(name) {
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in createTemplate: ", XMLHttpRequest.responseText);
+      var responseText = XMLHttpRequest.responseText;
+      console.error("Error in createTemplate:", responseText);
 
-      SimpleNotification.error({
-        title: "Error creating template",
-        text: "Please try again later."
-      }, notificationOptions);
+      if (responseText.includes("not allowed")) {
+        // Unauthorized user trying to create a template
+        SimpleNotification.error({
+          title: "Unauthorized template creation",
+          text: "Your violation has been logged."
+        }, notificationOptions);
+      } else {
+        // Generic error
+        SimpleNotification.error({
+          title: "Error creating template",
+          text: "Please try again later."
+        }, notificationOptions);
+      }
     }
   });
 }
@@ -1368,16 +1385,18 @@ function createTemplate(name) {
  * Development-only function. Same as updateBook, but for templates.
  */
 function updateTemplate() {
+  var userId = localStorage.getItem("user_id");
+
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/updateTemplate",
-    data: { name: book.name.toLowerCase(), templateData: JSON.stringify(book) },
+    data: { name: book.name.toLowerCase(), templateData: JSON.stringify(book), userId: userId },
     crossDomain: true,
     dataType: "html",
     cache: false,
     success: function(success) {
       if (success) {
-        console.warn("updateTemplate success: ", success);
+        console.warn("updateTemplate success:", success);
       }
 
       previousBook = clone(book);
@@ -1387,12 +1406,22 @@ function updateTemplate() {
       }, notificationOptions);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in createTemplate: ", XMLHttpRequest.responseText);
+      var responseText = XMLHttpRequest.responseText;
+      console.error("Error in updateTemplate:", responseText);
 
-      SimpleNotification.error({
-        title: "Error updating template",
-        text: "Please try again later."
-      }, notificationOptions);
+      if (responseText.includes("not allowed")) {
+        // Unauthorized user trying to update a template
+        SimpleNotification.error({
+          title: "Unauthorized template update",
+          text: "Your violation has been logged."
+        }, notificationOptions);
+      } else {
+        // Generic error
+        SimpleNotification.error({
+          title: "Error updating template",
+          text: "Please try again later."
+        }, notificationOptions);
+      }
     }
   });
 }
