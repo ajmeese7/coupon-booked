@@ -2,17 +2,28 @@
   include('createConnection.php');
 
   if (isset($_GET['userId'])) {
-    $userId = $conn->real_escape_string($_GET['userId']);
-    $sql = "SELECT receiverName, bookData, paymentStatus, deleted FROM couponBooks WHERE sender='$userId'";
-    $result = $conn->query($sql) or die($conn->error); // TODO: Somehow handle errors
+    $userId = $_GET['userId'];
+
+    $stmt = $conn->prepare("SELECT receiverName, bookData, paymentStatus, deleted FROM couponBooks WHERE sender=?");
+    $stmt->bind_param("s", $userId);
+    $stmt->execute();
 
     $dataArray = array();
     $sentArray = array();
     $receivedArray = array();
-    if ($result->num_rows > 0) {
-      while ($row = $result->fetch_assoc()) {
+
+    $stmt->store_result();
+    $stmt->bind_result($receiverName, $bookData, $paymentStatus, $deleted);
+    if ($stmt->num_rows > 0) {
+      while ($stmt->fetch()) {
         // Not deleted (0 is false in SQL)
-        if ($row["deleted"] == 0) {
+        if ($deleted == 0) {
+          // https://stackoverflow.com/a/8900730/6456163
+          $row = new \stdClass();
+          $row->receiverName = $receiverName;
+          $row->bookData = $bookData;
+          $row->paymentStatus = $paymentStatus;
+          $row->deleted = $deleted; // Is this necessary?
           $sentArray[] = $row;
         }
       }
@@ -20,13 +31,21 @@
       $sentArray[] = null;
     }
 
-    $sql = "SELECT senderName, bookData, deleted FROM couponBooks WHERE receiver='$userId'";
-    $result = $conn->query($sql) or die($conn->error);
+    $stmt = $conn->prepare("SELECT senderName, bookData, deleted FROM couponBooks WHERE receiver=?");
+    $stmt->bind_param("s", $userId); // Should already be bound, but better safe than sorry.
+    $stmt->execute();
 
-    if ($result->num_rows > 0) {
-      while ($row = $result->fetch_assoc()) {
+    $stmt->store_result();
+    $stmt->bind_result($senderName, $bookData, $deleted);
+    if ($stmt->num_rows > 0) {
+      while ($stmt->fetch()) {
         // Not deleted (0 is false in SQL)
-        if ($row["deleted"] == 0) {
+        if ($deleted == 0) {
+          // https://stackoverflow.com/a/8900730/6456163
+          $row = new \stdClass();
+          $row->senderName = $senderName;
+          $row->bookData = $bookData;
+          $row->deleted = $deleted; // Is this necessary?
           $receivedArray[] = $row;
         }
       }
@@ -34,13 +53,15 @@
       $receivedArray[] = null;
     }
 
+    $stmt->close();
+
     $dataArray[] = $sentArray;
     $dataArray[] = $receivedArray;
-    echo json_encode($dataArray);
+
+    // https://stackoverflow.com/a/7282769/6456163
+    echo json_encode($dataArray, JSON_UNESCAPED_SLASHES);
   } else {
     header('HTTP/1.1 400 Bad Request');
     exit("The necessary POST variables were not included.");
   }
-
-  $conn->close();
 ?>

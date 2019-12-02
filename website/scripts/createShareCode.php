@@ -4,35 +4,37 @@
   // Make sure necessary variables exist
   if (isset($_POST['bookId']) && isset($_POST['bookData']) && isset($_POST['shareCode'])) {
     $bookData = $_POST["bookData"];
-    $bookId = $conn->real_escape_string($_POST["bookId"]);
-    $shareCode = $conn->real_escape_string($_POST["shareCode"]);
+    $bookId = $_POST["bookId"];
+    $newShareCode = $_POST["shareCode"];
 
-    // NOTE: Probably the longest query; any way to speed up if it becomes an issue?
-    $sql = "SELECT * FROM couponBooks WHERE shareCode='$shareCode'";
-    $result = $conn->query($sql) or die($conn->error);
+    $stmt = $conn->prepare("SELECT senderName FROM couponBooks WHERE shareCode=?");
+    $stmt->bind_param("s", $newShareCode);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($senderName); // Variable not needed so it doesn't interfere
 
-    if ($result->num_rows > 0) {
-      // Share code already in use; generate new one
-      echo "Code in use";
+    if ($stmt->num_rows > 0) {
+       // Share code already in use; generate new one
+       echo "Code in use";
     } else {
-      $sql = "SELECT receiver, shareCode FROM couponBooks WHERE bookId='$bookId'";
-      $result = $conn->query($sql) or die($conn->error);
+      $stmt = $conn->prepare("SELECT receiver, shareCode FROM couponBooks WHERE bookId=?");
+      $stmt->bind_param("s", $bookId);
+      $stmt->execute();
+      $stmt->store_result();
+      $stmt->bind_result($receiver, $shareCode);
 
       // Book exists
-      if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        if (!$row["receiver"] && !$row["shareCode"]) {
+      if ($stmt->num_rows > 0) {
+        if (!$receiver && !$shareCode) {
           $bookData = json_decode($bookData);
-          $bookData->shareCode = $shareCode;
+          $bookData->shareCode = $newShareCode;
           $bookData = json_encode($bookData);
           
-          // https://www.w3schools.com/php/php_mysql_prepared_statements.asp;
-          // TODO: Switch to this more secure method everywhere and test thoroughly.
+          // https://www.w3schools.com/php/php_mysql_prepared_statements.asp
           $stmt = $conn->prepare("UPDATE couponBooks SET shareCode=?, bookData=? WHERE bookId=?");
-          $stmt->bind_param("sss", $shareCode, $bookData, $bookId);
+          $stmt->bind_param("sss", $newShareCode, $bookData, $bookId);
           $stmt->execute();
-          $stmt->close();
-        } else if (!$row["receiver"]) {
+        } else if (!$receiver) {
           // Book already has a share code set
           echo "Share code exists";
         } else {
@@ -49,10 +51,10 @@
         exit("A book by that ID does not exist.");
       }
     }
+
+    $stmt->close();
   } else {
     header('HTTP/1.1 400 Bad Request');
     exit("The necessary POST variables were not included.");
   }
-
-  $conn->close();
 ?>

@@ -9,6 +9,7 @@
   $conn = new mysqli($servername, $username, $password, $dbname);
   // Check connection
   if ($conn->connect_error) {
-     die("Connection failed: " . $conn->connect_error);
+    // https://websitebeaver.com/prepared-statements-in-php-mysqli-to-prevent-sql-injection
+    exit('Error connecting to database');
   }
 ?>

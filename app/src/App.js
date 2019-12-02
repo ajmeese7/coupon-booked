@@ -219,6 +219,9 @@ App.prototype.state = {
         var shareIcon = getById("shareIcon");
         (platform == "Android") ? shareIcon.src = "images/md-share.svg" : shareIcon.src = "images/ios-share.svg";
 
+        // TODO: Disable if book isn't saved yet; how to determine? 
+        // Will this require an entire PHP call to determine, or is that why 
+        // the delete variable is returned from the other call?
         $("#bigShareButton").unbind().click(function() {
           shareCode();
         });
@@ -422,7 +425,6 @@ function displaySentBook() {
     var receiver = "<p id='shareCodePreview'>Share code: " + book.shareCode;
   } else {
     // No code generated and not sent
-    // TODO: Update book in server with share code by using previousBook
     var receiver = "<p><a id='shareButton'>Share</a>";
   }
   receiver += "</p>";
@@ -525,17 +527,22 @@ function sentBookListeners() {
     }
   });
 
-  // TODO: Test in development mode without existing book
   $('#save').unbind().click(function() {
     console.log("Development:", development)
     if (development) {
-      // TODO: Institute similar check to normal books
-      console.log("Updating template...");
-      updateTemplate();
+      if (!isSameObject(book, previousBook)) {
+        console.warn("Updating template...", book);
+        updateTemplate();
+      } else {
+        // Template hasn't been modified
+        SimpleNotification.info({
+          text: 'You haven\'t changed anything!'
+        }, notificationOptions);
+      }
     } else {
         if (book.bookId) {
           if (!isSameObject(book, previousBook)) {
-            console.warn("Updating book...");
+            console.warn("Updating book...", book);
             updateBook();
           } else {
             // Book hasn't been modified
@@ -544,8 +551,7 @@ function sentBookListeners() {
             }, notificationOptions);
           }
         } else {
-          console.log(book)
-          console.warn("Creating book...");
+          console.warn("Creating book...", book);
           createBook();
         }
     }
@@ -974,10 +980,10 @@ function createBook() {
     cache: false,
     success: function(success) {
       // Uncomment to debug book creation
-      //console.warn("createBook success: ", success);
+      //console.warn("createBook success:", success);
 
-      if (success == "bookId in use") {
-        // Try again with a new bookId
+      if (success.includes("bookId in use")) {
+        console.warn("bookId in use. Generating new one and trying again...");
         createBook();
       } else {
         SimpleNotification.success({
@@ -986,7 +992,7 @@ function createBook() {
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in createBook: ", XMLHttpRequest.responseText);
+      console.error("Error in createBook:", XMLHttpRequest.responseText);
 
       SimpleNotification.error({
         title: "Error creating book!",
@@ -1049,6 +1055,9 @@ function deleteBook() {
         // Uncomment to debug deleting books
         //console.warn("deleteBook success: ", success);
 
+        // TODO: Refresh UI when going from book page back to dashboard
+        // so the deleted book no longer shows; could go with caching idea
+        // and delete from local cache until new call to PHP has completed
         SimpleNotification.success({
           text: "Successfully deleted book"
         }, notificationOptions);
@@ -1271,6 +1280,8 @@ function getTemplate(name) {
           function onConfirm(buttonIndex) {
             if (buttonIndex == 1) {
               createTemplate(name);
+            } else {
+              console.warn("Template '" + name + "' is not being created at this time.");
             }
           }
           
@@ -1288,7 +1299,6 @@ function getTemplate(name) {
         }
       } else {
         book = JSON.parse(data);
-        book = JSON.parse(book.templateData);
 
         // Capitalize name; looks better
         var bookName = book.name;
@@ -1358,7 +1368,6 @@ function createTemplate(name) {
  * Development-only function. Same as updateBook, but for templates.
  */
 function updateTemplate() {
-  console.warn("Updating template...");
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/updateTemplate",
@@ -1419,7 +1428,7 @@ function createShareCode() {
         cache: false,
         success: function(success) {
           // For debugging purposes
-          //console.warn("createShareCode success: ", success);
+          // console.warn("createShareCode success:", success);
 
           // NOTE: Should think of better messages here
           if (success == "Code in use") {

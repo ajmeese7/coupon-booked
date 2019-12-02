@@ -23,9 +23,12 @@
         // NOTE: Could pull data from here eventually for analytics purposes,
         // but currently only going to use the status to determine if successful.
         $status = $charge->status;
-        $bookId = $conn->real_escape_string($_POST["bookId"]);
-        $sql = "UPDATE couponBooks SET paymentStatus='$status' WHERE bookId='$bookId'";
-        $result = $conn->query($sql) or die($conn->error);
+        $bookId = $_POST["bookId"];
+        
+        $stmt = $conn->prepare("UPDATE couponBooks SET paymentStatus=? WHERE bookId=?");
+        $stmt->bind_param("ss", $status, $bookId);
+        $stmt->execute();
+        $stmt->close();
       } else {
         header('HTTP/1.1 400 Bad Request');
         exit("The necessary POST variables were not included.");

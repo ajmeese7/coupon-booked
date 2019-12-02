@@ -3,21 +3,33 @@
 
   if (isset($_POST['bookId']) && isset($_POST['sender']) && 
   isset($_POST['senderName']) && isset($_POST['bookData'])) {
-    $bookId = $conn->real_escape_string($_POST["bookId"]);
-    $sender = $conn->real_escape_string($_POST["sender"]);
-    $senderName = $conn->real_escape_string($_POST["senderName"]);
-    $bookData = $conn->real_escape_string($_POST["bookData"]);
+    // real_escape_string was causing problems by adding backslashes in
+    // $bookData when that is already taken care of by the prepare statement,
+    // so I went ahead and removed it from everything to hopefully avoid any
+    // potential similar problems down the road.
+    $bookId = $_POST["bookId"];
+    $sender = $_POST["sender"];
+    $senderName = $_POST["senderName"];
+    $bookData = $_POST["bookData"];
 
-    $sql = "SELECT * FROM couponBooks WHERE bookId='$bookId'";
-    $result = $conn->query($sql) or die($conn->error);
+    $stmt = $conn->prepare("SELECT * FROM couponBooks WHERE bookId=?");
+    $stmt->bind_param("s", $bookId);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($bookId, $sender, $senderName, $bookData);
 
-    if ($result->num_rows > 0) {
-      // bookId already in use; generate new one
+    if ($stmt->num_rows > 0) {
+      // bookId already in use; generates new one in Node.
       echo "bookId in use";
     } else {
-      $sql = "INSERT INTO couponBooks (bookId, sender, senderName, bookData) 
-        VALUES ('$bookId', '$sender', '$senderName', '$bookData')";
-      $result = $conn->query($sql) or die($conn->error);
+      // NOTE: For some reason this returns a warning to Node that the number
+      // of bind variables does not match the number of fields in the prepared 
+      // statement, which isn't true. Guessing it can be safely ignored.
+      $stmt = $conn->prepare("INSERT INTO couponBooks (bookId, sender, senderName, bookData) 
+        VALUES (?, ?, ?, ?)");
+      $stmt->bind_param("ssss", $bookId, $sender, $senderName, $bookData);
+      $stmt->execute();
+      $stmt->close();
     }
   } else {
     // www.rachaelarnold.com/dev/archive/trigger-ajax-error-event
@@ -25,8 +37,4 @@
     header('HTTP/1.1 400 Bad Request');
     exit("Missing POST variable.");
   }
-
-  // TODO: Test performance with and w/o this; persistent connections probably a bad idea,
-  // but letting PHP close connection automatically might be smart.
-  $conn->close();
 ?>

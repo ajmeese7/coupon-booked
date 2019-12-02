@@ -3,18 +3,23 @@
 
   // Make sure necessary variables exist
   if (isset($_POST['bookId']) && isset($_POST['userId']) && isset($_POST['couponName'])) {
-    $bookId = $conn->real_escape_string($_POST["bookId"]);
-    $userId = $conn->real_escape_string($_POST["userId"]);
-    $couponName = $conn->real_escape_string($_POST["couponName"]);
+    $bookId = $_POST["bookId"];
+    $userId = $_POST["userId"];
+    $couponName = $_POST["couponName"];
 
-    $sql = "SELECT sender, receiver, bookData FROM couponBooks WHERE bookId='$bookId'";
-    $result = $conn->query($sql) or die($conn->error);
+    // TODO: Test this on other phone to make sure notifications are still functioning
+    // as intended and redemption does all it should.
 
-    if ($result->num_rows > 0) {
-      $row = $result->fetch_assoc();
+    $stmt = $conn->prepare("SELECT sender, receiver, bookData FROM couponBooks WHERE bookId=?");
+    $stmt->bind_param("s", $bookId);
+    $stmt->execute();
+    $stmt->store_result();
+    $stmt->bind_result($sender, $receiver, $bookData);
+
+    if ($stmt->num_rows > 0) {
       // Make sure user is supposed to have access to redeeming coupons
-      if ($row["receiver"] == $userId) {
-        $bookData = json_decode($row["bookData"]);
+      if ($receiver == $userId) {
+        $bookData = json_decode($bookData);
 
         // Array of JSON coupons
         $coupons = $bookData->coupons;
@@ -26,11 +31,12 @@
                 $bookData->coupons = $coupons;
                 $bookData = json_encode($bookData);
 
-                // TODO: Make sure nothing can go wrong with this method
-                echo $row["sender"];
-    
-                $sql = "UPDATE couponBooks SET bookData='$bookData' WHERE bookId='$bookId'";
-                $result = $conn->query($sql) or die($conn->error);
+                // Sends back ID for notification purposes in Node
+                echo $sender;
+
+                $stmt = $conn->prepare("UPDATE couponBooks SET bookData=? WHERE bookId=?");
+                $stmt->bind_param("ss", $bookData, $bookId);
+                $stmt->execute();
               } else {
                 // Return that they are out of that coupon, on top of the local check
                 echo "None left";
@@ -49,10 +55,10 @@
       header('HTTP/1.1 400 Bad Request');
       exit("A book by that ID does not exist.");
     }
+
+    $stmt->close();
   } else {
     header('HTTP/1.1 400 Bad Request');
     exit("The necessary POST variables were not included.");
   }
-
-  $conn->close();
 ?>
