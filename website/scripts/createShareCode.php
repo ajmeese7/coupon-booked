@@ -25,10 +25,13 @@
 
       // Book exists
       if ($stmt->num_rows > 0) {
+        // NOTE: If data ever becomes corrupted with unnecessary slashes, replace
+        // here: http://www.unit-conversion.info/texttools/replace-text/.
+        // However, the new encoding parameter should prevent that.
         if (!$receiver && !$shareCode) {
           $bookData = json_decode($bookData);
           $bookData->shareCode = $newShareCode;
-          $bookData = json_encode($bookData);
+          $bookData = json_encode($bookData, JSON_UNESCAPED_SLASHES);
           
           // https://www.w3schools.com/php/php_mysql_prepared_statements.asp
           $stmt = $conn->prepare("UPDATE couponBooks SET shareCode=?, bookData=? WHERE bookId=?");

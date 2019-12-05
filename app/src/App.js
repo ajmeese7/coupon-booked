@@ -106,6 +106,14 @@ App.prototype.state = {
         $('#createBook button').unbind().click(function() {
           _this.redirectTo('/create');
         });
+
+        // TODO: Somehow make sure a previous token doesn't count when attempting to 
+        // make a new purchase; also find a way to clear away URL variables without
+        // ruining routing, or instead just store the previous Stripe token in localStorage
+        // and check it against the URL to make sure the token isn't used twice
+        if (location.href.includes("stripeToken")) {
+          handlePayments();
+        }
       }
     },
     '/create': {
@@ -202,6 +210,7 @@ App.prototype.state = {
 
         // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
+          backButtonTarget = "/dashboard";
           _this.redirectTo('/sentBook');
         });
         
@@ -250,19 +259,73 @@ App.prototype.state = {
 /**
  * Establish connection with the database so no load times later on.
  */
-// TODO: Secure PHP files so no malicious requests are made.
 function createConnection() {
   $.ajax({
     type: "GET",
     url: "http://www.couponbooked.com/scripts/createConnection",
     datatype: "html",
     success: function(data) {
-      console.warn("Successfully established database connection.");
+      //console.warn("Successfully established database connection.");
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error establishing connection: ", XMLHttpRequest.responseText);
+      console.error("Error establishing connection:", XMLHttpRequest.responseText);
     }
   });
+}
+
+// IDEA: Only allow if paymentStatus != "succeeded"
+function handlePayments() {
+  var url_vars = getUrlVars();
+
+  $.ajax({
+    type: "POST",
+    url: "http://www.couponbooked.com/stripe",
+    data: { stripeToken: url_vars.stripeToken, bookId: url_vars.bookId },
+    cache: false,
+    success: function(success) {
+      console.warn("Payment status:", success);
+      book = JSON.parse(localStorage.getItem('book'));
+      localStorage.removeItem('book');
+      book.paymentStatus = success;
+      updateBook(true);
+
+      if (success == "succeeded") {
+        createShareCode();
+      } else {
+        // TODO: Proper handling for other occurances
+        SimpleNotification.warning({
+          title: "Problem processing payment",
+          text: "Please try again later."
+        }, notificationOptions);
+      }
+
+      // TODO: Redirect to share page once coming back and make back button do
+      // what it normally should; make sure book is set as the right one so 
+      // the shareCode page shows the proper code
+      //_this.redirectTo('/shareCode');
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error in payment:", XMLHttpRequest.responseText);
+      resetUrlVars();
+    }
+  });
+}
+
+// https://stackoverflow.com/a/8845823/6456163
+function getUrlVars() {
+  var vars = [], hash;
+  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+  for (var i = 0; i < hashes.length; i++) {
+    hash = hashes[i].split('=');                        
+    vars[hash[0]] = hash[1];
+  }
+  return vars;
+}
+
+/** Removes all variables from the URL to give the window a clean slate. */
+function resetUrlVars() {
+  var location = window.location.href.substring(0, window.location.href.indexOf('?'));
+  window.location = location;
 }
 
 /**
@@ -313,8 +376,8 @@ function pullUserRelatedBooks() {
 /**
  * Creates a node, fills it with the data from the retreived
  * book, and appends the node to the document.
- * @param {object} couponBook the data related to the coupon book
- * @param {boolean} isSent true for sent book, false for received
+ * @param {object} couponBook - the data related to the coupon book
+ * @param {boolean} isSent - true for sent book, false for received
  */
 function addBookToPage(couponBook, isSent) {
   var bookData = JSON.parse(couponBook.bookData);
@@ -362,7 +425,7 @@ function addBookToPage(couponBook, isSent) {
 
 /**
  * Assigns click listener to each book preview.
- * @param {element} node the coupon book preview in the document
+ * @param {element} node - the coupon book preview in the document
  */
 function addBookListeners(node) {
   $(node).unbind().click(function() {
@@ -418,17 +481,26 @@ function displaySentBook() {
   // Sets receiver text based on the current state of the book
   if (book.receiver) {
     // Book has been sent and code redeemed
-    var receiver = "<p class='receiverText'>Sent to " + book.receiver;
+    var receiver = "<p class='receiverText'>Sent to " + book.receiver + "</p>";
+    previewText.innerHTML += receiver;
   } else if (book.shareCode) {
     // Code generated but not yet redeemed
     // TODO: Style this in a way that lets people know they should click it
-    var receiver = "<p id='shareCodePreview'>Share code: " + book.shareCode;
+    var receiver = "<p id='shareCodePreview'>Share code: " + book.shareCode + "</p>";
+    previewText.innerHTML += receiver;
   } else {
     // No code generated and not sent
-    var receiver = "<p><a id='shareButton'>Share</a>";
+    //var receiver = "<p><a id='shareButton'>Share</a>";
+    var stripeButton = getById("checkoutFormContainer");
+    $(stripeButton).attr('class', '');
+    previewText.appendChild(stripeButton);
+
+    // IDEA: For book description, for the purposes of space conservation, 
+    // could have like a little ellpises button you click on to see it, or
+    // maybe even write the first two lines or something then click it for a 
+    // popup with detailed info about the book only, but that still might
+    // give it a little too cluttered of a look.
   }
-  receiver += "</p>";
-  previewText.innerHTML += receiver;
   miniPreview.appendChild(previewText);
 
   // Sets delete icon based on OS
@@ -446,23 +518,14 @@ function displaySentBook() {
     // Need some way to indicate that as clicking is not immediately obvious
     _this.redirectTo('/shareCode');
   });
-  $("#shareButton").unbind().click(function() {
-    // TODO: Now just need redirect to this page after successful form action
-    console.log("Share button pressed");
-    if (book.paymentStatus == "succeeded") {
-      // TODO: Add proper error handling in other cases; could use null detection
-      // for this parameter then handle it all within this block
-      createShareCode();
-    } else {
-      fadeBetweenElements("#bookContent, #couponForm, #save", "#checkoutFormContainer");
-      $('#backArrow').unbind().click(function() {
-        // TODO: Replace 'share' button with Stripe button on the same page
-      // so I can eliminate the need for all this extra stuff
-      fadeBetweenElements("#checkoutFormContainer", "#bookContent, #couponForm, #save");
-      sentBookListeners();
-        displaySentBook();
-      });
-  
+
+  // Allows listener to apply to dynamically added elements, such as Stripe button
+  $("body").unbind().click(function() {
+    // TODO: Make these functions be called in the right place
+    var target = event.target;
+    if (target.className === 'stripe-button-el' || 
+        target.parentElement.className === 'stripe-button-el')
+    {
       sneakFormData();
     }
   });
@@ -486,6 +549,8 @@ function sneakFormData() {
   hiddenInput.setAttribute('name', 'bookId');
   hiddenInput.setAttribute('value', book.bookId);
   form.appendChild(hiddenInput);
+
+  localStorage.setItem('book', JSON.stringify(book));
 }
 
 /** Changes the current page to the target assigned in
@@ -730,7 +795,7 @@ function receivedBookListeners() {
  * be redeemed, the count is decremented, the update sent to the 
  * server and saved locally, and a notification is sent to the 
  * book's sender that the coupon has been redeemed.
- * @param {object} coupon the coupon data for the previewed coupon
+ * @param {object} coupon - the coupon data for the previewed coupon
  */
 function redeemCoupon(coupon) {
   console.warn("Redeeming coupon...");
@@ -777,8 +842,8 @@ function redeemCoupon(coupon) {
 /**
  * Send OneSignal notification to the sender of the book letting
  * them know who has redeemed what coupon.
- * @param {string} senderId the user sub of the book's sender
- * @param {element} coupon the coupon element that is being redeemed
+ * @param {string} senderId - the user sub of the book's sender
+ * @param {element} coupon - the coupon element that is being redeemed
  */
 function notifySender(senderId, coupon) {
   var title = getUserName() + " redeemed \"" + coupon.name + "!\"";
@@ -820,7 +885,7 @@ function notifySender(senderId, coupon) {
  * If sending a coupon notification fails after the coupon's count has
  * already been decremented, this will increase the count by one to
  * return it to its previous state.
- * @param {string} couponName the name of the coupon being refunded
+ * @param {string} couponName - the name of the coupon being refunded
  */
 function refundCoupon(couponName) {
   var userId = localStorage.getItem("user_id");
@@ -877,7 +942,7 @@ function addCouponsToPage() {
 
 /**
  * Adds click listeners to the specified coupon element.
- * @param {node} node the coupon element
+ * @param {node} node - the coupon element
  */
 function addCouponListeners(node) {
   //console.warn("addCouponListeners...");
@@ -914,6 +979,9 @@ function showSentCouponPreview($this) {
   $('#delete').unbind().click(function() {
     function onConfirm(buttonIndex) {
       if (buttonIndex == 1) {
+        // TODO: Fix this not working immediately after displaying a 
+        // new template. Error message: "Failed to execute 'appendChild' on 
+        // 'Node': parameter 1 is not of type 'Node'.
         var couponNumber = $($this).data("couponNumber");
         book.coupons.splice(couponNumber, 1);
         
@@ -1011,8 +1079,13 @@ function createBook() {
 
 /**
  * Update book, whether by adding more coupons or changing the counts.
+ * @param {Boolean} silent - whether or not a notification should be 
+ * displayed on the screen if the function is successful.
+ * 
+ * When no parameter is passed the variable is undefined, which resolves
+ * to false. For more info on parameter look here: https://stackoverflow.com/a/1846715/6456163
  */
-function updateBook() {
+function updateBook(silent) {
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/updateData",
@@ -1021,15 +1094,19 @@ function updateBook() {
     cache: false,
     success: function(success) {
       // Uncomment to debug updating books
-      //console.warn("updateCouponBook success: ", success);
-
+      //console.warn("updateCouponBook success:", success);
+      
       previousBook = clone(book);
-      SimpleNotification.success({
-        text: "Successfully updated coupon book"
-      }, notificationOptions);
+      console.warn("Successfully updated coupon book.");
+
+      if (!silent) {
+        SimpleNotification.success({
+          text: "Successfully updated coupon book"
+        }, notificationOptions);
+      }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in updateCouponBook: ", XMLHttpRequest.responseText);
+      console.error("Error in updateCouponBook:", XMLHttpRequest.responseText);
 
       // TODO: Think of a good way to resolve bugs for users; some log data saved?
       // IDEA: Have a 'report bug' thing somewhere that includes logs in report; send it where?
@@ -1120,8 +1197,8 @@ function createCoupon() {
 /**
  * Replace the old coupon with the updated one in `book.coupons`,
  * if there is not already a coupon by that name.
- * @param {Object} oldCoupon the JSON of previous coupon
- * @param {Object} $this reference to the applicable couponPreview node
+ * @param {Object} oldCoupon - the JSON of previous coupon
+ * @param {Object} $this - reference to the applicable couponPreview node
  */
 function updateCoupon(oldCoupon, $this) {
   console.warn("Attempting to update coupon...");
@@ -1228,7 +1305,7 @@ function saveAndDeleteToggle() {
 
 /**
  * Checks if the new name already exists in the book.
- * @param {string} name name of the new coupon
+ * @param {string} name - name of the new coupon
  */
 function nameAlreadyExists(name) {
   // Makes sure new name doesn't already exist
@@ -1272,7 +1349,7 @@ function getUserName() {
  * Get the template corresponding to the button the user selects
  * and send the user to the manipulation page. Sets the requested
  * data to the global book variable.
- * @param {string} name the name of the template to be retreived
+ * @param {string} name - the name of the template to be retreived
  */
 function getTemplate(name) {
   console.warn("Getting template '" + name + "'...");
@@ -1330,7 +1407,7 @@ function getTemplate(name) {
 /**
  * Development-only function. Meant to aid in the process of creating
  * templates and adding them to the template table in the database.
- * @param {string} name the name of the template to be created
+ * @param {string} name - the name of the template to be created
  */
 function createTemplate(name) {
   console.warn("Creating template " + name + "...");
@@ -1463,26 +1540,30 @@ function createShareCode() {
           if (success == "Code in use") {
         // Try again with a new share code
         console.warn("Share code in use. Generating new code...");
-        createShareCode();
-      } else if (success == "Receiver exists") {
+            createShareCode();
+          } else if (success == "Receiver exists") {
             // NOTE: Should probably add in headers
+            console.warn("Book has already been sent.");
             SimpleNotification.warning({
               // IDEA: Warning symbol for images; yellow might not be enough
               text: "Book has already been sent."
             }, notificationOptions);
           } else if (success == "Share code exists") {
+            console.warn("Share code already generated.");
             SimpleNotification.warning({
               text: "Share code already generated."
             }, notificationOptions);
           } else {
+            console.warn("Share code created successfully:", shareCode);
             // Share code created successfully
-        book.shareCode = shareCode;
-        _this.redirectTo('/shareCode');
+            book.shareCode = shareCode;
+            _this.redirectTo('/shareCode');
           }
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
-          console.error("Error in createShareCode: ", XMLHttpRequest.responseText);
+          console.error("Error in createShareCode:", XMLHttpRequest.responseText);
 
+          // TODO: Make sure error actually has working timer
           SimpleNotification.error({
             title: "Error creating share code!",
             text: "Please try again later."
@@ -1677,8 +1758,8 @@ function navBar() {
 /**
  * Function to fade between elements so it is easy to adjust
  * the timings without changing in multiple places.
- * @param {string} fadeOut the selector of the element to disappear
- * @param {string} fadeIn the selector of the element to appear
+ * @param {string} fadeOut - the selector of the element to disappear
+ * @param {string} fadeIn - the selector of the element to appear
  */
 function fadeBetweenElements(fadeOut, fadeIn) {
   //console.warn("Fading out " + fadeOut + " and fading in " + fadeIn + "...");
@@ -1752,7 +1833,7 @@ function manageTabMenu() {
 /**
  * Deep clones specified object to the returned object.
  * Copied from https://stackoverflow.com/a/4460624/6456163 
- * @param {object} item object to be cloned
+ * @param {object} item - object to be cloned
  */
 function clone(item) {
   if (!item) { return item; } // null, undefined values check

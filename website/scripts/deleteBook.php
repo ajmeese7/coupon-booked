@@ -3,7 +3,7 @@
 
   if (isset($_POST['bookId'])) {
     // NOTE: Booleans in SQL are 0/1
-    $bookId = $conn->real_escape_string($_POST["bookId"]);
+    $bookId = $_POST["bookId"];
     $stmt = $conn->prepare("UPDATE couponBooks SET deleted='1' WHERE bookId=?");
     $stmt->bind_param("s", $bookId);
     $stmt->execute();
