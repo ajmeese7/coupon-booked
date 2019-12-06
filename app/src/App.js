@@ -200,6 +200,12 @@ App.prototype.state = {
             redeemCode(code);
           }
         });
+
+        $('#redeemBox').on("input", function () {
+          if (this.value.length > 8) {
+            this.value = this.value.slice(0,8);
+          }
+        });
       }
     },
     '/shareCode': {
