@@ -558,8 +558,14 @@ function sneakFormData() {
   localStorage.setItem('book', JSON.stringify(book));
 }
 
-/** Changes the current page to the target assigned in
-  * backButtonTarget. */
+/** 
+ * Changes the current page to the target assigned in
+ * backButtonTarget. 
+ * 
+ * TODO: Work on decomposing all these helper functions into
+ * an imported JS file to keep them out of the way of the 
+ * big functions to make this file less crowded.
+ */
 function goBack() {
   previousBook = null;
   book = null;
@@ -567,15 +573,11 @@ function goBack() {
 }
 
 /**
- * The normal listeners for the /sentBook route.
+ * Returns you to your previous location; asks for confirmation
+ * if you have unsaved changes.
  */
-function sentBookListeners() {
-  console.warn("sentBookListeners...");
-  // Returns you to your previous location; asks for confirmation
-  // if you have unsaved changes
+function sentBookBackButton() {
   $('#backArrow').unbind().click(function() {
-    // console.warn("sentBookListeners() backArrow listener...");
-
     if (!isSameObject(book, previousBook)) {
       function onConfirm(buttonIndex) {
         // 1 is "Discard them"
@@ -595,20 +597,21 @@ function sentBookListeners() {
       goBack();
     }
   });
+}
 
+/**
+ * Calls functions to create or update book and templates accordingly.
+ */
+function sentBookSaveButton() {
   $('#save').unbind().click(function() {
-    //console.log("Development:", development)
     if (development) {
-      if (!isSameObject(book, previousBook)) {
-        console.warn("Updating template...", book);
-        updateTemplate();
-      } else {
-        //console.warn("Previous template:", previousBook);
-        //console.warn("New template:", book);
-
-        // Template hasn't been modified
-        SimpleNotification.info({
-          title: 'Development mode',
+        if (!isSameObject(book, previousBook)) {
+          console.warn("Updating template...", book);
+          updateTemplate();
+        } else {
+          // Template hasn't been modified
+          SimpleNotification.info({
+            title: 'Development mode',
           text: 'You haven\'t changed anything!'
         }, notificationOptions);
       }
@@ -618,9 +621,6 @@ function sentBookListeners() {
             console.warn("Updating book...", book);
             updateBook();
           } else {
-            //console.warn("Previous book:", previousBook);
-            //console.warn("New book:", book);
-
             // Book hasn't been modified
             SimpleNotification.info({
               text: 'You haven\'t changed anything!'
@@ -632,10 +632,21 @@ function sentBookListeners() {
         }
     }
   });
+}
 
-  // Shows user UI to create a new coupon to add to the book
+/**
+ * Shows user UI to create a new coupon to add to the book.
+ */
+function plusButton() {
+  /** Decomposes things slightly since the same code is needed twice. */
+  function fadeToBookContent() {
+    fadeBetweenElements("#couponForm", "#bookContent");
+    sentBookListeners();
+    displaySentBook();
+  }
+
   $('#plus').unbind().click(function() {
-      fadeBetweenElements("#bookContent", "#couponForm");
+    fadeBetweenElements("#bookContent", "#couponForm");
 
       // Reset form to blank in case it is clicked after editing a coupon
       getById("couponImage").src   = "images/gift.png";
@@ -648,33 +659,36 @@ function sentBookListeners() {
         $('#edit img').attr('src', "images/ios-edit.svg");
       }
 
-      // Set back button to take you back to coupon list
-      $('#backArrow').unbind().click(function() {
-          // TODO: Decompose this in the 3 places it appears to a single function
-          fadeBetweenElements("#couponForm", "#bookContent");
-          sentBookListeners();
-          displaySentBook();
-      });
+    // Set back button to take you back to coupon list
+    $('#backArrow').unbind().click(function() {
+      fadeToBookContent();
+    });
 
-      $('#save').unbind().click(function() {
+    $('#save').unbind().click(function() {
           var name = getById("name").value;
           if (nameAlreadyExists(name)) {
             newNameWarning();
-          } else if (couponFormIsValid()) {
-            // Form is properly filled out
-            createCoupon();
-            
-            // Calling the back function here doesn't work properly, so the content is copied.
-            fadeBetweenElements("#couponForm", "#bookContent");
-            sentBookListeners();
-            displaySentBook();
+        } else if (couponFormIsValid()) {
+          // Form is properly filled out
+          createCoupon();
+          fadeToBookContent();
 
-            SimpleNotification.success({
-              text: 'Created coupon'
-            }, notificationOptions);
+          SimpleNotification.success({
+            text: 'Created coupon'
+          }, notificationOptions);
           }
       });
   });
+}
+
+/**
+ * The normal listeners for the /sentBook route.
+ */
+function sentBookListeners() {
+  //console.warn("sentBookListeners...");
+  sentBookBackButton();
+  sentBookSaveButton();
+  plusButton();
 }
 
 /**
@@ -738,11 +752,8 @@ function displayReceivedBook() {
 /**
  * The normal listeners for the /receivedBook route.
  */
-// TODO: Look into decomposing
 function receivedBookListeners() {
-  //console.warn("receivedBookListeners...");
   $('#backArrow').unbind().click(function() {
-    // console.warn("receivedBookListeners() backArrow listener...");
     // NOTE: previousBook probably isn't needed here, but better safe than dead
     previousBook = null;
     book = null;
@@ -750,19 +761,35 @@ function receivedBookListeners() {
   });
 
   $.each(book.coupons, function(couponNumber, coupon) {
-    // TODO: Possibly remove this block and put in separate function for sent and recevied?
-    var node = document.createElement('div');
-    node.setAttribute("class", "couponPreview");
-    node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
+    createCouponElement(couponNumber, coupon);
+  });
+}
+
+/**
+ * Adds coupon data to div and inserts it to page.
+ * @param {integer} couponNumber - the location of the current coupon in the array
+ * @param {object} coupon - the data for the current coupon
+ */
+function createCouponElement(couponNumber, coupon) {
+  var node = document.createElement('div');
+  node.setAttribute("class", "couponPreview");
+  node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
     node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
     node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
     $(node).data("coupon", coupon);
-    $(node).data("couponNumber", couponNumber);
-    getById("bookContent").appendChild(node);
+  $(node).data("couponNumber", couponNumber);
+  getById("bookContent").appendChild(node);
 
-    // Display coupon info when clicked
-    $(node).unbind().click(function() {
-      fadeBetweenElements("#bookContent", "#couponPreview");
+  addCouponClickListeners(node);
+}
+
+/**
+ * Displays the coupon's info when the card is clicked.
+ * @param {object} node - the element on the page with the coupon's data attached
+ */
+function addCouponClickListeners(node) {
+  $(node).unbind().click(function() {
+    fadeBetweenElements("#bookContent", "#couponPreview");
 
       $('#backArrow').unbind().click(function() {
         fadeBetweenElements("#couponPreview", "#bookContent");
@@ -772,13 +799,13 @@ function receivedBookListeners() {
       // Updates preview fields with actual coupon's data
       var coupon = $(this).data("coupon");
       getById("imgPreview").src = coupon.image;
-      getById("namePreview").innerText = coupon.name + ": " + coupon.count;
-      getById("descPreview").innerText = coupon.description;
+    getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+    getById("descPreview").innerText = coupon.description;
 
-      // This is here to pass current coupon to redeemCoupon(). TODO: Decompose
-      $('#redeemCoupon').unbind().click(function() {
-        function onConfirm(buttonIndex) {
-          if (buttonIndex == 1) {
+    // This is here to pass current coupon to redeemCoupon().
+    $('#redeemCoupon').unbind().click(function() {
+      function onConfirm(buttonIndex) {
+        if (buttonIndex == 1) {
             redeemCoupon(coupon);
             $('#backArrow').click();
           }
@@ -789,8 +816,7 @@ function receivedBookListeners() {
             onConfirm,
             "Redemption confirmation",
             ["Redeem it", "Cancel"]
-        );
-      });
+      );
     });
   });
 }
@@ -1022,12 +1048,13 @@ function showCouponEditPage($this) {
   // NOTE: On press, error for reading `image` of undefined... why?
   $('#backArrow').unbind().click(function() {
     // Will show the new data
-    showSentCouponPreview();
+    showSentCouponPreview($this);
   });
 
   $('#save').unbind().click(function() {
     if (couponFormIsValid()) {
       updateCoupon(coupon, $this);
+      showSentCouponPreview($this);
     }
   });
 
