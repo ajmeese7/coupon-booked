@@ -4,7 +4,6 @@
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Temporary; https://fonts.google.com/ */
     max-width: 100%;
-    overflow-x: hidden;
 }
 
 html {

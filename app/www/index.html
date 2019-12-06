@@ -33,7 +33,6 @@
 
 <body>
     <!-- HTML is my templating engine and CSS is my router -->
-    <!-- TODO: Disable scrolling in nav bar -->
     <div class="app" id="app"></div>
 
     <template id="loading">
@@ -105,7 +104,8 @@
                     <div>
                         <h1>Coupon Booked</h1>
                         <h2>Getting Started</h2>
-                        <p>Please click the button to log in or create an account. Signing in allows you to access the full feature set necessary to send gifts to your loved ones.</p>
+                        <p>Please click the button to log in or create an account. Signing in allows 
+                            you to access the full feature set necessary to send gifts to your loved ones.</p>
                         <!-- IDEA: Privacy policy and the like in the pararaph like the example -->
                     </div>
                 </div>
@@ -327,7 +327,7 @@
     </template>
 
     <template id="dashboard">
-        <!-- TODO: Add swipe support with animation -->
+        <!-- TODO: Add animation for swiping between tabs (even when clicking) -->
         <ul id="tabs-swipe-demo" class="tabs">
             <li class="tab"><a id="sentButton" href="#sent" class="active">Sent</a></li>
             <li class="tab"><a id="receivedButton" href="#received">Received</a></li>
