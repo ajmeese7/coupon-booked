@@ -339,9 +339,10 @@ function resetUrlVars() {
  * add the applicable HTML to the page.
  */
 function pullUserRelatedBooks() {
+  // console.warn("pullUserRelatedBooks...");
   var userId = localStorage.getItem('user_id');
   $.ajax({
-      type: "GET",
+    type: "GET",
       url: "http://www.couponbooked.com/scripts/getData?userId=" + userId,
       datatype: "json",
       success: function(data) {
@@ -355,8 +356,6 @@ function pullUserRelatedBooks() {
           // Go over each coupon book in sent {0} or received array {1}
           $.each(array, function(couponNumber, couponBook) {
               if (couponBook) {
-                // TODO: Fix books being duplicated on first click of back button
-                // from sent page on the display.
                 addBookToPage(couponBook, isSent);
               } else {
                 // Let the user know there are no books of the specifed type
@@ -386,6 +385,7 @@ function pullUserRelatedBooks() {
  * @param {boolean} isSent - true for sent book, false for received
  */
 function addBookToPage(couponBook, isSent) {
+  // console.warn("addBookToPage...");
   var bookData = JSON.parse(couponBook.bookData);
   var applicableElement = isSent ? getById("sent") : getById("received");
 
@@ -445,8 +445,7 @@ function addBookListeners(node) {
     // TODO: Add some kind of delay to give content time to load in;
     // IDEA: begin fading #app out, redirect, and start fading new content
     // in after a very slight delay (to fade between routes);
-    // Could put in a loading screen for a short period of time,
-    // or try clicking (jQuery) between the two tabs
+    // Could put in a loading screen for a short period of time
     backButtonTarget = "/dashboard";
 
     var isSent = $(this).data("isSent");
@@ -465,7 +464,7 @@ function addBookListeners(node) {
 // in rows so the other one is pushed down just as much instead of removing
 // float left and having the columns uneven
 function displaySentBook() {
-  console.warn("displaySentBook...");
+  // console.warn("displaySentBook...");
   var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
@@ -570,13 +569,12 @@ function goBack() {
 /**
  * The normal listeners for the /sentBook route.
  */
-// TODO: Decompose
 function sentBookListeners() {
   console.warn("sentBookListeners...");
   // Returns you to your previous location; asks for confirmation
   // if you have unsaved changes
   $('#backArrow').unbind().click(function() {
-    goBack();
+    // console.warn("sentBookListeners() backArrow listener...");
 
     if (!isSameObject(book, previousBook)) {
       function onConfirm(buttonIndex) {
@@ -744,6 +742,7 @@ function displayReceivedBook() {
 function receivedBookListeners() {
   //console.warn("receivedBookListeners...");
   $('#backArrow').unbind().click(function() {
+    // console.warn("receivedBookListeners() backArrow listener...");
     // NOTE: previousBook probably isn't needed here, but better safe than dead
     previousBook = null;
     book = null;
