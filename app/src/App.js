@@ -98,8 +98,6 @@ App.prototype.state = {
     '/home': {
       id: 'home',
       onMount: function(page) {
-        console.warn("/home route...");
-
         _this = this;
         navBar();
 
@@ -107,12 +105,22 @@ App.prototype.state = {
           _this.redirectTo('/create');
         });
 
-        // TODO: Somehow make sure a previous token doesn't count when attempting to 
-        // make a new purchase; also find a way to clear away URL variables without
-        // ruining routing, or instead just store the previous Stripe token in localStorage
-        // and check it against the URL to make sure the token isn't used twice
-        if (location.href.includes("stripeToken")) {
+        // Theoretically disallows the usage of the same Stripe token twice when
+        // it's still stored in the URL; Stripe's API *should* handle this automatically
+        // but I'm attempting to avoid relying on that feature.
+        var oldStripeToken = localStorage.getItem('stripeToken');
+        var url_vars = getUrlVars();
+        var newStripeToken = url_vars.stripeToken;
+        if (newStripeToken && newStripeToken != oldStripeToken) {
+          console.warn("New Stripe token exists and is not equal to old token. Processing payment...");
+
+          localStorage.setItem('stripeToken', newStripeToken);
           handlePayments();
+        } else {
+          if (newStripeToken) {
+            // If not this case then there's no token so shouldn't even worry about it
+            console.warn("Same Stripe token! Not processing payment...");
+          }
         }
       }
     },
@@ -160,8 +168,10 @@ App.prototype.state = {
       onMount: function(page) {
         _this = this;
         navBar();
+        pullUserRelatedBooks();
 
         // Initialize tab menu; TODO: When coming back here, remember which tab user was on last.
+        // If I still want to take that route, can use localStorage
         $('#tabs-swipe-demo').tabs();
         manageTabMenu();
 
@@ -178,9 +188,6 @@ App.prototype.state = {
         $('#redeemLink').unbind().click(function() {
           _this.redirectTo('/redeemCode');
         });
-        
-        // Should you be able to edit after sending?
-        pullUserRelatedBooks();
       }
     },
     '/redeemCode': {
@@ -201,6 +208,7 @@ App.prototype.state = {
           }
         });
 
+        // https://www.outsystems.com/forums/discussion/27816/mobile-max-length-of-input-not-working/#Post101576
         $('#redeemBox').on("input", function () {
           if (this.value.length > 8) {
             this.value = this.value.slice(0,8);
@@ -304,11 +312,6 @@ function handlePayments() {
           text: "Please try again later."
         }, notificationOptions);
       }
-
-      // TODO: Redirect to share page once coming back and make back button do
-      // what it normally should; make sure book is set as the right one so 
-      // the shareCode page shows the proper code
-      //_this.redirectTo('/shareCode');
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error in payment:", XMLHttpRequest.responseText);
@@ -460,14 +463,17 @@ function addBookListeners(node) {
 /**
  * Takes the current book JSON data and adds it to the page.
  */
-// TODO: For coupon previews, when one gets too long, have it displayed
-// in rows so the other one is pushed down just as much instead of removing
-// float left and having the columns uneven
 function displaySentBook() {
-  // console.warn("displaySentBook...");
+  // TODO: For coupon previews, when one gets too long, have it displayed
+  // in rows so the other one is pushed down just as much instead of removing
+  // float left and having the columns uneven
+
+  console.warn("displaySentBook book:", book);
   var bookContent = getById("bookContent");
 
-  // Reset to default code so when refreshed it isn't populated twice
+  // Reset to default code so when refreshed it isn't populated twice;
+  // IDEA: Replace the whole 'Create' button on the main page with just
+  // another + button on the sentBook page to create a new book
   bookContent.innerHTML = '<button id="plus">+</button>';
 
   // Create preview of book at top of display
@@ -493,9 +499,9 @@ function displaySentBook() {
     // TODO: Style this in a way that lets people know they should click it
     var receiver = "<p id='shareCodePreview'>Share code: " + book.shareCode + "</p>";
     previewText.innerHTML += receiver;
-  } else {
-    // No code generated and not sent
-    //var receiver = "<p><a id='shareButton'>Share</a>";
+  } else if (book.bookId) {
+    // No share code generated and not sent; only if book has already been
+    // saved and bookId has been generated
     var stripeButton = getById("checkoutFormContainer");
     $(stripeButton).attr('class', '');
     previewText.appendChild(stripeButton);
@@ -505,6 +511,10 @@ function displaySentBook() {
     // maybe even write the first two lines or something then click it for a 
     // popup with detailed info about the book only, but that still might
     // give it a little too cluttered of a look.
+  } else {
+    // For when a template is first loaded in; not yet saved
+    var receiver = "<p class='receiverText'>Save to share!</p>";
+    previewText.innerHTML += receiver;
   }
   miniPreview.appendChild(previewText);
 
@@ -526,7 +536,6 @@ function displaySentBook() {
 
   // Allows listener to apply to dynamically added elements, such as Stripe button
   $("body").unbind().click(function() {
-    // TODO: Make these functions be called in the right place
     var target = event.target;
     if (target.className === 'stripe-button-el' || 
         target.parentElement.className === 'stripe-button-el')
@@ -578,7 +587,8 @@ function goBack() {
  */
 function sentBookBackButton() {
   $('#backArrow').unbind().click(function() {
-    if (!isSameObject(book, previousBook)) {
+    // If not yet saved, just discards without secondary confirmation.
+    if (!isSameObject(book, previousBook) && book.bookId) {
       function onConfirm(buttonIndex) {
         // 1 is "Discard them"
         if (buttonIndex == 1) {
@@ -703,7 +713,11 @@ function addDeleteListeners() {
       if (buttonIndex == 1) {
         deleteBook();
 
-        // NOTE: This doesn't always pull the new data in time. How to fix?
+        // NOTE: This used to not always pull the new data in time for when the
+        // user sees the dashboard so the deleted book would still show up, but it's
+        // hard to replicate so I don't know if the problem still exists. If noticed 
+        // again in the future I'll look further into how to prevent it. Possibly with
+        // waiting for a promise or asynchronously running a function or something.
         goBack();
       }
     }
@@ -1042,6 +1056,7 @@ function showSentCouponPreview($this) {
  * displays the edit page.
  */
 function showCouponEditPage($this) {
+  //console.warn("showCouponEditPage...");
   saveAndDeleteToggle();
   fadeBetweenElements("#couponPreview", "#couponForm");
 
@@ -1093,6 +1108,9 @@ function createBook() {
         console.warn("bookId in use. Generating new one and trying again...");
         createBook();
       } else {
+        // Updates the "Save to share" text to the Stripe button on first save
+        _this.redirectTo('/sentBook');
+        
         SimpleNotification.success({
           text: "Successfully created book"
         }, notificationOptions);
@@ -1171,9 +1189,6 @@ function deleteBook() {
         // Uncomment to debug deleting books
         //console.warn("deleteBook success: ", success);
 
-        // TODO: Refresh UI when going from book page back to dashboard
-        // so the deleted book no longer shows; could go with caching idea
-        // and delete from local cache until new call to PHP has completed
         SimpleNotification.success({
           text: "Successfully deleted book"
         }, notificationOptions);
@@ -1196,9 +1211,10 @@ function deleteBook() {
 
 /**
  * Take data from form fields and add it to `book.coupons`.
+ * NOTE: The data is already validated when this function is
+ * called, so you know all the inputs are filled out.
  */
 function createCoupon() {
-  console.warn("Creating coupon...");
   var form = $('#couponForm').serializeArray();
 
   // https://stackoverflow.com/a/51175100/6456163
@@ -1210,20 +1226,16 @@ function createCoupon() {
   // Convert from string to number
   coupon.count = parseInt(coupon.count);
 
-  // Uncomment for debugging coupon creation
-  //console.warn("New coupon:");
-  //console.warn(coupon);
-
-  // NOTE: Temporary until image input is supported
+  // TODO: Implement image input
   coupon.image = "images/gift.png";
 
-  // Makes sure name doesn't already exist before creating coupon
-  if (nameAlreadyExists(coupon.name)) {
-    newNameWarning();
-  } else {
-    book.coupons.push(coupon);
-    displaySentBook();
-  }
+  // Uncomment for debugging coupon creation
+  // console.warn("New coupon:", coupon);
+
+  // Name already validated before this function is called so
+  // no need to do it again.
+  book.coupons.push(coupon);
+  displaySentBook();
 }
 
 /**
@@ -1255,10 +1267,8 @@ function updateCoupon(oldCoupon, $this) {
     $.each(book.coupons, function(couponNumber, coupon) {
       if (coupon.name == oldName) {
         // Uncomment for debugging coupon updating
-        /*console.warn("Old coupon:");
-        console.warn(oldCoupon);
-        console.warn("New coupon:");
-        console.warn(newCoupon);*/
+        /*console.warn("Old coupon:", oldCoupon);
+        console.warn("New coupon:", newCoupon);*/
 
         // TODO: Check for special character support, i.e. other languages
         coupon = newCoupon;
