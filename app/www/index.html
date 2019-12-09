@@ -56,7 +56,7 @@
                                         <!-- Profile image should be set to the profile picture from the id token;
                                             src is the default image until the user's profile pic loads in -->
                                         <img alt="Profile picture" src="images/default.png" class="nav-user-profile profile-image" />
-                                        <!-- TODO: Find a way to cache previous image -->
+                                        <!-- TODO: Find a way to cache previous image; localStorage? -->
                                     </a>
                                 </li>
                             </ul>
@@ -144,12 +144,6 @@
                             <img src="images/300.png" />
                         </div>
                     </section>
-        
-                    <section id="createBook">
-                        <h2>Create Your Own</h2>
-                        <!-- TODO: Style this -->
-                        <button>Start here!</button>
-                    </section>
                 </div>
             </div>
 
@@ -158,6 +152,8 @@
     </template>
 
     <template id="create">
+        <!-- Invisible back arrow to support functions without much modification -->
+        <img class="hide" id="backArrow" />
         <h2 id="createHeader">Who is it for?</h2>
 
         <div id="buttonContainer">
@@ -281,7 +277,6 @@
     <template id="shareCode">
         <link rel="stylesheet" type="text/css" href="css/shareCode.css" />
         <div id="topbar">
-            <!-- TODO: Finish styling -->
             <img class="ionicon" id="backArrow" src="images/back.svg" />
         </div>
 
@@ -321,7 +316,8 @@
     </template>
 
     <template id="dashboard">
-        <!-- TODO: Add animation for swiping between tabs (even when clicking) -->
+        <!-- Invisible back arrow to support functions without much modification -->
+        <img class="hide" id="backArrow" />
         <ul id="tabs-swipe-demo" class="tabs">
             <li class="tab"><a id="sentButton" href="#sent" class="active">Sent</a></li>
             <li class="tab"><a id="receivedButton" href="#received">Received</a></li>
@@ -334,6 +330,7 @@
                     You haven't sent any Books yet. <br />
                     <a id="start">Send one now!</a>
                 </div>
+                <button id="plus">+</button>
             </div>
             <div id="received" class="col">
                 <div id="noneReceived" class="hidden">

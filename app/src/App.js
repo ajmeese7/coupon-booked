@@ -29,7 +29,7 @@ function App() {
   //cleanBuild = true;
   if (cleanBuild) {
     console.warn("Wiping local storage...");
-    window.plugins.OneSignal.removeExternalUserId();
+    //window.plugins.OneSignal.removeExternalUserId();
     localStorage.removeItem('user_id');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -104,10 +104,6 @@ App.prototype.state = {
         _this = this;
         navBar();
 
-        $('#createBook button').unbind().click(function() {
-          _this.redirectTo('/create');
-        });
-
         // Reset every time the user goes home
         localStorage.setItem('activeTab', 'sent');
 
@@ -137,6 +133,10 @@ App.prototype.state = {
         navBar();
 
         backButtonTarget = "/create";
+        $('#backArrow').unbind().click(function() {
+          backButtonTarget ="/home";
+          _this.redirectTo('/dashboard');
+        });
 
         // Set button height equal to its width because CSS is annoying
         var width = $('button').width();
@@ -180,8 +180,13 @@ App.prototype.state = {
         $('#tabs-swipe-demo').tabs();
         manageTabMenu();
 
-        // User clicks "Send one now!" and they're redirected to the create route
-        $('#start').unbind().click(function() {
+        $('#backArrow').unbind().click(function() {
+          _this.redirectTo('/home');
+        });
+
+        // User clicks "Send one now!" and they're redirected to the create route;
+        // does the same thing as the plus button
+        $('#start, #plus').unbind().click(function() {
           _this.redirectTo('/create');
         });
 
