@@ -31,12 +31,12 @@
       $sentArray[] = null;
     }
 
-    $stmt = $conn->prepare("SELECT senderName, bookData, deleted FROM couponBooks WHERE receiver=?");
+    $stmt = $conn->prepare("SELECT senderName, bookData, hide, deleted FROM couponBooks WHERE receiver=?");
     $stmt->bind_param("s", $userId); // Should already be bound, but better safe than sorry.
     $stmt->execute();
 
     $stmt->store_result();
-    $stmt->bind_result($senderName, $bookData, $deleted);
+    $stmt->bind_result($senderName, $bookData, $hide, $deleted);
     if ($stmt->num_rows > 0) {
       while ($stmt->fetch()) {
         // Not deleted (0 is false in SQL)
@@ -45,6 +45,7 @@
           $row = new \stdClass();
           $row->senderName = $senderName;
           $row->bookData = $bookData;
+          $row->hide = $hide;
           $row->deleted = $deleted; // Is this necessary?
           $receivedArray[] = $row;
         }

@@ -29,10 +29,12 @@ function App() {
   //cleanBuild = true;
   if (cleanBuild) {
     console.warn("Wiping local storage...");
+    window.plugins.OneSignal.removeExternalUserId();
     localStorage.removeItem('user_id');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('id_token');
+    localStorage.removeItem('stripeToken');
 
     var url = getRedirectUrl();
     openUrl(url);
@@ -59,6 +61,7 @@ var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay
 // IDEA: Display book animation on app open, but you have to click it to get it to open then go into app?
   // Still have to redo home page...
 
+// These are all needed across various functions, so defined in the global scope
 var nav, book, previousBook, profile, backButtonTarget, _this; // https://stackoverflow.com/a/1338622
 App.prototype.state = {
   authenticated: false,
@@ -420,6 +423,9 @@ function addBookToPage(couponBook, isSent) {
     node.innerHTML += "<p class='senderText'>" +
       (senderName ? "Sent from " + senderName : "Sender unavailable") +
       "</p>";
+    if (bookData.hide) {
+      node.style.display = "none";
+    }
   }
 
   // https://api.jquery.com/data/
@@ -755,11 +761,15 @@ function displayReceivedBook() {
   senderText += "</p>";
   previewText.innerHTML += senderText;
   miniPreview.appendChild(previewText);
+
+  // NOTE: These images provided by FontAwesome
+  var hideImg = "<img id='hideBook' src='images/eye-";
+  hideImg += (book.hide ? "slash-" : "") + "regular.svg' />";
+  miniPreview.innerHTML += hideImg;
   
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
   
-  // IDEA: Could replace delete with hide (eye) icon? And not tell sender...
   receivedBookListeners();
 }
 
@@ -772,6 +782,45 @@ function receivedBookListeners() {
     previousBook = null;
     book = null;
     _this.redirectTo("/dashboard");
+  });
+
+  $('#hideBook').unbind().click(function() {
+    var newHideStatus = book.hide ? 0 : 1;
+    $(this).attr('src', "images/eye-" + (newHideStatus ? "slash-" : "") + "regular.svg");
+    book.hide = newHideStatus;
+
+    $.ajax({
+      type: "POST",
+      url: "http://www.couponbooked.com/scripts/changeHiddenStatus",
+      data: { bookData: JSON.stringify(book), hide: newHideStatus, bookId: book.bookId },
+      crossDomain: true,
+      cache: false,
+      success: function(success) {
+        // NOTE: UI to display hidden books will be implemented when I add the sorting button
+        // that allows you to do custom w/ dragging, alphabetical, newest, ect.
+        if (book.hide) {
+          console.warn("Book is now hidden.");
+        } else {
+          console.warn("Book no longer hidden.");
+        }
+
+        // NOTE: Should I include this or let the icon speak for itself?
+        // Also, how do you see hidden books to unhide?
+        /*SimpleNotification.success({
+          text: "Successfully hid book"
+        }, notificationOptions);*/
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        console.error("Error hiding book:", XMLHttpRequest.responseText);
+        // TODO: Undo hide action here; shoud literally never run so
+        // not making this a priority
+
+        SimpleNotification.warning({
+          title: "Error hiding book",
+          text: "Please try again later."
+        }, notificationOptions);
+      }
+    });
   });
 
   $.each(book.coupons, function(couponNumber, coupon) {
@@ -1092,6 +1141,7 @@ function createBook() {
   // for another level of personalization with nicknames.
   var senderName = getUserName();
   book.bookId = uuid;
+  book.hide = 0;
 
   $.ajax({
     type: "POST",
@@ -1853,7 +1903,6 @@ function manageTabMenu() {
       receivedButton.css('text-decoration', 'underline');
       sentButton.css('text-decoration', 'none');
     }
-    
   }
 
   // Click sent tab
@@ -2099,7 +2148,7 @@ App.prototype.resumeApp = function() {
             headers: {'content-type': 'application/x-www-form-urlencoded'},
             form: {
               grant_type: 'refresh_token',
-              client_id: 'eSRrTRp3CHav2n2wvXo9LvRtodKP4Ey8',
+              client_id: env.AUTH0_CLIENT_ID,
               refresh_token: refreshToken
             }
           };
