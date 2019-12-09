@@ -108,6 +108,9 @@ App.prototype.state = {
           _this.redirectTo('/create');
         });
 
+        // Reset every time the user goes home
+        localStorage.setItem('activeTab', 'sent');
+
         // Theoretically disallows the usage of the same Stripe token twice when
         // it's still stored in the URL; Stripe's API *should* handle this automatically
         // but I'm attempting to avoid relying on that feature.
@@ -173,8 +176,7 @@ App.prototype.state = {
         navBar();
         pullUserRelatedBooks();
 
-        // Initialize tab menu; TODO: When coming back here, remember which tab user was on last.
-        // If I still want to take that route, can use localStorage
+        // Initialize tab menu
         $('#tabs-swipe-demo').tabs();
         manageTabMenu();
 
@@ -1864,6 +1866,10 @@ function fadeBetweenElements(fadeOut, fadeIn) {
  * Handle swiping for the tab menu.
  */
 function manageTabMenu() {
+  // Select the tab the user was last on; sent by default;
+  // IDEA: Do the full red background styling here for applicable tab
+  $('#tabs-swipe-demo').tabs('select', localStorage.getItem('activeTab'));
+
   const gestureZone = getById('gestureZone');
   var sentButton = $('#sentButton');
   var receivedButton = $('#receivedButton');
@@ -1881,15 +1887,15 @@ function manageTabMenu() {
 
   // Modified from https://gist.github.com/SleepWalker/da5636b1abcbaff48c4d#gistcomment-2555343
   function handleGesture() {
-    // TODO: Add animation while moving between pages; is this possible with Materialize?
-    // TODO: Switch from method here to mocking Materialize with :hover selector, because
-      // this is not a complete replication
+    // IDEA: Add animation while moving between pages; is this possible with Materialize?
     var ratio_horizontal = (touchendX - touchstartX) / $(gestureZone).width();
     var ratioComparison = .10;
 
     // Swipe right (select sent)
     if (ratio_horizontal > ratioComparison) {
+      localStorage.setItem('activeTab', 'sent');
       $('#tabs-swipe-demo').tabs('select', 'sent');
+
       sentButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
       receivedButton.css('background-color', 'transparent');
       sentButton.css('text-decoration', 'underline');
@@ -1897,7 +1903,9 @@ function manageTabMenu() {
     }
     // Swipe left (select received)
     if (ratio_horizontal < -ratioComparison) {
+      localStorage.setItem('activeTab', 'received');
       $('#tabs-swipe-demo').tabs('select', 'received');
+
       receivedButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
       sentButton.css('background-color', 'transparent');
       receivedButton.css('text-decoration', 'underline');
@@ -1907,6 +1915,7 @@ function manageTabMenu() {
 
   // Click sent tab
   sentButton.unbind().click(function() {
+    localStorage.setItem('activeTab', 'sent');
     sentButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
     receivedButton.css('background-color', 'transparent');
     sentButton.css('text-decoration', 'underline');
@@ -1914,6 +1923,7 @@ function manageTabMenu() {
   });
   // Click received tab
   receivedButton.unbind().click(function() {
+    localStorage.setItem('activeTab', 'received');
     receivedButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
     sentButton.css('background-color', 'transparent');
     receivedButton.css('text-decoration', 'underline');
