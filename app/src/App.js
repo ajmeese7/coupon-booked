@@ -540,20 +540,21 @@ function displaySentBook() {
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
   
-  // NOTE: Is this programmed to where it only shows the correct one?
-  $("#shareCodePreview").unbind().click(function() {
-    // Will give users the chance again to share their code;
+  // Will give users the chance again to share their code;
     // Need some way to indicate that as clicking is not immediately obvious
+  $("#shareCodePreview").unbind().click(function() {
     _this.redirectTo('/shareCode');
   });
 
   // Allows listener to apply to dynamically added elements, such as Stripe button
   $("body").unbind().click(function() {
-    var target = event.target;
-    if (target.className === 'stripe-button-el' || 
-        target.parentElement.className === 'stripe-button-el')
-    {
-      sneakFormData();
+    if (event) {
+      var target = event.target;
+      if (target.className === 'stripe-button-el' || 
+          target.parentElement.className === 'stripe-button-el')
+      {
+        sneakFormData();
+      }
     }
   });
   
