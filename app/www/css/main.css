@@ -145,6 +145,13 @@ label {
     text-overflow: ellipsis;
 }
 
+#shareCodePreview {
+    color: #7E7E7E;
+}
+#shareCodePreview span {
+    color: #039be5;
+}
+
 #miniPreview {
     display: inline-block;
     position: relative;
@@ -324,7 +331,6 @@ input[type=text] {
     text-align: center;
     margin-top: 15px;
 }
-
 #shareCodeDiv {
     display: table;
     margin: auto;
@@ -332,7 +338,7 @@ input[type=text] {
     height: 54px;
 }
 #shareCodeText {
-    /* TODO Border radius? */
+    /* TODO: Make this appear more grand so their purchase is validated */
     font-size: 32px;
     padding-right: 8px;
     padding-left: 8px;
@@ -342,8 +348,10 @@ input[type=text] {
     background-color: white;
 }
 #copyButton {
-    vertical-align: super;
+    /* TODO: Test on screen sizes */
+    vertical-align: sub;
     margin-left: 10px;
+    margin-bottom: -5px;
 }
 
 #shareCodeDescription, #descPreview {

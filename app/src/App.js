@@ -509,8 +509,7 @@ function displaySentBook() {
     previewText.innerHTML += receiver;
   } else if (book.shareCode) {
     // Code generated but not yet redeemed
-    // TODO: Style this in a way that lets people know they should click it
-    var receiver = "<p id='shareCodePreview'>Share code: " + book.shareCode + "</p>";
+    var receiver = "<p id='shareCodePreview'>Share code: <span>" + book.shareCode + "</span></p>";
     previewText.innerHTML += receiver;
   } else if (book.bookId) {
     // No share code generated and not sent; only if book has already been
