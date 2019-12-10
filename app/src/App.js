@@ -481,8 +481,6 @@ function displaySentBook() {
   // TODO: For coupon previews, when one gets too long, have it displayed
   // in rows so the other one is pushed down just as much instead of removing
   // float left and having the columns uneven
-
-  console.warn("displaySentBook book:", book);
   var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice;
@@ -876,8 +874,6 @@ function addSentCouponListeners(node) {
     showSentCouponPreview($this);
 
     $("#edit").unbind().click(function() {
-      // TODO: Validate that coupon has been changed before saving;
-      // same way it was done with book in sentBookSaveButton
       showCouponEditPage($this);
     });
   });
@@ -1297,9 +1293,10 @@ function updateCoupon(oldCoupon, $this) {
   // Convert from string to number
   newCoupon.count = parseInt(newCoupon.count);
 
-  // TODO: Consider decomposing
-  var oldName = oldCoupon.name;
-  var newName = newCoupon.name;
+  if (!isSameObject(oldCoupon, newCoupon)) {
+      // TODO: Consider decomposing
+      var oldName = oldCoupon.name;
+      var newName = newCoupon.name;
   if (newName != oldName && nameAlreadyExists(newName)) {
     newNameWarning();
   } else {
@@ -1318,14 +1315,24 @@ function updateCoupon(oldCoupon, $this) {
         displaySentBook();
   
         // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
-        $('#bookContent p:contains(' + newName + ')').parent()[0].click();
-        
-        console.warn("Coupon updated!");
-        SimpleNotification.success({
-          text: "Updated coupon"
-        }, notificationOptions);
+            $('#bookContent p:contains(' + newName + ')').parent()[0].click();
+            
+            console.warn("Coupon updated!");
+            showSentCouponPreview($this);
+
+            SimpleNotification.success({
+              text: "Updated coupon"
+            }, notificationOptions);
+          }
+        });
       }
-    });
+  } else {
+    // Coupon hasn't been modified
+    console.warn("Coupon not modified. Returning...");
+
+    SimpleNotification.info({
+      text: 'You haven\'t changed anything!'
+    }, notificationOptions);
   }
 }
 
@@ -1832,8 +1839,7 @@ function navBar() {
       }
   });
   $(document).unbind().mouseup(function() {
-      // TODO: Find a way for scrolling to close it
-      $(".submenu").slideUp();
+    $(".submenu").slideUp();
   });
 }
 
