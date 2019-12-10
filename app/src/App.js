@@ -413,22 +413,21 @@ function addBookToPage(couponBook, isSent) {
   if (isSent) {
     var shareCode = bookData.shareCode;
     if (shareCode) {
-      // TODO: Choose what to display as message here
       node.innerHTML += "<p class='receiverText'>Code: " + shareCode + "</p>";
     } else {
       // TODO: Make this not move the div up when longer than one line, and instead
-      // drop the text while keeping the images level
+      // drop the text while keeping the images level. Temporarily avoided with 
+      // ellpises method but people might think that's ugly
       var receiver = couponBook.receiverName;
       node.innerHTML += "<p class='receiverText'>" +
-        (receiver ? "Sent to " + receiver : "Not sent yet") +
+        (receiver ? /*"Sent to " +*/ receiver : "Not sent yet") +
         "</p>";
     }
   } else {
     // Who the book is sent from; should always exist, but failsafe in case it doesn't
-    // TODO: Make this less lengthy to display better; get feedback from others
     var senderName = couponBook.senderName;
     node.innerHTML += "<p class='senderText'>" +
-      (senderName ? "Sent from " + senderName : "Sender unavailable") +
+      (senderName ? /*"Sent from " +*/ senderName : "Sender unavailable") +
       "</p>";
     if (bookData.hide) {
       node.style.display = "none";

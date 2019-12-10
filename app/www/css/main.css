@@ -138,11 +138,13 @@ label {
     color: #7E7E7E;
 }
 .senderText, .receiverText {
-    /* TODO: Play with this */
-    width: 95%;
+    /* https://stackoverflow.com/a/7993098/6456163 */
+    width: 80%;
     margin: auto;
     line-height: 1.15;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 #shareCodePreview {
