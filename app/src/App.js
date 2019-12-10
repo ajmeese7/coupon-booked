@@ -68,6 +68,8 @@ App.prototype.state = {
   accessToken: false,
   currentRoute: '/',
   routes: {
+    // TODO: Is it possible to fade between routes like within books instead of the
+    // lame instant transition?
     '/': {
       id: 'loading',
       onMount: function(page) {
@@ -558,7 +560,6 @@ function displaySentBook() {
   
   addDeleteListeners();
   sentBookListeners();
-  addCouponsToPage();
 }
 
 /**
@@ -707,10 +708,10 @@ function plusButton() {
  * The normal listeners for the /sentBook route.
  */
 function sentBookListeners() {
-  //console.warn("sentBookListeners...");
   sentBookBackButton();
   sentBookSaveButton();
   plusButton();
+  createCouponElements(true);
 }
 
 /**
@@ -829,34 +830,64 @@ function receivedBookListeners() {
     });
   });
 
-  $.each(book.coupons, function(couponNumber, coupon) {
-    createCouponElement(couponNumber, coupon);
-  });
+  createCouponElements();
 }
 
 /**
  * Adds coupon data to div and inserts it to page.
  * @param {integer} couponNumber - the location of the current coupon in the array
  * @param {object} coupon - the data for the current coupon
+ * @param {boolean} sent - true if sent coupon, false if received
  */
-function createCouponElement(couponNumber, coupon) {
-  var node = document.createElement('div');
-  node.setAttribute("class", "couponPreview");
-  node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
+function createCouponElements(sent) {
+  // TODO: Figure out how to display image licenses if not paying for yearly subscription
+  // TODO: Exclude this file from UglifyJS so I can use template literals
+  // TODO: Implement way to rearrange organization of coupons; also change
+    // display options like default, alphabetical, count remaining, etc.;
+    // should changing display preference permenantly update the order?
+    // Option to hide coupons with 0 count; display 3 to a row
+
+  $.each(book.coupons, function(couponNumber, coupon) {
+      var node = document.createElement('div');
+      node.setAttribute("class", "couponPreview");
+      node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
     node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
     node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
     $(node).data("coupon", coupon);
-  $(node).data("couponNumber", couponNumber);
-  getById("bookContent").appendChild(node);
+      $(node).data("couponNumber", couponNumber);
+      getById("bookContent").appendChild(node);
 
-  addCouponClickListeners(node);
+      if (sent) {
+        addSentCouponListeners(node);
+      } else {
+        addReceivedCouponListeners(node);
+      }
+  });
+}
+
+/**
+ * Adds click listeners to the specified sent coupon element.
+ * @param {node} node - the coupon element
+ */
+function addSentCouponListeners(node) {
+  $(node).unbind().click(function() {
+    /** Allows coupon node to be passed as parameter to functions */
+    var $this = this;
+    showSentCouponPreview($this);
+
+    $("#edit").unbind().click(function() {
+      // TODO: Validate that coupon has been changed before saving;
+      // same way it was done with book in sentBookSaveButton
+      showCouponEditPage($this);
+    });
+  });
 }
 
 /**
  * Displays the coupon's info when the card is clicked.
  * @param {object} node - the element on the page with the coupon's data attached
  */
-function addCouponClickListeners(node) {
+function addReceivedCouponListeners(node) {
   $(node).unbind().click(function() {
     fadeBetweenElements("#bookContent", "#couponPreview");
 
@@ -1008,54 +1039,6 @@ function refundCoupon(couponName) {
         text: "Please report this issue."
       }, notificationOptions);*/
     }
-  });
-}
-
-/**
- * Adds all the sent book's coupons to the display once 
- * the book is clicked.
- */
-function addCouponsToPage() {
-  //console.warn("addCouponsToPage...");
-  // NOTE: Solutions implemented here should be added in receivedBookListeners()
-  // TODO: Implement way to rearrange organization of coupons; also change
-  // display options like default, alphabetical, count remaining, etc.;
-  // should changing display preference permenantly update the order?
-  // Option to hide coupons with 0 count; display 3 to a row
-  $.each(book.coupons, function(couponNumber, coupon) {
-    // TODO: Figure out how to display image licenses if not paying for yearly subscription
-    // TODO: Exclude this file from UglifyJS so I can use template literals
-    var node = document.createElement('div');
-    node.setAttribute("class", "couponPreview");
-    node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
-    node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
-    node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
-    $(node).data("coupon", coupon);
-    $(node).data("couponNumber", couponNumber);
-    getById("bookContent").appendChild(node);
-
-    // IDEA: Combine this and receivedBookListeners with an if statement
-    // for what to do at the end
-    addCouponListeners(node);
-  });
-}
-
-/**
- * Adds click listeners to the specified coupon element.
- * @param {node} node - the coupon element
- */
-function addCouponListeners(node) {
-  //console.warn("addCouponListeners...");
-  $(node).unbind().click(function() {
-    /** Allows coupon node to be passed as parameter to functions */
-    var $this = this;
-    showSentCouponPreview($this);
-
-    $("#edit").unbind().click(function() {
-      // TODO: Validate that coupon has been changed before saving;
-      // same way it was done with book
-      showCouponEditPage($this);
-    });
   });
 }
 
@@ -1216,6 +1199,7 @@ function updateBook(silent) {
 
       // TODO: Think of a good way to resolve bugs for users; some log data saved?
       // IDEA: Have a 'report bug' thing somewhere that includes logs in report; send it where?
+        // Theoretically could be one SQL table for bug logs and one for security violations
       SimpleNotification.error({
         // IDEA: Something in error messages about 'sorry for the inconvenience'?
         // Would make them awfully long but seems like a professional thing to do.
