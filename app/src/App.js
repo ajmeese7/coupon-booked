@@ -1,7 +1,7 @@
 // NOTE: THIS FILE DOES NOT REDEPLOY ON `npm run android`
 // This goes to webpack, which you have to rebuid to test any changes.
 const env = require('../env');
-const request = require("request");
+const request = require('request');
 const jwt = require('jsonwebtoken');
 const Auth0 = require('auth0-js');
 const Auth0Cordova = require('@auth0/cordova');
@@ -1606,11 +1606,11 @@ function createShareCode() {
   // IDEA: Save automatically? Decide later.
   if (book.bookId) {
       // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
-      var shareCode = shareCode();
-      function shareCode() {
-    var rtn = '';
-    for (var i = 0; i < ID_LENGTH; i++) {
-      rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
+      var shareCode = generateShareCode();
+      function generateShareCode() {
+        var rtn = '';
+        for (var i = 0; i < ID_LENGTH; i++) {
+          rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
     }
         return rtn;
       }
@@ -1772,6 +1772,7 @@ function shareCode() {
  * Insert navigation elements into routes requiring them.
  * Redirects to login if user not authenticated.
  */
+var tempCounter = 0;
 function navBar() {
   console.warn("navBar...");
   if (_this.state.authenticated === false) {
@@ -1788,25 +1789,33 @@ function navBar() {
   if (!profile) {
     _this.loadProfile(function(err, _profile) {
       if (err) {
-        // TODO: If 401 error, reauthenticate with refresh token or something;
-          // Test this as soon as it appears again w/ new logging
         console.error("Error loading profile: ", err);
-        console.log(localStorage.getItem('user_id'))
-        console.log(localStorage.getItem('access_token'))
-        console.log(localStorage.getItem('refresh_token'))
-        console.log(localStorage.getItem('id_token'))
 
-        // Assumes user is somehow not authenticated; easy catch-all solution
-        profile = null;
-        localStorage.removeItem('user_id');
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('id_token');
-        _this.state.authenticated = false;
-        var url = getRedirectUrl();
-        openUrl(url);
+        var options = {
+          method: 'POST',
+          url: 'https://couponbooked.auth0.com/oauth/token',
+          headers: {'content-type': 'application/x-www-form-urlencoded'},
+          form: {
+            grant_type: 'refresh_token',
+            client_id: env.AUTH0_CLIENT_ID,
+            refresh_token: localStorage.getItem('refresh_token')
+          }
+        };
 
-        // NOTE: On old phone the deployment is the below code; above is new; TODO: Test both
-        
+        request(options, function (error, response, body) {
+          if (error) throw new Error(error);
+
+          var accessToken = JSON.parse(response.body).access_token;
+          localStorage.setItem('access_token', accessToken);
+          _this.state.accessToken = accessToken;
+          _this.state.authenticated = true; // Should be set, but just in case...
+
+          tempCounter++;
+          if (tempCounter < 3) {
+            console.log("navBar re-run attempt #" + tempCounter);
+            navBar();
+          }
+        });
       } else {
         avatar.src = _profile.picture;
         profile = _profile;
@@ -2144,7 +2153,7 @@ App.prototype.resumeApp = function() {
         // Token already expired
         console.warn("Tokens expired. Acquiring new tokens using refresh token...");
         
-        function getNewAccessToken() {
+        function generateAccessToken() {
           // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
           var options = {
             method: 'POST',
@@ -2176,7 +2185,7 @@ App.prototype.resumeApp = function() {
           });
         }
 
-        var getNewAccessToken = getNewAccessToken();
+        var getNewAccessToken = generateAccessToken();
         getNewAccessToken.then(function(result) {
           console.warn("Access token retrieval successful! New access token: " + result);
           localStorage.setItem('access_token', result);
