@@ -26,6 +26,7 @@
     <link rel="stylesheet" type="text/css" href="css/fontawesome.css" />
     <link rel="stylesheet" type="text/css" href="css/materialize.css" />
     <link rel="stylesheet" type="text/css" href="css/simpleNotification.css" />
+    <link rel="stylesheet" type="text/css" href="css/gooMenu.css" />
 
     <!-- TODO: Implement https://pointdeveloper.com/add-app-icon-phonegap-build-apps/ in the future -->
     <title>Coupon Booked</title>
@@ -222,13 +223,14 @@
         <!-- TODO: Add way to see this and functionality. Use updateBook and add desc and image to bookData,
             and only call when save button is clicked. -->
         <form id="bookForm" class="hide col">
-            <img id="couponImage" src="images/gift.png" />
+            <!-- TODO: Make this functional -->
+            <img id="bookImage" src="images/gift.png" />
 
             <label for="name">Book Name</label>
-            <input type="text" id="name" name="name" placeholder="#1 Dad">
+            <input type="text" id="bookName" name="name" placeholder="#1 Dad">
 
             <label for="desc">Description</label>
-            <input type="text" id="description" name="description" placeholder="Thanks for being there for me always.">
+            <input type="text" id="bookDescription" name="description" placeholder="Thanks for being there for me always.">
         </form>
 
         <!-- https://remysharp.com/2016/12/23/beginners-guide-to-stripe-integration -->
@@ -255,6 +257,26 @@
                 <!-- TODO: Make 'Terms' and 'Privacy' links work on form -->
             </form>
         </div>
+
+        <script id="moreOptions" type="text/html">
+            <nav class="menu">
+                <!-- TODO: Try to speed up this animation, and probably replace the hamburger
+                    icon with ellipses or something. -->
+                <input type="checkbox" href="#" class="menu-open" name="menu-open" id="menu-open"/>
+                <label class="menu-open-button" for="menu-open">
+                <span class="hamburger hamburger-1"></span>
+                <span class="hamburger hamburger-2"></span>
+                <span class="hamburger hamburger-3"></span>
+                </label>
+                
+                <a href="#editBook" class="menu-item">
+                    <img id='editBook' class='ionicon' src='images/md-edit.svg' />
+                </a>
+                <a href="#deleteBook" class="menu-item">
+                    <img id='deleteBook' class='ionicon' src='images/md-trash.svg' />
+                </a>
+            </nav>
+        </script>
     </template>
 
     <template id="receivedBook">
@@ -364,6 +386,27 @@
             </div>
         </div>
     </template>
+
+    <!-- filters for book ellipses button -->
+    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display: none;">
+        <defs>
+        <filter id="shadowed-goo">
+            
+            <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+            <feGaussianBlur in="goo" stdDeviation="3" result="shadow" />
+            <feColorMatrix in="shadow" mode="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 -0.2" result="shadow" />
+            <feOffset in="shadow" dx="1" dy="1" result="shadow" />
+            <feComposite in2="shadow" in="goo" result="goo" />
+            <feComposite in2="goo" in="SourceGraphic" result="mix" />
+        </filter>
+        <filter id="goo">
+            <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10" />
+            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
+            <feComposite in2="goo" in="SourceGraphic" result="mix" />
+        </filter>
+        </defs>
+    </svg>
 
     <script src="cordova.js"></script>
     <script src="./index.js"></script>

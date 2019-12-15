@@ -176,13 +176,6 @@ label {
     width: calc(100% - 175px); /* Image width is 175px because 25px margin */
     text-align: center;
 }
-#deleteBook {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    margin-right: 4px;
-    margin-bottom: -20px; /* Half of icon height */
-}
 #hideBook {
     /* TODO: Test on other screen sizes */
     height: 35px;
@@ -299,16 +292,18 @@ label {
 input[type=text] {
     width: 85%;
 }
-#couponForm label {
+#couponForm label, #bookForm label {
     margin-top: 12.5px;
     font-weight: bold;
 }
 #couponForm label,
 #couponForm input[type=text],
+#bookForm label,
+#bookForm input[type=text],
 #count {
     margin-left: 7.5%;
 }
-#couponImage, #imgPreview {
+#couponImage, #bookImage, #imgPreview {
     /* NOTE: Probably going to have to institute max-width when starting to test tablets;
     breaking into different column sizes in JS will likely work better */
     width: 50%;

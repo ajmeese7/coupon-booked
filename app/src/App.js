@@ -254,9 +254,6 @@ App.prototype.state = {
         var shareIcon = getById("shareIcon");
         (platform == "Android") ? shareIcon.src = "images/md-share.svg" : shareIcon.src = "images/ios-share.svg";
 
-        // TODO: Disable if book isn't saved yet; how to determine? 
-        // Will this require an entire PHP call to determine, or is that why 
-        // the delete variable is returned from the other call?
         $("#bigShareButton").unbind().click(function() {
           shareCode();
         });
@@ -529,12 +526,15 @@ function displaySentBook() {
   }
   miniPreview.appendChild(previewText);
 
-  // Sets delete icon based on OS
-  var deleteImg = "<img id='deleteBook' class='ionicon' src='images/";
-  deleteImg += device.platform == "iOS" ? "ios" : "md";
-  deleteImg += "-trash.svg' />";
-  miniPreview.innerHTML += deleteImg;
-  
+  // https://stackoverflow.com/a/16270807/6456163
+  var moreOptions = getById("moreOptions").innerHTML;
+  if (device.platform == "iOS") {
+    // Changes icons based on platform
+    $('#editBook').attr('src', "images/ios-edit.svg");
+    $('#deleteBook').attr('src', "images/ios-trash.svg");
+  }
+  miniPreview.innerHTML += moreOptions;
+
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
   
@@ -669,11 +669,11 @@ function plusButton() {
   $('#plus').unbind().click(function() {
     fadeBetweenElements("#bookContent", "#couponForm");
 
-      // Reset form to blank in case it is clicked after editing a coupon
-      getById("couponImage").src   = "images/gift.png";
-      getById("name").value        = "";
-      getById("description").value = "";
-      getById("count").value       = "";
+    // Reset form to blank in case it is clicked after editing a coupon
+    getById("couponImage").src   = "images/gift.png"; // TODO: Change that once image upload working
+    getById("name").value        = "";
+    getById("description").value = "";
+    getById("count").value       = "";
 
       // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
       if (device.platform == "iOS") {
@@ -703,12 +703,42 @@ function plusButton() {
 }
 
 /**
+ * Modified plusButton() function for editing the book's details.
+ */
+function editButton() {
+  function fadeToBookContent() {
+    fadeBetweenElements("#bookForm", "#bookContent");
+    sentBookListeners();
+    displaySentBook();
+  }
+
+  $("#editBook").unbind().click(function() {
+    fadeBetweenElements("#bookContent", "#bookForm");
+
+    getById("bookImage").src         = book.image;
+    getById("bookName").value        = book.name;
+    getById("bookDescription").value = book.description;
+
+    $('#backArrow').unbind().click(function() {
+      fadeToBookContent();
+    });
+
+    $('#save').unbind().click(function() {
+      if (bookFormIsValid() && editBookDetails()) {
+        fadeToBookContent();
+      }
+    });
+  });
+}
+
+/**
  * The normal listeners for the /sentBook route.
  */
 function sentBookListeners() {
   sentBookBackButton();
   sentBookSaveButton();
   plusButton();
+  editButton();
   createCouponElements(true);
 }
 
@@ -1094,6 +1124,13 @@ function showCouponEditPage($this) {
   saveAndDeleteToggle();
   fadeBetweenElements("#couponPreview", "#couponForm");
 
+  // IDEA: Some way to clear form or just description
+  var coupon = $($this).data("coupon");
+  getById("couponImage").src   = coupon.image;
+  getById("name").value        = coupon.name;
+  getById("description").value = coupon.description;
+  getById("count").value       = coupon.count;
+
   // NOTE: On press, error for reading `image` of undefined... why?
   $('#backArrow').unbind().click(function() {
     // Will show the new data
@@ -1106,13 +1143,6 @@ function showCouponEditPage($this) {
       showSentCouponPreview($this);
     }
   });
-
-  // IDEA: Some way to clear form or just description
-  var coupon = $($this).data("coupon");
-  getById("couponImage").src   = coupon.image;
-  getById("name").value        = coupon.name;
-  getById("description").value = coupon.description;
-  getById("count").value       = coupon.count;
 }
 
 /**
@@ -1163,6 +1193,41 @@ function createBook() {
 }
 
 /**
+ * Changes book data, i.e. name and description. Image modification
+ * is coming soon, hopefully...
+ * @returns {boolean} whether or not the editing completed successfully.
+ * Not the best function name, so sorry, but it is what it is.
+ */
+function editBookDetails() {
+  // TODO: Make sure image becomes a part of this; invisible input or separate?
+  var form = $('#bookForm').serializeArray();
+
+ // Can't use previousBook because that's storing it for exiting the page to 
+ // check if it has been saved or not. Sorry for the confusion.
+  var oldBook = clone(book);
+  for (var i = 0; i < form.length; i++) {
+    book[form[i].name] = form[i].value;
+  }
+
+  if (!isSameObject(book, oldBook)) {
+      SimpleNotification.success({
+        text: "Updated book"
+      }, notificationOptions);
+
+      return true;
+  } else {
+    console.warn("Book info not modified. Returning...");
+    book = clone(oldBook); // Restore to previous state
+
+    SimpleNotification.info({
+      text: 'You haven\'t changed anything!'
+    }, notificationOptions);
+
+    return false;
+  }
+}
+
+/**
  * Update book, whether by adding more coupons or changing the counts.
  * @param {Boolean} silent - whether or not a notification should be 
  * displayed on the screen if the function is successful.
@@ -1178,9 +1243,6 @@ function updateBook(silent) {
     crossDomain: true,
     cache: false,
     success: function(success) {
-      // Uncomment to debug updating books
-      //console.warn("updateCouponBook success:", success);
-      
       previousBook = clone(book);
       console.warn("Successfully updated coupon book.");
 
@@ -1304,13 +1366,14 @@ function updateCoupon(oldCoupon, $this) {
     $.each(book.coupons, function(couponNumber, coupon) {
       if (coupon.name == oldName) {
         // Uncomment for debugging coupon updating
-        /*console.warn("Old coupon:", oldCoupon);
-        console.warn("New coupon:", newCoupon);*/
+            /*console.warn("Old coupon:", oldCoupon);
+            console.warn("New coupon:", newCoupon);*/
 
-        // TODO: Check for special character support, i.e. other languages
-        coupon = newCoupon;
-        book.coupons[couponNumber] = newCoupon;
-  
+            // TODO: Check for special character support, i.e. other languages;
+              // also in editBookDetails
+            coupon = newCoupon;
+            book.coupons[couponNumber] = newCoupon;
+      
         $($this).data("coupon", newCoupon);
         displaySentBook();
   
@@ -1365,6 +1428,44 @@ function couponFormIsValid() {
     SimpleNotification.warning({
       title: "Invalid count entered",
       text: "Please enter a number between 1 and 99"
+    }, notificationOptions);
+  } else if (desc.length > 280) {
+    // TODO: Give an indication of characters used 
+    // out of total allowed, like a textArea. Switch?
+    SimpleNotification.warning({
+      text: "Please enter a shorter description"
+    }, notificationOptions);
+  } else {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * This is couponFormIsValid() adapted for the book form, so essentially
+ * just without the count validation. Could probably combine the two with
+ * the use of a parameter like createCouponElements(), but I'll worry about
+ * that later once everything is nice and working.
+ * @returns {boolean} whether or not the form is valid
+ */
+function bookFormIsValid() {
+  var image = getById("bookImage");
+  var name = getById("bookName").value;
+  var desc = getById("bookDescription").value;
+
+  // Validate that form is filled out properly
+  if (!image) {
+    // image input
+    // TODO: Add proper if conditions after creating input field
+  } else if (name.length < 1) {
+    SimpleNotification.warning({
+      text: "Please enter a name"
+    }, notificationOptions);
+  } else if (name.length > 99) {
+    SimpleNotification.warning({
+      title: "Name too long",
+      text: "Please enter a shorter name"
     }, notificationOptions);
   } else if (desc.length > 280) {
     // TODO: Give an indication of characters used 
@@ -1501,7 +1602,7 @@ function getTemplate(name) {
 function createTemplate(name) {
   console.warn("Creating template " + name + "...");
   // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
-  var emptyTemplate = { name:name, image:"images/gift.png", bookId:null, shareCode:null, coupons:[] };
+  var emptyTemplate = { name:name, description:"", image:"images/gift.png", bookId:null, shareCode:null, coupons:[] };
   emptyTemplate = JSON.stringify(emptyTemplate);
   var userId = localStorage.getItem("user_id");
 
@@ -1646,6 +1747,10 @@ function createShareCode() {
             console.warn("Share code created successfully:", shareCode);
             // Share code created successfully
             book.shareCode = shareCode;
+
+            // So they can go back to dashboard without dealing with confirm prompt
+            updateBook();
+
             _this.redirectTo('/shareCode');
           }
         },
@@ -2051,7 +2156,7 @@ App.prototype.login = function(e) {
   var self = this;
   client.authorize(options, function(err, authResult) {
     if (err) {
-      console.error("Problem with login:", err);
+      console.error("Problem with login ->", err);
       return (e.target.disabled = false);
     }
 
