@@ -132,7 +132,10 @@ label {
     line-height: 1.4;
     font-size: 18px;
     font-weight: bold;
-    margin-bottom: 0;
+    margin-top: 7.5px;
+}
+.bookName {
+    margin-bottom: 2.5px;
 }
 .receiverText, .senderText, .couponCount {
     color: #7E7E7E;
@@ -145,10 +148,12 @@ label {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    margin-bottom: 5px;
 }
 
 #shareCodePreview {
     color: #7E7E7E;
+    margin-bottom: /*7.*/5px;
 }
 #shareCodePreview span {
     color: #039be5;
@@ -185,6 +190,36 @@ label {
     bottom: 0;
     margin-right: 8px;
     margin-bottom: -20px;
+}
+
+/* Fantastic solution from https://stackoverflow.com/a/13924997/6456163 */
+#bookDescriptionPreview {
+    /* TODO: Is it possible to cut off not in the midde of words? Shows up with width: 90%; 
+    /* TODO: Need to test multiple descriptions before making a final decision on width. */
+    line-height: 1.2; /* Not married to this yet */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* number of lines to show */
+    -webkit-box-orient: vertical;
+    width: 87.5%;
+    margin: auto;
+}
+#bookNamePreview, .bookName {
+    /* Using the same method as above */
+    /* TODO: Test thoroughly */
+    /* TODO: Implement some hint somewhere suggesting that short and sweet is best for display purposes,
+        or find an alternative solution that isn't as ugly as the ellipses method. */
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+.bookName {
+    width: 85%;
+    margin: auto;
 }
 
 /* "Temporary" solution to lack of an idea where to put redemption route link */
@@ -289,7 +324,8 @@ label {
     /* NOTE: Will probably have to test this on other screen sizes; Sizzy? */
     margin-bottom: .5rem;
 }
-input[type=text] {
+input[type=text],
+textarea {
     width: 85%;
 }
 #couponForm label, #bookForm label {
@@ -300,6 +336,8 @@ input[type=text] {
 #couponForm input[type=text],
 #bookForm label,
 #bookForm input[type=text],
+#bookForm textarea,
+#descriptionLength,
 #count {
     margin-left: 7.5%;
 }
@@ -307,7 +345,19 @@ input[type=text] {
     /* NOTE: Probably going to have to institute max-width when starting to test tablets;
     breaking into different column sizes in JS will likely work better */
     width: 50%;
+    height: 50%;
     margin: 15px 25%;
+}
+
+/* https://stackoverflow.com/a/7245084/6456163 */
+#imageButtons {
+    width: 67%;
+    margin: auto;
+}
+#imageButtons a {
+    display: inline-block;
+    width: 49%;
+    text-align: center;
 }
 
 #namePreview {

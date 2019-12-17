@@ -283,12 +283,14 @@ App.prototype.state = {
  * Establish connection with the database so no load times later on.
  */
 function createConnection() {
+  // NOTE: Follow the guide here to get this to work with the latest software versions -
+    // https://forum.ionicframework.com/t/err-cleartext-not-permitted-in-debug-app-on-android/164101/20
   $.ajax({
     type: "GET",
     url: "http://www.couponbooked.com/scripts/createConnection",
     datatype: "html",
     success: function(data) {
-      //console.warn("Successfully established database connection.");
+      console.warn("Successfully established database connection.");
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error establishing connection:", XMLHttpRequest.responseText);
@@ -480,9 +482,7 @@ function displaySentBook() {
   // float left and having the columns uneven
   var bookContent = getById("bookContent");
 
-  // Reset to default code so when refreshed it isn't populated twice;
-  // IDEA: Replace the whole 'Create' button on the main page with just
-  // another + button on the sentBook page to create a new book
+  // Reset to default code so when refreshed it isn't populated twice
   bookContent.innerHTML = '<button id="plus">+</button>';
 
   // Create preview of book at top of display
@@ -492,11 +492,10 @@ function displaySentBook() {
   var miniPreview = document.createElement('div');
   miniPreview.setAttribute("id", "miniPreview");
   miniPreview.innerHTML += "<img id='miniPreviewImage' src='" + book.image + "' />";
-  // TODO: Add edit button somewhere for book details
 
   var previewText = document.createElement('div');
   previewText.setAttribute("id", "previewText");
-  previewText.innerHTML += "<h4>" + book.name + "</h4>";
+  previewText.innerHTML += "<h4 id='bookNamePreview'>" + book.name + "</h4>";
 
   // Sets receiver text based on the current state of the book
   if (book.receiver) {
@@ -513,17 +512,13 @@ function displaySentBook() {
     var stripeButton = getById("checkoutFormContainer");
     $(stripeButton).attr('class', '');
     previewText.appendChild(stripeButton);
-
-    // IDEA: For book description, for the purposes of space conservation, 
-    // could have like a little ellpises button you click on to see it, or
-    // maybe even write the first two lines or something then click it for a 
-    // popup with detailed info about the book only, but that still might
-    // give it a little too cluttered of a look.
   } else {
     // For when a template is first loaded in; not yet saved
     var receiver = "<p class='receiverText'>Save to share!</p>";
     previewText.innerHTML += receiver;
   }
+  
+  previewText.innerHTML += "<p id='bookDescriptionPreview'>" + book.description + "</p>";
   miniPreview.appendChild(previewText);
 
   // https://stackoverflow.com/a/16270807/6456163
@@ -537,25 +532,12 @@ function displaySentBook() {
 
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
-  
-  // Will give users the chance again to share their code;
-    // Need some way to indicate that as clicking is not immediately obvious
-  $("#shareCodePreview").unbind().click(function() {
-    _this.redirectTo('/shareCode');
-  });
 
-  // Allows listener to apply to dynamically added elements, such as Stripe button
-  $("body").unbind().click(function() {
-    if (event) {
-      var target = event.target;
-      if (target.className === 'stripe-button-el' || 
-          target.parentElement.className === 'stripe-button-el')
-      {
-        sneakFormData();
-      }
-    }
-  });
-  
+  if (book.description != "") {
+    // TODO: Test why this looks fine with shareCode and crowded with .receiverText
+    getById("bookNamePreview").style.marginBottom = "0px";
+  }
+
   addDeleteListeners();
   sentBookListeners();
 }
@@ -714,12 +696,14 @@ function editButton() {
 
   $("#editBook").unbind().click(function() {
     fadeBetweenElements("#bookContent", "#bookForm");
+    limitBookDescriptionLength();
 
     getById("bookImage").src         = book.image;
     getById("bookName").value        = book.name;
     getById("bookDescription").value = book.description;
 
     $('#backArrow').unbind().click(function() {
+      // TODO: Do the check if content has changed like when leaving preview page
       fadeToBookContent();
     });
 
@@ -728,18 +712,203 @@ function editButton() {
         fadeToBookContent();
       }
     });
+
+    $("#bookImage").unbind().click(function() {
+      // TODO: Just click 'Choose Image' or something here?
+    });
+
+    imageUploadListeners();
   });
 }
 
 /**
+ * 
+ */
+function imageUploadListeners() {
+  var bytes = require('bytes');
+  var args = {
+      'selectMode': 100,
+      'maxSelectCount': 1,
+      'maxSelectSize': (bytes.parse("5mb") * 8) // Megabytes to bytes to bits
+      // TOOD: Test what happens when image size is too large
+  };
+
+  // NOTE: No clue what this does but leaving it for now in case it's important
+  //medias [{mediaType: "image", path:'/storage/emulated/0/DCIM/Camera/2017.jpg', uri:"android retrun uri,ios retrun URL" size: 21993}]
+  document.getElementById('openBtn').onclick = function() {
+    // NOTE:: Why does the URL now contain the book's info? SOmething to do with the below problem? YES! Fix__
+    // TODO: Why does tis send me back to the home page the first time and work the second ??
+    MediaPicker.getMedias(args, function(image) {
+      console.log("imageURI before crop:", image[0].uri)
+      getById("bookImage").src = image[0].uri;
+
+      // Lets the user crop the selected image in a square shape;
+      // TODO: Eventually try to make the initial sizing better (100% width)
+      plugins.crop.promise(image[0].uri, {quality:100})
+        .then(function success (newPath) {
+          // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
+          console.log("Cropped image data:", newPath);
+          var image = getById("bookImage");
+          image.src = newPath;
+        })
+        .catch(function fail (err) {
+          console.error("Problem cropping image ->", err);
+        });
+    }, function(e) { console.error("Problem in selecting media ->", e) })
+  };
+
+  // TODO: Upload from here then add to book details [if saved]
+  function getThumbnail(image) {
+      //image.thumbnailQuality=50; (Optional)
+      //loadingUI();
+      console.log("image in thumbnail:", image)
+      MediaPicker.extractThumbnail(image, function(data) {
+        console.log("Data in thumbnail:", data);
+        
+        // TODO: Do some fancy math to fix exif data rotate
+        getById("bookImage").src = /*'data:image/jpeg;base64,' + data.thumbnailBase64*/data.uri;
+        getById("bookImage").setAttribute('style', 'transform:rotate(' + data.exifRotate + 'deg)');
+      }, function(e) { console.error("Error extracting thumbnail ->", e) });
+  }
+
+  function loadingUI() {}
+
+  document.getElementById('takePhotoBtn').onclick = function() {
+    // https://stackoverflow.com/a/35133183/6456163;
+    // is it possible to add a circular option or would that have to be after the fact?
+    var cameraOptions = {
+      quality: 75,
+      allowEdit: true,
+      targetWidth: 512,
+      targetHeight: 512,
+      mediaType: Camera.MediaType.PICTURE
+    };
+
+    MediaPicker.takePhoto(cameraOptions, function(media) {
+      console.log("media in takePhoto:", media)
+      getThumbnail(media);
+    }, function(e) { console.error("Error in takePhoto ->", e) });
+  };
+  
+  function compressImage(compressedImage) {
+    compressedImage.quality = 80; // when the value is 100, return original image
+    MediaPicker.compressImage(compressedImage, function(compressData) {
+        //user compressData.path upload compress img
+        // https://stackoverflow.com/a/40360666/6456163
+        console.log("Compressed image path:", compressData.path);
+    }, function(e) { console.error("Error in compressImage ->", e) });
+  }
+}
+
+/**
+ * Compresses the image and sends it to Cloudinary.
+ * TODO: Make it do those things. Currently just pulling the data
+ * in the server's URL from the cached image on the device.
+ * 
+ * @param {boolean} isBook - true for book image, false for coupon
+ */
+function uploadImage(isBook) {
+  console.warn("Uploading image...");
+  //3.compressImage(); //upload compress img
+};
+
+/**
+ * Prevents users from entering more than the maximum length assigned
+ * in the HTML. Also updates the displayed div that shows the current
+ * character count in comparison to the maximum count.
+ */
+function limitBookDescriptionLength() {
+  var desc = $("#bookDescription");
+  var descLength = $("#descriptionLength");
+  var maxlen = desc.attr('maxlength');
+
+  // To initialize with book's current description
+  descLength.text(book.description.length + "/" + maxlen);
+
+  // http://form.guide/html-form/html-textarea-maxlength.html
+  $('#bookDescription').on('keyup',function() {
+    // NOTE: When height updates the count is covered. Possible to fix?
+    updateHeight();
+
+    // https://stackoverflow.com/a/5371115/6456163
+    var length = $(this).val().length;
+    if (length == maxlen) {
+      descLength.text("Max number of characters reached!");
+    } else {
+      // Example: 146/180
+      descLength.text($(this).val().length + "/" + maxlen);
+    }
+  });
+}
+
+/**
+ * Automatically adjusts the number of rows to be one greater than
+ * the current row the user is typing on whenever the user enters
+ * a character.
+ */
+function updateHeight() {
+  // https://gomakethings.com/automatically-expand-a-textarea-as-the-user-types-using-vanilla-javascript/
+  var field = getById("bookDescription");
+
+  // Reset field height
+  field.style.height = 'inherit';
+
+  // Get the computed styles for the element
+  var computed = window.getComputedStyle(field);
+
+  // Calculate the height
+  var height = parseInt(computed.getPropertyValue('border-top-width'), 10)
+                + parseInt(computed.getPropertyValue('padding-top'), 10)
+                + field.scrollHeight
+                + parseInt(computed.getPropertyValue('padding-bottom'), 10)
+                + parseInt(computed.getPropertyValue('border-bottom-width'), 10);
+
+  field.style.height = height + 'px';
+}
+ 
+/**
  * The normal listeners for the /sentBook route.
  */
 function sentBookListeners() {
+  $("#bookDescriptionPreview").unbind().click(function() {
+    // IDEA: Add this to the image too, or just view the image in
+    // its entirety? Do that option once the preview is opened from here?
+    openBookPreview();
+  });
+
+  // Will give users the chance again to share their code
+  $("#shareCodePreview").unbind().click(function() {
+    _this.redirectTo('/shareCode');
+  });
+
+  // Allows listener to apply to dynamically added elements, such as Stripe button
+  $("body").unbind().click(function() {
+    if (event) {
+      var target = event.target;
+      if (target.className === 'stripe-button-el' || 
+          target.parentElement.className === 'stripe-button-el')
+      {
+        sneakFormData();
+      }
+    }
+  });
+
   sentBookBackButton();
   sentBookSaveButton();
   plusButton();
   editButton();
   createCouponElements(true);
+}
+
+/**
+ * Shows the entire uncut book description, name, and image.
+ * Like a coupon preview but a popup instead of an entire page change.
+ * TODO: Switch coupon previews to something similar?
+ */
+function openBookPreview() {
+  // IDEA: Also add click listener to image on edit page that
+  // shows the image fullscreen with a nav bar or sumn?
+
 }
 
 /**
@@ -1199,7 +1368,6 @@ function createBook() {
  * Not the best function name, so sorry, but it is what it is.
  */
 function editBookDetails() {
-  // TODO: Make sure image becomes a part of this; invisible input or separate?
   var form = $('#bookForm').serializeArray();
 
  // Can't use previousBook because that's storing it for exiting the page to 
@@ -1208,6 +1376,13 @@ function editBookDetails() {
   for (var i = 0; i < form.length; i++) {
     book[form[i].name] = form[i].value;
   }
+
+  // TODO: Try to make this more sophisticated, i.e. failure detection
+  book.image = getById("bookImage").src;
+
+  // NOTE: Temporary for debugging
+  console.log("oldBook:", oldBook)
+  console.log("book:", book)
 
   if (!isSameObject(book, oldBook)) {
       SimpleNotification.success({

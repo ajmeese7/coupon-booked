@@ -223,14 +223,26 @@
         <!-- TODO: Add way to see this and functionality. Use updateBook and add desc and image to bookData,
             and only call when save button is clicked. -->
         <form id="bookForm" class="hide col">
-            <!-- TODO: Make this functional -->
-            <img id="bookImage" src="images/gift.png" />
+            <div>
+                <!-- NOTE: Probably about to make this a preview for a file input to be used with
+                    the Cloudinary jQuery library, but commiting current changes first before breaking anything -->
+                <img id="bookImage" height="100px" src="images/gift.png" />
+            </div>
+
+            <div id="imageButtons">
+                <a id="openBtn">Choose Image</a>
+                <a id="takePhotoBtn">Take Photo</a>
+                <!-- TODO: Online search or sumn -->
+    		</div>
 
             <label for="name">Book Name</label>
             <input type="text" id="bookName" name="name" placeholder="#1 Dad">
 
+            <!-- TODO: Decide on description max length here -->
             <label for="desc">Description</label>
-            <input type="text" id="bookDescription" name="description" placeholder="Thanks for being there for me always.">
+            <!-- Placeholder for textarea? -->
+            <textarea id="bookDescription" name="description" maxlength="180"></textarea>
+            <div id="descriptionLength">0</div>
         </form>
 
         <!-- https://remysharp.com/2016/12/23/beginners-guide-to-stripe-integration -->
