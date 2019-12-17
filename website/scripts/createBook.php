@@ -12,11 +12,11 @@
     $senderName = $_POST["senderName"];
     $bookData = $_POST["bookData"];
 
-    $stmt = $conn->prepare("SELECT * FROM couponBooks WHERE bookId=?");
+    $stmt = $conn->prepare("SELECT timeCreated FROM couponBooks WHERE bookId=?");
     $stmt->bind_param("s", $bookId);
     $stmt->execute();
     $stmt->store_result();
-    $stmt->bind_result($bookId, $sender, $senderName, $bookData);
+    $stmt->bind_result($timeCreated);
 
     if ($stmt->num_rows > 0) {
       // bookId already in use; generates new one in Node.
@@ -29,8 +29,9 @@
         VALUES (?, ?, ?, ?)");
       $stmt->bind_param("ssss", $bookId, $sender, $senderName, $bookData);
       $stmt->execute();
-      $stmt->close();
     }
+
+    $stmt->close();
   } else {
     // www.rachaelarnold.com/dev/archive/trigger-ajax-error-event
     // When should I throw a 500 error? When UUID already used? Or silently fail and retry?

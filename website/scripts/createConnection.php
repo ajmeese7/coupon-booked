@@ -1,15 +1,12 @@
 <?php
-  // NOTE: Obviously, these have been removed for security reasons
-  $servername = "";
-  $username = "";
-  $password = "";
-  $dbname = "";
+  include('env.php');
 
-  // Create connection
-  $conn = new mysqli($servername, $username, $password, $dbname);
-  // Check connection
-  if ($conn->connect_error) {
+  try {
+    // Create connection
+    $conn = new mysqli($SERVER_NAME, $SERVER_USERNAME, $SERVER_PASSWORD, $DATABASE_NAME);
+  } catch(Exception $e) {
     // https://websitebeaver.com/prepared-statements-in-php-mysqli-to-prevent-sql-injection
+    error_log($e->getMessage());
     exit('Error connecting to database');
   }
 ?>
