@@ -722,7 +722,7 @@ function editButton() {
 }
 
 /**
- * 
+ * Everything dealing with image preparation for upload.
  */
 function imageUploadListeners() {
   var bytes = require('bytes');
@@ -733,11 +733,7 @@ function imageUploadListeners() {
       // TOOD: Test what happens when image size is too large
   };
 
-  // NOTE: No clue what this does but leaving it for now in case it's important
-  //medias [{mediaType: "image", path:'/storage/emulated/0/DCIM/Camera/2017.jpg', uri:"android retrun uri,ios retrun URL" size: 21993}]
   document.getElementById('openBtn').onclick = function() {
-    // NOTE:: Why does the URL now contain the book's info? SOmething to do with the below problem? YES! Fix__
-    // TODO: Why does tis send me back to the home page the first time and work the second ??
     MediaPicker.getMedias(args, function(image) {
       console.log("imageURI before crop:", image[0].uri)
       getById("bookImage").src = image[0].uri;
@@ -750,6 +746,8 @@ function imageUploadListeners() {
           console.log("Cropped image data:", newPath);
           var image = getById("bookImage");
           image.src = newPath;
+          uploadImage(newPath, true);
+          // NOTE: Not where the above line will go, probably. Think on it once it's working.
         })
         .catch(function fail (err) {
           console.error("Problem cropping image ->", err);
@@ -793,7 +791,6 @@ function imageUploadListeners() {
   function compressImage(compressedImage) {
     compressedImage.quality = 80; // when the value is 100, return original image
     MediaPicker.compressImage(compressedImage, function(compressData) {
-        //user compressData.path upload compress img
         // https://stackoverflow.com/a/40360666/6456163
         console.log("Compressed image path:", compressData.path);
     }, function(e) { console.error("Error in compressImage ->", e) });
@@ -802,14 +799,67 @@ function imageUploadListeners() {
 
 /**
  * Compresses the image and sends it to Cloudinary.
- * TODO: Make it do those things. Currently just pulling the data
- * in the server's URL from the cached image on the device.
- * 
+ * @param {string} filePath - the src for the image being uploaded
  * @param {boolean} isBook - true for book image, false for coupon
  */
-function uploadImage(isBook) {
+function uploadImage(filePath, isBook) {
   console.warn("Uploading image...");
-  //3.compressImage(); //upload compress img
+
+  // https://github.com/collectmeaustralia/cordova-cloudinary-upload/issues/1
+  var Hashes = require('jshashes');
+  var uri = encodeURI('https://api.cloudinary.com/v1_1/couponbooked/image/upload');
+  var fileToUploadPath = filePath;
+
+  var options = new FileUploadOptions();
+    options.fileKey = "file";
+    options.fileName = fileToUploadPath.substr(fileToUploadPath.lastIndexOf('/') + 1);
+  var timestamp = Math.floor(Date.now() / 1000);
+
+  // https://support.cloudinary.com/hc/en-us/community/posts/360030104392/comments/360002948811
+  var folder = "users/" + localStorage.getItem('user_id') + "/" + (isBook ? "books" : "coupons");
+
+  // Add in the params required for Cloudinary
+  options.params = {
+      api_key: env.CLOUDINARY_KEY,
+      timestamp: timestamp,
+      folder: folder,
+      signature: new Hashes.SHA1().hex('folder=' + folder + '&timestamp=' + timestamp + env.CLOUDINARY_SECRET)
+  };
+
+  var ft = new FileTransfer();
+
+  // Leaving this here in case I ever need it
+  ft.onprogress = (function(progressEvent) {
+    try {
+        if (progressEvent.lengthComputable) {
+            // if we can calculate the length of the upload ...
+            var percentageComplete = ((progressEvent.loaded / progressEvent.total) * 100);
+            console.log("Percentage complete:", percentageComplete)
+        } else {
+          // otherwise increment some counter by 1
+        }
+
+        // do something with the latest progress...
+    } catch(err) {
+      console.error("Problem computing progress:", err);
+    }
+  });
+
+  ft.upload(fileToUploadPath, uri, 
+    function(result) {
+      var response = JSON.parse(result.response);
+      console.log("Upload response:", response);
+      book.image = response.secure_url;
+    }, 
+    function(error) {
+      console.error("Problem in image upload:", error);
+      if (!!error.body) {
+        // Saves me a couple annoying seconds of scrolling through the message
+        console.error("Error body:", JSON.parse(error.body));
+      }
+    },
+    options
+  );
 };
 
 /**
@@ -1362,8 +1412,7 @@ function createBook() {
 }
 
 /**
- * Changes book data, i.e. name and description. Image modification
- * is coming soon, hopefully...
+ * Changes book data, meaning name, description, and image.
  * @returns {boolean} whether or not the editing completed successfully.
  * Not the best function name, so sorry, but it is what it is.
  */
@@ -1376,13 +1425,6 @@ function editBookDetails() {
   for (var i = 0; i < form.length; i++) {
     book[form[i].name] = form[i].value;
   }
-
-  // TODO: Try to make this more sophisticated, i.e. failure detection
-  book.image = getById("bookImage").src;
-
-  // NOTE: Temporary for debugging
-  console.log("oldBook:", oldBook)
-  console.log("book:", book)
 
   if (!isSameObject(book, oldBook)) {
       SimpleNotification.success({
