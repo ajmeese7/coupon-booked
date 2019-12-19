@@ -696,7 +696,8 @@ function editButton() {
 
   $("#editBook").unbind().click(function() {
     fadeBetweenElements("#bookContent", "#bookForm");
-    limitBookDescriptionLength();
+    limitDescriptionLength(true);
+    imageUploadListeners();
 
     getById("bookImage").src         = book.image;
     getById("bookName").value        = book.name;
@@ -716,62 +717,57 @@ function editButton() {
     $("#bookImage").unbind().click(function() {
       // TODO: Just click 'Choose Image' or something here?
     });
-
-    imageUploadListeners();
   });
 }
 
 /**
  * Everything dealing with image preparation for upload.
+ * @param {object} coupon - exists if for the coupon image, so if for
+ * book it'll be null, allowing it to serve as a Boolean detector for 
+ * which purpose the function is being called for.
+ * TODO: Add development mode support for template image uploading
+ * into a separate folder; maybe also allow users to search through
+ * (browse) all the templated images
  */
-function imageUploadListeners() {
+function imageUploadListeners(coupon) {
+  // TODO: Add option to reset image to present
+  var imageToUpdate = !!coupon ? getById("couponImage") : getById("bookImage");
   var bytes = require('bytes');
   var args = {
       'selectMode': 100,
       'maxSelectCount': 1,
       'maxSelectSize': (bytes.parse("5mb") * 8) // Megabytes to bytes to bits
-      // TOOD: Test what happens when image size is too large
   };
 
-  document.getElementById('openBtn').onclick = function() {
+  $('#bookOpenPhoto, #couponOpenPhoto').unbind().click(function() {
+    // TODO: Get uniform cropping; the take photo one is better so try to expand usage
     MediaPicker.getMedias(args, function(image) {
-      console.log("imageURI before crop:", image[0].uri)
-      getById("bookImage").src = image[0].uri;
-
       // Lets the user crop the selected image in a square shape;
       // TODO: Eventually try to make the initial sizing better (100% width)
+      // TODO: resize to uniform, i.e. 512x512?
       plugins.crop.promise(image[0].uri, {quality:100})
         .then(function success (newPath) {
           // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
           console.log("Cropped image data:", newPath);
-          var image = getById("bookImage");
-          image.src = newPath;
-          uploadImage(newPath, true);
-          // NOTE: Not where the above line will go, probably. Think on it once it's working.
+
+          // TODO: Decide if I still want to do this here or somewhere else
+          imageToUpdate.src = newPath;
+
+          // Should I wait until save for this or just roll with it?
+          uploadImage(newPath, coupon);
         })
         .catch(function fail (err) {
           console.error("Problem cropping image ->", err);
         });
     }, function(e) { console.error("Problem in selecting media ->", e) })
-  };
+  });
 
-  // TODO: Upload from here then add to book details [if saved]
-  function getThumbnail(image) {
-      //image.thumbnailQuality=50; (Optional)
-      //loadingUI();
-      console.log("image in thumbnail:", image)
-      MediaPicker.extractThumbnail(image, function(data) {
-        console.log("Data in thumbnail:", data);
-        
-        // TODO: Do some fancy math to fix exif data rotate
-        getById("bookImage").src = /*'data:image/jpeg;base64,' + data.thumbnailBase64*/data.uri;
-        getById("bookImage").setAttribute('style', 'transform:rotate(' + data.exifRotate + 'deg)');
-      }, function(e) { console.error("Error extracting thumbnail ->", e) });
+  /** Shows a loading circle when waiting for the image to upload */
+  function loadingUI() {
+    // TODO - because when uploading a photo you take it can take a second to load
   }
 
-  function loadingUI() {}
-
-  document.getElementById('takePhotoBtn').onclick = function() {
+  $('#bookTakePhoto, #couponTakePhoto').unbind().click(function() {
     // https://stackoverflow.com/a/35133183/6456163;
     // is it possible to add a circular option or would that have to be after the fact?
     var cameraOptions = {
@@ -783,10 +779,19 @@ function imageUploadListeners() {
     };
 
     MediaPicker.takePhoto(cameraOptions, function(media) {
-      console.log("media in takePhoto:", media)
-      getThumbnail(media);
+      loadingUI();
+
+      // Need to call this in a function for some reason otherwise media isn't ready yet
+      handlePreparedPhoto(media);
     }, function(e) { console.error("Error in takePhoto ->", e) });
-  };
+  });
+
+  /** Literally just a handler function to wait until a variable is ready */
+  function handlePreparedPhoto(media) {
+    //console.log("handlePreparedPhoto media:", media);
+    imageToUpdate.src = media.uri;
+    uploadImage(media.uri, coupon);
+  }
   
   function compressImage(compressedImage) {
     compressedImage.quality = 80; // when the value is 100, return original image
@@ -800,9 +805,11 @@ function imageUploadListeners() {
 /**
  * Compresses the image and sends it to Cloudinary.
  * @param {string} filePath - the src for the image being uploaded
- * @param {boolean} isBook - true for book image, false for coupon
+ * @param {object} coupon - coupon object if not called for book.
+ * If for book, it will be null.
  */
-function uploadImage(filePath, isBook) {
+function uploadImage(filePath, coupon) {
+  // NOTE: !!coupon == (isCoupon && !isBook), for reference
   console.warn("Uploading image...");
 
   // https://github.com/collectmeaustralia/cordova-cloudinary-upload/issues/1
@@ -810,13 +817,15 @@ function uploadImage(filePath, isBook) {
   var uri = encodeURI('https://api.cloudinary.com/v1_1/couponbooked/image/upload');
   var fileToUploadPath = filePath;
 
+  // TODO: Do something with file names that's more organized than now; could also attach
+    // bookId as tags (metadata) to easily link for search purposes
   var options = new FileUploadOptions();
     options.fileKey = "file";
     options.fileName = fileToUploadPath.substr(fileToUploadPath.lastIndexOf('/') + 1);
   var timestamp = Math.floor(Date.now() / 1000);
 
   // https://support.cloudinary.com/hc/en-us/community/posts/360030104392/comments/360002948811
-  var folder = "users/" + localStorage.getItem('user_id') + "/" + (isBook ? "books" : "coupons");
+  var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books");
 
   // Add in the params required for Cloudinary
   options.params = {
@@ -849,7 +858,13 @@ function uploadImage(filePath, isBook) {
     function(result) {
       var response = JSON.parse(result.response);
       console.log("Upload response:", response);
-      book.image = response.secure_url;
+
+      if (coupon) {
+        coupon.image = response.secure_url;
+      } else {
+        // TODO: Test again for when leaving edit page if it'll load in quickly
+        book.image = response.secure_url;
+      }
     }, 
     function(error) {
       console.error("Problem in image upload:", error);
@@ -866,19 +881,20 @@ function uploadImage(filePath, isBook) {
  * Prevents users from entering more than the maximum length assigned
  * in the HTML. Also updates the displayed div that shows the current
  * character count in comparison to the maximum count.
+ * @param {boolean} isBook - true for book, false for coupon
  */
-function limitBookDescriptionLength() {
-  var desc = $("#bookDescription");
-  var descLength = $("#descriptionLength");
+function limitDescriptionLength(isBook) {
+  var desc = isBook ? $("#bookDescription") : $("#couponDescription");
+  var descLength = isBook ? $("#bookDescLength") : $("#couponDescLength");
   var maxlen = desc.attr('maxlength');
 
   // To initialize with book's current description
   descLength.text(book.description.length + "/" + maxlen);
 
   // http://form.guide/html-form/html-textarea-maxlength.html
-  $('#bookDescription').on('keyup',function() {
+  desc.on('keyup',function() {
     // NOTE: When height updates the count is covered. Possible to fix?
-    updateHeight();
+    updateHeight(isBook);
 
     // https://stackoverflow.com/a/5371115/6456163
     var length = $(this).val().length;
@@ -895,10 +911,11 @@ function limitBookDescriptionLength() {
  * Automatically adjusts the number of rows to be one greater than
  * the current row the user is typing on whenever the user enters
  * a character.
+ * @param {boolean} isBook - true for book, false for coupon
  */
-function updateHeight() {
+function updateHeight(isBook) {
   // https://gomakethings.com/automatically-expand-a-textarea-as-the-user-types-using-vanilla-javascript/
-  var field = getById("bookDescription");
+  var field = isBook ? getById("bookDescription") : getById("couponDescription");
 
   // Reset field height
   field.style.height = 'inherit';
@@ -1343,12 +1360,14 @@ function showCouponEditPage($this) {
   saveAndDeleteToggle();
   fadeBetweenElements("#couponPreview", "#couponForm");
 
-  // IDEA: Some way to clear form or just description
   var coupon = $($this).data("coupon");
-  getById("couponImage").src   = coupon.image;
-  getById("name").value        = coupon.name;
-  getById("description").value = coupon.description;
-  getById("count").value       = coupon.count;
+  getById("couponImage").src         = coupon.image;
+  getById("name").value              = coupon.name;
+  getById("couponDescription").value = coupon.description;
+  getById("count").value             = coupon.count;
+
+  imageUploadListeners(coupon);
+  limitDescriptionLength(false);
 
   // NOTE: On press, error for reading `image` of undefined... why?
   $('#backArrow').unbind().click(function() {
@@ -1621,22 +1640,18 @@ function updateCoupon(oldCoupon, $this) {
  * @returns {boolean} whether or not the form is valid
  */
 function couponFormIsValid() {
-  var image = getById("couponImage");
   var name = getById("name").value;
   var count = getById("count").value;
-  var desc = getById("description").value;
 
   // Validate that form is filled out properly
-  if (!image) {
-    // image input
-    // TODO: Add proper if conditions after creating input field
-  } else if (name.length < 1) {
+  if (name.length < 1) {
     // No name
     SimpleNotification.warning({
       text: "Please enter a name"
     }, notificationOptions);
   } else if (name.length > 99) {
-    // Name too long
+    // Name too long;
+    // IDEA: Switch this to textArea-style validation like in book
     SimpleNotification.warning({
       title: "Name too long",
       text: "Please enter a shorter name"
@@ -1645,12 +1660,6 @@ function couponFormIsValid() {
     SimpleNotification.warning({
       title: "Invalid count entered",
       text: "Please enter a number between 1 and 99"
-    }, notificationOptions);
-  } else if (desc.length > 280) {
-    // TODO: Give an indication of characters used 
-    // out of total allowed, like a textArea. Switch?
-    SimpleNotification.warning({
-      text: "Please enter a shorter description"
     }, notificationOptions);
   } else {
     return true;

@@ -128,15 +128,20 @@ label {
     margin: auto;
     width: 80%;
 }
+.bookImage {
+    /* TODO: Work on this and decide if couponImage needs it */
+    margin-bottom: 3.5px;
+}
 .bookName, .couponName {
     line-height: 1.4;
     font-size: 18px;
     font-weight: bold;
     margin-top: 7.5px;
 }
-.bookName {
-    margin-bottom: 2.5px;
+.couponName {
+    margin-bottom: 0px;
 }
+
 .receiverText, .senderText, .couponCount {
     color: #7E7E7E;
 }
@@ -171,6 +176,7 @@ label {
     also adapt previewText width calculations in JS */
     float: left;
     width: 150px;
+    height: 150px; /* If image doesn't exist the whole thing gets fucked up without this */
     max-width: 38%; /* NOTE: Not finalized, but better looking on smaller screen */
     margin-left: 25px;
     margin-top: 25px;
@@ -220,6 +226,7 @@ label {
 .bookName {
     width: 85%;
     margin: auto;
+    margin-bottom: 2.5px;
 }
 
 /* "Temporary" solution to lack of an idea where to put redemption route link */
@@ -334,10 +341,12 @@ textarea {
 }
 #couponForm label,
 #couponForm input[type=text],
+#couponForm textarea,
 #bookForm label,
 #bookForm input[type=text],
 #bookForm textarea,
-#descriptionLength,
+#bookDescLength,
+#couponDescLength,
 #count {
     margin-left: 7.5%;
 }
@@ -350,11 +359,11 @@ textarea {
 }
 
 /* https://stackoverflow.com/a/7245084/6456163 */
-#imageButtons {
+.imageButtons {
     width: 67%;
     margin: auto;
 }
-#imageButtons a {
+.imageButtons a {
     display: inline-block;
     width: 49%;
     text-align: center;

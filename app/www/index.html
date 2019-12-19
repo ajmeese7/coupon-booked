@@ -183,7 +183,7 @@
         <!-- NOTE: Also in redeem -->
         <div id="topbar">
             <img id="backArrow" class="ionicon" src="images/back.svg" />
-            <a id="save">Save</a> <!-- IDEA: Save icon? -->
+            <a id="save">Save</a>
             <a id="delete" class="hide">Delete</a>
         </div>
         
@@ -205,31 +205,39 @@
         <form id="couponForm" class="hide col">
             <!-- https://picnicss.com/documentation#dropimage -->
             <!-- https://stackoverflow.com/questions/4112575/client-checking-file-size-using-html5 -->
-            <img id="couponImage" src="images/gift.png" />
+            <div>
+                <img id="couponImage" height="100px" src="images/gift.png" />
+            </div>
+
+            <!-- NOTE: Nearly all of this is copied directly from bookForm, so changes should be reflected there -->
+            <div class="imageButtons">
+                <a id="couponOpenPhoto">Choose Image</a>
+                <a id="couponTakePhoto">Take Photo</a>
+    		</div>
 
             <!-- IDEA: Cycle through an array of these for examples; appropriate to template? 
-                could be paired arrays to have description matched with name, or objects & pull fields -->
+                Could be paired arrays to have description matched with name, or objects & pull fields -->
             <label for="name">Coupon Name</label>
             <input type="text" id="name" name="name" placeholder="Backrub">
 
-            <label for="desc">Description</label>
-            <input type="text" id="description" name="description" placeholder="A nice, long massage.">
+            <label for="description">Description</label>
+            <textarea id="couponDescription" name="description" placeholder="A nice, long massage." 
+                maxlength="120"></textarea>
+            <div id="couponDescLength">0</div>
             
             <!-- TODO: Implement immediate input checking that reminds you you can't go above 99 -->
             <label for="count">Count</label>
             <input type="number" id="count" name="count" min="1" max="99" placeholder="3">
         </form>
 
-        <!-- TODO: Add way to see this and functionality. Use updateBook and add desc and image to bookData,
-            and only call when save button is clicked. -->
         <form id="bookForm" class="hide col">
             <div>
                 <img id="bookImage" height="100px" src="images/gift.png" />
             </div>
 
-            <div id="imageButtons">
-                <a id="openBtn">Choose Image</a>
-                <a id="takePhotoBtn">Take Photo</a>
+            <div class="imageButtons">
+                <a id="bookOpenPhoto">Choose Image</a>
+                <a id="bookTakePhoto">Take Photo</a>
                 <!-- TODO: Online search or sumn -->
     		</div>
 
@@ -238,9 +246,9 @@
 
             <!-- TODO: Decide on description max length here -->
             <label for="desc">Description</label>
-            <!-- Placeholder for textarea? -->
-            <textarea id="bookDescription" name="description" maxlength="180"></textarea>
-            <div id="descriptionLength">0</div>
+            <textarea id="bookDescription" name="description" placeholder="Thank you for everything you do." 
+                maxlength="180"></textarea>
+            <div id="bookDescLength">0</div>
         </form>
 
         <!-- https://remysharp.com/2016/12/23/beginners-guide-to-stripe-integration -->
