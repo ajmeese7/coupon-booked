@@ -884,27 +884,30 @@ function uploadImage(filePath, coupon) {
  * @param {boolean} isBook - true for book, false for coupon
  */
 function limitDescriptionLength(isBook) {
-  var desc = isBook ? $("#bookDescription") : $("#couponDescription");
+  var desc = isBook ? getById("bookDescription") : getById("couponDescription");
   var descLength = isBook ? $("#bookDescLength") : $("#couponDescLength");
-  var maxlen = desc.attr('maxlength');
+  var maxlen = desc.getAttribute('maxlength');
 
   // To initialize with book's current description
   descLength.text(book.description.length + "/" + maxlen);
 
   // http://form.guide/html-form/html-textarea-maxlength.html
-  desc.on('keyup',function() {
-    // NOTE: When height updates the count is covered. Possible to fix?
-    updateHeight(isBook);
-
+  desc.oninput = function(event) {
     // https://stackoverflow.com/a/5371115/6456163
-    var length = $(this).val().length;
-    if (length == maxlen) {
+    var length = desc.value.length;
+    if (length >= maxlen) {
+      event.preventDefault();
+
       descLength.text("Max number of characters reached!");
+      desc.value = desc.value.substring(0, maxlen);
+      length = maxlen;
     } else {
       // Example: 146/180
-      descLength.text($(this).val().length + "/" + maxlen);
+      descLength.text(length + "/" + maxlen);
+
+      updateHeight(isBook);
     }
-  });
+  };
 }
 
 /**
@@ -931,6 +934,13 @@ function updateHeight(isBook) {
                 + parseInt(computed.getPropertyValue('border-bottom-width'), 10);
 
   field.style.height = height + 'px';
+
+  // NOTE: This works because you can't scroll past the end of the document.
+  // Otherwise I'd have to have a variable checking the previous height of the
+  // field and if it's different then run this code.
+  var lineHeight = parseInt($(field).css('line-height'));
+  var y = $(window).scrollTop();
+  $(window).scrollTop(y + lineHeight);
 }
  
 /**
