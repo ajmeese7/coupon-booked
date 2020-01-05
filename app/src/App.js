@@ -1371,6 +1371,7 @@ function showCouponEditPage($this) {
   //console.warn("showCouponEditPage...");
   saveAndDeleteToggle();
   fadeBetweenElements("#couponPreview", "#couponForm");
+  preventInvalidNumberInput();
 
   var coupon = $($this).data("coupon");
   getById("couponImage").src         = coupon.image;
@@ -1391,6 +1392,31 @@ function showCouponEditPage($this) {
     if (couponFormIsValid()) {
       updateCoupon(coupon, $this);
       showSentCouponPreview($this);
+    }
+  });
+}
+
+/**
+ * Is SUPPOSED to stop the user from entering decimals and
+ * negative numbers, but right now that is still being handled
+ * in a not-so-elegant manner by couponFormIsValid. It does, however,
+ * stop numbers >99 from being entered.
+ */
+function preventInvalidNumberInput() {
+  // Select your input element.
+  var count = getById("count");
+
+  // https://stackoverflow.com/a/24271309/6456163
+  $('#count').on('keyup', function(e) {
+    if (e.key == "Undefined" || e.key == "Unidentified") {
+      // TODO: Make this run AFTER the new key is added to the field
+      //count.value = count.value.slice(0, -1);
+    } else if ($(this).val() > 99 
+        && e.keyCode !== 46 // keycode for delete
+        && e.keyCode !== 8 // keycode for backspace
+       ) {
+       e.preventDefault();
+       $(this).val(99);
     }
   });
 }
