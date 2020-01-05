@@ -179,7 +179,7 @@ App.prototype.state = {
         pullUserRelatedBooks();
 
         // Initialize tab menu
-        $('#tabs-swipe-demo').tabs();
+        $('#tab-menu').tabs();
         manageTabMenu();
 
         $('#backArrow').unbind().click(function() {
@@ -268,6 +268,8 @@ App.prototype.state = {
         var avatar = getBySelector('#avatar');
         avatar.src = profile.picture;
 
+        // TODO: Mess with https://auth0.com/docs/api/management/v2#!/Users/patch_users_by_id
+          // to hopefully allow users to edit their data (what for?); use something similar to login functions?
         // IDEA: Permenantly update displayed name for sent books here
         var profileCodeContainer = getBySelector('.profile-json');
         profileCodeContainer.textContent = JSON.stringify(profile, null, 4);
@@ -2212,7 +2214,7 @@ function fadeBetweenElements(fadeOut, fadeIn) {
 function manageTabMenu() {
   // Select the tab the user was last on; sent by default;
   // IDEA: Do the full red background styling here for applicable tab
-  $('#tabs-swipe-demo').tabs('select', localStorage.getItem('activeTab'));
+  $('#tab-menu').tabs('select', localStorage.getItem('activeTab'));
 
   const gestureZone = getById('gestureZone');
   var sentButton = $('#sentButton');
@@ -2237,42 +2239,41 @@ function manageTabMenu() {
 
     // Swipe right (select sent)
     if (ratio_horizontal > ratioComparison) {
-      localStorage.setItem('activeTab', 'sent');
-      $('#tabs-swipe-demo').tabs('select', 'sent');
-
-      sentButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
-      receivedButton.css('background-color', 'transparent');
-      sentButton.css('text-decoration', 'underline');
-      receivedButton.css('text-decoration', 'none');
+      sentTab();
+      $('#tab-menu').tabs('select', 'sent');
     }
     // Swipe left (select received)
     if (ratio_horizontal < -ratioComparison) {
-      localStorage.setItem('activeTab', 'received');
-      $('#tabs-swipe-demo').tabs('select', 'received');
-
-      receivedButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
-      sentButton.css('background-color', 'transparent');
-      receivedButton.css('text-decoration', 'underline');
-      sentButton.css('text-decoration', 'none');
+      receivedTab();
+      $('#tab-menu').tabs('select', 'received');
     }
   }
 
   // Click sent tab
   sentButton.unbind().click(function() {
+    sentTab();
+  });
+  // Click received tab
+  receivedButton.unbind().click(function() {
+    receivedTab();
+  });
+
+  function sentTab() {
     localStorage.setItem('activeTab', 'sent');
+    
     sentButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
     receivedButton.css('background-color', 'transparent');
     sentButton.css('text-decoration', 'underline');
     receivedButton.css('text-decoration', 'none');
-  });
-  // Click received tab
-  receivedButton.unbind().click(function() {
+  }
+  function receivedTab() {
     localStorage.setItem('activeTab', 'received');
+
     receivedButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
     sentButton.css('background-color', 'transparent');
     receivedButton.css('text-decoration', 'underline');
     sentButton.css('text-decoration', 'none');
-  });
+  }
 }
 
 /**
