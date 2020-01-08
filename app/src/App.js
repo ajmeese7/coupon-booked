@@ -46,6 +46,7 @@ function App() {
   });
   this.login = this.login.bind(this);
   this.logout = this.logout.bind(this);
+  darkModeSupport();
 }
 
 /** True means book will be published to template database; false is normal */
@@ -159,6 +160,7 @@ App.prototype.state = {
         navBar();
 
         displaySentBook();
+        darkModeSupport();
       }
     },
     '/receivedBook': {
@@ -168,6 +170,7 @@ App.prototype.state = {
         navBar();
 
         displayReceivedBook();
+        darkModeSupport();
       }
     },
     // TODO: Speed up loading of books somehow; caching until change?
@@ -207,6 +210,7 @@ App.prototype.state = {
       onMount: function(page) {
         _this = this;
         navBar();
+        darkModeSupport();
 
         // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
@@ -222,6 +226,7 @@ App.prototype.state = {
 
         // https://www.outsystems.com/forums/discussion/27816/mobile-max-length-of-input-not-working/#Post101576
         $('#redeemBox').on("input", function () {
+          // TODO: Add checkign to prevent characters that are not part of the code, i.e. space and period
           if (this.value.length > 8) {
             this.value = this.value.slice(0,8);
           }
@@ -233,6 +238,7 @@ App.prototype.state = {
       onMount: function(page) {
         _this = this;
         navBar();
+        darkModeSupport();
 
         // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
@@ -259,21 +265,19 @@ App.prototype.state = {
         });
       }
     },
-    '/profile': {
-      id: 'profile',
+    '/settings': {
+      id: 'settings',
       onMount: function(page) {
         _this = this;
         navBar();
 
-        var avatar = getBySelector('#avatar');
-        avatar.src = profile.picture;
-
         // TODO: Mess with https://auth0.com/docs/api/management/v2#!/Users/patch_users_by_id
           // to hopefully allow users to edit their data (what for?); use something similar to login functions?
         // IDEA: Permenantly update displayed name for sent books here
-        var profileCodeContainer = getBySelector('.profile-json');
-        profileCodeContainer.textContent = JSON.stringify(profile, null, 4);
+        darkModeSupport(true);
         
+        // IDEA: Remove from nav dropdown and just have here?
+          // Should probably have more pages on dropdown nav
         var logoutButton = getBySelector('.btn-logout');
         $(logoutButton).unbind().click(this.logout);
       }
@@ -298,6 +302,60 @@ function createConnection() {
       console.error("Error establishing connection:", XMLHttpRequest.responseText);
     }
   });
+}
+
+/**
+ * Handles everything to do with dark mode.
+ * @param {boolean} settingsPage - true for settings page, false for initialization
+ */
+function darkModeSupport(settingsPage) {
+  if (settingsPage) {
+    // https://stackoverflow.com/a/3263248/6456163
+    if (localStorage.getItem('darkMode') == "true") getById("darkCheckbox").click();
+
+    // NOTE: The code in here runs twice; shouldn't be a problem
+    var toggle = getById('darkToggle');
+    $(toggle).unbind().click(function() {
+      var darkMode = getById("darkCheckbox").checked;
+      localStorage.setItem('darkMode', darkMode + "");
+
+      setProperMode();
+    });
+  } else {
+    // Set or remove the `dark` and `light` class the first time.
+    setProperMode();
+  }
+
+  /** Sets dark mode if applicable and light mode if not. */
+  function setProperMode() {
+    var hideBook = getById("hideBook");
+    var copyButton = getById("copyButton");
+    var backArrow = getById("backArrow");
+
+    // TODO: Figure out how to make PNG images look good over dark mode
+    if (localStorage.getItem('darkMode') == "true") {
+      setRootProperty('--background-color', 'rgb(15, 15, 15)');
+      setRootProperty('--text-color', 'rgb(240, 240, 240)');
+      setRootProperty('--topbar-color', '#474747');
+      setRootProperty('--tab-color', '#474747');
+      if (hideBook) hideBook.className = "filter-white";
+      if (copyButton) copyButton.className = "filter-white";
+      if (backArrow) backArrow.className = "filter-white";
+    } else {
+      setRootProperty('--background-color', '#f9f9f9');
+      setRootProperty('--text-color', '#041433');
+      setRootProperty('--topbar-color', '#EEEEEE');
+      setRootProperty('--tab-color', '#fff');
+      if (hideBook) hideBook.className = "filter-black";
+      if (copyButton) copyButton.className = "filter-black";
+      if (backArrow) backArrow.className = "filter-black";
+    }
+  }
+
+  // https://stackoverflow.com/a/37802204/6456163
+  function setRootProperty(name, value) {
+    document.documentElement.style.setProperty(name, value);
+  }
 }
 
 // IDEA: Only allow if paymentStatus != "succeeded"
@@ -1046,7 +1104,7 @@ function displayReceivedBook() {
   miniPreview.appendChild(previewText);
 
   // NOTE: These images provided by FontAwesome
-  var hideImg = "<img id='hideBook' src='images/eye-";
+  var hideImg = "<img id='hideBook' class='filter-black' src='images/eye-";
   hideImg += (book.hide ? "slash-" : "") + "regular.svg' />";
   miniPreview.innerHTML += hideImg;
   
@@ -2596,11 +2654,14 @@ App.prototype.render = function() {
   var element = document.importNode(currRouteEl.content, true);
   this.container.innerHTML = '';
 
-  // Apply nav; IDEA: Just do everything except login? What else is there?
-  var routes = ["home", "create", "sentBook", "receivedBook", "dashboard", "redeemCode", "shareCode", "profile"];
+  // Apply nav
+  // TODO: See if possible to just do everything except login, if there's nothing else
+  var routes = ["home", "create", "sentBook", "receivedBook", "dashboard", "redeemCode", "shareCode", "settings"];
   if ($.inArray(currRouteId, routes) >= 0) {
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(nav);
+
+    // NOTE: For some reason putting darkModeSupport() here doesn't work out
   }
 
   this.container.appendChild(element);

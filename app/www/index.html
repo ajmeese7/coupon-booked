@@ -71,9 +71,10 @@
                 <div class="submenu" style="display: none;">
                     <ul class="root">
                         <!-- NOTE: href required to have mouse change to clicker on hover -->
+                        <!-- IDEA: Can add relevant icons for each item -->
                         <li><a href="#" class="dashboard">Dashboard</a></li>
-                        <li><a href="#" class="profile"><!--<span class="icon icon-profile"></span> -->Profile</a></li>
-                        <li><a href="#" class="logout" id="sign-out"><!--<span class="icon icon-power"></span> -->Log out</a></li>
+                        <li><a href="#" class="settings">Settings</a></li>
+                        <li><a href="#" class="logout" id="sign-out">Log out</a></li>
                     </ul>
                 </div>
             </div> <!-- dropdown -->
@@ -172,7 +173,7 @@
     <template id="sentBook">
         <!-- NOTE: Also in redeem -->
         <div id="topbar">
-            <img id="backArrow" class="ionicon" src="images/back.svg" />
+            <img id="backArrow" src="images/back.svg" />
             <a id="save">Save</a>
             <a id="delete" class="hide">Delete</a>
         </div>
@@ -307,7 +308,7 @@
     <template id="shareCode">
         <link rel="stylesheet" type="text/css" href="css/shareCode.css" />
         <div id="topbar">
-            <img class="ionicon" id="backArrow" src="images/back.svg" />
+            <img id="backArrow" src="images/back.svg" />
         </div>
 
         <h4 id="shareHeader">Your book is ready to be sent!</h4>
@@ -318,7 +319,7 @@
 
             <!-- TODO: Switch to having icons in different folders for different OS -->
             <p id="shareCodeText">88888888</p>
-            <img id="copyButton" class="ionicon" src="images/copy.svg" />
+            <img id="copyButton" src="images/copy.svg" />
             <!-- https://ionicons.com/ -->
         </div>
 
@@ -333,7 +334,7 @@
 
     <template id="redeemCode">
         <div id="topbar">
-            <img class="ionicon" id="backArrow" src="images/back.svg" />
+            <img id="backArrow" src="images/back.svg" />
         </div>
 
         <h3 id="redeemHeader">Enter your code below</h3>
@@ -348,7 +349,7 @@
     <template id="dashboard">
         <!-- Invisible back arrow to support functions without much modification -->
         <img class="hide" id="backArrow" />
-        <ul id="tabs-swipe-demo" class="tabs">
+        <ul id="tab-menu" class="tabs">
             <li class="tab"><a id="sentButton" href="#sent" class="active">Sent</a></li>
             <li class="tab"><a id="receivedButton" href="#received">Received</a></li>
         </ul>
@@ -376,19 +377,31 @@
         </div>
     </template>
 
-    <template id="profile">
+    <template id="settings">
         <link rel="stylesheet" type="text/css" href="css/app.css" />
-
+        
         <div class="page">
-            <h2>Profile</h2>
+            <h2>Settings</h2>
             <br />
-            <img id="avatar" />
-            <code class="profile-json code-picker">loading...</code>
+
+            <style id="switchStyle"></style>
+            
+            <!-- Dark mode inspired by https://github.com/GoogleChromeLabs/dark-mode-toggle -->
+            <b>Dark Mode</b>
+            <br />
+            <label class="switch" id="darkToggle">
+                <input type="checkbox" id="darkCheckbox">
+                <span class="slider round"></span>
+            </label>
+            
+            <!-- Display name; set initially with profile and have some separate storage 
+                from there that's always checked somehow. Custom Auth0 field or something? -->
+
             <br />
             <hr />
             <div class="flex hor-centered">
+                <!-- Can add icon and colors like shareCode button if desired -->
                 <button class="btn btn-success btn-logout">
-                    <span class="btn-icon icon-budicon-120"></span>
                     <span>Log Out</span>
                 </button>
             </div>

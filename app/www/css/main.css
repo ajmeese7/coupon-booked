@@ -197,6 +197,18 @@ label {
     margin-right: 8px;
     margin-bottom: -20px;
 }
+.filter-black {
+    /* https://stackoverflow.com/a/53336754/6456163 */
+    filter: invert(0%) sepia(61%) saturate(7468%) hue-rotate(32deg) brightness(102%) contrast(94%);
+    height: 40px;
+}
+.filter-white {
+    /* https://codepen.io/sosuke/pen/Pjoqqp 
+    TODO: Pick prettier colors to use */
+    filter: invert(100%) sepia(1%) saturate(2478%) hue-rotate(176deg) brightness(117%) contrast(100%);
+    /* invert(80%) sepia(48%) saturate(0%) hue-rotate(192deg) brightness(108%) contrast(95%); */
+    height: 40px;
+}
 
 /* Fantastic solution from https://stackoverflow.com/a/13924997/6456163 */
 #bookDescriptionPreview {
@@ -295,7 +307,7 @@ label {
     width: 100%;
     height: 40px;
     margin-top: -2px;
-    background-color: #EEEEEE;
+    background-color: var(--topbar-color);
 }
 #topbar a {
     /* TODO Style these a LOT better */
@@ -400,8 +412,8 @@ textarea {
     padding-left: 8px;
     margin: 0;
     display: inline-block;
-    border: 1px solid black;
-    background-color: white;
+    border: 1px solid var(--text-color);
+    background-color: var(--background-color);
 }
 #copyButton {
     /* TODO: Test on screen sizes */
@@ -423,4 +435,62 @@ textarea {
     width: 100%;
     height: 100px;
     bottom: 0;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-image: url("../images/sun.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+input:checked + .slider {
+    background-color: #2196F3;
+}
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+    background-image: url("../images/moon.png");
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+.slider.round:before {
+    border-radius: 50%;
 }
