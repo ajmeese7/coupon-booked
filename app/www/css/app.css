@@ -3,7 +3,7 @@ body {
     padding-top: env(safe-area-inset-top); /* iOS 11.2 */
 }
 
-.page{
+.page {
     top: 0px;
     left: 0px;
     width: 100%;
@@ -36,15 +36,4 @@ body {
 
 .flex > .expand-to-fill{
     flex: 1;
-}
-
-.profile-json{
-    display: block;
-    white-space: pre;
-    overflow: scroll;
-}
-
-#avatar {
-    max-width: 200px;
-    margin-bottom: 15px;
 }

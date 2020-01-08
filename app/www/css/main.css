@@ -4,20 +4,25 @@ label {
 }
 #main-content {
     min-height: 550px;
-    margin-top: -56.3833px;
+    margin-top: calc(-1 * var(--nav-height));
 }
 
+/* NOTE: None of this works when in nav.css, so just leave it here :) */
+:root {
+    --nav-color: #0b98de;
+    --nav-height: 56.3833px;
+}
 .navbar {
     position: fixed;
     z-index: 98;
-    height: 56.3833px;
+    height: var(--nav-height);
     width: 100%;
     top: 0;
     padding: 0;
     padding-top: 5px;
     margin-bottom: 0px !important;
-    background-color: #0b98de !important;
-    box-shadow: 0 1px 2px 0 #0b98de;
+    background-color: var(--nav-color) !important;
+    box-shadow: 0 1px 2px 0 var(--nav-color);
 }
 .navbar-collapse {
     flex-grow: 0;
@@ -330,7 +335,7 @@ label {
     width: 50px;
     height: 50px;
     color: white;
-    background-color: #0b98de;
+    background-color: var(--nav-color);
     box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
     0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
@@ -475,10 +480,11 @@ textarea {
     transition: .4s;
 }
 input:checked + .slider {
-    background-color: #2196F3;
+    /* Old color that didn't match is #2196F3 if preferred */
+    background-color: var(--nav-color);
 }
 input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
+    box-shadow: 0 0 1px var(--nav-color);
 }
 input:checked + .slider:before {
     -webkit-transform: translateX(26px);

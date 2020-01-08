@@ -306,7 +306,7 @@ function createConnection() {
 
 /**
  * Handles everything to do with dark mode.
- * @param {boolean} settingsPage - true for settings page, false for initialization
+ * @param {boolean} settingsPage - true for settings page, false for elsewhere
  */
 function darkModeSupport(settingsPage) {
   if (settingsPage) {
@@ -890,8 +890,8 @@ function uploadImage(filePath, coupon) {
   // Add in the params required for Cloudinary
   options.params = {
       api_key: env.CLOUDINARY_KEY,
-      timestamp: timestamp,
       folder: folder,
+      timestamp: timestamp,
       signature: new Hashes.SHA1().hex('folder=' + folder + '&timestamp=' + timestamp + env.CLOUDINARY_SECRET)
   };
 
@@ -2199,7 +2199,6 @@ function shareCode() {
  * Insert navigation elements into routes requiring them.
  * Redirects to login if user not authenticated.
  */
-var tempCounter = 0;
 function navBar() {
   console.warn("navBar...");
   if (_this.state.authenticated === false) {
@@ -2218,31 +2217,7 @@ function navBar() {
       if (err) {
         console.error("Error loading profile: ", err);
 
-        var options = {
-          method: 'POST',
-          url: 'https://couponbooked.auth0.com/oauth/token',
-          headers: {'content-type': 'application/x-www-form-urlencoded'},
-          form: {
-            grant_type: 'refresh_token',
-            client_id: env.AUTH0_CLIENT_ID,
-            refresh_token: localStorage.getItem('refresh_token')
-          }
-        };
-
-        request(options, function (error, response, body) {
-          if (error) throw new Error(error);
-
-          var accessToken = JSON.parse(response.body).access_token;
-          localStorage.setItem('access_token', accessToken);
-          _this.state.accessToken = accessToken;
-          _this.state.authenticated = true; // Should be set, but just in case...
-
-          tempCounter++;
-          if (tempCounter < 3) {
-            console.log("navBar re-run attempt #" + tempCounter);
-            navBar();
-          }
-        });
+        reacquireProfile();
       } else {
         avatar.src = _profile.picture;
         profile = _profile;
@@ -2254,13 +2229,14 @@ function navBar() {
     avatar.src = profile.picture;
   }
 
+  // TODO: See if this can dynamically do dropdowns other than logout to save time in future
   // Dashboard button on dropdown
   var dashboardButton = getBySelector('.dashboard');
   $(dashboardButton).unbind().click(function() { _this.redirectTo('/dashboard') });
 
-  // Profile button on dropdown
-  var profileButton = getBySelector('.profile');
-  $(profileButton).unbind().click(function() { _this.redirectTo('/profile') });
+  // Settings button on dropdown
+  var settingsButton = getBySelector('.settings');
+  $(settingsButton).unbind().click(function() { _this.redirectTo('/settings') });
 
   // Logout button on dropdown
   var logoutButton = getBySelector('.logout');
@@ -2276,6 +2252,35 @@ function navBar() {
   });
   $(document).unbind().mouseup(function() {
     $(".submenu").slideUp();
+  });
+}
+
+var tempCounter = 0;
+function reacquireProfile() {
+  var options = {
+    method: 'POST',
+    url: 'https://couponbooked.auth0.com/oauth/token',
+    headers: {'content-type': 'application/x-www-form-urlencoded'},
+    form: {
+      grant_type: 'refresh_token',
+      client_id: env.AUTH0_CLIENT_ID,
+      refresh_token: localStorage.getItem('refresh_token')
+    }
+  };
+
+  request(options, function (error, response, body) {
+    if (error) throw new Error(error);
+
+    var accessToken = JSON.parse(response.body).access_token;
+    localStorage.setItem('access_token', accessToken);
+    _this.state.accessToken = accessToken;
+    _this.state.authenticated = true; // Should be set, but just in case...
+
+    tempCounter++;
+    if (tempCounter < 3) {
+      console.log("navBar re-run attempt #" + tempCounter);
+      navBar();
+    }
   });
 }
 

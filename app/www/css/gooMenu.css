@@ -7,7 +7,7 @@
 }
 
 .menu-item, .menu-open-button {
-  background: #0b98de;
+  background: var(--nav-color);
   border-radius: 100%;
   width: 45px;
   height: 45px;

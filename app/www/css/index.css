@@ -11,7 +11,9 @@ html {
 }
 
 body {
-  	background-color: #f9f9f9 !important;
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+
     margin: 0px;
     padding: 0px;
     width: 100%;
@@ -29,7 +31,7 @@ button:focus, a:focus {
 }
 
 section {
-    min-height: calc(100vh - 56.3833px);
+    min-height: calc(100vh - var(--nav-height));
     width: 100vw;
 }
 
@@ -74,16 +76,4 @@ iframe[seamless] {
     line-height: 2.1; /* Not set on this yet; WIP */
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
-}
-
-/* EXAMPLES */
-
-#examples h2, #create h2 {
-    text-align: center;
-}
-#examples img {
-    width: 300px; /* These will obviously change with the actual images */
-    height: 300px;
-    margin: auto;
-    margin-top: 20px;
 }

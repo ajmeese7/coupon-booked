@@ -1,5 +1,5 @@
 #nav {
-    height: 56.3833px;
+    height: var(--nav-height);
 }
 #mobile {
     margin-top: -2px;
