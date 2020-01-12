@@ -148,26 +148,7 @@
         <img class="hide" id="backArrow" />
         <h2 id="createHeader">Who is it for?</h2>
 
-        <div id="buttonContainer">
-            <!-- TODO: Make this programatically pull from server, 
-                especially once images are implemented -->
-            <div id="row">
-                <button>Father</button>
-                <button>Mother</button>
-            </div>
-            <div id="row">
-                <button>Brother</button>
-                <button>Sister</button>
-            </div>
-            <div id="row">
-                <button>Girlfriend</button>
-                <button>Boyfriend</button>
-            </div>
-            <div id="row">
-                <button>Friend</button>
-                <button>Other</button>
-            </div>
-        </div>
+        <div id="buttonContainer"></div>
     </template>
 
     <template id="sentBook">
@@ -176,6 +157,8 @@
             <img id="backArrow" src="images/back.svg" />
             <a id="save">Save</a>
             <a id="delete" class="hide">Delete</a>
+            <!-- NOTE: There is a problem sometimes with this appearing alongside the
+                save button when a template first retreived -->
         </div>
         
         <div id="bookContent" class="col">
@@ -204,6 +187,7 @@
             <div class="imageButtons">
                 <a id="couponOpenPhoto">Choose Image</a>
                 <a id="couponTakePhoto">Take Photo</a>
+                <p id="saveForImage">Save to upload image</p>
     		</div>
 
             <!-- IDEA: Cycle through an array of these for examples; appropriate to template? 

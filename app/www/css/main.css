@@ -147,10 +147,10 @@ label {
     margin-bottom: 0px;
 }
 
-.receiverText, .senderText, .couponCount {
+.receiverText, .senderText, .couponCount, #saveForImage {
     color: #7E7E7E;
 }
-.senderText, .receiverText {
+.senderText, .receiverText, #saveForImage {
     /* https://stackoverflow.com/a/7993098/6456163 */
     width: 80%;
     margin: auto;
@@ -159,6 +159,7 @@ label {
     white-space: nowrap;
     overflow: hidden;
     margin-bottom: 5px;
+    text-align: center;
 }
 
 #shareCodePreview {
@@ -213,6 +214,22 @@ label {
     filter: invert(100%) sepia(1%) saturate(2478%) hue-rotate(176deg) brightness(117%) contrast(100%);
     /* invert(80%) sepia(48%) saturate(0%) hue-rotate(192deg) brightness(108%) contrast(95%); */
     height: 40px;
+}
+
+/* TODO: Get this inside the a; preferrably w/o margin - */
+#sentButton, #receivedButton {
+    display: inline-block;
+}
+#sentArrow, #receivedArrow {
+    display: inline-block;
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    width: 5px;
+    border-left: .3em solid transparent;
 }
 
 /* Fantastic solution from https://stackoverflow.com/a/13924997/6456163 */

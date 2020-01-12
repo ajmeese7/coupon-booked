@@ -141,6 +141,8 @@ App.prototype.state = {
           _this.redirectTo('/dashboard');
         });
 
+        getAllTemplates();
+
         // Set button height equal to its width because CSS is annoying
         var width = $('button').width();
         $('#buttonContainer button').height(width);
@@ -406,6 +408,54 @@ function getUrlVars() {
 function resetUrlVars() {
   var location = window.location.href.substring(0, window.location.href.indexOf('?'));
   window.location = location;
+}
+
+/**
+ * Pulls all the templates from the server and adds them to
+ * the create page.
+ * TODO: Add ability to create templates somehow; button dependent on
+ * dev mode (plus) or on save, possibly?
+ */
+function getAllTemplates() {
+  $.ajax({
+    type: "GET",
+    url: "http://www.couponbooked.com/scripts/getAllTemplates",
+    datatype: "json",
+    success: function(data) {
+      data = JSON.parse(data);
+
+      // Go over the array of returned data
+      $.each(data, function(templateNumber, template) {
+        var templateData = JSON.parse(template);
+
+        // Create node and give CSS class that applies styles
+        var node = document.createElement('div');
+        node.setAttribute("class", "bookPreview");
+
+        // Image and name
+        node.innerHTML += "<img class='bookImage' src='" + templateData.image + "' />";
+        node.innerHTML += "<p class='bookName'>" + templateData.name + "</p>";
+
+        // https://api.jquery.com/data/
+        $(node).data("templateData", templateData);
+        getById("buttonContainer").appendChild(node);
+
+        $(node).unbind().click(function() {
+          book = $(node).data("templateData");
+          previousBook = clone(book);
+          _this.redirectTo('/sentBook');
+        });
+      });
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error in getAllTemplates: ", XMLHttpRequest.responseText);
+
+      SimpleNotification.error({
+        title: 'Error retreiving templates',
+        text: 'Please try again later.'
+      }, notificationOptions);
+    }
+  });
 }
 
 /**
@@ -703,28 +753,36 @@ function sentBookSaveButton() {
 function plusButton() {
   /** Decomposes things slightly since the same code is needed twice. */
   function fadeToBookContent() {
+    //console.warn("Fading to book content...");
     fadeBetweenElements("#couponForm", "#bookContent");
     sentBookListeners();
     displaySentBook();
   }
 
   $('#plus').unbind().click(function() {
+    //console.log("Plus button pressed!");
     fadeBetweenElements("#bookContent", "#couponForm");
+    fadeBetweenElements("#couponOpenPhoto, #couponTakePhoto", "#saveForImage");
 
     // Reset form to blank in case it is clicked after editing a coupon
-    getById("couponImage").src   = "images/gift.png"; // TODO: Change that once image upload working
-    getById("name").value        = "";
-    getById("description").value = "";
-    getById("count").value       = "";
+    // TODO: Change this now that image upload is working
+    getById("couponImage").src = "images/gift.png";
+    getById("name").value      = "";
+    if (getById("couponDescription")) { getById("couponDescription").value = ""; }
+    if (getById("count")) { getById("count").value = ""; }
 
-      // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
-      if (device.platform == "iOS") {
-        $('#edit img').attr('src', "images/ios-edit.svg");
+    limitDescriptionLength();
+    preventInvalidNumberInput();
+
+    // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
+    if (device.platform == "iOS") {
+      $('#edit img').attr('src', "images/ios-edit.svg");
       }
 
     // Set back button to take you back to coupon list
     $('#backArrow').unbind().click(function() {
       fadeToBookContent();
+      fadeBetweenElements("#saveForImage", "#couponOpenPhoto, #couponTakePhoto");
     });
 
     $('#save').unbind().click(function() {
@@ -747,7 +805,7 @@ function plusButton() {
 /**
  * Modified plusButton() function for editing the book's details.
  */
-function editButton() {
+function editBookButton() {
   function fadeToBookContent() {
     fadeBetweenElements("#bookForm", "#bookContent");
     sentBookListeners();
@@ -755,13 +813,16 @@ function editButton() {
   }
 
   $("#editBook").unbind().click(function() {
+    //console.log("Edit BOOK button pressed!");
     fadeBetweenElements("#bookContent", "#bookForm");
-    limitDescriptionLength(true);
-    imageUploadListeners();
 
     getById("bookImage").src         = book.image;
     getById("bookName").value        = book.name;
     getById("bookDescription").value = book.description;
+
+    // Below the above setters so previous value doesn't change descLength
+    limitDescriptionLength(true);
+    imageUploadListeners();
 
     $('#backArrow').unbind().click(function() {
       // TODO: Do the check if content has changed like when leaving preview page
@@ -785,9 +846,7 @@ function editButton() {
  * @param {object} coupon - exists if for the coupon image, so if for
  * book it'll be null, allowing it to serve as a Boolean detector for 
  * which purpose the function is being called for.
- * TODO: Add development mode support for template image uploading
- * into a separate folder; maybe also allow users to search through
- * (browse) all the templated images
+ * TODO: maybe also allow users to search through (browse) all the templated images
  */
 function imageUploadListeners(coupon) {
   // TODO: Add option to reset image to present
@@ -799,24 +858,28 @@ function imageUploadListeners(coupon) {
       'maxSelectSize': (bytes.parse("5mb") * 8) // Megabytes to bytes to bits
   };
 
+  // Error in Success callbackId: MediaPicker1340867104 : TypeError: Cannot read property 'uri' of undefined ??
   $('#bookOpenPhoto, #couponOpenPhoto').unbind().click(function() {
     // TODO: Get uniform cropping; the take photo one is better so try to expand usage
     MediaPicker.getMedias(args, function(image) {
       // Lets the user crop the selected image in a square shape;
       // TODO: Eventually try to make the initial sizing better (100% width)
       // TODO: resize to uniform, i.e. 512x512?
-      plugins.crop.promise(image[0].uri, {quality:100})
-        .then(function success (newPath) {
+      plugins.crop.promise(image[0].uri, { quality: 100 })
+        .then(function success(newPath) {
           // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
           console.log("Cropped image data:", newPath);
 
           // TODO: Decide if I still want to do this here or somewhere else
           imageToUpdate.src = newPath;
 
+          // TODO: Make sure PNGs are able to retain their transparency! If not might
+          // need to consider switching plugins
+
           // Should I wait until save for this or just roll with it?
           uploadImage(newPath, coupon);
         })
-        .catch(function fail (err) {
+        .catch(function fail(err) {
           console.error("Problem cropping image ->", err);
         });
     }, function(e) { console.error("Problem in selecting media ->", e) })
@@ -877,15 +940,20 @@ function uploadImage(filePath, coupon) {
   var uri = encodeURI('https://api.cloudinary.com/v1_1/couponbooked/image/upload');
   var fileToUploadPath = filePath;
 
-  // TODO: Do something with file names that's more organized than now; could also attach
-    // bookId as tags (metadata) to easily link for search purposes
   var options = new FileUploadOptions();
     options.fileKey = "file";
     options.fileName = fileToUploadPath.substr(fileToUploadPath.lastIndexOf('/') + 1);
   var timestamp = Math.floor(Date.now() / 1000);
 
   // https://support.cloudinary.com/hc/en-us/community/posts/360030104392/comments/360002948811
-  var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books");
+  if (development) {
+    // TODO: Figure out how to view all images in parent folder, so it's essentially
+    // metadata but in the location name;
+    // TODO: Make this only be called if on a TEMPLATE in development mode, not user books
+    var folder = "templates/" + (!!coupon ? "coupons" : "books") + "/" + book.name;
+  } else {
+    var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + book.bookId;
+  }
 
   // Add in the params required for Cloudinary
   options.params = {
@@ -938,6 +1006,213 @@ function uploadImage(filePath, coupon) {
 };
 
 /**
+ * The normal listeners for the /sentBook route.
+ */
+function sentBookListeners() {
+  //console.log("sentBookListeners...");
+  $("#bookDescriptionPreview").unbind().click(function() {
+    // IDEA: Add this to the image too, or just view the image in
+    // its entirety? Do that option once the preview is opened from here?
+    openBookPreview();
+  });
+
+  // Will give users the chance again to share their code
+  $("#shareCodePreview").unbind().click(function() {
+    _this.redirectTo('/shareCode');
+  });
+
+  // Allows listener to apply to dynamically added elements, such as Stripe button
+  $("body").unbind().click(function() {
+    if (event) {
+      var target = event.target;
+      if (target.className === 'stripe-button-el' || 
+          target.parentElement.className === 'stripe-button-el')
+      {
+        sneakFormData();
+      }
+    }
+  });
+
+  sentBookBackButton();
+  sentBookSaveButton();
+  plusButton();
+  editBookButton();
+  createCouponElements(true);
+}
+
+/**
+ * Shows the entire uncut book description, name, and image.
+ * Like a coupon preview but a popup instead of an entire page change.
+ * TODO: Switch coupon previews to something similar?
+ */
+function openBookPreview() {
+  // IDEA: Also add click listener to image on edit page that
+  // shows the image fullscreen with a nav bar or sumn?
+
+}
+
+/**
+ * Adds click listeners to the specified sent coupon element.
+ * @param {node} node - the coupon element
+ */
+function addSentCouponListeners(node) {
+  console.log("addSentCouponListeners...");
+  $(node).unbind().click(function() {
+    /** Allows coupon node to be passed as parameter to functions */
+    var $this = this;
+    showSentCouponPreview($this);
+
+    $("#edit").unbind().click(function() {
+      console.log("Edit button pressed!");
+      showCouponEditPage($this);
+    });
+  });
+}
+
+/**
+ * Hides the `/sentBook` route and shows the preview of the coupon 
+ * that was selected. Also adds listeners for going back to `/sentBook`.
+ */
+function showSentCouponPreview($this) {
+  console.log("showSentCouponPreview...");
+  saveAndDeleteToggle();
+  fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
+
+  $('#backArrow').unbind().click(function() {
+    saveAndDeleteToggle();
+    fadeBetweenElements("#couponPreview", "#bookContent");
+
+    // Calls this again in case data was updated and needs to be redisplayed
+    displaySentBook();
+  });
+
+  $('#delete').unbind().click(function() {
+    function onConfirm(buttonIndex) {
+      if (buttonIndex == 1) {
+        // TODO: Fix this not working immediately after displaying a 
+        // new template. Error message: "Failed to execute 'appendChild' on 
+        // 'Node': parameter 1 is not of type 'Node'.
+        var couponNumber = $($this).data("couponNumber");
+        book.coupons.splice(couponNumber, 1);
+        
+        displaySentBook();
+        saveAndDeleteToggle();
+        fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
+      }
+    }
+    
+    navigator.notification.confirm(
+        'Are you sure you want to delete this coupon?',
+        onConfirm,
+        'Delete coupon confirmation',
+        ['Delete it', 'Cancel']
+    );
+  });
+
+  // Updates preview fields with actual coupon's data
+  var coupon = $($this).data("coupon");
+  getById("imgPreview").src = coupon.image;
+  getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+  getById("descPreview").innerText = coupon.description;
+}
+
+/**
+ * Adds click listener to trash can icon in miniPreview.
+ */
+function addDeleteListeners() {
+  //console.warn("addDeleteListeners...");
+  $("#deleteBook").unbind().click(function() {
+    function onConfirm(buttonIndex) {
+      // NOTE: Button 0 is clicking out of confirmation box;
+      // 1 is delete and 2 is cancel
+      if (buttonIndex == 1) {
+        deleteBook();
+
+        // NOTE: This used to not always pull the new data in time for when the
+        // user sees the dashboard so the deleted book would still show up, but it's
+        // hard to replicate so I don't know if the problem still exists. If noticed 
+        // again in the future I'll look further into how to prevent it. Possibly with
+        // waiting for a promise or asynchronously running a function or something.
+        goBack();
+      }
+    }
+    
+    navigator.notification.confirm(
+        'Are you sure you want to delete this book?', // message
+        onConfirm, // callback function
+        'Delete book confirmation', // title
+        ['Delete it', 'Wait, stop!'] // buttonLabels; added to page from right to left
+    );
+  });
+}
+
+/**
+ * Adds coupon data to div and inserts it to page.
+ * @param {integer} couponNumber - the location of the current coupon in the array
+ * @param {object} coupon - the data for the current coupon
+ * @param {boolean} sent - true if sent coupon, false if received
+ */
+function createCouponElements(sent) {
+  // TODO: Figure out how to display image licenses if not paying for yearly subscription
+  // TODO: Exclude this file from UglifyJS so I can use template literals
+  // TODO: Implement way to rearrange organization of coupons; also change
+    // display options like default, alphabetical, count remaining, etc.;
+    // should changing display preference permenantly update the order?
+    // Option to hide coupons with 0 count; display 3 to a row
+
+  $.each(book.coupons, function(couponNumber, coupon) {
+      var node = document.createElement('div');
+      node.setAttribute("class", "couponPreview");
+      node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
+      node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
+      node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
+      $(node).data("coupon", coupon);
+      $(node).data("couponNumber", couponNumber);
+      getById("bookContent").appendChild(node);
+
+      if (sent) {
+        addSentCouponListeners(node);
+      } else {
+        addReceivedCouponListeners(node);
+      }
+  });
+}
+
+/**
+ * Updates edit page's form with the current coupon data and
+ * displays the edit page.
+ */
+function showCouponEditPage($this) {
+  //console.log("showCouponEditPage...");
+  saveAndDeleteToggle();
+  fadeBetweenElements("#couponPreview", "#couponForm");
+  preventInvalidNumberInput();
+
+  var coupon = $($this).data("coupon");
+  getById("couponImage").src         = coupon.image; // TODO: If image no load, gift.png; || method?
+  getById("name").value              = coupon.name;
+  getById("couponDescription").value = coupon.description;
+  getById("count").value             = coupon.count;
+
+  imageUploadListeners(coupon);
+  limitDescriptionLength();
+
+  // NOTE: On press, error for reading `image` of undefined... why?;
+    // TODO: See if this error can still be replicated
+  $('#backArrow').unbind().click(function() {
+    // Will show the new data
+    showSentCouponPreview($this);
+  });
+
+  $('#save').unbind().click(function() {
+    if (couponFormIsValid()) {
+      updateCoupon(coupon, $this);
+      showSentCouponPreview($this);
+    }
+  });
+}
+
+/**
  * Prevents users from entering more than the maximum length assigned
  * in the HTML. Also updates the displayed div that shows the current
  * character count in comparison to the maximum count.
@@ -949,12 +1224,22 @@ function limitDescriptionLength(isBook) {
   var maxlen = desc.getAttribute('maxlength');
 
   // To initialize with book's current description
-  descLength.text(book.description.length + "/" + maxlen);
+  updateText(true);
 
   // http://form.guide/html-form/html-textarea-maxlength.html
   desc.oninput = function(event) {
+    updateText(false, event);
+  };
+
+  /** 
+   * Does the actual limiting, just needed to call it twice.
+   * @param {boolean} initial - true if called outside desc input
+   * @param {object} event - if not initial, then the keypress or paste event
+   */
+  function updateText(initial, event) {
     // https://stackoverflow.com/a/5371115/6456163
     var length = desc.value.length;
+    
     if (length >= maxlen) {
       event.preventDefault();
 
@@ -965,9 +1250,13 @@ function limitDescriptionLength(isBook) {
       // Example: 146/180
       descLength.text(length + "/" + maxlen);
 
-      updateHeight(isBook);
+      if (!initial) {
+        updateHeight(isBook);
+      } else {
+        console.log("Initial text update, leaving height alone...");
+      }
     }
-  };
+  }
 }
 
 /**
@@ -1002,79 +1291,30 @@ function updateHeight(isBook) {
   var y = $(window).scrollTop();
   $(window).scrollTop(y + lineHeight);
 }
- 
+
 /**
- * The normal listeners for the /sentBook route.
+ * Is SUPPOSED to stop the user from entering decimals and
+ * negative numbers, but right now that is still being handled
+ * in a not-so-elegant manner by couponFormIsValid. It does, however,
+ * stop numbers >99 from being entered.
  */
-function sentBookListeners() {
-  $("#bookDescriptionPreview").unbind().click(function() {
-    // IDEA: Add this to the image too, or just view the image in
-    // its entirety? Do that option once the preview is opened from here?
-    openBookPreview();
-  });
+function preventInvalidNumberInput() {
+  // Select your input element.
+  var count = getById("count");
 
-  // Will give users the chance again to share their code
-  $("#shareCodePreview").unbind().click(function() {
-    _this.redirectTo('/shareCode');
-  });
-
-  // Allows listener to apply to dynamically added elements, such as Stripe button
-  $("body").unbind().click(function() {
-    if (event) {
-      var target = event.target;
-      if (target.className === 'stripe-button-el' || 
-          target.parentElement.className === 'stripe-button-el')
-      {
-        sneakFormData();
-      }
+  // https://stackoverflow.com/a/24271309/6456163
+  $('#count').on('keyup', function(e) {
+    if (e.key == "Undefined" || e.key == "Unidentified") {
+      // TODO: Make this run AFTER the new key is added to the field
+      //count.value = count.value.slice(0, -1);
+    } else if ($(this).val() > 99 
+        && e.keyCode !== 46 // keycode for delete
+        && e.keyCode !== 8 // keycode for backspace
+       ) {
+       e.preventDefault();
+       console.log("Preventing count from going too high. Setting to 99...");
+       $(this).val(99);
     }
-  });
-
-  sentBookBackButton();
-  sentBookSaveButton();
-  plusButton();
-  editButton();
-  createCouponElements(true);
-}
-
-/**
- * Shows the entire uncut book description, name, and image.
- * Like a coupon preview but a popup instead of an entire page change.
- * TODO: Switch coupon previews to something similar?
- */
-function openBookPreview() {
-  // IDEA: Also add click listener to image on edit page that
-  // shows the image fullscreen with a nav bar or sumn?
-
-}
-
-/**
- * Adds click listener to trash can icon in miniPreview.
- */
-function addDeleteListeners() {
-  //console.warn("addDeleteListeners...");
-  $("#deleteBook").unbind().click(function() {
-    function onConfirm(buttonIndex) {
-      // NOTE: Button 0 is clicking out of confirmation box;
-      // 1 is delete and 2 is cancel
-      if (buttonIndex == 1) {
-        deleteBook();
-
-        // NOTE: This used to not always pull the new data in time for when the
-        // user sees the dashboard so the deleted book would still show up, but it's
-        // hard to replicate so I don't know if the problem still exists. If noticed 
-        // again in the future I'll look further into how to prevent it. Possibly with
-        // waiting for a promise or asynchronously running a function or something.
-        goBack();
-      }
-    }
-    
-    navigator.notification.confirm(
-        'Are you sure you want to delete this book?', // message
-        onConfirm, // callback function
-        'Delete book confirmation', // title
-        ['Delete it', 'Wait, stop!'] // buttonLabels; added to page from right to left
-    );
   });
 }
 
@@ -1165,54 +1405,6 @@ function receivedBookListeners() {
   });
 
   createCouponElements();
-}
-
-/**
- * Adds coupon data to div and inserts it to page.
- * @param {integer} couponNumber - the location of the current coupon in the array
- * @param {object} coupon - the data for the current coupon
- * @param {boolean} sent - true if sent coupon, false if received
- */
-function createCouponElements(sent) {
-  // TODO: Figure out how to display image licenses if not paying for yearly subscription
-  // TODO: Exclude this file from UglifyJS so I can use template literals
-  // TODO: Implement way to rearrange organization of coupons; also change
-    // display options like default, alphabetical, count remaining, etc.;
-    // should changing display preference permenantly update the order?
-    // Option to hide coupons with 0 count; display 3 to a row
-
-  $.each(book.coupons, function(couponNumber, coupon) {
-      var node = document.createElement('div');
-      node.setAttribute("class", "couponPreview");
-      node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
-    node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
-    node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
-    $(node).data("coupon", coupon);
-      $(node).data("couponNumber", couponNumber);
-      getById("bookContent").appendChild(node);
-
-      if (sent) {
-        addSentCouponListeners(node);
-      } else {
-        addReceivedCouponListeners(node);
-      }
-  });
-}
-
-/**
- * Adds click listeners to the specified sent coupon element.
- * @param {node} node - the coupon element
- */
-function addSentCouponListeners(node) {
-  $(node).unbind().click(function() {
-    /** Allows coupon node to be passed as parameter to functions */
-    var $this = this;
-    showSentCouponPreview($this);
-
-    $("#edit").unbind().click(function() {
-      showCouponEditPage($this);
-    });
-  });
 }
 
 /**
@@ -1370,111 +1562,6 @@ function refundCoupon(couponName) {
         title: "Error refunding coupon",
         text: "Please report this issue."
       }, notificationOptions);*/
-    }
-  });
-}
-
-/**
- * Hides the `/sentBook` route and shows the preview of the coupon 
- * that was selected. Also adds listeners for going back to `/sentBook`.
- */
-function showSentCouponPreview($this) {
-  //console.warn("showSentCouponPreview...");
-  saveAndDeleteToggle();
-  fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
-
-  $('#backArrow').unbind().click(function() {
-    saveAndDeleteToggle();
-    fadeBetweenElements("#couponPreview", "#bookContent");
-
-    // Calls this again in case data was updated and needs to be redisplayed
-    displaySentBook();
-  });
-
-  $('#delete').unbind().click(function() {
-    function onConfirm(buttonIndex) {
-      if (buttonIndex == 1) {
-        // TODO: Fix this not working immediately after displaying a 
-        // new template. Error message: "Failed to execute 'appendChild' on 
-        // 'Node': parameter 1 is not of type 'Node'.
-        var couponNumber = $($this).data("couponNumber");
-        book.coupons.splice(couponNumber, 1);
-        
-        displaySentBook();
-        saveAndDeleteToggle();
-        fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
-      }
-    }
-    
-    navigator.notification.confirm(
-        'Are you sure you want to delete this coupon?',
-        onConfirm,
-        'Delete coupon confirmation',
-        ['Delete it', 'Cancel']
-    );
-  });
-
-  // Updates preview fields with actual coupon's data
-  var coupon = $($this).data("coupon");
-  getById("imgPreview").src = coupon.image;
-  getById("namePreview").innerText = coupon.name + ": " + coupon.count;
-  getById("descPreview").innerText = coupon.description;
-}
-
-/**
- * Updates edit page's form with the current coupon data and
- * displays the edit page.
- */
-function showCouponEditPage($this) {
-  //console.warn("showCouponEditPage...");
-  saveAndDeleteToggle();
-  fadeBetweenElements("#couponPreview", "#couponForm");
-  preventInvalidNumberInput();
-
-  var coupon = $($this).data("coupon");
-  getById("couponImage").src         = coupon.image;
-  getById("name").value              = coupon.name;
-  getById("couponDescription").value = coupon.description;
-  getById("count").value             = coupon.count;
-
-  imageUploadListeners(coupon);
-  limitDescriptionLength(false);
-
-  // NOTE: On press, error for reading `image` of undefined... why?
-  $('#backArrow').unbind().click(function() {
-    // Will show the new data
-    showSentCouponPreview($this);
-  });
-
-  $('#save').unbind().click(function() {
-    if (couponFormIsValid()) {
-      updateCoupon(coupon, $this);
-      showSentCouponPreview($this);
-    }
-  });
-}
-
-/**
- * Is SUPPOSED to stop the user from entering decimals and
- * negative numbers, but right now that is still being handled
- * in a not-so-elegant manner by couponFormIsValid. It does, however,
- * stop numbers >99 from being entered.
- */
-function preventInvalidNumberInput() {
-  // Select your input element.
-  var count = getById("count");
-
-  // https://stackoverflow.com/a/24271309/6456163
-  $('#count').on('keyup', function(e) {
-    if (e.key == "Undefined" || e.key == "Unidentified") {
-      // TODO: Make this run AFTER the new key is added to the field
-      //count.value = count.value.slice(0, -1);
-    } else if ($(this).val() > 99 
-        && e.keyCode !== 46 // keycode for delete
-        && e.keyCode !== 8 // keycode for backspace
-       ) {
-       e.preventDefault();
-       $(this).val(99);
     }
   });
 }
@@ -1679,7 +1766,7 @@ function updateCoupon(oldCoupon, $this) {
   var form = $('#couponForm').serializeArray();
 
   var newCoupon = {};
-  newCoupon.image = oldCoupon.image; // NOTE: Temporary
+  newCoupon.image = oldCoupon.image; // TODO: Figure out why this is an issue
   for (var i = 0; i < form.length; i++) {
     newCoupon[form[i].name] = form[i].value;
   }
@@ -1753,6 +1840,8 @@ function couponFormIsValid() {
       text: "Please enter a shorter name"
     }, notificationOptions);
   } else if (isNaN(count) || count < 1 || count > 99) {
+    // NOTE: This is legacy code that shouldn't ever run, but leaving
+    // it here in case it solves some edge case issue.
     SimpleNotification.warning({
       title: "Invalid count entered",
       text: "Please enter a number between 1 and 99"
@@ -1855,65 +1944,6 @@ function getUserName() {
     // Through Auth0; nickname should be first part of email
     return profile.nickname;
   }
-}
-
-/**
- * Get the template corresponding to the button the user selects
- * and send the user to the manipulation page. Sets the requested
- * data to the global book variable.
- * @param {string} name - the name of the template to be retreived
- */
-function getTemplate(name) {
-  console.warn("Getting template '" + name + "'...");
-  $.ajax({
-    type: "GET",
-    url: "http://www.couponbooked.com/scripts/getTemplate?template=" + name,
-    datatype: "html",
-    success: function(data) {
-      if (data == "") {
-        // Should never happen outside of testing, but just in case.
-        if (development) {
-          function onConfirm(buttonIndex) {
-            if (buttonIndex == 1) {
-              createTemplate(name);
-            } else {
-              console.warn("Template '" + name + "' is not being created at this time.");
-            }
-          }
-          
-          navigator.notification.confirm(
-              "Template doesn't exist yet. Do you want to create it?",
-              onConfirm,
-              "No applicable template",
-              ["Create it", "Not right now"]
-          );
-        } else {
-          SimpleNotification.error({
-            title: "No applicable template",
-            text: "Please try again."
-          }, notificationOptions);
-        }
-      } else {
-        book = JSON.parse(data);
-
-        // Capitalize name; looks better
-        var bookName = book.name;
-        bookName = bookName.charAt(0).toUpperCase() + bookName.slice(1)
-        book.name = bookName;
-        previousBook = clone(book);
-
-        _this.redirectTo('/sentBook');
-      }
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in getTemplate: ", XMLHttpRequest.responseText);
-
-      SimpleNotification.error({
-        title: "Error retreiving template!",
-        text: "Please try again later."
-      }, notificationOptions);
-    }
-  });
 }
 
 /**
