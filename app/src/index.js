@@ -58,4 +58,4 @@ function onesignalNotifications() {
         .handleNotificationOpened(notificationOpenedCallback)
         .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.InAppAlert)
         .endInit();
-  }
+}

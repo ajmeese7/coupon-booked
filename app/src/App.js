@@ -433,7 +433,7 @@ function getAllTemplates() {
         node.setAttribute("class", "bookPreview");
 
         // Image and name
-        node.innerHTML += "<img class='bookImage' src='" + templateData.image + "' />";
+        node.innerHTML += `<img class='bookImage' onerror='imageError(this)' src='${templateData.image}' />`;
         node.innerHTML += "<p class='bookName'>" + templateData.name + "</p>";
 
         // https://api.jquery.com/data/
@@ -518,7 +518,7 @@ function addBookToPage(couponBook, isSent) {
   node.setAttribute("class", "bookPreview");
 
   // Image and name
-  node.innerHTML += "<img class='bookImage' src='" + bookData.image + "' />";
+  node.innerHTML += `<img class='bookImage' onerror='imageError(this)' src='${bookData.image}' />`;
   node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
 
   if (isSent) {
@@ -601,7 +601,7 @@ function displaySentBook() {
     it scrolls back up to the big info. */
   var miniPreview = document.createElement('div');
   miniPreview.setAttribute("id", "miniPreview");
-  miniPreview.innerHTML += "<img id='miniPreviewImage' src='" + book.image + "' />";
+  miniPreview.innerHTML += `<img id='miniPreviewImage' onerror='imageError(this)' src='${book.image}' />`;
 
   var previewText = document.createElement('div');
   previewText.setAttribute("id", "previewText");
@@ -777,7 +777,7 @@ function plusButton() {
     // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
     if (device.platform == "iOS") {
       $('#edit img').attr('src', "images/ios-edit.svg");
-      }
+    }
 
     // Set back button to take you back to coupon list
     $('#backArrow').unbind().click(function() {
@@ -797,8 +797,8 @@ function plusButton() {
           SimpleNotification.success({
             text: 'Created coupon'
           }, notificationOptions);
-          }
-      });
+        }
+    });
   });
 }
 
@@ -874,7 +874,7 @@ function imageUploadListeners(coupon) {
           imageToUpdate.src = newPath;
 
           // TODO: Make sure PNGs are able to retain their transparency! If not might
-          // need to consider switching plugins
+          // need to consider switching plugins, or just using Cloudinary
 
           // Should I wait until save for this or just roll with it?
           uploadImage(newPath, coupon);
@@ -1056,7 +1056,7 @@ function openBookPreview() {
  * @param {node} node - the coupon element
  */
 function addSentCouponListeners(node) {
-  console.log("addSentCouponListeners...");
+  //console.log("addSentCouponListeners...");
   $(node).unbind().click(function() {
     /** Allows coupon node to be passed as parameter to functions */
     var $this = this;
@@ -1111,7 +1111,7 @@ function showSentCouponPreview($this) {
 
   // Updates preview fields with actual coupon's data
   var coupon = $($this).data("coupon");
-  getById("imgPreview").src = coupon.image;
+  getById("imgPreview").src        = coupon.image;
   getById("namePreview").innerText = coupon.name + ": " + coupon.count;
   getById("descPreview").innerText = coupon.description;
 }
@@ -1163,7 +1163,7 @@ function createCouponElements(sent) {
   $.each(book.coupons, function(couponNumber, coupon) {
       var node = document.createElement('div');
       node.setAttribute("class", "couponPreview");
-      node.innerHTML += "<img class='couponImage' src='" + coupon.image + "' />";
+      node.innerHTML += `<img class='couponImage' onerror='imageError(this)' src='${coupon.image}' />`;
       node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
       node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
       $(node).data("coupon", coupon);
@@ -1189,7 +1189,7 @@ function showCouponEditPage($this) {
   preventInvalidNumberInput();
 
   var coupon = $($this).data("coupon");
-  getById("couponImage").src         = coupon.image; // TODO: If image no load, gift.png; || method?
+  getById("couponImage").src         = coupon.image;
   getById("name").value              = coupon.name;
   getById("couponDescription").value = coupon.description;
   getById("count").value             = coupon.count;
@@ -1331,7 +1331,7 @@ function displayReceivedBook() {
   // Dynamically create preview of book at top of display
   var miniPreview = document.createElement('div');
   miniPreview.setAttribute("id", "miniPreview");
-  miniPreview.innerHTML += "<img id='miniPreviewImage' src='" + book.image + "' />";
+  miniPreview.innerHTML += `<img id='miniPreviewImage' onerror='imageError(this)' src='${book.image}' />`;
 
   var previewText = document.createElement('div');
   previewText.setAttribute("id", "previewText");
@@ -1420,9 +1420,9 @@ function addReceivedCouponListeners(node) {
         displayReceivedBook();
       });
 
-      // Updates preview fields with actual coupon's data
-      var coupon = $(this).data("coupon");
-      getById("imgPreview").src = coupon.image;
+    // Updates preview fields with actual coupon's data
+    var coupon = $(this).data("coupon");
+    getById("imgPreview").src        = coupon.image;
     getById("namePreview").innerText = coupon.name + ": " + coupon.count;
     getById("descPreview").innerText = coupon.description;
 
@@ -1778,13 +1778,13 @@ function updateCoupon(oldCoupon, $this) {
       // TODO: Consider decomposing
       var oldName = oldCoupon.name;
       var newName = newCoupon.name;
-  if (newName != oldName && nameAlreadyExists(newName)) {
-    newNameWarning();
-  } else {
-    // Iterate over coupons until the one with the previous name is found
-    $.each(book.coupons, function(couponNumber, coupon) {
-      if (coupon.name == oldName) {
-        // Uncomment for debugging coupon updating
+      if (newName != oldName && nameAlreadyExists(newName)) {
+        newNameWarning();
+      } else {
+        // Iterate over coupons until the one with the previous name is found
+        $.each(book.coupons, function(couponNumber, coupon) {
+          if (coupon.name == oldName) {
+            // Uncomment for debugging coupon updating
             /*console.warn("Old coupon:", oldCoupon);
             console.warn("New coupon:", newCoupon);*/
 
@@ -1793,10 +1793,10 @@ function updateCoupon(oldCoupon, $this) {
             coupon = newCoupon;
             book.coupons[couponNumber] = newCoupon;
       
-        $($this).data("coupon", newCoupon);
-        displaySentBook();
-  
-        // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
+            $($this).data("coupon", newCoupon);
+            displaySentBook();
+      
+            // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
             $('#bookContent p:contains(' + newName + ')').parent()[0].click();
             
             console.warn("Coupon updated!");
@@ -2064,15 +2064,15 @@ function createShareCode() {
         var rtn = '';
         for (var i = 0; i < ID_LENGTH; i++) {
           rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
-    }
+        }
         return rtn;
       }
 
       $.ajax({
         type: "POST",
         url: "http://www.couponbooked.com/scripts/createShareCode",
-    data: { bookId: book.bookId, bookData: JSON.stringify(book), shareCode: shareCode },
-    crossDomain: true,
+        data: { bookId: book.bookId, bookData: JSON.stringify(book), shareCode: shareCode },
+        crossDomain: true,
         cache: false,
         success: function(success) {
           // For debugging purposes
@@ -2080,8 +2080,8 @@ function createShareCode() {
 
           // NOTE: Should think of better messages here
           if (success == "Code in use") {
-        // Try again with a new share code
-        console.warn("Share code in use. Generating new code...");
+            // Try again with a new share code
+            console.warn("Share code in use. Generating new code...");
             createShareCode();
           } else if (success == "Receiver exists") {
             // NOTE: Should probably add in headers

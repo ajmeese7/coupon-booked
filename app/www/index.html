@@ -169,7 +169,7 @@
         <div id="couponPreview" class="hide col">
             <h3 id="namePreview"></h3>
             <hr />
-            <img id="imgPreview" src="images/gift.png" />
+            <img id="imgPreview" onerror="imageError(this)" src="images/gift.png" />
             <p id="descPreview"></p> <!-- TODO: Make this look better for short descriptions -->
 
             <!-- If iOS, icon is changed in Node -->
@@ -180,14 +180,14 @@
             <!-- https://picnicss.com/documentation#dropimage -->
             <!-- https://stackoverflow.com/questions/4112575/client-checking-file-size-using-html5 -->
             <div>
-                <img id="couponImage" height="100px" src="images/gift.png" />
+                <img id="couponImage" height="100px" onerror="imageError(this)" src="images/gift.png" />
             </div>
 
             <!-- NOTE: Nearly all of this is copied directly from bookForm, so changes should be reflected there -->
             <div class="imageButtons">
                 <a id="couponOpenPhoto">Choose Image</a>
                 <a id="couponTakePhoto">Take Photo</a>
-                <p id="saveForImage">Save to upload image</p>
+                <p id="saveForImage" class="hide">Save to upload image</p>
     		</div>
 
             <!-- IDEA: Cycle through an array of these for examples; appropriate to template? 
@@ -207,7 +207,7 @@
 
         <form id="bookForm" class="hide col">
             <div>
-                <img id="bookImage" height="100px" src="images/gift.png" />
+                <img id="bookImage" height="100px" onerror="imageError(this)" src="images/gift.png" />
             </div>
 
             <div class="imageButtons">
@@ -282,7 +282,7 @@
         <div id="couponPreview" class="hide col">
             <h3 id="namePreview"></h3>
             <hr />
-            <img id="imgPreview" src="images/gift.png" />
+            <img id="imgPreview" onerror="imageError(this)" src="images/gift.png" />
             <p id="descPreview"></p>
 
             <div id="redeemCoupon">Redeem coupon</div>
@@ -418,6 +418,13 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/materialize.js"></script>
     <script src="js/simpleNotification.min.js"></script>
+    <script>
+        /** For use in App.js and index.html when images don't load in properly */
+        function imageError(image) {
+            console.error("Error loading image! Setting to default URL...", image);
+            image.src = "images/gift.png";
+        }
+    </script>
 </body>
 
 </html>
