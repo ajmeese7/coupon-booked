@@ -23,7 +23,7 @@ function getAllByClassName(className) {
  * @param {string} fadeIn - the selector of the element to appear
  */
 function fadeBetweenElements(fadeOut, fadeIn) {
-  //console.warn("Fading out " + fadeOut + " and fading in " + fadeIn + "...");
+  //console.warn(`Fading out ${fadeOut} and fading in ${fadeIn}...`);
   $(fadeOut).fadeOut(150, function() {
     $(fadeIn).fadeIn(400);
   });

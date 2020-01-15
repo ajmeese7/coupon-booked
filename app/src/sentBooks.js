@@ -1,4 +1,5 @@
 const uuidv4 = require('uuid/v4');
+const env = require('../env');
 var helper = require('./helperFunctions');
 var globalVars = require('./globalVars.js');
 
@@ -24,16 +25,16 @@ function displayBook() {
 
   var previewText = document.createElement('div');
   previewText.setAttribute("id", "previewText");
-  previewText.innerHTML += "<h4 id='bookNamePreview'>" + globalVars.book.name + "</h4>";
+  previewText.innerHTML += `<h4 id='bookNamePreview'>${globalVars.book.name}</h4>`;
 
   // Sets receiver text based on the current state of the book
   if (globalVars.book.receiver) {
     // Book has been sent and code redeemed
-    var receiver = "<p class='receiverText'>Sent to " + globalVars.book.receiver + "</p>";
+    var receiver = `<p class='receiverText'>Sent to ${globalVars.book.receiver}</p>`;
     previewText.innerHTML += receiver;
   } else if (globalVars.book.shareCode) {
     // Code generated but not yet redeemed
-    var receiver = "<p id='shareCodePreview'>Share code: <span>" + globalVars.book.shareCode + "</span></p>";
+    var receiver = `<p id='shareCodePreview'>Share code: <span>${globalVars.book.shareCode}</span></p>`;
     previewText.innerHTML += receiver;
   } else if (globalVars.book.bookId) {
     // No share code generated and not sent; only if book has already been
@@ -47,7 +48,7 @@ function displayBook() {
     previewText.innerHTML += receiver;
   }
   
-  previewText.innerHTML += "<p id='bookDescriptionPreview'>" + globalVars.book.description + "</p>";
+  previewText.innerHTML += `<p id='bookDescriptionPreview'>${globalVars.book.description}</p>`;
   miniPreview.appendChild(previewText);
 
   // https://stackoverflow.com/a/16270807/6456163
@@ -91,11 +92,7 @@ function sneakFormData() {
 
 /** 
  * Changes the current page to the target assigned in
- * backButtonTarget. 
- * 
- * TODO: Work on decomposing all these helper functions into
- * an imported JS file to keep them out of the way of the 
- * big functions to make this file less crowded.
+ * backButtonTarget.
  */
 function goBack() {
   globalVars.previousBook = null;
@@ -103,6 +100,8 @@ function goBack() {
   globalVars._this.redirectTo(globalVars.backButtonTarget);
 }
 
+// TODO: Make it so pressing home button when there are unsaved
+// changes also asks the user to confirm beforehand
 /**
  * Returns you to your previous location; asks for confirmation
  * if you have unsaved changes.
@@ -110,7 +109,7 @@ function goBack() {
 function backButton() {
   $('#backArrow').unbind().click(function() {
     // If not yet saved, just discards without secondary confirmation.
-    if (!helper.isSameObject(globalVars.book, globalVars.previousBook) && book.bookId) {
+    if (!helper.isSameObject(globalVars.book, globalVars.previousBook) && globalVars.book.bookId) {
       function onConfirm(buttonIndex) {
         // 1 is "Discard them"
         if (buttonIndex == 1) {
@@ -145,7 +144,7 @@ function saveButton() {
           SimpleNotification.info({
             title: 'Development mode',
           text: 'You haven\'t changed anything!'
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     } else {
         if (globalVars.book.bookId) {
@@ -156,7 +155,7 @@ function saveButton() {
             // Book hasn't been modified
             SimpleNotification.info({
               text: 'You haven\'t changed anything!'
-            }, notificationOptions);
+            }, globalVars.notificationOptions);
           }
         } else {
           console.warn("Creating book...", globalVars.book);
@@ -215,7 +214,7 @@ function plusButton() {
 
           SimpleNotification.success({
             text: 'Created coupon'
-          }, notificationOptions);
+          }, globalVars.notificationOptions);
         }
     });
   });
@@ -379,7 +378,7 @@ function uploadImage(filePath, coupon) {
       api_key: env.CLOUDINARY_KEY,
       folder: folder,
       timestamp: timestamp,
-      signature: new Hashes.SHA1().hex('folder=' + folder + '&timestamp=' + timestamp + env.CLOUDINARY_SECRET)
+      signature: new Hashes.SHA1().hex(`folder=${folder}&timestamp=${timestamp}${env.CLOUDINARY_SECRET}`)
   };
 
   var ft = new FileTransfer();
@@ -468,7 +467,6 @@ function addListeners() {
  */
 function createCouponElements() {
   // TODO: Figure out how to display image licenses if not paying for yearly subscription
-  // TODO: Exclude this file from UglifyJS so I can use template literals
   // TODO: Implement way to rearrange organization of coupons; also change
     // display options like default, alphabetical, count remaining, etc.;
     // should changing display preference permenantly update the order?
@@ -478,8 +476,8 @@ function createCouponElements() {
       var node = document.createElement('div');
       node.setAttribute("class", "couponPreview");
       node.innerHTML += `<img class='couponImage' onerror='imageError(this)' src='${coupon.image}' />`;
-      node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
-      node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
+      node.innerHTML += `<p class='couponName'>${coupon.name}</p>`;
+      node.innerHTML += `<p class='couponCount'>${coupon.count} remaining</p>`;
       $(node).data("coupon", coupon);
       $(node).data("couponNumber", couponNumber);
       helper.getById("bookContent").appendChild(node);
@@ -549,7 +547,7 @@ function showCouponPreview($this) {
   // Updates preview fields with actual coupon's data
   var coupon = $($this).data("coupon");
   helper.getById("imgPreview").src        = coupon.image;
-  helper.getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+  helper.getById("namePreview").innerText = `${coupon.name}: ${coupon.count}`;
   helper.getById("descPreview").innerText = coupon.description;
 }
 
@@ -623,7 +621,7 @@ function limitDescriptionLength(isBook) {
       length = maxlen;
     } else {
       // Example: 146/180
-      descLength.text(length + "/" + maxlen);
+      descLength.text(`${length}/${maxlen}`);
 
       if (!initial) {
         updateHeight(isBook);
@@ -657,7 +655,7 @@ function updateHeight(isBook) {
                 + parseInt(computed.getPropertyValue('padding-bottom'), 10)
                 + parseInt(computed.getPropertyValue('border-bottom-width'), 10);
 
-  field.style.height = height + 'px';
+  field.style.height = `${height}px`;
 
   // NOTE: This works because you can't scroll past the end of the document.
   // Otherwise I'd have to have a variable checking the previous height of the
@@ -755,7 +753,7 @@ function deleteBook() {
 
         SimpleNotification.success({
           text: "Successfully deleted book"
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.error("Error in deleteBook: ", XMLHttpRequest.responseText);
@@ -763,7 +761,7 @@ function deleteBook() {
         SimpleNotification.error({
           title: "Error deleting coupon book!",
           text: "Please try again later."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     });
   } else {
@@ -846,14 +844,15 @@ function updateCoupon(oldCoupon, $this) {
             displayBook();
       
             // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
-            $('#bookContent p:contains(' + newName + ')').parent()[0].click();
+            // TODO: Explain this line, and also test the new version
+            $(`#bookContent p:contains('${newName}')`).parent()[0].click();
             
             console.warn("Coupon updated!");
             showCouponPreview($this);
 
             SimpleNotification.success({
               text: "Updated coupon"
-            }, notificationOptions);
+            }, globalVars.notificationOptions);
           }
         });
       }
@@ -863,7 +862,7 @@ function updateCoupon(oldCoupon, $this) {
 
     SimpleNotification.info({
       text: 'You haven\'t changed anything!'
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
   }
 }
 
@@ -880,21 +879,21 @@ function couponFormIsValid() {
     // No name
     SimpleNotification.warning({
       text: "Please enter a name"
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
   } else if (name.length > 99) {
     // Name too long;
     // IDEA: Switch this to textArea-style validation like in book
     SimpleNotification.warning({
       title: "Name too long",
       text: "Please enter a shorter name"
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
   } else if (isNaN(count) || count < 1 || count > 99) {
     // NOTE: This is legacy code that shouldn't ever run, but leaving
     // it here in case it solves some edge case issue.
     SimpleNotification.warning({
       title: "Invalid count entered",
       text: "Please enter a number between 1 and 99"
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
   } else {
     return true;
   }
@@ -921,18 +920,18 @@ function bookFormIsValid() {
   } else if (name.length < 1) {
     SimpleNotification.warning({
       text: "Please enter a name"
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
   } else if (name.length > 99) {
     SimpleNotification.warning({
       title: "Name too long",
       text: "Please enter a shorter name"
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
   } else if (desc.length > 280) {
     // TODO: Give an indication of characters used 
     // out of total allowed, like a textArea. Switch?
     SimpleNotification.warning({
       text: "Please enter a shorter description"
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
   } else {
     return true;
   }
@@ -986,7 +985,7 @@ function createBook() {
         
         SimpleNotification.success({
           text: "Successfully created book"
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -995,7 +994,7 @@ function createBook() {
       SimpleNotification.error({
         title: "Error creating book!",
         text: "Please try again later."
-      }, notificationOptions);
+      }, globalVars.notificationOptions);
     }
   });
 }
@@ -1018,7 +1017,7 @@ function editBookDetails() {
   if (!helper.isSameObject(globalVars.book, oldBook)) {
       SimpleNotification.success({
         text: "Updated book"
-      }, notificationOptions);
+      }, globalVars.notificationOptions);
 
       return true;
   } else {
@@ -1027,7 +1026,7 @@ function editBookDetails() {
 
     SimpleNotification.info({
       text: 'You haven\'t changed anything!'
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
 
     return false;
   }
@@ -1055,7 +1054,7 @@ function updateBook(silent) {
       if (!silent) {
         SimpleNotification.success({
           text: "Successfully updated coupon book"
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -1069,7 +1068,7 @@ function updateBook(silent) {
         // Would make them awfully long but seems like a professional thing to do.
         title: "Error updating coupon book!",
         text: "Please try again later."
-      }, notificationOptions);
+      }, globalVars.notificationOptions);
     }
   });
 }
@@ -1112,7 +1111,7 @@ function updateTemplate() {
 
       SimpleNotification.success({
         text: "Successfully updated template"
-      }, notificationOptions);
+      }, globalVars.notificationOptions);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       var responseText = XMLHttpRequest.responseText;
@@ -1123,13 +1122,13 @@ function updateTemplate() {
         SimpleNotification.error({
           title: "Unauthorized template update",
           text: "Your violation has been logged."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       } else {
         // Generic error
         SimpleNotification.error({
           title: "Error updating template",
           text: "Please try again later."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     }
   });
@@ -1143,7 +1142,7 @@ function newNameWarning() {
   SimpleNotification.warning({
     title: "Already used this name",
     text: "Please enter a unique name."
-  }, notificationOptions);
+  }, globalVars.notificationOptions);
 }
 
 /**
@@ -1152,7 +1151,7 @@ function newNameWarning() {
  * @param {string} name - the name of the template to be created
  */
 function createTemplate(name) {
-  console.warn("Creating template " + name + "...");
+  console.warn(`Creating template ${name}...`);
   // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
   var emptyTemplate = { name:name, description:"", image:"images/gift.png", bookId:null, shareCode:null, coupons:[] };
   emptyTemplate = JSON.stringify(emptyTemplate);
@@ -1176,7 +1175,7 @@ function createTemplate(name) {
         SimpleNotification.success({
           title: "Successfully created template!",
           text: "Good for you. Keep up the great work!"
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -1188,13 +1187,13 @@ function createTemplate(name) {
         SimpleNotification.error({
           title: "Unauthorized template creation",
           text: "Your violation has been logged."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       } else {
         // Generic error
         SimpleNotification.error({
           title: "Error creating template",
           text: "Please try again later."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     }
   });

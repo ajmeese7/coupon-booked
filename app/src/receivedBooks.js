@@ -18,10 +18,10 @@ function displayBook() {
 
   var previewText = document.createElement('div');
   previewText.setAttribute("id", "previewText");
-  previewText.innerHTML += "<h4>" + globalVars.book.name + "</h4>";
+  previewText.innerHTML += `<h4>${globalVars.book.name}</h4>`;
 
   var senderText = "<p class='senderText'>";
-  senderText += globalVars.book.sender ? "Sent from " + globalVars.book.sender : "Sender unavailable";
+  senderText += globalVars.book.sender ? `Sent from ${globalVars.book.sender}` : "Sender unavailable";
   senderText += "</p>";
   previewText.innerHTML += senderText;
   miniPreview.appendChild(previewText);
@@ -72,7 +72,7 @@ function bookListeners() {
         // Also, how do you see hidden books to unhide?
         /*SimpleNotification.success({
           text: "Successfully hid book"
-        }, notificationOptions);*/
+        }, globalVars.notificationOptions);*/
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.error("Error hiding book:", XMLHttpRequest.responseText);
@@ -82,7 +82,7 @@ function bookListeners() {
         SimpleNotification.warning({
           title: "Error hiding book",
           text: "Please try again later."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     });
   });
@@ -98,7 +98,6 @@ function bookListeners() {
  */
 function createCouponElements() {
   // TODO: Figure out how to display image licenses if not paying for yearly subscription
-  // TODO: Exclude this file from UglifyJS so I can use template literals
   // TODO: Implement way to rearrange organization of coupons; also change
     // display options like default, alphabetical, count remaining, etc.;
     // should changing display preference permenantly update the order?
@@ -108,8 +107,8 @@ function createCouponElements() {
       var node = document.createElement('div');
       node.setAttribute("class", "couponPreview");
       node.innerHTML += `<img class='couponImage' onerror='imageError(this)' src='${coupon.image}' />`;
-      node.innerHTML += "<p class='couponName'>" + coupon.name + "</p>";
-      node.innerHTML += "<p class='couponCount'>" + coupon.count + " remaining</p>";
+      node.innerHTML += `<p class='couponName'>${coupon.name}</p>`;
+      node.innerHTML += `<p class='couponCount'>${coupon.count} remaining</p>`;
       $(node).data("coupon", coupon);
       $(node).data("couponNumber", couponNumber);
       helper.getById("bookContent").appendChild(node);
@@ -134,7 +133,7 @@ function addCouponListeners(node) {
     // Updates preview fields with actual coupon's data
     var coupon = $(this).data("coupon");
     helper.getById("imgPreview").src        = coupon.image;
-    helper.getById("namePreview").innerText = coupon.name + ": " + coupon.count;
+    helper.getById("namePreview").innerText = `${coupon.name}: ${coupon.count}`;
     helper.getById("descPreview").innerText = coupon.description;
 
     // This is here to pass current coupon to redeemCoupon().
@@ -189,7 +188,7 @@ function redeemCoupon(coupon) {
         SimpleNotification.error({
           title: "Error redeeming coupon!",
           text: "Please try again later."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     });
   } else {
@@ -201,7 +200,7 @@ function redeemCoupon(coupon) {
       title: "No coupons remaining",
       text: "Try something else or ask for more!"
       // TODO: Decide if this should be an option / how to do
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
   }
 }
 
@@ -212,8 +211,8 @@ function redeemCoupon(coupon) {
  * @param {element} coupon - the coupon element that is being redeemed
  */
 function notifySender(senderId, coupon) {
-  var title = getUserName() + " redeemed \"" + coupon.name + "!\"";
-  var message = "Coupon description: " + coupon.description; // IDEA: Current count or something?
+  var title = `${getUserName()} redeemed "${coupon.name}!"`;
+  var message = `Coupon description: ${coupon.description}`; // IDEA: Current count or something?
   var notificationObj = { headings: {en: title},
                           contents: {en: message},
                           include_external_user_ids: [senderId]};
@@ -225,7 +224,7 @@ function notifySender(senderId, coupon) {
       console.warn("Notification post success:", successResponse);
       SimpleNotification.success({
         text: "Successfully redeemed coupon"
-      }, notificationOptions);
+      }, globalVars.notificationOptions);
     },
     function (failedResponse) {
       console.error("Notification post failed: ", failedResponse);
@@ -242,7 +241,7 @@ function notifySender(senderId, coupon) {
       SimpleNotification.error({
         title: "Error redeeming coupon",
         text: "Please try again later."
-      }, notificationOptions);
+      }, globalVars.notificationOptions);
     }
   );
 }
@@ -272,7 +271,7 @@ function refundCoupon(couponName) {
       /*SimpleNotification.error({
         title: "Error refunding coupon",
         text: "Please report this issue."
-      }, notificationOptions);*/
+      }, globalVars.notificationOptions);*/
     }
   });
 }

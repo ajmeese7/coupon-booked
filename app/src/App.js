@@ -45,9 +45,6 @@ function App() {
   darkModeSupport();
 }
 
-// TODO: Switch to better close animation when library is updated;
-// also transition hacky way of animating to officially supported option (DL new commit)
-var notificationOptions = { fadeout: 500, closeButton: false, removeAllOnDisplay: true, duration: 3000 };
 // IDEA: Make it when you click back from a coupon preview it takes you to where you were scrolled;
   // perhaps with a tags that automatically save id as you scroll with name? Need to handle name updating...
 // IDEA: Press and hold coupon to preview it or something to avoid a lot of clicking;
@@ -246,7 +243,7 @@ App.prototype.state = {
           $(tooltip).finish().fadeTo(400, 1).delay(1500).fadeTo(400, 0);
         });
 
-        helper.getById("shareCodeText").innerText = book.shareCode;
+        helper.getById("shareCodeText").innerText = globalVars.book.shareCode;
 
         // Display share icon based on platform
         var platform = device.platform;
@@ -374,7 +371,7 @@ function handlePayments() {
         SimpleNotification.warning({
           title: "Problem processing payment",
           text: "Please try again later."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -425,7 +422,7 @@ function getAllTemplates() {
 
         // Image and name
         node.innerHTML += `<img class='bookImage' onerror='imageError(this)' src='${templateData.image}' />`;
-        node.innerHTML += "<p class='bookName'>" + templateData.name + "</p>";
+        node.innerHTML += `<p class='bookName'>${templateData.name}</p>`;
 
         // https://api.jquery.com/data/
         $(node).data("templateData", templateData);
@@ -444,7 +441,7 @@ function getAllTemplates() {
       SimpleNotification.error({
         title: 'Error retreiving templates',
         text: 'Please try again later.'
-      }, notificationOptions);
+      }, globalVars.notificationOptions);
     }
   });
 }
@@ -458,7 +455,7 @@ function pullUserRelatedBooks() {
   var userId = localStorage.getItem('user_id');
   $.ajax({
     type: "GET",
-      url: "http://www.couponbooked.com/scripts/getData?userId=" + userId,
+      url: `http://www.couponbooked.com/scripts/getData?userId=${userId}`,
       datatype: "json",
       success: function(data) {
         data = JSON.parse(data);
@@ -488,7 +485,7 @@ function pullUserRelatedBooks() {
       SimpleNotification.error({
         title: 'Error retreiving info',
           text: 'Please try again later.'
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
   });
 }
@@ -510,12 +507,12 @@ function addBookToPage(couponBook, isSent) {
 
   // Image and name
   node.innerHTML += `<img class='bookImage' onerror='imageError(this)' src='${bookData.image}' />`;
-  node.innerHTML += "<p class='bookName'>" + bookData.name + "</p>";
+  node.innerHTML += `<p class='bookName'>${bookData.name}</p>`;
 
   if (isSent) {
     var shareCode = bookData.shareCode;
     if (shareCode) {
-      node.innerHTML += "<p class='receiverText'>Code: " + shareCode + "</p>";
+      node.innerHTML += `<p class='receiverText'>Code: ${shareCode}</p>`;
     } else {
       // TODO: Make this not move the div up when longer than one line, and instead
       // drop the text while keeping the images level. Temporarily avoided with 
@@ -618,12 +615,12 @@ function createShareCode() {
             SimpleNotification.warning({
               // IDEA: Warning symbol for images; yellow might not be enough
               text: "Book has already been sent."
-            }, notificationOptions);
+            }, globalVars.notificationOptions);
           } else if (success == "Share code exists") {
             console.warn("Share code already generated.");
             SimpleNotification.warning({
               text: "Share code already generated."
-            }, notificationOptions);
+            }, globalVars.notificationOptions);
           } else {
             console.warn("Share code created successfully:", shareCode);
             // Share code created successfully
@@ -642,14 +639,14 @@ function createShareCode() {
           SimpleNotification.error({
             title: "Error creating share code!",
             text: "Please try again later."
-          }, notificationOptions);
+          }, globalVars.notificationOptions);
         }
       });
   } else {
     SimpleNotification.info({
       title: "Book isn't saved yet!",
       text: "Please save before sharing."
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
   }
 }
 
@@ -673,7 +670,7 @@ function codeIsValid(shareCode) {
       SimpleNotification.warning({
         title: "Invalid code",
         text: "Please try again."
-      }, notificationOptions);
+      }, globalVars.notificationOptions);
 
       return false;
     }
@@ -681,7 +678,7 @@ function codeIsValid(shareCode) {
     SimpleNotification.warning({
       title: "Not long enough",
       text: "Please enter your eight digit code."
-    }, notificationOptions);
+    }, globalVars.notificationOptions);
 
     return false;
   }
@@ -707,17 +704,17 @@ function redeemCode(shareCode) {
         SimpleNotification.warning({
           title: "Invalid code",
           text: "Please try again."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       } else if (success == "Sent to self") {
         SimpleNotification.warning({
           title: "This is your code!",
           text: "Please send it to someone else."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       } else {
         SimpleNotification.success({
           title: "Successfully redeemed code!",
           text: "Check your dashboard."
-        }, notificationOptions);
+        }, globalVars.notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -726,7 +723,7 @@ function redeemCode(shareCode) {
       SimpleNotification.error({
         title: "Error redeeming code!",
         text: "Please try again later."
-      }, notificationOptions);
+      }, globalVars.notificationOptions);
     }
   });
 }
@@ -739,16 +736,16 @@ function shareCode() {
   var options = {
     // TODO: Display sender name in message -> getUserName()
     subject: "You've been Coupon Booked!", // for email
-    message: "You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: " + globalVars.book.shareCode,
+    message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${globalVars.book.shareCode}`,
     //chooserTitle: 'Pick an app', // Android only, you can override the default share sheet title
   };
   var onSuccess = function(result) {
     // On Android result.app since plugin version 5.4.0 this is no longer empty.
     // On iOS it's empty when sharing is cancelled (result.completed=false)
-    console.warn("Shared to app: " + result.app);
+    console.warn("Shared to app:", result.app);
   };
   var onError = function(msg) {
-    console.error("Sharing failed with message: " + msg);
+    console.error("Sharing failed with message:", msg);
   };
 
   window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
@@ -837,7 +834,7 @@ function reacquireProfile() {
 
     tempCounter++;
     if (tempCounter < 3) {
-      console.log("navBar re-run attempt #" + tempCounter);
+      console.log(`navBar re-run attempt #${tempCounter}`);
       navBar();
     }
   });
@@ -981,8 +978,8 @@ App.prototype.logout = function(e) {
 };
 
 function getRedirectUrl() {
-  var returnTo = env.PACKAGE_ID + '://' + env.AUTH0_DOMAIN + '/cordova/' + env.PACKAGE_ID + '/callback';
-  var url = 'https://' + env.AUTH0_DOMAIN + '/v2/logout?client_id=' + env.AUTH0_CLIENT_ID + '&returnTo=' + returnTo;
+  var returnTo = `${env.PACKAGE_ID}://${env.AUTH0_DOMAIN}/cordova/${env.PACKAGE_ID}/callback`;
+  var url = `https://${env.AUTH0_DOMAIN}/v2/logout?client_id=${env.AUTH0_CLIENT_ID}&returnTo=${returnTo}`;
   return url;
 }
 
@@ -1003,7 +1000,7 @@ function openUrl(url) {
             }
           },
           function(msg) {
-            console.log("KO: " + JSON.stringify(msg));
+            console.log("KO:", JSON.stringify(msg));
           })
     } else {
       window.open(url, '_system');
@@ -1012,9 +1009,9 @@ function openUrl(url) {
 }
 
 App.prototype.redirectTo = function(route) {
-  console.warn("redirectTo " + route + "...");
+  console.warn(`redirectTo ${route}...`);
   if (!this.state.routes[route]) {
-    throw new Error('Unknown route ' + route + '.');
+    throw new Error(`Unknown route ${route}.`);
   }
   this.state.currentRoute = route;
   this.render();
@@ -1061,7 +1058,7 @@ App.prototype.resumeApp = function() {
               } else {
                 var body = JSON.parse(body);
                 var idToken = body.id_token;
-                console.warn("ID token retrieval successful! New ID token: " + idToken);
+                console.warn("ID token retrieval successful! New ID token:", idToken);
                 localStorage.setItem('id_token', idToken);
 
                 var accessToken = body.access_token;
@@ -1073,7 +1070,7 @@ App.prototype.resumeApp = function() {
 
         var getNewAccessToken = generateAccessToken();
         getNewAccessToken.then(function(result) {
-          console.warn("Access token retrieval successful! New access token: " + result);
+          console.warn("Access token retrieval successful! New access token:", result);
           localStorage.setItem('access_token', result);
           
           successfulAuth();
