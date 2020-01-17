@@ -100,13 +100,13 @@ function goBack() {
   globalVars._this.redirectTo(globalVars.backButtonTarget);
 }
 
-// TODO: Make it so pressing home button when there are unsaved
+// TODO: Make it so pressing home button (logo) when there are unsaved
 // changes also asks the user to confirm beforehand
 /**
  * Returns you to your previous location; asks for confirmation
  * if you have unsaved changes.
  */
-function backButton() {
+function bookBackButton() {
   $('#backArrow').unbind().click(function() {
     // If not yet saved, just discards without secondary confirmation.
     if (!helper.isSameObject(globalVars.book, globalVars.previousBook) && globalVars.book.bookId) {
@@ -133,7 +133,7 @@ function backButton() {
 /**
  * Calls functions to create or update book and templates accordingly.
  */
-function saveButton() {
+function saveBookButton() {
   $('#save').unbind().click(function() {
     if (globalVars.development) {
         if (!helper.isSameObject(globalVars.book, globalVars.previousBook)) {
@@ -173,22 +173,21 @@ function plusButton() {
   function fadeToBookContent() {
     //console.warn("Fading to book content...");
     helper.fadeBetweenElements("#couponForm", "#bookContent");
-    listeners();
+    addListeners();
     displayBook();
   }
 
   $('#plus').unbind().click(function() {
-    //console.log("Plus button pressed!");
+    //console.log("Coupon plus button pressed!");
     helper.fadeBetweenElements("#bookContent", "#couponForm");
-    helper.fadeBetweenElements("#couponOpenPhoto, #couponTakePhoto", "#saveForImage");
 
     // Reset form to blank in case it is clicked after editing a coupon
-    // TODO: Change this now that image upload is working
     helper.getById("couponImage").src = "images/gift.png";
     helper.getById("name").value      = "";
     if (helper.getById("couponDescription")) { helper.getById("couponDescription").value = ""; }
     if (helper.getById("count")) { helper.getById("count").value = ""; }
 
+    imageUploadListeners(true);
     limitDescriptionLength();
     preventInvalidNumberInput();
 
@@ -199,8 +198,34 @@ function plusButton() {
 
     // Set back button to take you back to coupon list
     $('#backArrow').unbind().click(function() {
-      fadeToBookContent();
-      helper.fadeBetweenElements("#saveForImage", "#couponOpenPhoto, #couponTakePhoto");
+      var blankCoupon = { image: "gift.png", name: "", desc: "", count: "" };
+      var newCoupon = {};
+
+      // https://stackoverflow.com/a/29182327/6456163
+      newCoupon.image = helper.getById("couponImage").src.replace(/^.*[\\\/]/, '');
+      newCoupon.name = helper.getById("name").value;
+      newCoupon.desc = helper.getById("couponDescription").value;
+      newCoupon.count = helper.getById("count").value;
+
+      // If not yet saved, just discards without secondary confirmation.
+      if (!helper.isSameObject(blankCoupon, newCoupon)) {
+        function onConfirm(buttonIndex) {
+          // 1 is "Discard them"
+          if (buttonIndex == 1) {
+            fadeToBookContent();
+          }
+        }
+        
+        navigator.notification.confirm(
+            'Are you sure you want to discard your changes?',
+            onConfirm,
+            'Discard all changes',
+            ["Discard them","Wait, no!"]
+        );
+      } else {
+        // Coupon hasn't been modified
+        fadeToBookContent();
+      }
     });
 
     $('#save').unbind().click(function() {
@@ -405,12 +430,7 @@ function uploadImage(filePath, coupon) {
       var response = JSON.parse(result.response);
       console.log("Upload response:", response);
 
-      if (coupon) {
-        coupon.image = response.secure_url;
-      } else {
-        // TODO: Test again for when leaving edit page if it'll load in quickly
-        globalVars.book.image = response.secure_url;
-      }
+      if (!coupon) globalVars.book.image = response.secure_url;
     }, 
     function(error) {
       console.error("Problem in image upload:", error);
@@ -452,10 +472,10 @@ function addListeners() {
     }
   });
 
-  backButton();
-  saveButton();
-  plusButton();
+  bookBackButton();
+  saveBookButton();
   editBookButton();
+  plusButton();
   createCouponElements();
 }
 
@@ -787,13 +807,7 @@ function createCoupon() {
 
   // Convert from string to number
   coupon.count = parseInt(coupon.count);
-
-  // TODO: This is what the problem was before!!!
-    // Can easily fix the image upload issue by removing this I bet
-  coupon.image = "images/gift.png";
-
-  // Uncomment for debugging coupon creation
-  // console.warn("New coupon:", coupon);
+  coupon.image = helper.getById("couponImage").src;
 
   // Name already validated before this function is called so
   // no need to do it again.
@@ -808,12 +822,13 @@ function createCoupon() {
  * @param {Object} $this - reference to the applicable couponPreview node
  */
 function updateCoupon(oldCoupon, $this) {
+  // TODO: Make choosing image not be automatic and they still have to save it or
+  // choose to discard changes.
   console.warn("Attempting to update coupon...");
   var form = $('#couponForm').serializeArray();
-  // TODO: Get new image or something; what's the issue?
 
   var newCoupon = {};
-  newCoupon.image = oldCoupon.image;
+  newCoupon.image = helper.getById("couponImage").src;
   for (var i = 0; i < form.length; i++) {
     newCoupon[form[i].name] = form[i].value;
   }
@@ -831,10 +846,6 @@ function updateCoupon(oldCoupon, $this) {
         // Iterate over coupons until the one with the previous name is found
         $.each(globalVars.book.coupons, function(couponNumber, coupon) {
           if (coupon.name == oldName) {
-            // Uncomment for debugging coupon updating
-            /*console.warn("Old coupon:", oldCoupon);
-            console.warn("New coupon:", newCoupon);*/
-
             // TODO: Check for special character support, i.e. other languages;
               // also in editBookDetails
             coupon = newCoupon;
@@ -1134,7 +1145,6 @@ function updateTemplate() {
   });
 }
 
-
 /**
  * Shows a warning notification that a unique name is required.
  */
@@ -1199,40 +1209,9 @@ function createTemplate(name) {
   });
 }
 
-// NOTE: All the functions in this file are listed here.
-// If they are commented out, they aren't currently needed
-// outside this file. Please keep this list in order :)
+// NOTE: Functions needed outside this file are listed here.
 module.exports = Object.assign({
   displayBook,
-  //sneakFormData,
-  //goBack,
-  //backButton,
-  //saveButton,
-  //plusButton,
-  //editBookButton,
-  //imageUploadListeners,
-  //uploadImage,
-  //addListeners,
-  //createCouponElements,
   addCouponListeners,
-  //showCouponPreview,
-  //showCouponEditPage,
-  //limitDescriptionLength,
-  //updateHeight,
-  //preventInvalidNumberInput,
-  //openBookPreview,
-  //addDeleteListeners,
-  //deleteBook,
-  //createCoupon,
-  //updateCoupon,
-  //couponFormIsValid,
-  //bookFormIsValid,
-  //saveAndDeleteToggle,
-  //createBook,
-  //editBookDetails,
-  updateBook,
-  //nameAlreadyExists,
-  //updateTemplate,
-  //newNameWarning,
-  //createTemplate
+  updateBook
 });

@@ -262,7 +262,7 @@ function refundCoupon(couponName) {
     cache: false,
     success: function(success) {
       // Uncomment to debug refunding coupons
-      //console.warn("refundCoupon success: ", success);
+      //console.warn("refundCoupon success:", success);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error in redeemCoupon: ", XMLHttpRequest.responseText);
@@ -276,15 +276,7 @@ function refundCoupon(couponName) {
   });
 }
 
-// NOTE: All the functions in this file are listed here.
-// If they are commented out, they aren't currently needed
-// outside this file. Please keep this list in order :)
+// NOTE: Functions needed outside this file are listed here.
 module.exports = Object.assign({
-  displayBook,
-  //bookListeners,
-  //createCouponElements,
-  //addCouponListeners,
-  //redeemCoupon,
-  //notifySender,
-  //refundCoupon
+  displayBook
 });

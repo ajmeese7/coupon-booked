@@ -13,7 +13,6 @@ const Auth0Cordova = require('@auth0/cordova');
 // TODO: Solve https://www.google.com/search?client=firefox-b-1-d&q=uncollapse+all+comments+vscode
   // for after collapse all on file open. That or alternative of collapsing all functions.
 
-// TODO: Plural or singular??
 var sent = require('./sentBooks.js');
 var received = require('./receivedBooks.js');
 var helper = require('./helperFunctions.js');
