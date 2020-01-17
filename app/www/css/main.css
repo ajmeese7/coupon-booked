@@ -115,7 +115,7 @@ label {
 
 /* Dashboard page elements */
 .bookPreview, .couponPreview {
-    display: inline-block;
+    display: inline-grid;
     text-align: center;
     margin-top: 15px;
 }
@@ -125,7 +125,6 @@ label {
 }
 .couponPreview {
     /* Numbers don't add up, but it's what looks prettiest to me right now */
-    float: left;
     width: 45%;
     margin-left: 3.25%;
 }
@@ -147,10 +146,10 @@ label {
     margin-bottom: 0px;
 }
 
-.receiverText, .senderText, .couponCount, #saveForImage {
+.receiverText, .senderText, .couponCount {
     color: #7E7E7E;
 }
-.senderText, .receiverText, #saveForImage {
+.senderText, .receiverText {
     /* https://stackoverflow.com/a/7993098/6456163 */
     width: 80%;
     margin: auto;
