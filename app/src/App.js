@@ -51,6 +51,11 @@ function App() {
 // IDEA: Display book animation on app open, but you have to click it to get it to open then go into app?
   // Still have to redo home page...
 
+/* The characters allowed in the share code and the code length.
+ * Needed for createShareCode, redeemCode, and the route. */
+var ALPHABET = '23456789abdegjkmnpqrvwxyz';
+var ID_LENGTH = 8;
+
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -214,10 +219,33 @@ App.prototype.state = {
         });
 
         // https://www.outsystems.com/forums/discussion/27816/mobile-max-length-of-input-not-working/#Post101576
-        $('#redeemBox').on("input", function () {
-          // TODO: Add checkign to prevent characters that are not part of the code, i.e. space and period
-          if (this.value.length > 8) {
-            this.value = this.value.slice(0,8);
+        $('#redeemBox').on("input", function (event) {
+          if (event.originalEvent.inputType == "insertFromPaste") {
+            for (var i = 0; i < this.value.length; i++) {
+              var currentChar = this.value.toLowerCase().charAt(i);
+              
+              if (!ALPHABET.includes(currentChar)) {
+                //console.log(`Problematic char: '${currentChar}'`);
+                //var before = this.value;
+                this.value = this.value.replace(currentChar, '');
+                //console.log(`Before: ${before}, after: ${this.value}`);
+
+                // To retest that same character spot since the string shifted now.
+                // No out of bounds issue because it's about to i++ in the loop.
+                i--;
+              }
+            }
+          } else {
+            var currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
+            if (!ALPHABET.includes(currentChar)) {
+              //console.log(`Problematic char: '${currentChar}'`);
+              this.value = this.value.slice(0, this.value.length - 1);
+            }
+          }
+
+          // Cut length down to desired amount
+          if (this.value.length > ID_LENGTH) {
+            this.value = this.value.slice(0, 8);
           }
         });
       }
@@ -569,11 +597,6 @@ function addBookListeners(node) {
     }
   });
 }
-
-/* The characters allowed in the share code and the code length.
- * Needed for createShareCode and redeemCode. */
-var ALPHABET = '23456789abdegjkmnpqrvwxyz';
-var ID_LENGTH = 8;
 
 /**
  * Generates a share code and adds it to the book's entry 
