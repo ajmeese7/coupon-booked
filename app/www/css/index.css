@@ -20,6 +20,10 @@ body {
     text-transform: none !important; /* Should I let this be uppercase like Cordova does? */
 }
 
+hr {
+    border-top: var(--hr-style);
+}
+
 a {
     text-decoration: none;
 }

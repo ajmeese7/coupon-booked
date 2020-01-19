@@ -73,26 +73,6 @@ label {
     margin-bottom: 14px;
     text-align: center;
 }
-#row {
-    display: flex;
-    width: 100%;
-    justify-content: space-around;
-}
-#buttonContainer button {
-    /* TODO: Improve the look of these eventually */
-    /* IDEA: On click animation into loaded template, like swirl or something */
-    border-radius: 50%;
-    display: inline-block;
-    width: 35%;
-    padding: 0px;
-    margin-bottom: 10px;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    white-space: normal !important;
-    background-color: #24a0ed; /* TODO: Work on color; https://encycolorpedia.com/24a0ed + https://fvsch.com/styling-buttons/ */
-    border-color: #1183ca;
-    color: rgb(241, 241, 241);
-}
 
 /* None of this should be necessary, but *might* speed up animations */
 .carousel .carousel-item{

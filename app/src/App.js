@@ -339,12 +339,12 @@ function darkModeSupport(settingsPage) {
     var copyButton = helper.getById("copyButton");
     var backArrow = helper.getById("backArrow");
 
-    // TODO: Figure out how to make PNG images look good over dark mode
     if (localStorage.getItem('darkMode') == "true") {
       setRootProperty('--background-color', 'rgb(15, 15, 15)');
       setRootProperty('--text-color', 'rgb(240, 240, 240)');
       setRootProperty('--topbar-color', '#474747');
       setRootProperty('--tab-color', '#474747');
+      setRootProperty('--hr-style', '1px solid rgba(255,255,255,.35)');
       if (hideBook) hideBook.className = "filter-white";
       if (copyButton) copyButton.className = "filter-white";
       if (backArrow) backArrow.className = "filter-white";
@@ -353,6 +353,7 @@ function darkModeSupport(settingsPage) {
       setRootProperty('--text-color', '#041433');
       setRootProperty('--topbar-color', '#EEEEEE');
       setRootProperty('--tab-color', '#fff');
+      setRootProperty('--hr-style', '1px solid rgba(0,0,0,.1)');
       if (hideBook) hideBook.className = "filter-black";
       if (copyButton) copyButton.className = "filter-black";
       if (backArrow) backArrow.className = "filter-black";
