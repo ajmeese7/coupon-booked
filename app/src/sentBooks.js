@@ -3,6 +3,9 @@ const env = require('../env');
 var helper = require('./helperFunctions');
 var globalVars = require('./globalVars.js');
 
+/** True means book will be published to template database; false is normal */
+var development = true;
+
 /**
  * Takes the current book JSON data and adds it to the page.
  */
@@ -135,15 +138,15 @@ function bookBackButton() {
  */
 function saveBookButton() {
   $('#save').unbind().click(function() {
-    if (globalVars.development) {
+    if (development) {
         if (!helper.isSameObject(globalVars.book, globalVars.previousBook)) {
           console.warn("Updating template...", globalVars.book);
           updateTemplate();
         } else {
           // Template hasn't been modified
           SimpleNotification.info({
-            title: 'Development mode',
-          text: 'You haven\'t changed anything!'
+            title: "Development mode",
+            text: "You haven't changed anything!"
         }, globalVars.notificationOptions);
       }
     } else {
@@ -154,7 +157,7 @@ function saveBookButton() {
           } else {
             // Book hasn't been modified
             SimpleNotification.info({
-              text: 'You haven\'t changed anything!'
+              text: "You haven't changed anything!"
             }, globalVars.notificationOptions);
           }
         } else {
@@ -389,12 +392,13 @@ function uploadImage(filePath, coupon) {
   var timestamp = Math.floor(Date.now() / 1000);
 
   // https://support.cloudinary.com/hc/en-us/community/posts/360030104392/comments/360002948811
-  if (globalVars.development) {
+  if (development && !globalVars.book.bookId) {
     // TODO: Figure out how to view all images in parent folder, so it's essentially
-    // metadata but in the location name;
-    // TODO: Make this only be called if on a TEMPLATE in development mode, not user books
+    // metadata but in the location name
+    console.log("TEMPLATE folder for image upload!");
     var folder = "templates/" + (!!coupon ? "coupons" : "books") + "/" + globalVars.book.name;
   } else {
+    console.log("USER folder for image upload!");
     var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + globalVars.book.bookId;
   }
 
@@ -972,7 +976,7 @@ function createBook() {
 
   // IDEA: Option to update sender name before sharing; allows
   // for another level of personalization with nicknames.
-  var senderName = getUserName();
+  var senderName = helper.getUserName();
   globalVars.book.bookId = uuid;
   globalVars.book.hide = 0;
 
