@@ -138,7 +138,7 @@ function bookBackButton() {
  */
 function saveBookButton() {
   $('#save').unbind().click(function() {
-    if (development) {
+    if (development && !globalVars.book.bookId) {
         if (!helper.isSameObject(globalVars.book, globalVars.previousBook)) {
           console.warn("Updating template...", globalVars.book);
           updateTemplate();
@@ -313,17 +313,23 @@ function imageUploadListeners(coupon) {
       // TODO: resize to uniform, i.e. 512x512?
       plugins.crop.promise(image[0].uri, { quality: 100 })
         .then(function success(newPath) {
-          // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
-          console.log("Cropped image data:", newPath);
+          // Temporary fix that ignores the cropping of PNG images so they retain their
+          // transparency. The logs for this issue are located here:
+          // https://github.com/DmcSDK/cordova-plugin-mediaPicker/issues/102
+          var uncroppedImage = image[0].uri;
+          if (uncroppedImage.includes(".png")) {
+            imageToUpdate.src = uncroppedImage;
 
-          // TODO: Decide if I still want to do this here or somewhere else
-          imageToUpdate.src = newPath;
+            // Should I wait until save for this or just roll with it?
+              // TODO: Switch over and just pull src from element on save
+            uploadImage(uncroppedImage, coupon);
+          } else {
+            // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
+            console.log("Cropped image data:", newPath);
 
-          // TODO: Make sure PNGs are able to retain their transparency! If not might
-          // need to consider switching plugins, or just using Cloudinary
-
-          // Should I wait until save for this or just roll with it?
-          uploadImage(newPath, coupon);
+            imageToUpdate.src = newPath;
+            uploadImage(newPath, coupon);
+          }
         })
         .catch(function fail(err) {
           console.error("Problem cropping image ->", err);
