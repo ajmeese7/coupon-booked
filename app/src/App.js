@@ -134,16 +134,6 @@ App.prototype.state = {
         });
 
         getAllTemplates();
-
-        // Set button height equal to its width because CSS is annoying
-        var width = $('button').width();
-        $('#buttonContainer button').height(width);
-
-        $('#buttonContainer button').unbind().click(function() {
-          // getTemplate handles the redirect to /sentBook
-          var name = $(this).text().toLowerCase();
-          getTemplate(name);
-        });
       }
     },
     // https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_navbar_shrink_scroll
