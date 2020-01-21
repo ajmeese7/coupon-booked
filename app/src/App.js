@@ -614,9 +614,6 @@ function createShareCode() {
         crossDomain: true,
         cache: false,
         success: function(success) {
-          // For debugging purposes
-          // console.warn("createShareCode success:", success);
-
           // NOTE: Should think of better messages here
           if (success == "Code in use") {
             // Try again with a new share code
@@ -639,8 +636,9 @@ function createShareCode() {
             // Share code created successfully
             globalVars.book.shareCode = shareCode;
 
-            // So they can go back to dashboard without dealing with confirm prompt
-            sent.updateBook();
+            // So they can go back to dashboard without dealing with confirm prompt;
+            // true means it's silent so they don't get a strange notification
+            sent.updateBook(true);
 
             globalVars._this.redirectTo('/shareCode');
           }

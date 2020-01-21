@@ -1,19 +1,27 @@
+:root {
+    /* TODO: Don't show updated notification when share code generated */
+    --bigShareButton-width: 125px;
+    --copytooltip-width: 180px;
+}
+
 .copytooltip {
     display: inline-block;
 }
 .copytooltip .copytooltiptext {
-    /* TODO: Work on this */
-    width: 180px;
+    width: var(--copytooltip-width);
     background-color: #555;
     color: #fff;
     text-align: center;
     border-radius: 6px;
     padding: 5px;
     position: absolute;
-    margin-top: -97px; /* TODO: Fix on other screen sizes */
     opacity: 0;
     transition: opacity 0.3s;
     overflow: visible;
+    left: 50%;
+
+    /* Negative half of width, adding 50px to be centered over textbox because of copy icon */
+    margin-left: calc(-1 * (var(--copytooltip-width) + 50px) / 2);
 }
 .copytooltip .copytooltiptext::after {
     content: "";
@@ -41,8 +49,8 @@
     bottom: 0;
     margin-bottom: 50px;
     left: 50%;
-    width: 125px;
-    margin-left: -62.5px; /* Half of width */
+    width: var(--bigShareButton-width);
+    margin-left: calc(-1 * var(--bigShareButton-width) / 2); /* Negative half of width */
 }
 #shareIcon {
     border-right: 1px solid rgba(255,255,255,.15);
@@ -50,4 +58,46 @@
     margin-right: 16px;
     width: 32px;
     margin-left: -5.5px;
+}
+
+#shareHeader {
+    text-align: center;
+    margin-top: 15px;
+}
+#shareCodeDiv {
+    display: table;
+    margin: auto;
+    margin-top: 35px; /* Calculated with copytooltip height - 1 */
+    height: 54px;
+}
+#shareCodeText {
+    /* TODO: Make this appear more grand so their purchase is validated */
+    font-size: 32px;
+    padding-right: 8px;
+    padding-left: 8px;
+    margin: 0;
+    display: inline-block;
+    border: 1px solid var(--text-color);
+    background-color: var(--background-color);
+}
+#copyButton {
+    /* TODO: Test on screen sizes */
+    vertical-align: sub;
+    margin-left: 10px;
+    margin-bottom: -5px;
+}
+
+#shareCodeDescription, #descPreview {
+    /* NOTE: Will also have to make this different for tablets */
+    width: 90%;
+    margin: auto;
+    margin-top: 25px;
+    text-align: center; /* TODO: Make this look prettier */
+}
+#shareFrame {
+    /* TODO: Work on appearance */
+    position: absolute;
+    width: 100%;
+    height: 100px;
+    bottom: 0;
 }
