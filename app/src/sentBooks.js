@@ -318,32 +318,30 @@ function imageUploadListeners(coupon) {
   $('#bookOpenPhoto, #couponOpenPhoto').unbind().click(function() {
     // TODO: Get uniform cropping; the take photo one is better so try to expand usage
     MediaPicker.getMedias(args, function(image) {
-      // Lets the user crop the selected image in a square shape;
       // TODO: Eventually try to make the initial sizing better (100% width)
       // TODO: resize to uniform, i.e. 512x512?
-      plugins.crop.promise(image[0].uri, { quality: 100 })
-        .then(function success(newPath) {
-          // Temporary fix that ignores the cropping of PNG images so they retain their
-          // transparency. The logs for this issue are located here:
-          // https://github.com/DmcSDK/cordova-plugin-mediaPicker/issues/102
-          var uncroppedImage = image[0].uri;
-          if (uncroppedImage.includes(".png")) {
-            imageToUpdate.src = uncroppedImage;
-
-            // Should I wait until save for this or just roll with it?
-              // TODO: Switch over and just pull src from element on save
-            uploadImage(uncroppedImage, coupon);
-          } else {
-            // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
-            console.log("Cropped image data:", newPath);
-
-            imageToUpdate.src = newPath;
-            uploadImage(newPath, coupon);
-          }
-        })
-        .catch(function fail(err) {
-          console.error("Problem cropping image ->", err);
-        });
+      var uncroppedImage = image[0].uri;
+      if (uncroppedImage.includes(".png")) {
+        // Temporary fix that ignores the cropping of PNG images so they retain their
+        // transparency. The logs for this issue are located here:
+        // https://github.com/DmcSDK/cordova-plugin-mediaPicker/issues/102
+        // https://github.com/jeduan/cordova-plugin-crop/issues/78
+        console.log("Not cropping PNG due to transparency loss...");
+        imageToUpdate.src = uncroppedImage;
+        uploadImage(uncroppedImage, coupon);
+      } else {
+          // Lets the user crop the selected image in a square shape
+          plugins.crop.promise(image[0].uri, { quality: 100 })
+          .then(function success(newPath) {
+              // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
+              console.log("Cropped image data:", newPath);
+              imageToUpdate.src = newPath;
+              uploadImage(newPath, coupon);
+          })
+          .catch(function fail(err) {
+            console.error("Problem cropping image ->", err);
+          });
+      }
     }, function(e) { console.error("Problem in selecting media ->", e) })
   });
 
