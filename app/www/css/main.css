@@ -370,6 +370,14 @@ textarea {
     height: 50%;
     margin: 15px 25%;
 }
+#descPreview {
+    /* NOTE: Will also have to make this different for tablets;
+    duplicated in shareCode.css */
+    width: 90%;
+    margin: auto;
+    margin-top: 25px;
+    text-align: center; /* TODO: Make this look prettier */
+}
 
 /* https://stackoverflow.com/a/7245084/6456163 */
 .imageButtons {

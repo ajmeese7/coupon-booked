@@ -10,6 +10,13 @@ var development = false;
  * Takes the current book JSON data and adds it to the page.
  */
 function displayBook() {
+  // Override the default nav listener code
+  var mobile = helper.getBySelector("#mobile");
+  $(mobile).unbind().click(function() {
+    bookBackButtonListener(false, true);
+    $('#backArrow').click();
+  });
+
   var bookContent = helper.getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
@@ -110,8 +117,9 @@ var newPreviousBook = null;
  * Returns you to your previous location; asks for confirmation
  * if you have unsaved changes.
  * @param {boolean} editPage - true if edit page, false if preview page
+ * @param {boolean} homeButtonClicked - true if home button clicked, false if not
  */
-function bookBackButtonListener(editPage) {
+function bookBackButtonListener(editPage, homeButtonClicked) {
   $('#backArrow').unbind().click(function() {
     // Get latest book info
     var tempBook = helper.clone(globalVars.book);
@@ -124,7 +132,7 @@ function bookBackButtonListener(editPage) {
       function onConfirm(buttonIndex) {
         // 1 is "Discard them"
         if (buttonIndex == 1) {
-          editPage ? fadeToBookContent() : goBack();
+          confirmFunction();
         }
       }
       
@@ -138,7 +146,15 @@ function bookBackButtonListener(editPage) {
       );
     } else {
       // Book hasn't been modified
-      editPage ? fadeToBookContent() : goBack();
+      confirmFunction();
+    }
+
+    function confirmFunction() {
+      if (homeButtonClicked) {
+        globalVars._this.redirectTo('/home');
+      } else {
+        editPage ? fadeToBookContent() : goBack();
+      }
     }
   });
 }
@@ -614,6 +630,14 @@ function showCouponEditPage($this) {
   imageUploadListeners(coupon);
   limitDescriptionLength();
 
+  // Override the default nav listener code
+  var homeButtonClicked = false;
+  var mobile = helper.getBySelector("#mobile");
+  $(mobile).unbind().click(function() {
+    homeButtonClicked = true;
+    $('#backArrow').click();
+  });
+
   $('#backArrow').unbind().click(function() {
     // For comments, see function in plusButton()
     var newCoupon = {};
@@ -626,7 +650,7 @@ function showCouponEditPage($this) {
       function onConfirm(buttonIndex) {
         if (buttonIndex == 1) {
           // Will show the new data
-          showCouponPreview($this);
+          confirmFunction();
         }
       }
       
@@ -638,7 +662,11 @@ function showCouponEditPage($this) {
       );
     } else {
       // Coupon hasn't been modified
-      showCouponPreview($this);
+      confirmFunction();
+    }
+
+    function confirmFunction() {
+      homeButtonClicked ? globalVars._this.redirectTo('/home') : showCouponPreview($this);
     }
   });
 
