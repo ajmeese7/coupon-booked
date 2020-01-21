@@ -4,15 +4,12 @@ var helper = require('./helperFunctions');
 var globalVars = require('./globalVars.js');
 
 /** True means book will be published to template database; false is normal */
-var development = true;
+var development = false;
 
 /**
  * Takes the current book JSON data and adds it to the page.
  */
 function displayBook() {
-  // TODO: For coupon previews, when one gets too long, have it displayed
-  // in rows so the other one is pushed down just as much instead of removing
-  // float left and having the columns uneven
   var bookContent = helper.getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
@@ -105,21 +102,34 @@ function goBack() {
 
 // TODO: Make it so pressing home button (logo) when there are unsaved
 // changes also asks the user to confirm beforehand
+
+/** To store the changes made on the edit page for comparison next time it is opened. */
+var newPreviousBook = null;
+
 /**
  * Returns you to your previous location; asks for confirmation
  * if you have unsaved changes.
+ * @param {boolean} editPage - true if edit page, false if preview page
  */
-function bookBackButton() {
+function bookBackButtonListener(editPage) {
   $('#backArrow').unbind().click(function() {
+    // Get latest book info
+    var tempBook = helper.clone(globalVars.book);
+    tempBook.image       = helper.getById("bookImage").src;
+    tempBook.name        = helper.getById("bookName").value;
+    tempBook.description = helper.getById("bookDescription").value;
+
     // If not yet saved, just discards without secondary confirmation.
-    if (!helper.isSameObject(globalVars.book, globalVars.previousBook) && globalVars.book.bookId) {
+    if (!helper.isSameObject(tempBook, editPage ? newPreviousBook : globalVars.previousBook) && globalVars.book.bookId) {
       function onConfirm(buttonIndex) {
         // 1 is "Discard them"
         if (buttonIndex == 1) {
-          goBack();
+          editPage ? fadeToBookContent() : goBack();
         }
       }
       
+      // TODO: Eventually should probably replace this with a more attractive alternative
+      // custom tailored stylistically to the tone of the application instead of native boring
       navigator.notification.confirm(
           'Are you sure you want to discard your changes?',
           onConfirm,
@@ -128,7 +138,7 @@ function bookBackButton() {
       );
     } else {
       // Book hasn't been modified
-      goBack();
+      editPage ? fadeToBookContent() : goBack();
     }
   });
 }
@@ -168,18 +178,22 @@ function saveBookButton() {
   });
 }
 
+// TODO: Remove automatic saving for image upload to coupon so it is checked
+// on back button, and also wait to upload until the new image is saved.
+// Keep the local preview until they leave that page
+
+/** Decomposes things slightly since the same code is needed twice. */
+function fadeToBookContent() {
+  //console.warn("Fading to book content...");
+  helper.fadeBetweenElements("#couponForm, #bookForm", "#bookContent");
+  addListeners();
+  displayBook();
+}
+
 /**
  * Shows user UI to create a new coupon to add to the book.
  */
 function plusButton() {
-  /** Decomposes things slightly since the same code is needed twice. */
-  function fadeToBookContent() {
-    //console.warn("Fading to book content...");
-    helper.fadeBetweenElements("#couponForm", "#bookContent");
-    addListeners();
-    displayBook();
-  }
-
   $('#plus').unbind().click(function() {
     //console.log("Coupon plus button pressed!");
     helper.fadeBetweenElements("#bookContent", "#couponForm");
@@ -252,31 +266,27 @@ function plusButton() {
  * Modified plusButton() function for editing the book's details.
  */
 function editBookButton() {
-  function fadeToBookContent() {
-    helper.fadeBetweenElements("#bookForm", "#bookContent");
-    addListeners();
-    displayBook();
-  }
-
   $("#editBook").unbind().click(function() {
     //console.log("Edit BOOK button pressed!");
     helper.fadeBetweenElements("#bookContent", "#bookForm");
-
-    helper.getById("bookImage").src         = globalVars.book.image;
-    helper.getById("bookName").value        = globalVars.book.name;
-    helper.getById("bookDescription").value = globalVars.book.description;
+    newPreviousBook = helper.clone(globalVars.book);
 
     // Below the above setters so previous value doesn't change descLength
     limitDescriptionLength(true);
     imageUploadListeners();
-
-    $('#backArrow').unbind().click(function() {
-      // TODO: Do the check if content has changed like when leaving preview page
-      fadeToBookContent();
-    });
+    bookBackButtonListener(true);
 
     $('#save').unbind().click(function() {
       if (bookFormIsValid() && editBookDetails()) {
+        // Update the global book with the data in the fields
+        globalVars.book.image       = helper.getById("bookImage").src;
+        globalVars.book.name        = helper.getById("bookName").value;
+        globalVars.book.description = helper.getById("bookDescription").value;
+
+        // Saves the edits from the page immediately because why not. IDEA: Could also
+        // implement this behavior all around with coupons and stuff so there's no
+        // need to have a save button on the book page. TODO: Probably should, maybe later.
+        updateBook(true);
         fadeToBookContent();
       }
     });
@@ -482,7 +492,13 @@ function addListeners() {
     }
   });
 
-  bookBackButton();
+  // Populate the fields for editing and to help with bookBackButtonListener
+  helper.getById("bookImage").src         = globalVars.book.image;
+  helper.getById("bookName").value        = globalVars.book.name;
+  helper.getById("bookDescription").value = globalVars.book.description;
+
+  
+  bookBackButtonListener();
   saveBookButton();
   editBookButton();
   plusButton();
@@ -600,11 +616,32 @@ function showCouponEditPage($this) {
   imageUploadListeners(coupon);
   limitDescriptionLength();
 
-  // NOTE: On press, error for reading `image` of undefined... why?;
-    // TODO: See if this error can still be replicated
   $('#backArrow').unbind().click(function() {
-    // Will show the new data
-    showCouponPreview($this);
+    // For comments, see function in plusButton()
+    var newCoupon = {};
+    newCoupon.image = helper.getById("couponImage").src;
+    newCoupon.name = helper.getById("name").value;
+    newCoupon.description = helper.getById("couponDescription").value;
+    newCoupon.count = parseInt(helper.getById("count").value);
+
+    if (!helper.isSameObject(coupon, newCoupon)) {
+      function onConfirm(buttonIndex) {
+        if (buttonIndex == 1) {
+          // Will show the new data
+          showCouponPreview($this);
+        }
+      }
+      
+      navigator.notification.confirm(
+          'Are you sure you want to discard your changes?',
+          onConfirm,
+          'Discard all changes',
+          ["Discard them","Wait, no!"]
+      );
+    } else {
+      // Coupon hasn't been modified
+      showCouponPreview($this);
+    }
   });
 
   $('#save').unbind().click(function() {
@@ -902,8 +939,7 @@ function couponFormIsValid() {
       text: "Please enter a name"
     }, globalVars.notificationOptions);
   } else if (name.length > 99) {
-    // Name too long;
-    // IDEA: Switch this to textArea-style validation like in book
+    // Name too long
     SimpleNotification.warning({
       title: "Name too long",
       text: "Please enter a shorter name"
@@ -1026,14 +1062,10 @@ function createBook() {
  * Not the best function name, so sorry, but it is what it is.
  */
 function editBookDetails() {
-  var form = $('#bookForm').serializeArray();
-
- // Can't use previousBook because that's storing it for exiting the page to 
- // check if it has been saved or not. Sorry for the confusion.
   var oldBook = helper.clone(globalVars.book);
-  for (var i = 0; i < form.length; i++) {
-    globalVars.book[form[i].name] = form[i].value;
-  }
+  oldBook.image       = helper.getById("bookImage").src;
+  oldBook.name        = helper.getById("bookName").value;
+  oldBook.description = helper.getById("bookDescription").value;
 
   if (!helper.isSameObject(globalVars.book, oldBook)) {
       SimpleNotification.success({
@@ -1046,7 +1078,7 @@ function editBookDetails() {
     globalVars.book = helper.clone(oldBook); // Restore to previous state
 
     SimpleNotification.info({
-      text: 'You haven\'t changed anything!'
+      text: "You haven't changed anything!"
     }, globalVars.notificationOptions);
 
     return false;
