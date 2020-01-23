@@ -1123,9 +1123,8 @@ App.prototype.render = function() {
   this.container.innerHTML = '';
 
   // Apply nav
-  // TODO: See if possible to just do everything except login, if there's nothing else
-  var routes = ["home", "create", "sentBook", "receivedBook", "dashboard", "redeemCode", "shareCode", "settings"];
-  if ($.inArray(currRouteId, routes) >= 0) {
+  var nonNavRoutes = ["login", "loading"];
+  if ($.inArray(currRouteId, nonNavRoutes) < 0) {
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
     this.container.appendChild(globalVars.nav);
 
