@@ -283,9 +283,7 @@ function editBookButton() {
         globalVars.book.name        = helper.getById("bookName").value;
         globalVars.book.description = helper.getById("bookDescription").value;
 
-        // Saves the edits from the page immediately because why not. IDEA: Could also
-        // implement this behavior all around with coupons and stuff so there's no
-        // need to have a save button on the book page. TODO: Probably should, maybe later.
+        // Saves the edits from the page immediately
         development ? updateTemplate(true) : updateBook(true);
         fadeToBookContent();
       }
@@ -1106,7 +1104,7 @@ function editBookDetails() {
 
 /**
  * Update book, whether by adding more coupons or changing the counts.
- * @param {Boolean} silent - whether or not a notification should be 
+ * @param {boolean} silent - whether or not a notification should be 
  * displayed on the screen if the function is successful.
  * 
  * When no parameter is passed the variable is undefined, which resolves
@@ -1163,7 +1161,7 @@ function nameAlreadyExists(name) {
 
 /**
  * Development-only function. Same as updateBook, but for templates.
- * @param {Boolean} silent - whether or not a notification should be 
+ * @param {boolean} silent - whether or not a notification should be 
  * displayed on the screen if the function is successful.
  */
 function updateTemplate(silent) {

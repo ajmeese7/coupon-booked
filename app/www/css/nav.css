@@ -85,5 +85,5 @@ a.account {
 ***********************/
 .col {
     /* full screen - nav height - dashboard menu height */
-    min-height: calc(100vh - 60px - 48px);
+    min-height: calc(100vh - var(--nav-height) - 48px);
 }

@@ -89,7 +89,7 @@ label {
     width: 100%;
     text-align: center;
     position: absolute;
-    top: calc(50% - 60px); /* Subtract nav height for better-looking vertical center */
+    top: calc(50% - var(--nav-height)); /* Subtract nav height for better-looking vertical center */
     transform: translateY(-50%);
 }
 

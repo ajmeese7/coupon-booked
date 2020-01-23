@@ -417,8 +417,7 @@ function resetUrlVars() {
 }
 
 /**
- * Pulls all the templates from the server and adds them to
- * the create page.
+ * Pulls all the templates from the server.
  * TODO: Add ability to create templates somehow; button dependent on
  * dev mode (plus) or on save, possibly?
  */
@@ -429,29 +428,7 @@ function getAllTemplates() {
     datatype: "json",
     success: function(data) {
       data = JSON.parse(data);
-
-      // Go over the array of returned data
-      $.each(data, function(templateNumber, template) {
-        var templateData = JSON.parse(template);
-
-        // Create node and give CSS class that applies styles
-        var node = document.createElement('div');
-        node.setAttribute("class", "bookPreview");
-
-        // Image and name
-        node.innerHTML += `<img class='bookImage' onerror='imageError(this)' src='${templateData.image}' />`;
-        node.innerHTML += `<p class='bookName'>${templateData.name}</p>`;
-
-        // https://api.jquery.com/data/
-        $(node).data("templateData", templateData);
-        helper.getById("buttonContainer").appendChild(node);
-
-        $(node).unbind().click(function() {
-          globalVars.book = $(node).data("templateData");
-          globalVars.previousBook = helper.clone(globalVars.book);
-          globalVars._this.redirectTo('/sentBook');
-        });
-      });
+      processTemplates(data);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error in getAllTemplates: ", XMLHttpRequest.responseText);
@@ -465,11 +442,39 @@ function getAllTemplates() {
 }
 
 /**
- * Retrieve coupon books the user has sent or received and
- * add the applicable HTML to the page.
+ * Iterate over templates and display them on the /create route.
+ * @param {object} data - the parsed JSON retrieved from the
+ * getAllTemplates PHP script
+ */
+function processTemplates(data) {
+  // Go over the array of returned data
+  $.each(data, function(templateNumber, template) {
+    var templateData = JSON.parse(template);
+
+    // Create node and give CSS class that applies styles
+    var node = document.createElement('div');
+    node.setAttribute("class", "bookPreview");
+
+    // Image and name
+    node.innerHTML += `<img class='bookImage' onerror='imageError(this)' src='${templateData.image}' />`;
+    node.innerHTML += `<p class='bookName'>${templateData.name}</p>`;
+
+    // https://api.jquery.com/data/
+    $(node).data("templateData", templateData);
+    helper.getById("buttonContainer").appendChild(node);
+
+    $(node).unbind().click(function() {
+      globalVars.book = $(node).data("templateData");
+      globalVars.previousBook = helper.clone(globalVars.book);
+      globalVars._this.redirectTo('/sentBook');
+    });
+  });
+}
+
+/**
+ * Retrieve coupon books the user has sent or received.
  */
 function pullUserRelatedBooks() {
-  // console.warn("pullUserRelatedBooks...");
   var userId = localStorage.getItem('user_id');
   $.ajax({
     type: "GET",
@@ -477,35 +482,64 @@ function pullUserRelatedBooks() {
       datatype: "json",
       success: function(data) {
         data = JSON.parse(data);
+        processPulledData(data);
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        console.error("Error in pullUserRelatedBooks: ", XMLHttpRequest.responseText);
 
-        // Go over sent and received arrays
-        $.each(data, function(arrayNumber, array) {
-            /** If true, book was sent. If false, it was received. */
-            var isSent = arrayNumber == 0;
-
-          // Go over each coupon book in sent {0} or received array {1}
-          $.each(array, function(couponNumber, couponBook) {
-              if (couponBook) {
-                addBookToPage(couponBook, isSent);
-              } else {
-                // Let the user know there are no books of the specifed type
-                  var element = isSent ? $("#noneSent") : $("#noneReceived");
-                  if (element.hasClass("hidden")) {
-                    element.removeClass("hidden");
-                  }
-                }
-            });
-      });
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in pullUserRelatedBooks: ", XMLHttpRequest.responseText);
-
-      SimpleNotification.error({
-        title: 'Error retreiving info',
+        SimpleNotification.error({
+          title: 'Error retreiving info',
           text: 'Please try again later.'
         }, globalVars.notificationOptions);
       }
   });
+}
+
+/**
+ * Add the applicable HTML to the page for pulled books.
+ * @param {object} data - the parsed JSON retrieved from the
+ * getData PHP script
+ */
+function processPulledData(data) {
+  // Go over sent and received arrays
+  $.each(data, function(arrayNumber, array) {
+    /** If true, book was sent. If false, it was received. */
+    var isSent = arrayNumber == 0;
+    var allHidden = true;
+
+    // If there are coupons for the category
+    if (array.length != 0) {
+      // Go over each coupon book in sent {0} or received array {1}
+      $.each(array, function(couponNumber, couponBook) {
+          if (couponBook) {
+            addBookToPage(couponBook, isSent);
+
+            var hidden = JSON.parse(couponBook.bookData).hide == 1;
+            if (!hidden) {
+              allHidden = false;
+            } else if (couponNumber == array.length - 1 && allHidden) {
+              // If this is the last book and all of them are hidden
+              unhideMessage(isSent);
+            }
+          } else {
+            console.error("Something is REALLY fucked up with pullUserRelatedBooks today...");
+          }
+      });
+    } else {
+      unhideMessage(isSent);
+    }
+  });
+}
+
+/**
+ * Let the user know there are no books of the specifed type.
+ * @param {boolean} isSent - true if sent page, false if received
+ */
+function unhideMessage(isSent) {
+  var element = isSent ? $("#noneSent") : $("#noneReceived");
+  if (element.hasClass("hidden")) {
+    element.removeClass("hidden");
+  }
 }
 
 /**
@@ -515,7 +549,6 @@ function pullUserRelatedBooks() {
  * @param {boolean} isSent - true for sent book, false for received
  */
 function addBookToPage(couponBook, isSent) {
-  // console.warn("addBookToPage...");
   var bookData = JSON.parse(couponBook.bookData);
   var applicableElement = isSent ? helper.getById("sent") : helper.getById("received");
 
@@ -594,70 +627,65 @@ function addBookListeners(node) {
  * in the database.
  */
 function createShareCode() {
-  // If this is null, book hasn't been saved yet. Will prompt user to save it.
-  // IDEA: Save automatically? Decide later.
-  if (globalVars.book.bookId) {
-      // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
-      var shareCode = generateShareCode();
-      function generateShareCode() {
-        var rtn = '';
-        for (var i = 0; i < ID_LENGTH; i++) {
-          rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
-        }
-        return rtn;
-      }
+  // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
+  var shareCode = generateShareCode();
+  function generateShareCode() {
+    var rtn = '';
+    for (var i = 0; i < ID_LENGTH; i++) {
+      rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
+    }
+    return rtn;
+  }
 
-      $.ajax({
-        type: "POST",
-        url: "http://www.couponbooked.com/scripts/createShareCode",
-        data: { bookId: globalVars.book.bookId, bookData: JSON.stringify(globalVars.book), shareCode: shareCode },
-        crossDomain: true,
-        cache: false,
-        success: function(success) {
-          // NOTE: Should think of better messages here
-          if (success == "Code in use") {
-            // Try again with a new share code
-            console.warn("Share code in use. Generating new code...");
-            createShareCode();
-          } else if (success == "Receiver exists") {
-            // NOTE: Should probably add in headers
-            console.warn("Book has already been sent.");
-            SimpleNotification.warning({
-              // IDEA: Warning symbol for images; yellow might not be enough
-              text: "Book has already been sent."
-            }, globalVars.notificationOptions);
-          } else if (success == "Share code exists") {
-            console.warn("Share code already generated.");
-            SimpleNotification.warning({
-              text: "Share code already generated."
-            }, globalVars.notificationOptions);
-          } else {
-            console.warn("Share code created successfully:", shareCode);
-            // Share code created successfully
-            globalVars.book.shareCode = shareCode;
+  $.ajax({
+    type: "POST",
+    url: "http://www.couponbooked.com/scripts/createShareCode",
+    data: { bookId: globalVars.book.bookId, bookData: JSON.stringify(globalVars.book), shareCode: shareCode },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      handleSuccess(success);
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error in createShareCode:", XMLHttpRequest.responseText);
 
-            // So they can go back to dashboard without dealing with confirm prompt;
-            // true means it's silent so they don't get a strange notification
-            sent.updateBook(true);
+      // TODO: Make sure error actually has working timer
+      SimpleNotification.error({
+        title: "Error creating share code!",
+        text: "Please try again later."
+      }, globalVars.notificationOptions);
+    }
+  });
 
-            globalVars._this.redirectTo('/shareCode');
-          }
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-          console.error("Error in createShareCode:", XMLHttpRequest.responseText);
+  function handleSuccess(success) {
+    // NOTE: Should think of better messages here
+    if (success == "Code in use") {
+      // Try again with a new share code
+      console.warn("Share code in use. Generating new code...");
+      createShareCode();
+    } else if (success == "Receiver exists") {
+      // NOTE: Should probably add in headers
+      console.warn("Book has already been sent.");
+      SimpleNotification.warning({
+        // IDEA: Warning symbol for images; yellow might not be enough
+        text: "Book has already been sent."
+      }, globalVars.notificationOptions);
+    } else if (success == "Share code exists") {
+      console.warn("Share code already generated.");
+      SimpleNotification.warning({
+        text: "Share code already generated."
+      }, globalVars.notificationOptions);
+    } else {
+      console.warn("Share code created successfully:", shareCode);
+      // Share code created successfully
+      globalVars.book.shareCode = shareCode;
 
-          // TODO: Make sure error actually has working timer
-          SimpleNotification.error({
-            title: "Error creating share code!",
-            text: "Please try again later."
-          }, globalVars.notificationOptions);
-        }
-      });
-  } else {
-    SimpleNotification.info({
-      title: "Book isn't saved yet!",
-      text: "Please save before sharing."
-    }, globalVars.notificationOptions);
+      // So they can go back to dashboard without dealing with confirm prompt;
+      // true means it's silent so they don't get a strange notification
+      sent.updateBook(true);
+
+      globalVars._this.redirectTo('/shareCode');
+    }
   }
 }
 
@@ -675,6 +703,8 @@ function codeIsValid(shareCode) {
       }
     }
 
+    // NOTE: Immediate input checking prevents this from ever running,
+    // so it would probably be safe to remove it.
     if (validCode) {
       return true;
     } else {
@@ -710,23 +740,7 @@ function redeemCode(shareCode) {
     crossDomain: true,
     cache: false,
     success: function(success) {
-      // TODO: Something to prevent spam, i.e. IP limiting
-      if (success == "Not valid") {
-        SimpleNotification.warning({
-          title: "Invalid code",
-          text: "Please try again."
-        }, globalVars.notificationOptions);
-      } else if (success == "Sent to self") {
-        SimpleNotification.warning({
-          title: "This is your code!",
-          text: "Please send it to someone else."
-        }, globalVars.notificationOptions);
-      } else {
-        SimpleNotification.success({
-          title: "Successfully redeemed code!",
-          text: "Check your dashboard."
-        }, globalVars.notificationOptions);
-      }
+      handleSuccess(success);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error in redeemCode: ", XMLHttpRequest.responseText);
@@ -737,6 +751,26 @@ function redeemCode(shareCode) {
       }, globalVars.notificationOptions);
     }
   });
+
+  function handleSuccess(success) {
+    // TODO: Something to prevent spam, i.e. IP limiting
+    if (success == "Not valid") {
+      SimpleNotification.warning({
+        title: "Invalid code",
+        text: "Please try again."
+      }, globalVars.notificationOptions);
+    } else if (success == "Sent to self") {
+      SimpleNotification.warning({
+        title: "This is your code!",
+        text: "Please send it to someone else."
+      }, globalVars.notificationOptions);
+    } else {
+      SimpleNotification.success({
+        title: "Successfully redeemed code!",
+        text: "Check your dashboard."
+      }, globalVars.notificationOptions);
+    }
+  }
 }
 
 /**
@@ -745,9 +779,11 @@ function redeemCode(shareCode) {
 function shareCode() {
   // TODO: Test on iOS, as site said there may be some special requirements
   var options = {
-    // TODO: Display sender name in message -> getUserName()
+    // TODO: Display sender name in message -> getUserName(), 
+    // or better yet the display name once implemented
     subject: "You've been Coupon Booked!", // for email
-    message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${globalVars.book.shareCode}`,
+    message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, 
+      then redeem your code: ${globalVars.book.shareCode}`,
     //chooserTitle: 'Pick an app', // Android only, you can override the default share sheet title
   };
   var onSuccess = function(result) {
@@ -769,7 +805,6 @@ function shareCode() {
 function navBar() {
   console.warn("navBar...");
   if (globalVars._this.state.authenticated === false) {
-    // With this I can remove the login button for nav
     return globalVars._this.redirectTo('/login');
   }
 
@@ -855,8 +890,7 @@ function reacquireProfile() {
  * Handle swiping for the tab menu.
  */
 function manageTabMenu() {
-  // Select the tab the user was last on; sent by default;
-  // IDEA: Do the full red background styling here for applicable tab
+  // Select the tab the user was last on; sent by default
   $('#tab-menu').tabs('select', localStorage.getItem('activeTab'));
 
   const gestureZone = helper.getById('gestureZone');
@@ -901,6 +935,8 @@ function manageTabMenu() {
     receivedTab();
   });
 
+  // TODO: Replicate behavior of color fading away when tab clicked off of,
+  // i.e. when the user is scrolling down the page
   function sentTab() {
     localStorage.setItem('activeTab', 'sent');
     
@@ -1033,7 +1069,6 @@ App.prototype.resumeApp = function() {
   console.warn("resumeApp...");
   globalVars._this = this;
   var accessToken = localStorage.getItem('access_token');
-  var refreshToken = localStorage.getItem('refresh_token');
   var idToken = localStorage.getItem('id_token');
 
   if (accessToken) {
@@ -1044,75 +1079,88 @@ App.prototype.resumeApp = function() {
 
     // NOTE: To test `expired` code, reverse the direction of the angle bracket
     if (expDate < currentDate) {
-        // Token already expired
-        console.warn("Tokens expired. Acquiring new tokens using refresh token...");
-        
-        function generateAccessToken() {
-          // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
-          var options = {
-            method: 'POST',
-            url: 'https://couponbooked.auth0.com/oauth/token',
-            headers: {'content-type': 'application/x-www-form-urlencoded'},
-            form: {
-              grant_type: 'refresh_token',
-              client_id: env.AUTH0_CLIENT_ID,
-              refresh_token: refreshToken
-            }
-          };
-
-          // Return new promise
-          return new Promise(function(resolve, reject) {
-            // Gets a new access token using the refresh token
-            request(options, function (error, response, body) {
-              if (error) {
-                reject(error);
-              } else {
-                var body = JSON.parse(body);
-                var idToken = body.id_token;
-                console.warn("ID token retrieval successful! New ID token:", idToken);
-                localStorage.setItem('id_token', idToken);
-
-                var accessToken = body.access_token;
-                resolve(accessToken);
-              }
-            });
-          });
-        }
-
-        var getNewAccessToken = generateAccessToken();
-        getNewAccessToken.then(function(result) {
-          console.warn("Access token retrieval successful! New access token:", result);
-          localStorage.setItem('access_token', result);
-          
-          successfulAuth();
-        }, function(error) {
-          console.log("Retrieval of new access token failed! Setting authentication state to false...");
-          console.error(error);
-
-          failedAuth();
-        });
+      console.warn("Tokens expired. Acquiring new tokens using refresh token...");
+      handleExpiredToken();
     } else {
       console.warn("The tokens are not yet expired.");
-      successfulAuth();
+      successfulAuth(accessToken);
     }
   } else {
     console.warn("No access token. Setting authentication state to false...");
     failedAuth();
   }
-
-  function successfulAuth() {
-    console.warn("Setting authentication state to true...");
-    globalVars._this.state.authenticated = true;
-    globalVars._this.state.accessToken = accessToken;
-    globalVars._this.render();
-  }
-
-  function failedAuth() {
-    globalVars._this.state.authenticated = false;
-    globalVars._this.state.accessToken = null;
-    globalVars._this.render();
-  }
 };
+
+/**
+ * Generates a new access token and attemprs to reauthenticate
+ * with it.
+ */
+function handleExpiredToken() {
+  var getNewAccessToken = generateAccessToken();
+  getNewAccessToken.then(function(result) {
+    console.warn("Access token retrieval successful! New access token:", result);
+    localStorage.setItem('access_token', result);
+    
+    successfulAuth(result);
+  }, function(error) {
+    // NOTE: This is broken now! Look into fixing somehow...
+    console.log("Retrieval of new access token failed! Setting authentication state to false...");
+    console.error(error);
+
+    failedAuth();
+  });
+}
+
+/**
+ * Uses the local refresh token from Auth0 to request a new
+ * access token for the user.
+ */
+function generateAccessToken() {
+  var refreshToken = localStorage.getItem('refresh_token');
+  
+  // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
+  var options = {
+    method: 'POST',
+    url: 'https://couponbooked.auth0.com/oauth/token',
+    headers: {'content-type': 'application/x-www-form-urlencoded'},
+    form: {
+      grant_type: 'refresh_token',
+      client_id: env.AUTH0_CLIENT_ID,
+      refresh_token: refreshToken
+    }
+  };
+
+  // Return new promise
+  return new Promise(function(resolve, reject) {
+    // Gets a new access token using the refresh token
+    request(options, function (error, response, body) {
+      if (error) {
+        reject(error);
+      } else {
+        var body = JSON.parse(body);
+        var idToken = body.id_token;
+        console.warn("ID token retrieval successful! New ID token:", idToken);
+        localStorage.setItem('id_token', idToken);
+
+        var accessToken = body.access_token;
+        resolve(accessToken);
+      }
+    });
+  });
+}
+
+function successfulAuth(accessToken) {
+  console.warn("Setting authentication state to true...");
+  globalVars._this.state.authenticated = true;
+  globalVars._this.state.accessToken = accessToken;
+  globalVars._this.render();
+}
+
+function failedAuth() {
+  globalVars._this.state.authenticated = false;
+  globalVars._this.state.accessToken = null;
+  globalVars._this.render();
+}
 
 App.prototype.render = function() {
   //console.warn("render...");
