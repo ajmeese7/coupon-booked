@@ -155,10 +155,9 @@
         <!-- NOTE: Also in redeem -->
         <div id="topbar">
             <img id="backArrow" src="images/back.svg" />
-            <a id="save">Save</a>
+            <a id="createButton">Create</a>
+            <a id="save" class="hide">Save</a>
             <a id="delete" class="hide">Delete</a>
-            <!-- NOTE: There is a problem sometimes with this appearing alongside the
-                save button when a template first retreived -->
         </div>
         
         <div id="bookContent" class="col">
@@ -196,10 +195,9 @@
 
             <label for="description">Description</label>
             <textarea id="couponDescription" name="description" placeholder="A nice, long massage." 
-                maxlength="120"></textarea>
+                maxlength="180"></textarea>
             <div id="couponDescLength">0</div>
             
-            <!-- TODO: Implement immediate input checking that reminds you you can't go above 99 -->
             <label for="count">Count</label>
             <input type="number" id="count" name="count" min="1" max="99" placeholder="3">
         </form>
@@ -218,7 +216,6 @@
             <label for="name">Book Name</label>
             <input type="text" id="bookName" name="name" placeholder="#1 Dad">
 
-            <!-- TODO: Decide on description max length here -->
             <label for="desc">Description</label>
             <textarea id="bookDescription" name="description" placeholder="Thank you for everything you do." 
                 maxlength="180"></textarea>
@@ -352,8 +349,6 @@
                     Want to <a id="request">request one</a>?
                 </div>
 
-                <!-- Should probably use something other than a div;
-                    TODO: think of better way to link to /redeem -->
                 <div id="redeemLink">Redeem a code!</div>
             </div>
         </div>
@@ -382,7 +377,6 @@
             <br />
             <hr />
             <div class="flex hor-centered">
-                <!-- Can add icon and colors like shareCode button if desired -->
                 <button class="btn btn-success btn-logout">
                     <span>Log Out</span>
                 </button>

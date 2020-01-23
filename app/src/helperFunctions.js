@@ -21,11 +21,18 @@ function getAllByClassName(className) {
  * the timings without changing in multiple places.
  * @param {string} fadeOut - the selector of the element to disappear
  * @param {string} fadeIn - the selector of the element to appear
+ * @param {boolean} instant - whether to take the time to fade or just switch
  */
-function fadeBetweenElements(fadeOut, fadeIn) {
+function fadeBetweenElements(fadeOut, fadeIn, instant) {
   //console.warn(`Fading out ${fadeOut} and fading in ${fadeIn}...`);
-  $(fadeOut).fadeOut(150, function() {
-    $(fadeIn).fadeIn(400);
+  var fadeOutDuration = instant ? 0 : 150;
+  var fadeInDuration  = instant ? 0 : 400;
+  $(fadeOut).fadeOut(fadeOutDuration, function() {
+    // Optionally allows all elements to just fade out if no valid fadeIn
+    // parameter is passed
+    if ($(fadeIn)) {
+      $(fadeIn).fadeIn(fadeInDuration);
+    }
   });
 }
 

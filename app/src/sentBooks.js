@@ -17,6 +17,7 @@ function displayBook() {
     $('#backArrow').click();
   });
 
+  showProperButton("home");
   var bookContent = helper.getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
@@ -107,9 +108,6 @@ function goBack() {
   globalVars._this.redirectTo(globalVars.backButtonTarget);
 }
 
-// TODO: Make it so pressing home button (logo) when there are unsaved
-// changes also asks the user to confirm beforehand
-
 /** To store the changes made on the edit page for comparison next time it is opened. */
 var newPreviousBook = null;
 
@@ -159,37 +157,21 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
   });
 }
 
-/**
- * Calls functions to create or update book and templates accordingly.
+/** 
+ * Calls functions to create books and templates accordingly.
  */
-function saveBookButton() {
-  $('#save').unbind().click(function() {
-    if (development && !globalVars.book.bookId) {
-        if (!helper.isSameObject(globalVars.book, globalVars.previousBook)) {
-          console.warn("Updating template...", globalVars.book);
-          updateTemplate();
-        } else {
-          // Template hasn't been modified
-          SimpleNotification.info({
-            title: "Development mode",
-            text: "You haven't changed anything!"
-        }, globalVars.notificationOptions);
-      }
+function createBookButton() {
+  // TODO: Test this method on an unsaved book and normal process
+
+  $("#createButton").unbind().click(function() {
+    if (development) {
+      // TODO: Renovate createTemplate with new stuff for here
+      createTemplate();
     } else {
-        if (globalVars.book.bookId) {
-          if (!helper.isSameObject(globalVars.book, globalVars.previousBook)) {
-            console.warn("Updating book...", globalVars.book);
-            updateBook();
-          } else {
-            // Book hasn't been modified
-            SimpleNotification.info({
-              text: "You haven't changed anything!"
-            }, globalVars.notificationOptions);
-          }
-        } else {
-          console.warn("Creating book...", globalVars.book);
-          createBook();
-        }
+      // TODO: Make leaving edited template page out of dev mode ask to confirm
+
+      console.warn("Creating book...", globalVars.book);
+      createBook();
     }
   });
 }
@@ -198,7 +180,9 @@ function saveBookButton() {
 // on back button, and also wait to upload until the new image is saved.
 // Keep the local preview until they leave that page
 
-/** Decomposes things slightly since the same code is needed twice. */
+/**
+ * Switches from either the book or coupon form to the book display.
+ */
 function fadeToBookContent() {
   //console.warn("Fading to book content...");
   helper.fadeBetweenElements("#couponForm, #bookForm", "#bookContent");
@@ -211,8 +195,8 @@ function fadeToBookContent() {
  */
 function plusButton() {
   $('#plus').unbind().click(function() {
-    //console.log("Coupon plus button pressed!");
     helper.fadeBetweenElements("#bookContent", "#couponForm");
+    showProperButton("newCoupon");
 
     // Reset form to blank in case it is clicked after editing a coupon
     helper.getById("couponImage").src = "images/gift.png";
@@ -226,11 +210,11 @@ function plusButton() {
 
     // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
     if (device.platform == "iOS") {
-      $('#edit img').attr('src', "images/ios-edit.svg");
+      $("#edit img").attr("src", "images/ios-edit.svg");
     }
 
     // Set back button to take you back to coupon list
-    $('#backArrow').unbind().click(function() {
+    $("#backArrow").unbind().click(function() {
       var blankCoupon = { image: "gift.png", name: "", desc: "", count: "" };
       var newCoupon = {};
 
@@ -250,9 +234,9 @@ function plusButton() {
         }
         
         navigator.notification.confirm(
-            'Are you sure you want to discard your changes?',
+            "Are you sure you want to discard your changes?",
             onConfirm,
-            'Discard all changes',
+            "Discard all changes",
             ["Discard them","Wait, no!"]
         );
       } else {
@@ -261,10 +245,10 @@ function plusButton() {
       }
     });
 
-    $('#save').unbind().click(function() {
-          var name = helper.getById("name").value;
-          if (nameAlreadyExists(name)) {
-            newNameWarning();
+    $("#createButton").unbind().click(function() {
+        var name = helper.getById("name").value;
+        if (nameAlreadyExists(name)) {
+          newNameWarning();
         } else if (couponFormIsValid()) {
           // Form is properly filled out
           createCoupon();
@@ -283,9 +267,9 @@ function plusButton() {
  */
 function editBookButton() {
   $("#editBook").unbind().click(function() {
-    //console.log("Edit BOOK button pressed!");
     helper.fadeBetweenElements("#bookContent", "#bookForm");
     newPreviousBook = helper.clone(globalVars.book);
+    showProperButton("editBook");
 
     // Below the above setters so previous value doesn't change descLength
     limitDescriptionLength(true);
@@ -302,7 +286,7 @@ function editBookButton() {
         // Saves the edits from the page immediately because why not. IDEA: Could also
         // implement this behavior all around with coupons and stuff so there's no
         // need to have a save button on the book page. TODO: Probably should, maybe later.
-        updateBook(true);
+        development ? updateTemplate(true) : updateBook(true);
         fadeToBookContent();
       }
     });
@@ -482,7 +466,6 @@ function uploadImage(filePath, coupon) {
  * TODO: Come up with a better function name.
  */
 function addListeners() {
-  //console.log("sentBookListeners...");
   $("#bookDescriptionPreview").unbind().click(function() {
     // IDEA: Add this to the image too, or just view the image in
     // its entirety? Do that option once the preview is opened from here?
@@ -513,7 +496,7 @@ function addListeners() {
 
   
   bookBackButtonListener();
-  saveBookButton();
+  createBookButton();
   editBookButton();
   plusButton();
   createCouponElements();
@@ -526,7 +509,6 @@ function addListeners() {
  * NOTE: This is duplicated for sent books until I find a way to share it
  */
 function createCouponElements() {
-  // TODO: Figure out how to display image licenses if not paying for yearly subscription
   // TODO: Implement way to rearrange organization of coupons; also change
     // display options like default, alphabetical, count remaining, etc.;
     // should changing display preference permenantly update the order?
@@ -569,18 +551,16 @@ function addCouponListeners(node) {
  * that was selected. Also adds listeners for going back to `/sentBook`.
  */
 function showCouponPreview($this) {
-  //console.log("showSentCouponPreview...");
-  saveAndDeleteToggle();
   helper.fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
 
   $('#backArrow').unbind().click(function() {
-    saveAndDeleteToggle();
     helper.fadeBetweenElements("#couponPreview", "#bookContent");
 
     // Calls this again in case data was updated and needs to be redisplayed
     displayBook();
   });
 
+  showProperButton("couponPreview");
   $('#delete').unbind().click(function() {
     function onConfirm(buttonIndex) {
       if (buttonIndex == 1) {
@@ -589,9 +569,9 @@ function showCouponPreview($this) {
         // 'Node': parameter 1 is not of type 'Node'.
         var couponNumber = $($this).data("couponNumber");
         globalVars.book.coupons.splice(couponNumber, 1);
+        development ? updateTemplate() : updateBook();
         
         displayBook();
-        saveAndDeleteToggle();
         helper.fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
       }
     }
@@ -616,8 +596,6 @@ function showCouponPreview($this) {
  * displays the edit page.
  */
 function showCouponEditPage($this) {
-  //console.log("showCouponEditPage...");
-  saveAndDeleteToggle();
   helper.fadeBetweenElements("#couponPreview", "#couponForm");
   preventInvalidNumberInput();
 
@@ -670,9 +648,11 @@ function showCouponEditPage($this) {
     }
   });
 
+  showProperButton("editCoupon");
   $('#save').unbind().click(function() {
     if (couponFormIsValid()) {
       updateCoupon(coupon, $this);
+      development ? updateTemplate(true) : updateBook(true);
       showCouponPreview($this);
     }
   });
@@ -885,6 +865,7 @@ function createCoupon() {
   // Name already validated before this function is called so
   // no need to do it again.
   globalVars.book.coupons.push(coupon);
+  development ? updateTemplate(true) : updateBook(true);
   displayBook();
 }
 
@@ -897,7 +878,6 @@ function createCoupon() {
 function updateCoupon(oldCoupon, $this) {
   // TODO: Make choosing image not be automatic and they still have to save it or
   // choose to discard changes.
-  console.warn("Attempting to update coupon...");
   var form = $('#couponForm').serializeArray();
 
   var newCoupon = {};
@@ -909,8 +889,8 @@ function updateCoupon(oldCoupon, $this) {
   // Convert from string to number
   newCoupon.count = parseInt(newCoupon.count);
 
+  // TODO: Consider decomposing
   if (!helper.isSameObject(oldCoupon, newCoupon)) {
-      // TODO: Consider decomposing
       var oldName = oldCoupon.name;
       var newName = newCoupon.name;
       if (newName != oldName && nameAlreadyExists(newName)) {
@@ -945,7 +925,7 @@ function updateCoupon(oldCoupon, $this) {
     console.warn("Coupon not modified. Returning...");
 
     SimpleNotification.info({
-      text: 'You haven\'t changed anything!'
+      text: "You haven't changed anything!"
     }, globalVars.notificationOptions);
   }
 }
@@ -1023,15 +1003,28 @@ function bookFormIsValid() {
 }
 
 /**
- * If save element is visible, it fades out and the delete
- * element fades in. If not, then the reverse happens.
+ * Shows whichever element is appropriate to each individual
+ * page, like delete for preview and save for edit.
+ * @param {string} currentPage - the page for which the display needs to be updated
  */
-function saveAndDeleteToggle() {
-  var saveShowing = $("#save").is(':visible');
-  if (saveShowing) {
-    helper.fadeBetweenElements("#save", "#delete");
-  } else {
-    helper.fadeBetweenElements("#delete", "#save");
+function showProperButton(currentPage) {
+  console.warn(`showProperButton for ${currentPage}`);
+
+  // TODO: Maybe have an instant transition for these to avoid the awkward stage where
+  // both elements are showing
+  if ((currentPage == "home" && !globalVars.book.bookId) || currentPage == "newCoupon") {
+    // displayBook called last and book not yet created, or a new coupon
+    // is being created by the user
+    helper.fadeBetweenElements("#save, #delete", "#createButton", true);
+  } else if (currentPage == "home") {
+    // Book already created but still on displayBook page
+    helper.fadeBetweenElements("#createButton, #save, #delete", true);
+  } else if (currentPage == "editBook" || currentPage == "editCoupon") {
+    // Save edits to book or coupon
+    helper.fadeBetweenElements("#createButton, #delete", "#save", true);
+  } else if (currentPage == "couponPreview") {
+    // For if they want to delete a coupon
+    helper.fadeBetweenElements("#createButton, #save", "#delete", true);
   }
 }
 
@@ -1095,7 +1088,7 @@ function editBookDetails() {
 
   if (!helper.isSameObject(globalVars.book, oldBook)) {
       SimpleNotification.success({
-        text: "Updated book"
+        text: development ? "Updated template" : "Updated book"
       }, globalVars.notificationOptions);
 
       return true;
@@ -1170,8 +1163,10 @@ function nameAlreadyExists(name) {
 
 /**
  * Development-only function. Same as updateBook, but for templates.
+ * @param {Boolean} silent - whether or not a notification should be 
+ * displayed on the screen if the function is successful.
  */
-function updateTemplate() {
+function updateTemplate(silent) {
   var userId = localStorage.getItem("user_id");
 
   $.ajax({
@@ -1182,15 +1177,14 @@ function updateTemplate() {
     dataType: "html",
     cache: false,
     success: function(success) {
-      if (success) {
-        console.warn("updateTemplate success:", success);
-      }
-
+      if (success) console.warn("updateTemplate success:", success);
       globalVars.previousBook = helper.clone(globalVars.book);
 
-      SimpleNotification.success({
-        text: "Successfully updated template"
-      }, globalVars.notificationOptions);
+      if (!silent) {
+        SimpleNotification.success({
+          text: "Successfully updated template"
+        }, globalVars.notificationOptions);
+      }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       var responseText = XMLHttpRequest.responseText;

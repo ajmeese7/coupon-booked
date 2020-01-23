@@ -296,7 +296,7 @@ label {
     margin-left: -62px; /* Half of width */
 }
 
-#save, #delete {
+#save, #createButton, #delete {
     float: right;
     margin-right: 13px;
 }
