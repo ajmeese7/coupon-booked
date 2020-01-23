@@ -1,1 +1,7 @@
 *.php linguist-language=PHP
+jquery.min.js linguist-vendored=false
+jquery-1.8.0.min.js linguist-vendored=false
+simpleNotification.min.js linguist-vendored=false
+auth0-theme.min.css linguist-vendored=false
+auth0.min.css linguist-vendored=false
+fontawesome.css linguist-vendored=false
