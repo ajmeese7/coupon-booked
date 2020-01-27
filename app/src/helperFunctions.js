@@ -24,16 +24,19 @@ function getAllByClassName(className) {
  * @param {boolean} instant - whether to take the time to fade or just switch
  */
 function fadeBetweenElements(fadeOut, fadeIn, instant) {
-  //console.warn(`Fading out ${fadeOut} and fading in ${fadeIn}...`);
-  var fadeOutDuration = instant ? 0 : 150;
-  var fadeInDuration  = instant ? 0 : 400;
-  $(fadeOut).fadeOut(fadeOutDuration, function() {
-    // Optionally allows all elements to just fade out if no valid fadeIn
-    // parameter is passed
-    if ($(fadeIn)) {
-      $(fadeIn).fadeIn(fadeInDuration);
-    }
-  });
+  if (instant) {
+    //console.warn(`Instantly transitioning between [${fadeOut}] and [${fadeIn}]...`);
+    $(fadeOut).hide(1, function() {
+      $(fadeIn).show(1);
+    });
+  } else {
+    //console.warn(`Fading out [${fadeOut}] and fading in [${fadeIn}]...`);
+    $(fadeOut).fadeOut(150, function() {
+      // Optionally allows all elements to just fade out if no valid fadeIn
+      // parameter is passed
+      if ($(fadeIn)) $(fadeIn).fadeIn(400);
+    });
+  }
 }
 
 /**

@@ -7,9 +7,6 @@
     $userId = $_POST["userId"];
     $couponName = $_POST["couponName"];
 
-    // TODO: Test this on other phone to make sure notifications are still functioning
-    // as intended and redemption does all it should.
-
     $stmt = $conn->prepare("SELECT sender, receiver, bookData FROM couponBooks WHERE bookId=?");
     $stmt->bind_param("s", $bookId);
     $stmt->execute();

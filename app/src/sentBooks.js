@@ -121,19 +121,23 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
   $('#backArrow').unbind().click(function() {
     // Get latest book info
     var tempBook = helper.clone(globalVars.book);
-    tempBook.image       = helper.getById("bookImage").src;
-    tempBook.name        = helper.getById("bookName").value;
+    var bookToCompareTo = editPage ? newPreviousBook : globalVars.previousBook;
+    var tempBookImage = helper.getById("bookImage").src;
+    
+    // If image invalid, replaced with gift.png, so have to ignore that for comparison
+    tempBook.image = tempBookImage.includes("gift.png") ? bookToCompareTo.image : tempBookImage;
+    tempBook.name  = helper.getById("bookName").value;
     tempBook.description = helper.getById("bookDescription").value;
 
     // If not yet saved, just discards without secondary confirmation.
-    if (!helper.isSameObject(tempBook, editPage ? newPreviousBook : globalVars.previousBook) && globalVars.book.bookId) {
+    if (!helper.isSameObject(tempBook, bookToCompareTo) && globalVars.book.bookId) {
       function onConfirm(buttonIndex) {
         // 1 is "Discard them"
         if (buttonIndex == 1) {
           confirmFunction();
         }
       }
-      
+
       // TODO: Eventually should probably replace this with a more attractive alternative
       // custom tailored stylistically to the tone of the application instead of native boring
       navigator.notification.confirm(
@@ -326,7 +330,7 @@ function imageUploadListeners(coupon) {
         // https://github.com/jeduan/cordova-plugin-crop/issues/78
         console.log("Not cropping PNG due to transparency loss...");
         imageToUpdate.src = uncroppedImage;
-        uploadImage(uncroppedImage, coupon);
+        uploadImage(imageToUpdate, coupon);
       } else {
           // Lets the user crop the selected image in a square shape
           plugins.crop.promise(image[0].uri, { quality: 100 })
@@ -334,7 +338,7 @@ function imageUploadListeners(coupon) {
               // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
               console.log("Cropped image data:", newPath);
               imageToUpdate.src = newPath;
-              uploadImage(newPath, coupon);
+              uploadImage(imageToUpdate, coupon);
           })
           .catch(function fail(err) {
             console.error("Problem cropping image ->", err);
@@ -371,7 +375,7 @@ function imageUploadListeners(coupon) {
   function handlePreparedPhoto(media) {
     //console.log("handlePreparedPhoto media:", media);
     imageToUpdate.src = media.uri;
-    uploadImage(media.uri, coupon);
+    uploadImage(imageToUpdate, coupon);
   }
   
   function compressImage(compressedImage) {
@@ -385,12 +389,13 @@ function imageUploadListeners(coupon) {
 
 /**
  * Compresses the image and sends it to Cloudinary.
- * @param {string} filePath - the src for the image being uploaded
+ * @param {string} updatedImage - the image with the new src
  * @param {object} coupon - coupon object if not called for book.
  * If for book, it will be null.
  */
-function uploadImage(filePath, coupon) {
+function uploadImage(updatedImage, coupon) {
   // NOTE: !!coupon == (isCoupon && !isBook), for reference
+  var filePath = updatedImage.src;
   console.warn("Uploading image...");
 
   // https://github.com/collectmeaustralia/cordova-cloudinary-upload/issues/1
@@ -445,8 +450,13 @@ function uploadImage(filePath, coupon) {
     function(result) {
       var response = JSON.parse(result.response);
       console.log("Upload response:", response);
+      updatedImage.src = response.secure_url;
 
-      if (!coupon) globalVars.book.image = response.secure_url;
+      // TODO: make it work for coupons automatically too, or save the image uploading for save button
+      if (!coupon) {
+        globalVars.book.image = response.secure_url;
+        updateBook();
+      }
     }, 
     function(error) {
       console.error("Problem in image upload:", error);
@@ -1008,17 +1018,16 @@ function bookFormIsValid() {
 function showProperButton(currentPage) {
   console.warn(`showProperButton for ${currentPage}`);
 
-  // TODO: Maybe have an instant transition for these to avoid the awkward stage where
-  // both elements are showing
-  if ((currentPage == "home" && !globalVars.book.bookId) || currentPage == "newCoupon") {
+  if ((currentPage == "home" && !globalVars.book.bookId && !development) || currentPage == "newCoupon") {
     // displayBook called last and book not yet created, or a new coupon
     // is being created by the user
     helper.fadeBetweenElements("#save, #delete", "#createButton", true);
   } else if (currentPage == "home") {
     // Book already created but still on displayBook page
-    helper.fadeBetweenElements("#createButton, #save, #delete", true);
+    helper.fadeBetweenElements("#createButton, #save, #delete", null, true);
   } else if (currentPage == "editBook" || currentPage == "editCoupon") {
-    // Save edits to book or coupon
+    // Save edits to book or coupon;
+    // TODO: only show save button once there are changes
     helper.fadeBetweenElements("#createButton, #delete", "#save", true);
   } else if (currentPage == "couponPreview") {
     // For if they want to delete a coupon
