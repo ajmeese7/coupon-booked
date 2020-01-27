@@ -32,7 +32,7 @@
         "es6-promise-plugin": "^4.2.2",
         "jshashes": "^1.0.7",
         "jsonwebtoken": "^8.5.1",
-        "onesignal-cordova-plugin": "2.5.2",
+        "onesignal-cordova-plugin": "2.8.2",
         "request": "^2.88.0",
         "uuid": "^3.3.2"
     },

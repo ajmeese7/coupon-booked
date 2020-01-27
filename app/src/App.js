@@ -488,7 +488,7 @@ function pullUserRelatedBooks() {
         console.error("Error in pullUserRelatedBooks: ", XMLHttpRequest.responseText);
 
         SimpleNotification.error({
-          title: 'Error retreiving info',
+          title: 'Error reaching server',
           text: 'Please try again later.'
         }, globalVars.notificationOptions);
       }
@@ -736,7 +736,7 @@ function redeemCode(shareCode) {
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/redeemCode",
-    data: { userId: userId, receiverName: getUserName(), shareCode: shareCode },
+    data: { userId: userId, receiverName: helper.getUserName(), shareCode: shareCode },
     crossDomain: true,
     cache: false,
     success: function(success) {
@@ -779,7 +779,7 @@ function redeemCode(shareCode) {
 function shareCode() {
   // TODO: Test on iOS, as site said there may be some special requirements
   var options = {
-    // TODO: Display sender name in message -> getUserName(), 
+    // TODO: Display sender name in message -> helper.getUserName(), 
     // or better yet the display name once implemented
     subject: "You've been Coupon Booked!", // for email
     message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, 

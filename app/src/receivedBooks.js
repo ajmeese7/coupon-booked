@@ -1,3 +1,4 @@
+const env = require('../env');
 var helper = require('./helperFunctions.js');
 var globalVars = require('./globalVars.js');
 
@@ -5,7 +6,6 @@ var globalVars = require('./globalVars.js');
  * Displays the UI for the current received book.
  */
 function displayBook() {
-  console.warn("displayReceivedBook...");
   var bookContent = helper.getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
@@ -165,6 +165,11 @@ function addCouponListeners(node) {
 function redeemCoupon(coupon) {
   console.warn("Redeeming coupon...");
   if (coupon.count > 0) {
+    // TODO: Make sure this stalling forever is just a testing issue and not a runtime problem.
+    // If error continues, have some timeout that if in 3 seconds there's not a result the
+    // coupon is refunded then this is recursively called. Have some counter for that too like
+    // the nav issue and if nothing happens by the second time then display an error telling
+    // them to restart the app or try again later or something.
     var userId = localStorage.getItem("user_id");
     $.ajax({
       type: "POST",
@@ -173,7 +178,6 @@ function redeemCoupon(coupon) {
       crossDomain: true,
       cache: false,
       success: function(success) {
-        // Uncomment to debug redeeming coupons
         console.warn("redeemCoupon success:", success);
         
         if (success == "None left") {
@@ -211,39 +215,89 @@ function redeemCoupon(coupon) {
  * @param {element} coupon - the coupon element that is being redeemed
  */
 function notifySender(senderId, coupon) {
-  var title = `${getUserName()} redeemed "${coupon.name}!"`;
-  var message = `Coupon description: ${coupon.description}`; // IDEA: Current count or something?
-  var notificationObj = { headings: {en: title},
+  var title = `${helper.getUserName()} redeemed \"${coupon.name}!\"`;
+  var message = `${coupon.description}`; // IDEA: Current count or something?
+  var notificationObj = { app_id : env.ONESIGNAL_ID,
+                          headings: {en: title},
                           contents: {en: message},
-                          include_external_user_ids: [senderId]};
-  window.plugins.OneSignal.postNotification(notificationObj,
-    function(successResponse) {
-      coupon.count--;
-      displayBook();
+                          big_picture: coupon.image, // TODO: Decide if I like this or not
+                          ttl: 2419200,
+                          priority: 10,
+                          include_external_user_ids: [senderId] };
+  
+  sendNotification(notificationObj, coupon);
+}
 
-      console.warn("Notification post success:", successResponse);
-      SimpleNotification.success({
-        text: "Successfully redeemed coupon"
-      }, globalVars.notificationOptions);
-    },
-    function (failedResponse) {
-      console.error("Notification post failed: ", failedResponse);
-      refundCoupon(coupon.name);
+/** Handles the sending of the notifySender notification. */
+var sendNotification = function(data, coupon) {
+  var headers = {
+    "Content-Type": "application/json; charset=utf-8",
+    "Authorization": "Basic " + env.ONESIGNAL_API_KEY
+  };
 
-      if (failedResponse.errors[0] == "All included players are not subscribed") {
-        // IDEA: If error that person doesn't exist, notify them that the 
-        // sender has deactivated their account and hide the book or 
-        // something and let there be a note in the SQL
-        console.log("User no longer exists!");
-      }
-      
-      // Would move this to else statement if I decide to do the above
-      SimpleNotification.error({
-        title: "Error redeeming coupon",
-        text: "Please try again later."
-      }, globalVars.notificationOptions);
+  fetch("https://onesignal.com/api/v1/notifications", {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(data)
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    // troglodyte error checking because even an error is returned as success here
+    if (data.errors) {
+      console.error("Notification post failed: ", data);
+      notificationError(data, coupon);
+    } else {
+      notificationSuccess(data, coupon);
     }
-  );
+  })
+  .catch((error) => {
+    // Shouldn't ever run, but just in case
+    console.error("CAUGHT error with notification:", error);
+    notificationError(error, coupon);
+  });
+};
+
+/**
+ * Updates local display with lowered coupon count and lets them 
+ * know the redemption was successful.
+ * @param {object} successResponse - the response from the server
+ * from a successful fetch.
+ */
+function notificationSuccess(successResponse, coupon) {
+  // PHP updated it on the server, this just does it locally and avoids another request
+  coupon.count--;
+  displayBook();
+
+  console.warn("Notification post success:", successResponse);
+  SimpleNotification.success({
+    text: "Successfully redeemed coupon"
+  }, globalVars.notificationOptions);
+}
+
+/**
+ * Lets user know that the notification failed to send and refunds 
+ * them that count.
+ * @param {object} failedResponse - the response from the server 
+ * from a failed fetch.
+ */
+function notificationError(failedResponse, coupon) {
+  refundCoupon(coupon.name);
+
+  // TODO: Test if this actually works and can detect if the user has been deleted;
+  // it probably won't but whatever. Not really important
+  if (failedResponse.errors[0] == "All included players are not subscribed") {
+    // IDEA: If error that person doesn't exist, hide the book or 
+    // something and let there be a note in the SQL
+    console.log("User no longer exists!");
+    SimpleNotification.error({
+      text: "User no longer exists!"
+    }, globalVars.notificationOptions);
+  } else {
+    SimpleNotification.error({
+      title: "Error redeeming coupon",
+      text: "Please try again later."
+    }, globalVars.notificationOptions);
+  }
 }
 
 /**
@@ -254,6 +308,7 @@ function notifySender(senderId, coupon) {
  */
 function refundCoupon(couponName) {
   var userId = localStorage.getItem("user_id");
+  
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/refundCoupon",
@@ -261,11 +316,10 @@ function refundCoupon(couponName) {
     crossDomain: true,
     cache: false,
     success: function(success) {
-      // Uncomment to debug refunding coupons
-      //console.warn("refundCoupon success:", success);
+      console.warn("refundCoupon SUCCESS:", success);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in redeemCoupon: ", XMLHttpRequest.responseText);
+      console.error("ERROR in refundCoupon: ", XMLHttpRequest.responseText);
 
       // IDEA: Create a way to report problems such as this
       /*SimpleNotification.error({

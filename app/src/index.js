@@ -35,10 +35,9 @@ function handleNativeBackButton() {
 // TODO: Set all of this up for iOS as well once testing commences
 function onesignalNotifications() {
     // IDEA: https://documentation.onesignal.com/docs/create-an-activity-feed
-    console.warn("onesignalNotifications...");
-    // Enable to debug issues.
-    // window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});
+    //window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});
     
+    // IDEA: On notificationReceived refresh the display and pull books in case they're also viewing the book/coupon
     var notificationOpenedCallback = function(jsonData) {
         // TODO: When notification clicked, display something in app, 
         // like the coupon clicked, description, image, remaining count;
@@ -46,16 +45,12 @@ function onesignalNotifications() {
         // the code of this
         jsonData.notification.payload.rawPayload = JSON.parse(jsonData.notification.payload.rawPayload);
         jsonData.notification.payload.rawPayload.custom = JSON.parse(jsonData.notification.payload.rawPayload.custom);
-        console.warn('notificationOpenedCallback:');
-        console.warn(jsonData);
+        console.warn('notificationOpenedCallback:', jsonData);
     };
     
-    // IDEA: implement idea above as a replacement for InAppAlert w/ notification
-        // that uses handleNotificationOpened and replace the current w/ handleNotificationReceived
-    // TODO: On notificationReceived refresh the display and pull books in case they're also viewing the book/coupon
     window.plugins.OneSignal
         .startInit(env.ONESIGNAL_ID)
         .handleNotificationOpened(notificationOpenedCallback)
-        .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.InAppAlert)
+        .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.Notification) // TODO: Test 'none'
         .endInit();
 }
