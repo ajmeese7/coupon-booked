@@ -180,8 +180,7 @@ App.prototype.state = {
         });
 
         $('#request').unbind().click(function() {
-          // TODO: Create a request route similar to /shareCode
-          //globalVars._this.redirectTo('/request');
+          requestBook();
         });
 
         $('#redeemLink').unbind().click(function() {
@@ -773,22 +772,41 @@ function redeemCode(shareCode) {
   }
 }
 
+// TODO: Test on iOS, as site said there may be some special requirements
 /**
  * Opens native share function of device populated with the coded options.
  */
 function shareCode() {
-  // TODO: Test on iOS, as site said there may be some special requirements
   var options = {
     // TODO: Display sender name in message -> helper.getUserName(), 
     // or better yet the display name once implemented
     subject: "You've been Coupon Booked!", // for email
-    message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, 
-      then redeem your code: ${globalVars.book.shareCode}`,
-    //chooserTitle: 'Pick an app', // Android only, you can override the default share sheet title
+    message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${globalVars.book.shareCode}`
   };
   var onSuccess = function(result) {
     // On Android result.app since plugin version 5.4.0 this is no longer empty.
     // On iOS it's empty when sharing is cancelled (result.completed=false)
+    console.warn("Shared to app:", result.app);
+  };
+  var onError = function(msg) {
+    console.error("Sharing failed with message:", msg);
+  };
+
+  window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+}
+
+/**
+ * shareCode but requesting a book; just changed the contents.
+ * TODO: Have a button to call this always, not just when you
+ * don't have any received books.
+ */
+function requestBook() {
+  var options = {
+    // TODO: Display name should be here if implemented
+    subject: "Send a Coupon Book!",
+    message: `Your friend ${helper.getUserName()} wants a Coupon Book! Go to couponbooked.com to download the app and send a Book now!`
+  };
+  var onSuccess = function(result) {
     console.warn("Shared to app:", result.app);
   };
   var onError = function(msg) {
