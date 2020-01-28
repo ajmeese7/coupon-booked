@@ -21,30 +21,28 @@
 <body>
     <nav>
         <div id="desktop">
-            <a id="brand" href="http://www.couponbooked.com"><img id="logo" src="images/logo.png">Coupon Booked</a>
+            <a id="brand" href="/index"><img id="logo" src="images/logo.png">Coupon Booked</a>
             <a id="scroll-why" href="#why">Why us?</a>
             <a id="scroll-example" href="#examples">Examples</a>
-            <a id="scroll-create" href="#create">Create Your Own</a>
+
+            <!-- IDEA: Can eventually add a web interface if there is enough interest -->
+            <!--<a id="scroll-create" href="#create">Create Your Own</a>-->
+
+            <!-- TODO: Change the URL to the play store link -->
+            <a id="googlePlay" href='http://play.google.com/store/?utm_source=website&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
+                <!-- Google Play and the Google Play logo are trademarks of Google LLC. -->
+                <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/>
+            </a>
         </div>
 
         <!-- TODO: This looks a little small on actual mobile. Field testing? -->
         <div id="mobile">
-            <span class="menu-btn" style="font-size: 30px; cursor: pointer">
+            <span class="menu-btn" style="font-size: 30px; cursor: pointer; float: left;">
                 <img id="logo" src="images/logo.png">
-                <img id="logo" src="images/x.png" class="hide">
             </span>
-            <a id="brand" href="http://www.couponbooked.com">Coupon Booked</a>
+            <a id="brand" href="/index">Coupon Booked</a>
         </div>
     </nav>
-
-    <!-- Sidebar content for mobile navigation -->
-    <menu class="menu">
-        <ul>
-            <li><a href="#why">Why us?</a></li>
-            <li><a href="#examples">Examples</a></li>
-            <li><a href="#create">Create Your Own</a></li>
-        </ul>
-    </menu>
 
     <main>
         <div style="height: 20px; width: 100%;"><!-- Whitespace; don't question it. --></div>
@@ -67,16 +65,21 @@
             <pre id="account-details" class="hide"></pre>
 
             <div class="flex one four-300">
-                <img src="https://via.placeholder.com/300">
-                <img src="https://via.placeholder.com/300">
+                <img src="./images/boyfriend.jpg">
+                <img src="./images/girlfriend.jpg">
                 <img src="https://via.placeholder.com/300">
                 <img src="https://via.placeholder.com/300">
             </div>
         </section>
 
-        <section id="create">
-            <h2>Create Your Own</h2>
-            <button>Start here!</button>
+        <section id="create" class="hide">
+            <h2>Download now</h2>
+
+            <!-- TODO: Replace this when the desktop version is renovated -->
+            <a id="googlePlayMobile" href='http://play.google.com/store/?utm_source=website&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'>
+                <!-- Google Play and the Google Play logo are trademarks of Google LLC. -->
+                <img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/>
+            </a>
         </section>
     </main>
 

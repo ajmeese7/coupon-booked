@@ -41,7 +41,7 @@
 @media (max-width: 610px) {
     /* IDEA: Is this good enough, or should I switch to actual mobile detection with 
     https://github.com/lokesh/color-thief/pull/143? */
-    #mobile { display: inline-block;}
-    #desktop { display: none;}
-    body #brand { margin: 0;} /* https://stackoverflow.com/a/19038303 */
+    #mobile, #create { display: inline-block; }
+    #desktop { display: none; }
+    body #brand { margin: 0; margin-top: 2px; } /* https://stackoverflow.com/a/19038303 */
 }
