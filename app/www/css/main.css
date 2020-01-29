@@ -455,6 +455,11 @@ input:checked + .slider:before {
     background-image: url("../images/moon.png");
 }
 
+#animationCheckbox {
+    width: 35px;
+    height: 35px;
+}
+
 /* Rounded sliders */
 .slider.round {
     border-radius: 34px;

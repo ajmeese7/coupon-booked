@@ -37,7 +37,7 @@
     <div class="app" id="app"></div>
 
     <template id="loading">
-        <!-- NOTE: This is just here to be saved for other routes; not actually displayed -->
+        <!-- NOTE: This is just here to be saved for other routes -->
         <div id="nav">
             <div class="nav-container">
                 <nav class="navbar navbar-expand-md navbar-light">
@@ -70,7 +70,6 @@
             <div class="dropdown">
                 <div class="submenu" style="display: none;">
                     <ul class="root">
-                        <!-- NOTE: href required to have mouse change to clicker on hover -->
                         <!-- IDEA: Can add relevant icons for each item -->
                         <li><a href="#" class="dashboard">Dashboard</a></li>
                         <li><a href="#" class="settings">Settings</a></li>
@@ -81,15 +80,20 @@
         </div>
 
         <style> #nav { display: none; } </style>
+    </template>
 
-        <!-- TODO: Eventually test this and experiment with removal / splashscreen animation replacement with Cordova plugin -->
-        <div class="page">
-            <div class="flex col abs-centered full-page">
-                <div class="spinner spinner-lg is-auth0">
-                    <div class="circle"></div>
-                </div>
-                <h3>Coupon Booked</h3>
-            </div>
+    <template id="startAnimation">
+        <link rel="stylesheet" type="text/css" href="css/bookAnimation.css" />
+        <div id="animationBackground"></div>
+        <div id="book">
+            <div class="back"></div>
+            <div class="page6"><p>Booked</p></div>
+            <div class="page5"><p>Coupon</p></div>
+            <div class="page4"></div>
+            <div class="page3"></div>
+            <div class="page2"></div>
+            <div class="page1"></div>
+            <div class="front"></div>
         </div>
     </template>
 
@@ -367,8 +371,16 @@
             <b>Dark Mode</b>
             <br />
             <label class="switch" id="darkToggle">
+                <br />
                 <input type="checkbox" id="darkCheckbox">
                 <span class="slider round"></span>
+            </label>
+            <br />
+
+            <b>Display startup animation</b>
+            <br />
+            <label id="animationToggle">
+                <input type="checkbox" id="animationCheckbox">
             </label>
             
             <!-- Display name; set initially with profile and have some separate storage 

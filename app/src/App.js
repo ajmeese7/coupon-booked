@@ -72,12 +72,24 @@ App.prototype.state = {
 
         // Don't want to have to code an annoying landscape layout
         screen.orientation.lock('portrait');
-        
-        if (this.state.authenticated === true) {
-          return this.redirectTo('/home');
+        globalVars._this = this;
+
+        if (localStorage.getItem("start_animation") == "true") {
+          // TODO: Next try to uncomplicate things by removing /startAnimation
+          // and doing it on the loading route (here)
+          this.redirectTo('/startAnimation');
         } else {
-          return this.redirectTo('/login');
+          determineAuthRoute(true);
         }
+      }
+    },
+    '/startAnimation': {
+      id: 'startAnimation',
+      onMount: function(page) {
+        console.warn("/startAnimation route...");
+        globalVars._this = this;
+        
+        determineAuthRoute();
       }
     },
     '/login': {
@@ -281,6 +293,7 @@ App.prototype.state = {
           // to hopefully allow users to edit their data (what for?); use something similar to login functions?
         // IDEA: Permenantly update displayed name for sent books here
         darkModeSupport(true);
+        animationSetting();
         
         // IDEA: Remove from nav dropdown and just have here?
           // Should probably have more pages on dropdown nav
@@ -290,6 +303,25 @@ App.prototype.state = {
     }
   }
 };
+
+/**
+ * Decides whether to redirect to the home page or the login page,
+ * depending on the current authentication state of the user.
+ * @param {boolean} instant - true for zero delay, false for time for 
+ * animation to display to the user.
+ */
+function determineAuthRoute(instant) {
+  // Gives time for opening animation to run
+  setTimeout(function() {
+    if (globalVars._this.state.authenticated === true) {
+      return globalVars._this.redirectTo('/home');
+    } else {
+      return globalVars._this.redirectTo('/login');
+    }
+    // NOTE: The 1ms delay seems to take a good bit longer;
+    // should I complicate the code to speed it up?
+  }, instant ? 1 : 3500);
+}
 
 /**
  * Establish connection with the database so no load times later on.
@@ -317,13 +349,13 @@ function createConnection() {
 function darkModeSupport(settingsPage) {
   if (settingsPage) {
     // https://stackoverflow.com/a/3263248/6456163
-    if (localStorage.getItem('darkMode') == "true") helper.getById("darkCheckbox").click();
+    if (localStorage.getItem("darkMode") == "true") helper.getById("darkCheckbox").click();
 
     // NOTE: The code in here runs twice; shouldn't be a problem
-    var toggle = helper.getById('darkToggle');
+    var toggle = helper.getById("darkToggle");
     $(toggle).unbind().click(function() {
       var darkMode = helper.getById("darkCheckbox").checked;
-      localStorage.setItem('darkMode', darkMode + "");
+      localStorage.setItem("darkMode", darkMode + "");
 
       setProperMode();
     });
@@ -363,6 +395,22 @@ function darkModeSupport(settingsPage) {
   function setRootProperty(name, value) {
     document.documentElement.style.setProperty(name, value);
   }
+}
+
+/**
+ * Helps display the toggle for startup animation and modify
+ * the localStorage variable when the toggle is modified.
+ */
+function animationSetting() {
+  if (localStorage.getItem("start_animation") == "true") helper.getById("animationCheckbox").click();
+
+  // NOTE: The code in here runs twice; shouldn't be a problem
+  var toggle = helper.getById("animationToggle");
+  $(toggle).unbind().click(function() {
+    var animation = helper.getById("animationCheckbox").checked;
+    console.log("Animation state changing to " + animation + "...")
+    localStorage.setItem("start_animation", animation + "");
+  });
 }
 
 // IDEA: Only allow if paymentStatus != "succeeded"
