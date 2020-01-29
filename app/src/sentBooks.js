@@ -168,6 +168,10 @@ function createBookButton() {
   // TODO: Test this method on an unsaved book and normal process
 
   $("#createButton").unbind().click(function() {
+    // Replace Android full URL with a cross-platform local one
+    var imageSrc = helper.getById("bookImage").src;
+    globalVars.book.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
+
     if (development) {
       // TODO: Renovate createTemplate with new stuff for here
       createTemplate();
@@ -868,7 +872,11 @@ function createCoupon() {
 
   // Convert from string to number
   coupon.count = parseInt(coupon.count);
-  coupon.image = helper.getById("couponImage").src;
+
+  // Replace Android full URL with a cross-platform local one
+  //var cloudGiftUrl = "https://res.cloudinary.com/couponbooked/image/upload/v1580314462/gift_rshjui.png";
+  var imageSrc = helper.getById("couponImage").src;
+  coupon.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
 
   // Name already validated before this function is called so
   // no need to do it again.
@@ -896,6 +904,10 @@ function updateCoupon(oldCoupon, $this) {
 
   // Convert from string to number
   newCoupon.count = parseInt(newCoupon.count);
+  
+  // Replace Android full URL with a cross-platform local one
+  var imageSrc = helper.getById("couponImage").src;
+  newCoupon.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
 
   // TODO: Consider decomposing
   if (!helper.isSameObject(oldCoupon, newCoupon)) {
@@ -1089,7 +1101,11 @@ function createBook() {
  */
 function editBookDetails() {
   var oldBook = helper.clone(globalVars.book);
-  oldBook.image       = helper.getById("bookImage").src;
+
+  // Replace Android full URL with a cross-platform local one
+  var imageSrc = helper.getById("bookImage").src;
+  oldBook.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
+
   oldBook.name        = helper.getById("bookName").value;
   oldBook.description = helper.getById("bookDescription").value;
 
