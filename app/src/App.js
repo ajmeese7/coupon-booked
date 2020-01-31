@@ -74,22 +74,7 @@ App.prototype.state = {
         screen.orientation.lock('portrait');
         globalVars._this = this;
 
-        if (localStorage.getItem("start_animation") == "true") {
-          // TODO: Next try to uncomplicate things by removing /startAnimation
-          // and doing it on the loading route (here)
-          this.redirectTo('/startAnimation');
-        } else {
-          determineAuthRoute(true);
-        }
-      }
-    },
-    '/startAnimation': {
-      id: 'startAnimation',
-      onMount: function(page) {
-        console.warn("/startAnimation route...");
-        globalVars._this = this;
-        
-        determineAuthRoute();
+        determineAuthRoute(localStorage.getItem("start_animation") != "true");
       }
     },
     '/login': {
@@ -484,6 +469,9 @@ function getAllTemplates() {
         title: 'Error retreiving templates',
         text: 'Please try again later.'
       }, globalVars.notificationOptions);
+
+      // Only way you can get to the create route, so easy to send them back
+      globalVars._this.redirectTo("/dashboard");
     }
   });
 }
@@ -1164,7 +1152,7 @@ App.prototype.resumeApp = function() {
 function handleExpiredToken() {
   var getNewAccessToken = generateAccessToken();
   getNewAccessToken.then(function(result) {
-    console.warn("Access token retrieval successful! New access token:", result);
+    console.warn("Access token retrieval successful!"); // New access token:", result
     localStorage.setItem('access_token', result);
     
     successfulAuth(result);
@@ -1205,7 +1193,7 @@ function generateAccessToken() {
       } else {
         var body = JSON.parse(body);
         var idToken = body.id_token;
-        console.warn("ID token retrieval successful! New ID token:", idToken);
+        console.warn("ID token retrieval successful!"); // New ID token:", idToken
         localStorage.setItem('id_token', idToken);
 
         var accessToken = body.access_token;
