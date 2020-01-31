@@ -25,4 +25,8 @@ env.js
 build.json
 app/www/index.js
 app/www/index.js.map
-website/scripts/createConnection.php
+
+# Building for release
+app/couponbooked.apk
+app/couponbooked-final.apk
+app/couponbooked.keystore

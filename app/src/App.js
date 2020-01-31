@@ -68,6 +68,7 @@ App.prototype.state = {
       onMount: function(page) {
         console.warn("/ route...");
         globalVars.nav = helper.getBySelector("#nav");
+        globalVars.loadingIcon = helper.getBySelector("#loader");
         createConnection();
 
         // Don't want to have to code an annoying landscape layout
@@ -130,6 +131,12 @@ App.prototype.state = {
           globalVars._this.redirectTo('/dashboard');
         });
 
+        // TODO: Either add a similar variable to /dashboard here or implement some
+        // kind of caching mechanism so they don't have to wait every time for the
+        // templates to be retrieved
+        this.container.appendChild(globalVars.loadingIcon);
+        $("#loader").css("display", "inline-block");
+        helper.fadeBetweenElements("#gestureZone, #templateContainer", "", true);
         getAllTemplates();
       }
     },
@@ -160,6 +167,11 @@ App.prototype.state = {
       onMount: function(page) {
         globalVars._this = this;
         navBar();
+
+        if (showLoadingIcon) {
+          this.container.appendChild(globalVars.loadingIcon);
+          helper.fadeBetweenElements("#gestureZone", "", true);
+        }
         pullUserRelatedBooks();
 
         // Initialize tab menu
@@ -496,7 +508,7 @@ function processTemplates(data) {
 
     // https://api.jquery.com/data/
     $(node).data("templateData", templateData);
-    helper.getById("buttonContainer").appendChild(node);
+    helper.getById("templateContainer").appendChild(node);
 
     $(node).unbind().click(function() {
       globalVars.book = $(node).data("templateData");
@@ -504,12 +516,23 @@ function processTemplates(data) {
       globalVars._this.redirectTo('/sentBook');
     });
   });
+
+  hideLoadingIcon(true);
 }
+
+/**
+ * NOTE: I don't know HOW this works or even if it DOES work, 
+ * but at the moment it appears to stop the loading animation
+ * from displaying when returning to the dashboard. Can mess around
+ * with it in the future if any problems appear.
+ */
+var showLoadingIcon = true;
 
 /**
  * Retrieve coupon books the user has sent or received.
  */
 function pullUserRelatedBooks() {
+  showLoadingIcon = true;
   var userId = localStorage.getItem('user_id');
   $.ajax({
     type: "GET",
@@ -564,6 +587,21 @@ function processPulledData(data) {
       unhideMessage(isSent);
     }
   });
+
+  hideLoadingIcon();
+}
+
+/**
+ * Switches from the loading icon to the normal content
+ * after a short delay, depending on the calling route.
+ * @param {boolean} templatesPage - whether /create or /dashboard
+ */
+function hideLoadingIcon(templatesPage) {
+  showLoadingIcon = false;
+  
+  setTimeout(function() {
+    helper.fadeBetweenElements("#loader", "#gestureZone, #templateContainer");
+  }, templatesPage ? 750 : 950);
 }
 
 /**

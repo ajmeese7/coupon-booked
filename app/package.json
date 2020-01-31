@@ -2,7 +2,7 @@
     "name": "com.couponbooked.app",
     "version": "1.0.0",
     "displayName": "Coupon Booked",
-    "description": "Gift virtual coupon books to loved ones",
+    "description": "Gift virtual coupon books to loved ones.",
     "scripts": {
         "build": "webpack --progress --config webpack.config.js && npm run android",
         "watch": "webpack --watch --config webpack.config.js",
