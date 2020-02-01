@@ -708,11 +708,10 @@ function limitDescriptionLength(isBook) {
       // Example: 146/180
       descLength.text(`${length}/${maxlen}`);
 
-      if (!initial) {
+      setTimeout(function() {
+        if (initial) console.log("Initial text update, adding small delay to height update...");
         updateHeight(isBook);
-      } else {
-        console.log("Initial text update, leaving height alone...");
-      }
+      }, initial ? 250 : 1);
     }
   }
 }
@@ -833,9 +832,6 @@ function deleteBook() {
       crossDomain: true,
       cache: false,
       success: function(success) {
-        // Uncomment to debug deleting books
-        //console.warn("deleteBook success: ", success);
-
         SimpleNotification.success({
           text: "Successfully deleted book"
         }, globalVars.notificationOptions);
