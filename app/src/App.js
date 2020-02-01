@@ -149,6 +149,22 @@ App.prototype.state = {
 
         sent.displayBook();
         darkModeSupport();
+
+        // Back button support for the Stripe iFrame popup
+        $('#share').unbind().click(function() {
+          // Shows the background overlay for the Stripe popup
+          $( "iframe[name='stripe_checkout_app']" ).next().show();
+
+          $('#backArrow').unbind().click(function() {
+            $( "iframe[name='stripe_checkout_app']" ).next().fadeOut(200);
+            $( "iframe[name='stripe_checkout_app']" ).fadeOut(200);
+            globalVars.backButtonTarget ="/dashboard";
+            
+            $('#backArrow').unbind().click(function() {
+              globalVars._this.redirectTo(globalVars.backButtonTarget);
+            });
+          });
+        });
       }
     },
     '/receivedBook': {
@@ -736,6 +752,7 @@ function createShareCode() {
       // Try again with a new share code
       console.warn("Share code in use. Generating new code...");
       createShareCode();
+
     } else if (success == "Receiver exists") {
       // NOTE: Should probably add in headers
       console.warn("Book has already been sent.");
@@ -743,11 +760,13 @@ function createShareCode() {
         // IDEA: Warning symbol for images; yellow might not be enough
         text: "Book has already been sent."
       }, globalVars.notificationOptions);
+
     } else if (success == "Share code exists") {
       console.warn("Share code already generated.");
       SimpleNotification.warning({
         text: "Share code already generated."
       }, globalVars.notificationOptions);
+
     } else {
       console.warn("Share code created successfully:", shareCode);
       // Share code created successfully
@@ -757,6 +776,10 @@ function createShareCode() {
       // true means it's silent so they don't get a strange notification
       sent.updateBook(true);
 
+      // TODO: ignore startup animation when redirecting to here somehow;
+      // can I prevent the refresh on form submit?
+      // Need to intercept form submit and make the get request with jQuery myself
+      // like described here: https://www.codexpedia.com/javascript/submitting-html-form-without-reload-the-page/
       globalVars._this.redirectTo('/shareCode');
     }
   }

@@ -44,13 +44,7 @@ function displayBook() {
     // Code generated but not yet redeemed
     var receiver = `<p id='shareCodePreview'>Share code: <span>${globalVars.book.shareCode}</span></p>`;
     previewText.innerHTML += receiver;
-  } else if (globalVars.book.bookId) {
-    // No share code generated and not sent; only if book has already been
-    // saved and bookId has been generated
-    var stripeButton = helper.getById("checkoutFormContainer");
-    $(stripeButton).attr('class', '');
-    previewText.appendChild(stripeButton);
-  } else {
+  } else if (!globalVars.book.bookId) {
     // For when a template is first loaded in; not yet saved
     var receiver = "<p class='receiverText'>Save to share!</p>";
     previewText.innerHTML += receiver;
@@ -70,11 +64,6 @@ function displayBook() {
 
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
-
-  if (globalVars.book.description != "") {
-    // TODO: Test why this looks fine with shareCode and crowded with .receiverText
-    helper.getById("bookNamePreview").style.marginBottom = "0px";
-  }
 
   addDeleteListeners();
   addListeners();
@@ -1029,17 +1018,18 @@ function showProperButton(currentPage) {
   if ((currentPage == "home" && !globalVars.book.bookId && !development) || currentPage == "newCoupon") {
     // displayBook called last and book not yet created, or a new coupon
     // is being created by the user
-    helper.fadeBetweenElements("#save, #delete", "#createButton", true);
+    helper.fadeBetweenElements("#save, #delete, #share", "#createButton", true);
   } else if (currentPage == "home") {
     // Book already created but still on displayBook page
-    helper.fadeBetweenElements("#createButton, #save, #delete", null, true);
+    var showShareButton = !globalVars.book.receiver && !globalVars.book.shareCode && globalVars.book.bookId;
+    helper.fadeBetweenElements("#createButton, #save, #delete", showShareButton ? "#share" : null, true);
   } else if (currentPage == "editBook" || currentPage == "editCoupon") {
     // Save edits to book or coupon;
     // TODO: only show save button once there are changes
-    helper.fadeBetweenElements("#createButton, #delete", "#save", true);
+    helper.fadeBetweenElements("#createButton, #delete, #share", "#save", true);
   } else if (currentPage == "couponPreview") {
     // For if they want to delete a coupon
-    helper.fadeBetweenElements("#createButton, #save", "#delete", true);
+    helper.fadeBetweenElements("#createButton, #save, #share", "#delete", true);
   }
 }
 

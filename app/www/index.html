@@ -171,6 +171,30 @@
             <a id="createButton">Create</a>
             <a id="save" class="hide">Save</a>
             <a id="delete" class="hide">Delete</a>
+
+            <!-- https://remysharp.com/2016/12/23/beginners-guide-to-stripe-integration -->
+            <div id="share" class="hide">
+                <!-- TODO: See if I can pull the data-key from the env file based on whether
+                    it's running in production or development mode. Could potentially create form
+                    in JS with access to variables using https://github.com/daffl/jquery.dform -->
+                <form id="checkoutForm">
+                    <!-- TODO: When sharing, ignore startup animation -->
+                    <!-- TODO: Prevent scrolling of the background while the overlay is displayed -->
+                    <!-- NOTE: This opens a semi-transparent iFrame for the payment portal -->
+                    <script
+                        src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                        data-key="pk_test_EAwuFkepc11nHEyPnzAH2XF600aoA16vHm"
+                        data-amount="299"
+                        data-currency="USD"
+                        data-zip-code="true"
+                        data-name="Coupon Booked"
+                        data-description="The perfect gift."
+                        data-image="https://files.stripe.com/links/fl_live_QVe1DWVY3XrIaMOpAIRWfvEb"
+                        data-label="Share"
+                        data-locale="auto">
+                    </script>
+                </form>
+            </div>
         </div>
         
         <div id="bookContent" class="col">
@@ -235,31 +259,6 @@
             <div id="bookDescLength">0</div>
         </form>
 
-        <!-- https://remysharp.com/2016/12/23/beginners-guide-to-stripe-integration -->
-        <div id="checkoutFormContainer" class="hide">
-            <!-- TODO: See if I can pull the data-key from the env file based on whether
-                it's running in production or development mode. Could potentially create form
-                in JS with access to variables using https://github.com/daffl/jquery.dform -->
-            <form id="checkoutForm">
-                <!-- IDEA: Try using locally hosted image to reduce fingerprint -->
-                <!-- TODO: Find a way to secure this to not be maliciously edited by users -->
-                <!-- NOTE: Possible alternative - https://stackoverflow.com/a/46269165/6456163-->
-                <script
-                  src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                  data-key="pk_test_EAwuFkepc11nHEyPnzAH2XF600aoA16vHm"
-                  data-amount="299"
-                  data-currency="USD"
-                  data-zip-code="true"
-                  data-name="Coupon Booked"
-                  data-description="The perfect gift."
-                  data-image="https://files.stripe.com/links/fl_live_QVe1DWVY3XrIaMOpAIRWfvEb"
-                  data-label="Share"
-                  data-locale="auto">
-                </script>
-                <!-- TODO: Make 'Terms' and 'Privacy' links work on form -->
-            </form>
-        </div>
-
         <script id="moreOptions" type="text/html">
             <nav class="menu">
                 <!-- TODO: Try to speed up this animation, and probably replace the hamburger
@@ -316,7 +315,7 @@
         </div>
 
         <p id="shareCodeDescription">
-            Send this code to whoever you want to receive your Coupon Book.
+            Send this code to whomever you want to receive your Coupon Book.
             They must create an account if they don't already have one to 
             redeem the code.
         </p>
