@@ -10,9 +10,6 @@ const Auth0Cordova = require('@auth0/cordova');
 // TODO: Look into adding tests to make more appealing to buyers and
   // to assure nothing breaks in the future
 
-// TODO: Solve https://www.google.com/search?client=firefox-b-1-d&q=uncollapse+all+comments+vscode
-  // for after collapse all on file open. That or alternative of collapsing all functions.
-
 var sent = require('./sentBooks.js');
 var received = require('./receivedBooks.js');
 var helper = require('./helperFunctions.js');
@@ -75,7 +72,9 @@ App.prototype.state = {
         screen.orientation.lock('portrait');
         globalVars._this = this;
 
-        determineAuthRoute(localStorage.getItem("start_animation") != "true");
+        // If page refreshed because of Stripe, the startup animation won't show
+        var justPaid = localStorage.getItem("just_paid");
+        determineAuthRoute(!!justPaid ? true : localStorage.getItem("start_animation") != "true");
       }
     },
     '/login': {
@@ -152,12 +151,16 @@ App.prototype.state = {
 
         // Back button support for the Stripe iFrame popup
         $('#share').unbind().click(function() {
-          // Shows the background overlay for the Stripe popup
-          $( "iframe[name='stripe_checkout_app']" ).next().show();
+          // Payment doesn't have to be successful; this is just for keeping
+          // track of where the / route is called from
+          localStorage.setItem("just_paid", "true");
 
+          // Shows the background overlay for the Stripe popup
+          var stripe = "iframe[name='stripe_checkout_app']";
+          $(stripe).next().show();
           $('#backArrow').unbind().click(function() {
-            $( "iframe[name='stripe_checkout_app']" ).next().fadeOut(200);
-            $( "iframe[name='stripe_checkout_app']" ).fadeOut(200);
+            $(stripe).next().fadeOut(200);
+            $(stripe).fadeOut(200);
             globalVars.backButtonTarget ="/dashboard";
             
             $('#backArrow').unbind().click(function() {
@@ -324,6 +327,9 @@ App.prototype.state = {
  * animation to display to the user.
  */
 function determineAuthRoute(instant) {
+  localStorage.removeItem("just_paid");
+  console.warn("Showing startup animation:", !instant);
+
   // Gives time for opening animation to run
   setTimeout(function() {
     if (globalVars._this.state.authenticated === true) {
