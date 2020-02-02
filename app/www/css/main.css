@@ -376,7 +376,7 @@ iframe[name="stripe_checkout_app"] {
 
 /* Manipulate page elements */
 #topbar {
-    /* TODO: Make this fixed in position without removing from DOM;
+    /* IDEA: Make this fixed in position without removing from DOM;
         I want to prevent typing in the count field from making it scroll up */
     width: 100%;
     height: 40px;
@@ -384,7 +384,6 @@ iframe[name="stripe_checkout_app"] {
     background-color: var(--topbar-color);
 }
 #topbar a, #topbar button {
-    /* TODO Style these a LOT better */
     font-size: 18.5px;
     line-height: 40px;
 }
@@ -531,6 +530,14 @@ input:checked + .slider:before {
 #animationCheckbox {
     width: 35px;
     height: 35px;
+}
+
+#displayNameInput {
+    margin-top: 7.5px;
+    margin-bottom: 2.5px;
+}
+#updateDisplayName {
+    margin-bottom: 17.5px;
 }
 
 /* Rounded sliders */

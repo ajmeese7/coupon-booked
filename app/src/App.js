@@ -307,7 +307,7 @@ App.prototype.state = {
 
         // TODO: Mess with https://auth0.com/docs/api/management/v2#!/Users/patch_users_by_id
           // to hopefully allow users to edit their data (what for?); use something similar to login functions?
-        // IDEA: Permenantly update displayed name for sent books here
+        displayNameListeners();
         darkModeSupport(true);
         animationSetting();
         
@@ -357,6 +357,40 @@ function createConnection() {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error establishing connection:", XMLHttpRequest.responseText);
+    }
+  });
+}
+
+/**
+ * Takes the name the user entered in the field on the settings
+ * page and sets it in localStorage for display purposes.
+ */
+function displayNameListeners() {
+  // Update textbox with current displayName
+  $("#displayNameInput").val(localStorage.getItem("display_name"));
+
+  // Listen for clicking of update button
+  $("#updateDisplayName").unbind().click(function() {
+    var newName = helper.getById("displayNameInput").value;
+    if (newName.length > 30) {
+      SimpleNotification.warning({
+        title: "Name too long",
+        text: "Please enter a shorter name."
+      }, globalVars.notificationOptions);
+    } else if (newName == "") {
+      SimpleNotification.info({
+        title: "No name entered",
+        text: "Using default username from now on."
+      }, globalVars.notificationOptions);
+
+      localStorage.setItem("display_name", "");
+    } else {
+      SimpleNotification.success({
+        text: "Display name updated"
+      }, globalVars.notificationOptions);
+
+      console.log("New display name:", newName);
+      localStorage.setItem("display_name", newName);
     }
   });
 }
@@ -881,8 +915,7 @@ function redeemCode(shareCode) {
  */
 function shareCode() {
   var options = {
-    // TODO: Display sender name in message -> helper.getUserName(), 
-    // or better yet the display name once implemented
+    // TODO: Display sender name in message -> helper.getUserName()
     subject: "You've been Coupon Booked!", // for email
     message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${globalVars.book.shareCode}`
   };
@@ -905,7 +938,6 @@ function shareCode() {
  */
 function requestBook() {
   var options = {
-    // TODO: Display name should be here if implemented
     subject: "Send a Coupon Book!",
     message: `Your friend ${helper.getUserName()} wants a Coupon Book! Go to couponbooked.com to download the app and send a Book now!`
   };
@@ -960,10 +992,6 @@ function navBar() {
   // Settings button on dropdown
   var settingsButton = helper.getBySelector('.settings');
   $(settingsButton).unbind().click(function() { globalVars._this.redirectTo('/settings') });
-
-  // Logout button on dropdown
-  var logoutButton = helper.getBySelector('.logout');
-  $(logoutButton).unbind().click( globalVars._this.logout );
 
   // Profile picture dropdown
   $(".account").unbind().click(function() {
@@ -1133,11 +1161,10 @@ App.prototype.logout = function(e) {
   // TODO: Test logging in and out of devices to make sure notifications still work properly.
   //window.plugins.OneSignal.removeExternalUserId();
 
+  // Have both just in case; either should cut it
+  window.localStorage.clear();
+  localStorage.clear();
   globalVars.profile = null;
-  localStorage.removeItem('user_id');
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
-  localStorage.removeItem('id_token');
 
   // https://auth0.com/authenticate/cordova/auth0-oidc/
   var url = getRedirectUrl();

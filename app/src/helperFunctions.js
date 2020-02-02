@@ -40,13 +40,14 @@ function fadeBetweenElements(fadeOut, fadeIn, instant) {
 }
 
 /**
- * Gets the name of the current user. NOTE: May be updated
- * if I switch to using a user-selected name in the future
- * like several TODOs mention.
+ * Gets the name of the current user.
  * @returns {string}
  */
 function getUserName() {
-  if (globalVars.profile.given_name) {
+  var displayName = localStorage.getItem("display_name");
+  if (displayName != "") {
+    return displayName;
+  } else if (globalVars.profile.given_name) {
     // Through Google; name should be whole name
     return globalVars.profile.name;
   } else {

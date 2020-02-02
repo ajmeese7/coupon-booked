@@ -8,6 +8,11 @@ function main() {
     document.addEventListener("backbutton", handleNativeBackButton, false);
     onesignalNotifications();
 
+    if (!localStorage.getItem("start_animation")) {
+        console.warn("Initially setting animation to true...");
+        localStorage.setItem("start_animation", "true");
+    }
+
     var app = new App();
     function intentHandler(url) {
         Auth0Cordova.onRedirectUri(url);
