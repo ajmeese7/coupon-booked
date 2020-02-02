@@ -13,6 +13,11 @@ body {
     margin-bottom: env(safe-area-inset-bottom); /* iOS 11.2 */
 }
 
+.btn-success {
+    background-color: #1275ff !important;
+    border-color: #0e69e8 !important;
+}
+
 .flex {
     display: flex;
 }

@@ -6,7 +6,7 @@
     if (isset($_POST['stripeToken']) && isset($_POST['bookId'])) {
         // Set your secret key: remember to change this to your live secret key in production
         // See your keys here: https://dashboard.stripe.com/account/apikeys
-        \Stripe\Stripe::setApiKey($STRIPE_TEST_SECRET);
+        \Stripe\Stripe::setApiKey($STRIPE_LIVE_SECRET);
         // IDEA: Include a separate piece of info saying whether test or production is 
         // being used in the primary file
 

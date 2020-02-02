@@ -165,7 +165,6 @@
     </template>
 
     <template id="sentBook">
-        <!-- NOTE: Also in redeem -->
         <div id="topbar">
             <img id="backArrow" src="images/back.svg" />
             <a id="createButton">Create</a>
@@ -182,7 +181,7 @@
                     <!-- NOTE: This opens a semi-transparent iFrame for the payment portal -->
                     <script
                         src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                        data-key="pk_test_EAwuFkepc11nHEyPnzAH2XF600aoA16vHm"
+                        data-key="pk_live_I0WlDMmpJNIVTFLhWJQj551C00ymlegiCt"
                         data-amount="299"
                         data-currency="USD"
                         data-zip-code="true"
@@ -328,7 +327,6 @@
         </div>
 
         <h3 id="redeemHeader">Enter your code below</h3>
-
         <div>
             <input id="redeemBox" maxlength='8' autocapitalize="none" />
         </div>
