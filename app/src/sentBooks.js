@@ -1226,60 +1226,6 @@ function newNameWarning() {
   }, globalVars.notificationOptions);
 }
 
-/**
- * Development-only function. Meant to aid in the process of creating
- * templates and adding them to the template table in the database.
- * @param {string} name - the name of the template to be created
- */
-function createTemplate(name) {
-  console.warn(`Creating template ${name}...`);
-  // TODO: https://www.flaticon.com/free-icon/gift_214305#term=gift&page=1&position=5
-  var emptyTemplate = { name:name, description:"", image:"images/gift.png", bookId:null, shareCode:null, coupons:[] };
-  emptyTemplate = JSON.stringify(emptyTemplate);
-  var userId = localStorage.getItem("user_id");
-
-  $.ajax({
-    type: "POST",
-    url: "http://www.couponbooked.com/scripts/createTemplate",
-    data: { name: name, templateData: emptyTemplate, userId: userId },
-    crossDomain: true,
-    dataType: "html",
-    cache: false,
-    success: function(success) {
-      // PHP echos a message if name already exists; if it doesn't, PHP is silent
-      if (success) {
-        console.warn("createTemplate success:", success);
-        newNameWarning();
-      } else {
-        getTemplate(name);
-
-        SimpleNotification.success({
-          title: "Successfully created template!",
-          text: "Good for you. Keep up the great work!"
-        }, globalVars.notificationOptions);
-      }
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      var responseText = XMLHttpRequest.responseText;
-      console.error("Error in createTemplate:", responseText);
-
-      if (responseText.includes("not allowed")) {
-        // Unauthorized user trying to create a template
-        SimpleNotification.error({
-          title: "Unauthorized template creation",
-          text: "Your violation has been logged."
-        }, globalVars.notificationOptions);
-      } else {
-        // Generic error
-        SimpleNotification.error({
-          title: "Error creating template",
-          text: "Please try again later."
-        }, globalVars.notificationOptions);
-      }
-    }
-  });
-}
-
 // NOTE: Functions needed outside this file are listed here.
 module.exports = Object.assign({
   displayBook,

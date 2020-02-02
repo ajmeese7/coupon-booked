@@ -518,8 +518,6 @@ function resetUrlVars() {
 
 /**
  * Pulls all the templates from the server.
- * TODO: Add ability to create templates somehow; button dependent on
- * dev mode (plus) or on save, possibly?
  */
 function getAllTemplates() {
   $.ajax({
