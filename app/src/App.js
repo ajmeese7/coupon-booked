@@ -12,6 +12,7 @@ const Auth0Cordova = require('@auth0/cordova');
 
 var sent = require('./sentBooks.js');
 var received = require('./receivedBooks.js');
+var share = require('./shareBook.js');
 var helper = require('./helperFunctions.js');
 var globalVars = require('./globalVars.js');
 
@@ -22,11 +23,10 @@ function App() {
   if (cleanBuild) {
     console.warn("Wiping local storage...");
     //window.plugins.OneSignal.removeExternalUserId();
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('id_token');
-    localStorage.removeItem('stripeToken');
+    // Have both just in case; either should cut it
+    window.localStorage.clear();
+    localStorage.clear();
+    globalVars.profile = null;
 
     var url = getRedirectUrl();
     openUrl(url);
@@ -72,9 +72,7 @@ App.prototype.state = {
         screen.orientation.lock('portrait');
         globalVars._this = this;
 
-        // If page refreshed because of Stripe, the startup animation won't show
-        var justPaid = localStorage.getItem("just_paid");
-        determineAuthRoute(!!justPaid ? true : localStorage.getItem("start_animation") != "true");
+        determineAuthRoute(localStorage.getItem("start_animation") != "true");
       }
     },
     '/login': {
@@ -98,24 +96,6 @@ App.prototype.state = {
 
         // Reset every time the user goes home
         localStorage.setItem('activeTab', 'sent');
-
-        // Theoretically disallows the usage of the same Stripe token twice when
-        // it's still stored in the URL; Stripe's API *should* handle this automatically
-        // but I'm attempting to avoid relying on that feature.
-        var oldStripeToken = localStorage.getItem('stripeToken');
-        var url_vars = getUrlVars();
-        var newStripeToken = url_vars.stripeToken;
-        if (newStripeToken && newStripeToken != oldStripeToken) {
-          console.warn("New Stripe token exists and is not equal to old token. Processing payment...");
-
-          localStorage.setItem('stripeToken', newStripeToken);
-          handlePayments();
-        } else {
-          if (newStripeToken) {
-            // If not this case then there's no token so shouldn't even worry about it
-            console.warn("Same Stripe token! Not processing payment...");
-          }
-        }
       }
     },
     '/create': {
@@ -147,27 +127,8 @@ App.prototype.state = {
         navBar();
 
         sent.displayBook();
+        share.shareButtonListeners();
         darkModeSupport();
-
-        // Back button support for the Stripe iFrame popup
-        $('#share').unbind().click(function() {
-          // Payment doesn't have to be successful; this is just for keeping
-          // track of where the / route is called from
-          localStorage.setItem("just_paid", "true");
-
-          // Shows the background overlay for the Stripe popup
-          var stripe = "iframe[name='stripe_checkout_app']";
-          $(stripe).next().show();
-          $('#backArrow').unbind().click(function() {
-            $(stripe).next().fadeOut(200);
-            $(stripe).fadeOut(200);
-            globalVars.backButtonTarget ="/dashboard";
-            
-            $('#backArrow').unbind().click(function() {
-              globalVars._this.redirectTo(globalVars.backButtonTarget);
-            });
-          });
-        });
       }
     },
     '/receivedBook': {
@@ -295,7 +256,7 @@ App.prototype.state = {
         (platform == "Android") ? shareIcon.src = "images/md-share.svg" : shareIcon.src = "images/ios-share.svg";
 
         $("#bigShareButton").unbind().click(function() {
-          shareCode();
+          share.shareCode();
         });
       }
     },
@@ -327,7 +288,6 @@ App.prototype.state = {
  * animation to display to the user.
  */
 function determineAuthRoute(instant) {
-  localStorage.removeItem("just_paid");
   console.warn("Showing startup animation:", !instant);
 
   // Gives time for opening animation to run
@@ -464,56 +424,6 @@ function animationSetting() {
     console.log("Animation state changing to " + animation + "...")
     localStorage.setItem("start_animation", animation + "");
   });
-}
-
-// IDEA: Only allow if paymentStatus != "succeeded"
-function handlePayments() {
-  var url_vars = getUrlVars();
-
-  $.ajax({
-    type: "POST",
-    url: "http://www.couponbooked.com/stripe",
-    data: { stripeToken: url_vars.stripeToken, bookId: url_vars.bookId },
-    cache: false,
-    success: function(success) {
-      console.warn("Payment status:", success);
-      globalVars.book = JSON.parse(localStorage.getItem('book'));
-      localStorage.removeItem('book');
-      globalVars.book.paymentStatus = success;
-      sent.updateBook(true);
-
-      if (success == "succeeded") {
-        createShareCode();
-      } else {
-        // TODO: Proper handling for other occurances
-        SimpleNotification.warning({
-          title: "Problem processing payment",
-          text: "Please try again later."
-        }, globalVars.notificationOptions);
-      }
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in payment:", XMLHttpRequest.responseText);
-      resetUrlVars();
-    }
-  });
-}
-
-// https://stackoverflow.com/a/8845823/6456163
-function getUrlVars() {
-  var vars = [], hash;
-  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-  for (var i = 0; i < hashes.length; i++) {
-    hash = hashes[i].split('=');                        
-    vars[hash[0]] = hash[1];
-  }
-  return vars;
-}
-
-/** Removes all variables from the URL to give the window a clean slate. */
-function resetUrlVars() {
-  var location = window.location.href.substring(0, window.location.href.indexOf('?'));
-  window.location = location;
 }
 
 /**
@@ -713,7 +623,6 @@ function addBookToPage(couponBook, isSent) {
 
   // https://api.jquery.com/data/
   $(node).data("bookData", bookData);
-  $(node).data("paymentStatus", couponBook.paymentStatus);
   $(node).data("isSent", isSent);
   $(node).data("receiver", couponBook.receiverName);
   $(node).data("sender", couponBook.senderName);
@@ -731,7 +640,6 @@ function addBookListeners(node) {
     globalVars.book = $(this).data("bookData");
     globalVars.book.receiver = $(this).data("receiver");
     globalVars.book.sender = $(this).data("sender");
-    globalVars.book.paymentStatus = $(this).data("paymentStatus");
     globalVars.previousBook = helper.clone(globalVars.book);
 
     // TODO: Add some kind of delay to give content time to load in;
@@ -747,116 +655,6 @@ function addBookListeners(node) {
       globalVars._this.redirectTo('/receivedBook');
     }
   });
-}
-
-/**
- * Generates a share code and adds it to the book's entry 
- * in the database.
- */
-function createShareCode() {
-  // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
-  var shareCode = generateShareCode();
-  function generateShareCode() {
-    var rtn = '';
-    for (var i = 0; i < ID_LENGTH; i++) {
-      rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
-    }
-    return rtn;
-  }
-
-  $.ajax({
-    type: "POST",
-    url: "http://www.couponbooked.com/scripts/createShareCode",
-    data: { bookId: globalVars.book.bookId, bookData: JSON.stringify(globalVars.book), shareCode: shareCode },
-    crossDomain: true,
-    cache: false,
-    success: function(success) {
-      handleSuccess(success);
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in createShareCode:", XMLHttpRequest.responseText);
-
-      // TODO: Make sure error actually has working timer
-      SimpleNotification.error({
-        title: "Error creating share code!",
-        text: "Please try again later."
-      }, globalVars.notificationOptions);
-    }
-  });
-
-  function handleSuccess(success) {
-    // NOTE: Should think of better messages here
-    if (success == "Code in use") {
-      // Try again with a new share code
-      console.warn("Share code in use. Generating new code...");
-      createShareCode();
-
-    } else if (success == "Receiver exists") {
-      // NOTE: Should probably add in headers
-      console.warn("Book has already been sent.");
-      SimpleNotification.warning({
-        // IDEA: Warning symbol for images; yellow might not be enough
-        text: "Book has already been sent."
-      }, globalVars.notificationOptions);
-
-    } else if (success == "Share code exists") {
-      console.warn("Share code already generated.");
-      SimpleNotification.warning({
-        text: "Share code already generated."
-      }, globalVars.notificationOptions);
-
-    } else {
-      console.warn("Share code created successfully:", shareCode);
-      // Share code created successfully
-      globalVars.book.shareCode = shareCode;
-
-      // So they can go back to dashboard without dealing with confirm prompt;
-      // true means it's silent so they don't get a strange notification
-      sent.updateBook(true);
-
-      // TODO: ignore startup animation when redirecting to here somehow;
-      // can I prevent the refresh on form submit?
-      // Need to intercept form submit and make the get request with jQuery myself
-      // like described here: https://www.codexpedia.com/javascript/submitting-html-form-without-reload-the-page/
-      globalVars._this.redirectTo('/shareCode');
-    }
-  }
-}
-
-/**
- * Checks if code characters are all within the defined
- * alphabet and if it is the right length.
- * @param {string} shareCode 
- */
-function codeIsValid(shareCode) {
-  if (shareCode.length == ID_LENGTH) {
-    var validCode = true;
-    for (var i = 0; i < ID_LENGTH; i++) {
-      if (!ALPHABET.includes(shareCode.charAt(i))) {
-        validCode = false;
-      }
-    }
-
-    // NOTE: Immediate input checking prevents this from ever running,
-    // so it would probably be safe to remove it.
-    if (validCode) {
-      return true;
-    } else {
-      SimpleNotification.warning({
-        title: "Invalid code",
-        text: "Please try again."
-      }, globalVars.notificationOptions);
-
-      return false;
-    }
-  } else {
-    SimpleNotification.warning({
-      title: "Not long enough",
-      text: "Please enter your eight digit code."
-    }, globalVars.notificationOptions);
-
-    return false;
-  }
 }
 
 /**
@@ -907,26 +705,40 @@ function redeemCode(shareCode) {
   }
 }
 
-// TODO: Test on iOS, as site said there may be some special requirements
 /**
- * Opens native share function of device populated with the coded options.
+ * Checks if code characters are all within the defined
+ * alphabet and if it is the right length.
+ * @param {string} shareCode 
  */
-function shareCode() {
-  var options = {
-    // TODO: Display sender name in message -> helper.getUserName()
-    subject: "You've been Coupon Booked!", // for email
-    message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${globalVars.book.shareCode}`
-  };
-  var onSuccess = function(result) {
-    // On Android result.app since plugin version 5.4.0 this is no longer empty.
-    // On iOS it's empty when sharing is cancelled (result.completed=false)
-    console.warn("Shared to app:", result.app);
-  };
-  var onError = function(msg) {
-    console.error("Sharing failed with message:", msg);
-  };
+function codeIsValid(shareCode) {
+  if (shareCode.length == ID_LENGTH) {
+    var validCode = true;
+    for (var i = 0; i < ID_LENGTH; i++) {
+      if (!ALPHABET.includes(shareCode.charAt(i))) {
+        validCode = false;
+      }
+    }
 
-  window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+    // NOTE: Immediate input checking prevents this from ever running,
+    // so it would probably be safe to remove it.
+    if (validCode) {
+      return true;
+    } else {
+      SimpleNotification.warning({
+        title: "Invalid code",
+        text: "Please try again."
+      }, globalVars.notificationOptions);
+
+      return false;
+    }
+  } else {
+    SimpleNotification.warning({
+      title: "Not long enough",
+      text: "Please enter your eight digit code."
+    }, globalVars.notificationOptions);
+
+    return false;
+  }
 }
 
 /**

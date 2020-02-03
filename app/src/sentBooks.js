@@ -69,24 +69,6 @@ function displayBook() {
   addListeners();
 }
 
-/**
- * Needed to include the bookId for SQL purposes once the POST
- * request for payment goes through, and this is called right when the 
- * form is pulled up, so it's the perfect way to sneak that data into
- * the request for PHP access via $_POST.
- */
-function sneakFormData() {
-  // https://stripe.com/docs/payments/accept-a-payment-charges#web-submit-payment
-  var form = helper.getById('checkoutForm');
-  var hiddenInput = document.createElement('input');
-  hiddenInput.setAttribute('type', 'hidden');
-  hiddenInput.setAttribute('name', 'bookId');
-  hiddenInput.setAttribute('value', globalVars.book.bookId);
-  form.appendChild(hiddenInput);
-
-  localStorage.setItem('book', JSON.stringify(globalVars.book));
-}
-
 /** 
  * Changes the current page to the target assigned in
  * backButtonTarget.
@@ -478,23 +460,10 @@ function addListeners() {
     globalVars._this.redirectTo('/shareCode');
   });
 
-  // Allows listener to apply to dynamically added elements, such as Stripe button
-  $("body").unbind().click(function() {
-    if (event) {
-      var target = event.target;
-      if (target.className === 'stripe-button-el' || 
-          target.parentElement.className === 'stripe-button-el')
-      {
-        sneakFormData();
-      }
-    }
-  });
-
   // Populate the fields for editing and to help with bookBackButtonListener
   helper.getById("bookImage").src         = globalVars.book.image;
   helper.getById("bookName").value        = globalVars.book.name;
   helper.getById("bookDescription").value = globalVars.book.description;
-
   
   bookBackButtonListener();
   createBookButton();

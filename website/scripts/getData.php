@@ -4,7 +4,7 @@
   if (isset($_GET['userId'])) {
     $userId = $_GET['userId'];
 
-    $stmt = $conn->prepare("SELECT receiverName, bookData, paymentStatus, deleted FROM couponBooks WHERE sender=?");
+    $stmt = $conn->prepare("SELECT receiverName, bookData, deleted FROM couponBooks WHERE sender=?");
     $stmt->bind_param("s", $userId);
     $stmt->execute();
 
@@ -13,7 +13,7 @@
     $receivedArray = array();
 
     $stmt->store_result();
-    $stmt->bind_result($receiverName, $bookData, $paymentStatus, $deleted);
+    $stmt->bind_result($receiverName, $bookData, $deleted);
     if ($stmt->num_rows > 0) {
       while ($stmt->fetch()) {
         // Not deleted (0 is false in SQL)
@@ -22,8 +22,7 @@
           $row = new \stdClass();
           $row->receiverName = $receiverName;
           $row->bookData = $bookData;
-          $row->paymentStatus = $paymentStatus;
-          $row->deleted = $deleted; // Is this necessary?
+          $row->deleted = $deleted; // TODO: Is this necessary?
           $sentArray[] = $row;
         }
       }
@@ -46,7 +45,7 @@
           $row->senderName = $senderName;
           $row->bookData = $bookData;
           $row->hide = $hide;
-          $row->deleted = $deleted; // Is this necessary?
+          $row->deleted = $deleted; // TODO: Is this necessary?
           $receivedArray[] = $row;
         }
       }

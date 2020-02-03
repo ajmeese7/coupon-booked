@@ -358,22 +358,6 @@ label {
     margin-right: 13px;
 }
 
-.stripe-button-el {
-    position: relative;
-    top: 5px;
-}
-.stripe-button-el span {
-    background-image: unset !important;
-}
-iframe[name="stripe_checkout_app"] {
-    height: calc(100vh - 100px) !important;
-    top: 100px !important;
-
-    /* https://samrueby.com/2014/11/14/using-css-to-prevent-the-user-from-scrolling/ */
-    overflow: hidden;
-    position: fixed;
-}
-
 /* Manipulate page elements */
 #topbar {
     /* IDEA: Make this fixed in position without removing from DOM;
