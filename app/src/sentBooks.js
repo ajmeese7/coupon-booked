@@ -99,6 +99,12 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
     tempBook.image = tempBookImage.includes("gift.png") ? bookToCompareTo.image : tempBookImage;
     tempBook.name  = helper.getById("bookName").value;
     tempBook.description = helper.getById("bookDescription").value;
+    bookToCompareTo.bookId = globalVars.book.bookId;
+    bookToCompareTo.hide = 0;
+
+    //console.log("New book:", tempBook);
+    //console.log("Book to compare to:", bookToCompareTo);
+    //console.log("They are the same:", helper.isSameObject(tempBook, bookToCompareTo));
 
     // If not yet saved, just discards without secondary confirmation.
     if (!helper.isSameObject(tempBook, bookToCompareTo) && globalVars.book.bookId) {
