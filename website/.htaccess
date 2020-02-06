@@ -3,7 +3,7 @@ Options +MultiViews
 RewriteEngine On
 
 #Alternate default index page
-DirectoryIndex comingSoon.html index.html
+#DirectoryIndex comingSoon.html index.html
 
 RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
 RewriteRule ^ /%1 [NC,L,R]
