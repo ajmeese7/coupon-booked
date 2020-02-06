@@ -1,36 +1,45 @@
 var globalVars = require('./globalVars.js');
+var sent = require('./sentBooks.js');
 
 /**
  * Adds Google Play support to the share button
  * with native in-app purchases.
  */
 function shareButtonListeners() {
-  // TODO: Test once actually available on store, since that's the only way to actually know if it works
   $('#share').unbind().click(function() {
     inAppPurchase
-    .getProducts([ 'book' ])
-    .then(function (products) {
-      console.log("getProducts data:", products);
-      inAppPurchase
-        .buy('book')
-        .then(function (data) {
-          console.log("Purchase data:", data);
-          //globalVars.book.paymentStatus = "succeeded";
-          createShareCode();
-        })
-        .catch(function (err) {
-          console.log("Error making purchase:", err);
-          SimpleNotification.warning({
-            title: "Problem making purchase",
-            text: "Please try again later."
-          }, globalVars.notificationOptions);
-        });
-    })
-    .catch(function (err) {
-      console.log("Error retrieving products:", err);
-    });
+      .getProducts([ 'book' ])
+      .then(function (products) {
+        console.log("getProducts data:", products);
+        inAppPurchase
+          .buy('book')
+          .then(function (data) {
+            // ...then mark it as consumed:
+            console.log("data:", data);
+            return inAppPurchase.consume(data.productType, data.receipt, data.signature);
+          })
+          .then(function (data) {
+            console.log("Purchase data:", data);
+            createShareCode();
+          })
+          .catch(function (err) {
+            console.log("Error making purchase:", err);
+            SimpleNotification.warning({
+              title: "Problem making purchase",
+              text: "Please try again later."
+            }, globalVars.notificationOptions);
+          });
+      })
+      .catch(function (err) {
+        console.log("Error retrieving products:", err);
+      });
   });
 }
+
+/* The characters allowed in the share code and the code length.
+ * Needed for createShareCode, redeemCode, and the route. */
+var ALPHABET = '23456789abdegjkmnpqrvwxyz';
+var ID_LENGTH = 8;
 
 /**
  * Generates a share code and adds it to the book's entry 
@@ -68,6 +77,8 @@ function createShareCode() {
   });
 
   function handleSuccess(success) {
+    console.log("Share code success:", success)
+
     // NOTE: Should think of better messages here
     if (success == "Code in use") {
       // Try again with a new share code
@@ -126,5 +137,7 @@ function shareCode() {
 // NOTE: Functions needed outside this file are listed here.
 module.exports = Object.assign({
   shareButtonListeners,
-  shareCode
+  shareCode,
+  ID_LENGTH,
+  ALPHABET
 });

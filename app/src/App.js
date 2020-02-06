@@ -48,11 +48,6 @@ function App() {
 // IDEA: Display book animation on app open, but you have to click it to get it to open then go into app?
   // Still have to redo home page...
 
-/* The characters allowed in the share code and the code length.
- * Needed for createShareCode, redeemCode, and the route. */
-var ALPHABET = '23456789abdegjkmnpqrvwxyz';
-var ID_LENGTH = 8;
-
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -202,7 +197,7 @@ App.prototype.state = {
             for (var i = 0; i < this.value.length; i++) {
               var currentChar = this.value.toLowerCase().charAt(i);
               
-              if (!ALPHABET.includes(currentChar)) {
+              if (!share.ALPHABET.includes(currentChar)) {
                 //console.log(`Problematic char: '${currentChar}'`);
                 //var before = this.value;
                 this.value = this.value.replace(currentChar, '');
@@ -215,14 +210,14 @@ App.prototype.state = {
             }
           } else {
             var currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
-            if (!ALPHABET.includes(currentChar)) {
+            if (!share.ALPHABET.includes(currentChar)) {
               //console.log(`Problematic char: '${currentChar}'`);
               this.value = this.value.slice(0, this.value.length - 1);
             }
           }
 
           // Cut length down to desired amount
-          if (this.value.length > ID_LENGTH) {
+          if (this.value.length > share.ID_LENGTH) {
             this.value = this.value.slice(0, 8);
           }
         });
@@ -711,10 +706,10 @@ function redeemCode(shareCode) {
  * @param {string} shareCode 
  */
 function codeIsValid(shareCode) {
-  if (shareCode.length == ID_LENGTH) {
+  if (shareCode.length == share.ID_LENGTH) {
     var validCode = true;
-    for (var i = 0; i < ID_LENGTH; i++) {
-      if (!ALPHABET.includes(shareCode.charAt(i))) {
+    for (var i = 0; i < share.ID_LENGTH; i++) {
+      if (!share.ALPHABET.includes(shareCode.charAt(i))) {
         validCode = false;
       }
     }
