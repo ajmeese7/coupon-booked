@@ -539,7 +539,8 @@ function processPulledData(data) {
               unhideMessage(isSent);
             }
           } else {
-            console.error("Something is REALLY fucked up with pullUserRelatedBooks today...");
+            console.log("Showing that user doesn't have any books. They could be new, or something really bad could've happened...");
+            unhideMessage(isSent);
           }
       });
     } else {
