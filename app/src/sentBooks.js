@@ -45,8 +45,8 @@ function displayBook() {
     var receiver = `<p id='shareCodePreview'>Share code: <span>${globalVars.book.shareCode}</span></p>`;
     previewText.innerHTML += receiver;
   } else if (!globalVars.book.bookId) {
-    // For when a template is first loaded in; not yet saved
-    var receiver = "<p class='receiverText'>Save to share!</p>";
+    // For when a template is first loaded in; not yet created
+    var receiver = "<p class='receiverText'>Create to share!</p>";
     previewText.innerHTML += receiver;
   }
   
@@ -1036,7 +1036,7 @@ function createBook() {
         console.warn("bookId in use. Generating new one and trying again...");
         createBook();
       } else {
-        // Updates the "Save to share" text to the Stripe button on first save
+        // Updates the "Create to share" text to the Stripe button on first save 
         globalVars._this.redirectTo('/sentBook');
         
         SimpleNotification.success({
