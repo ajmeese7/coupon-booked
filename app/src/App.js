@@ -75,7 +75,7 @@ App.prototype.state = {
       onMount: function(page) {
         console.warn("/login route...");
         if (this.state.authenticated === true) {
-          return this.redirectTo('/home');
+          return this.redirectTo('/dashboard');
         }
 
         // Login button at bottom of page
@@ -84,6 +84,8 @@ App.prototype.state = {
       }
     },
     '/home': {
+      // NOTE: Currently not referenced anywhere; look before this commit to see where it WAS
+      // referenced if wanting to reinstate with a new look/purpose
       id: 'home',
       onMount: function(page) {
         globalVars._this = this;
@@ -101,7 +103,7 @@ App.prototype.state = {
 
         globalVars.backButtonTarget = "/create";
         $('#backArrow').unbind().click(function() {
-          globalVars.backButtonTarget ="/home";
+          // TODO: See if there needs to be a back button target here
           globalVars._this.redirectTo('/dashboard');
         });
 
@@ -154,7 +156,7 @@ App.prototype.state = {
         manageTabMenu();
 
         $('#backArrow').unbind().click(function() {
-          globalVars._this.redirectTo('/home');
+          globalVars._this.redirectTo('/dashboard');
         });
 
         // User clicks "Send one now!" and they're redirected to the create route;
@@ -288,7 +290,7 @@ function determineAuthRoute(instant) {
   // Gives time for opening animation to run
   setTimeout(function() {
     if (globalVars._this.state.authenticated === true) {
-      return globalVars._this.redirectTo('/home');
+      return globalVars._this.redirectTo('/dashboard');
     } else {
       return globalVars._this.redirectTo('/login');
     }
@@ -769,7 +771,7 @@ function navBar() {
 
   // Route to home on title or logo click
   var mobile = helper.getBySelector("#mobile");
-  $(mobile).unbind().click(function() { globalVars._this.redirectTo('/home') });
+  $(mobile).unbind().click(function() { globalVars._this.redirectTo('/dashboard') });
 
   // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
   var avatar = helper.getBySelector('.profile-image');
