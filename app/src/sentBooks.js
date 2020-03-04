@@ -904,8 +904,9 @@ function updateCoupon(oldCoupon, $this) {
     // Coupon hasn't been modified
     console.warn("Coupon not modified. Returning...");
 
-    SimpleNotification.info({
-      text: "You haven't changed anything!"
+    // Lie to user so they don't get confused
+    SimpleNotification.success({
+      text: "Updated coupon"
     }, globalVars.notificationOptions);
   }
 }
@@ -1080,8 +1081,9 @@ function editBookDetails() {
     console.warn("Book info not modified. Returning...");
     globalVars.book = helper.clone(oldBook); // Restore to previous state
 
-    SimpleNotification.info({
-      text: "You haven't changed anything!"
+    // Lie to user so they don't get confused
+    SimpleNotification.success({
+      text: development ? "Updated template" : "Updated book"
     }, globalVars.notificationOptions);
 
     return false;
