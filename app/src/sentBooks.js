@@ -620,7 +620,7 @@ function showCouponEditPage($this) {
     }
 
     function confirmFunction() {
-      homeButtonClicked ? globalVars._this.redirectTo('/home') : showCouponPreview($this);
+      homeButtonClicked ? globalVars._this.redirectTo('/dashboard') : showCouponPreview($this);
     }
   });
 

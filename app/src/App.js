@@ -269,10 +269,16 @@ App.prototype.state = {
         darkModeSupport(true);
         animationSetting();
         
-        // IDEA: Remove from nav dropdown and just have here?
-          // Should probably have more pages on dropdown nav
         var logoutButton = helper.getBySelector('.btn-logout');
         $(logoutButton).unbind().click(this.logout);
+      }
+    },
+    '/guide': {
+      id: 'guide',
+      onMount: function(page) {
+        globalVars._this = this;
+        navBar();
+        darkModeSupport();
       }
     }
   }
@@ -436,7 +442,7 @@ function getAllTemplates() {
       processTemplates(data);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error in getAllTemplates: ", XMLHttpRequest.responseText);
+      console.error("Error in getAllTemplates:", XMLHttpRequest.responseText);
 
       SimpleNotification.error({
         title: 'Error retreiving templates',
@@ -800,6 +806,10 @@ function navBar() {
   // Settings button on dropdown
   var settingsButton = helper.getBySelector('.settings');
   $(settingsButton).unbind().click(function() { globalVars._this.redirectTo('/settings') });
+
+  // Guide button on dropdown
+  var guideButton = helper.getBySelector('.guide');
+  $(guideButton).unbind().click(function() { globalVars._this.redirectTo('/guide') });
 
   // Profile picture dropdown
   $(".account").unbind().click(function() {

@@ -72,8 +72,8 @@
                     <ul class="root">
                         <!-- IDEA: Can add relevant icons for each item -->
                         <li><a href="#" class="dashboard">Dashboard</a></li>
+                        <li><a href="#" class="guide">Guide</a></li>
                         <li><a href="#" class="settings">Settings</a></li>
-                        <!-- TODO: Think of a third item, because this looks empty now -->
                     </ul>
                 </div>
             </div> <!-- dropdown -->
@@ -135,24 +135,62 @@
 
     <template id="home">
         <div class="page">
-            <div id="main-content">
-                <div id="content-home" class="page">
-                    <section id="why">
-                        <div id="title">
-                            <h2>Why us?</h2>
-                            <br />
-                            <p>
-                                Coupon Booked is an excellent choice for any occasion, whether
-                                it be Mother's Day, Father's Day, a birthday, or an anniversary.
-                                You should create a Book because it is a thoughtful way to show
-                                someone how well you know them and how much you really care.
-                            </p>
-                        </div>
-                    </section>
-                </div>
-            </div>
+            <!-- TODO -->
+        </div>
+    </template>
 
-            <!-- IDEA: A footer would look real nice here; has good styling already -->
+    <template id="guide">
+        <link rel="stylesheet" type="text/css" href="css/app.css" />
+
+        <div class="page">
+            <h2>Guide</h2>
+            <br />
+
+            <!-- NOTE: Can also switch to https://jsfiddle.net/ajmeese7/bhsf2q3u/1/ sometime if I want to -->
+            <h4>Creating a new book</h4>
+            <p>
+                To create a book, go to the dashboard and click the 'Sent' tab.
+                From here you can click the blue plus button in the bottom right
+                corner of the screen and it will redirect you to the book creation
+                screen. Once you select the template you want you will be able to 
+                modify the book however you want. To save it to edit in the future,
+                click the "Create" button in the upper right hand corner.
+            </p>
+
+            <h4>Sharing a book</h4>
+            <p>
+                Once you have created a coupon book, you can share it by clicking the 
+                "Share" button in the upper right hand corner. You are free to edit the
+                book any time before sending it and after you have sent it, so don't stress
+                if you need to go back and add more coupons later. We are currently only
+                charging to share the book and have no plans to change that in the future.
+            </p>
+
+            <h4>Redeeming a book code</h4>
+            <p>
+                To redeem a book code, go to the dashboard and click the 'Received' tab.
+                From here you can click the green "Redeem a code" button in the bottom
+                right corner of the screen and it will redirect you to the code redemption
+                screen.
+            </p>
+
+            <h4>Changing your display name</h4>
+            <p>
+                When you send someone a coupon code and they redeem it, the book will display
+                who sent it. If you logged in through Google this will be your name, but if you
+                created an account you will have to change it on the settings page. You can
+                type whatever you want to be shown to people in the "Display Name" field and 
+                click the update button to submit the new display name. If you update when the 
+                field is empty, your default display name will show again.
+            </p>
+
+            <h4>App looks strange</h4>
+            <p>
+                If you have your accessibility settings set to anything other than the device's 
+                default, the app may be displayed strangely. I am currently working on a fix for 
+                this but unfortunately as of now there is no way to resolve it other than by changing 
+                the settings on your device.
+            </p>
         </div>
     </template>
 
