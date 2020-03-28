@@ -1,0 +1,83 @@
+/* GENERAL */
+
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Temporary; https://fonts.google.com/ */
+    max-width: 100%;
+}
+
+html {
+    min-height: 100vh;
+}
+
+body {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    text-transform: none !important; /* Should I let this be uppercase like Cordova does? */
+}
+
+hr {
+    border-top: var(--hr-style);
+}
+
+a {
+    text-decoration: none;
+}
+button {
+    border: .5px solid black;
+}
+button:focus, a:focus {
+    outline: none;
+}
+
+section {
+    min-height: calc(100vh - var(--nav-height));
+    width: 100vw;
+}
+
+iframe[seamless] {
+    background-color: transparent;
+    border: none;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+
+/* Used for testing purposes and toggling whether an element is displayed */
+.hide, .hidden {
+    display: none;
+}
+
+#deviceReady {
+    display: none;
+}
+
+/* WHY */
+
+#why {
+    min-height: 100vh;
+    background-image: url("../images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+#title {
+    line-height: 2.0; 
+    padding: 120px 50px 50px 50px;
+    width: 400px;
+    /*margin: 20px auto;*/
+}
+#title h2, #title p {
+    background-color: black;
+    color: #fff; 
+    display: inline;
+    padding: 0.5rem;
+    line-height: 2.1; /* Not set on this yet; WIP */
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}
