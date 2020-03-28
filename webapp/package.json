@@ -1,0 +1,22 @@
+{
+    "name": "com.couponbooked.webapp",
+    "version": "1.0.0",
+    "displayName": "Coupon Booked - Web",
+    "description": "Gift virtual coupon books to loved ones.",
+    "author": "ajmeese7",
+    "dependencies": {
+        "acorn": ">=5.7.4",
+        "auth0-js": "9.11.2",
+        "bytes": "^3.1.0",
+        "es6-promise-plugin": "^4.2.2",
+        "jshashes": "^1.0.7",
+        "request": "^2.88.0",
+        "uuid": "^3.3.2"
+    },
+    "devDependencies": {
+        "expose-loader": "^0.7.3",
+        "mem": ">=4.0.0",
+        "webpack": "^4.42.0",
+        "webpack-cli": "^3.3.11"
+    }
+}

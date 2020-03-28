@@ -1,43 +1,24 @@
-// NOTE: THIS FILE DOES NOT REDEPLOY ON `npm run android`
-// This goes to webpack, which you have to rebuid to test any changes.
-const env = require('../env');
+// Node modules that aren't typically supported outside of Node.
+// Hoping Browserify will let me cheat a little here.
 const request = require('request');
-const jwt = require('jsonwebtoken');
 const Auth0 = require('auth0-js');
-const Auth0Cordova = require('@auth0/cordova');
+//const Auth0Cordova = require('@auth0/cordova');
 
-// https://github.com/OneSignal/OneSignal-Cordova-SDK/issues/385
-// TODO: Look into adding tests to make more appealing to buyers and
-  // to assure nothing breaks in the future
-
+// Other files that are a part of the project
+const env = require('../js/env');
 var sent = require('./sentBooks.js');
 var received = require('./receivedBooks.js');
 var share = require('./shareBook.js');
 var helper = require('./helperFunctions.js');
 var globalVars = require('./globalVars.js');
 
-// TODO: Need to move from localStorage to something saved to their profile
-// so it has cross-device support
-var cleanBuild = false;
 function App() {
-  // NOTE: Uncomment this to test with all localStorage erased
-  //cleanBuild = true;
-  if (cleanBuild) {
-    console.warn("Wiping local storage...");
-
-    // Have both just in case; either should cut it
-    window.localStorage.clear();
-    localStorage.clear();
-    globalVars.profile = null;
-
-    var url = getRedirectUrl();
-    openUrl(url);
-  }
-
+  // TODO: Extrapolate this to a web interface
   this.auth0 = new Auth0.Authentication({
     domain: env.AUTH0_DOMAIN,
     clientID: env.AUTH0_CLIENT_ID
   });
+
   this.login = this.login.bind(this);
   this.logout = this.logout.bind(this);
   darkModeSupport();
@@ -771,7 +752,7 @@ function requestBook() {
     console.error("Sharing failed with message:", msg);
   };
 
-  window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+  //window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
 }
 
 /**
@@ -943,6 +924,7 @@ App.prototype.loadProfile = function(cb) {
 App.prototype.login = function(e) {
   e.target.disabled = true;
 
+  // TODO: Change this for browser
   var client = new Auth0Cordova({
     domain: env.AUTH0_DOMAIN,
     clientId: env.AUTH0_CLIENT_ID,
@@ -970,7 +952,7 @@ App.prototype.login = function(e) {
         localStorage.setItem('user_id', userId);
 
         // Need to be able to access easily from my server
-        window.plugins.OneSignal.setExternalUserId(userId);
+        //window.plugins.OneSignal.setExternalUserId(userId);
       }
     });
 
@@ -1047,8 +1029,9 @@ App.prototype.resumeApp = function() {
   var idToken = localStorage.getItem('id_token');
 
   if (accessToken) {
-    // Verifies the access token is still valid
-    var decoded = jwt.decode(idToken);
+    // Verifies the access token is still valid;
+    // https://stackoverflow.com/a/38552302/6456163
+    var decoded = parseJwt(idToken);
     var expDate = decoded.exp;
     var currentDate = Math.ceil(Date.now() / 1000);
 
@@ -1064,6 +1047,17 @@ App.prototype.resumeApp = function() {
     console.warn("No access token. Setting authentication state to false...");
     failedAuth();
   }
+};
+
+/** The only feature from jsonwebtoken that I need, the decoding. */
+function parseJwt(token) {
+  var base64Url = token.split('.')[1];
+  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+  }).join(''));
+
+  return JSON.parse(jsonPayload);
 };
 
 /**

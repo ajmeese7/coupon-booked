@@ -1,4 +1,4 @@
-const env = require('../env');
+const env = require('../js/env');
 var helper = require('./helperFunctions.js');
 var globalVars = require('./globalVars.js');
 

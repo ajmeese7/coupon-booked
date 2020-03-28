@@ -131,7 +131,8 @@ function shareCode() {
     console.error("Sharing failed with message:", msg);
   };
 
-  window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+  // https://css-tricks.com/how-to-use-the-web-share-api/
+  //window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
 }
 
 // NOTE: Functions needed outside this file are listed here.

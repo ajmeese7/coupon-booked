@@ -1,18 +1,14 @@
 const uuidv4 = require('uuid/v4');
-const env = require('../env');
+const env = require('../js/env');
 var helper = require('./helperFunctions');
 var globalVars = require('./globalVars.js');
 
 /** True means book will be published to template database; false is normal */
 var development = false;
 
-
-
-// TODO: Back button on changed template needs to confirm removing changes!!!
 // also implement for the home button however i did it last time (not dev mode)
 // TODO: Update automatically when creating share code so back button doesn't freak;
   // is it still necessary to check when leaving book page after book already created? probs not.
-
 
 /**
  * Takes the current book JSON data and adds it to the page.

@@ -14,7 +14,7 @@
         * Enable eval(): add 'unsafe-eval' to default-src
     * Create your own at http://cspisawesome.com
     -->
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com http://*.couponbooked.com https://onesignal.com/api/v1/notifications; default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com; style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com http://*.couponbooked.com https://onesignal.com/api/v1/notifications https://cdn.onesignal.com/sdks/OneSignalSDK.js; default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com; style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
 
     <!-- https://auth0.com/docs/quickstart/native/cordova/01-login;
         used this to change from single page web app to native -->
@@ -465,6 +465,9 @@
             image.src = "images/gift.png";
         }
     </script>
+
+    <!-- Gonna try this with Browserify -->
+    <script src="js/bundle.js"></script>
 </body>
 
 </html>

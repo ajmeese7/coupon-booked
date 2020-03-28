@@ -1,10 +1,12 @@
-var Auth0Cordova =  require('@auth0/cordova');
+//var Auth0Cordova =  require('@auth0/cordova');
 var App = require('./App');
-const env = require('../env');
+
+// TODO: Get rid of this and replace it with something actually secure;
+// https://stackoverflow.com/a/20476846/6456163
+const env = require('../js/env');
 
 $(function() {
     console.warn("Page is ready...");
-    //document.addEventListener("backbutton", handleNativeBackButton, false);
     onesignalNotifications();
 
     // Need to figure out if I want some kind of animation for web or not
@@ -12,27 +14,7 @@ $(function() {
         console.warn("Initially setting animation to true...");
         localStorage.setItem("start_animation", "true");
     }*/
-
-    var app = new App();
-    function intentHandler(url) {
-        Auth0Cordova.onRedirectUri(url);
-    }
-    window.handleOpenURL = intentHandler;
-    app.run('#app');
 });
-
-function handleNativeBackButton() {
-    // IDEA: Set this to go to previous route if no #backArrow;
-    // close app if previous route /login or /
-    var backButton = document.getElementById("backArrow");
-    if (backButton) {
-        console.warn("Native back button calling listener...");
-        $('#backArrow').click();
-    } else {
-        // NOTE: This prevents the default behavior of the back button
-        console.warn("Back button not supported on this page!");
-    }
-}
 
 /**
  * Initialize OneSignal connection once user is authenticated.
@@ -41,7 +23,9 @@ function onesignalNotifications() {
     // TODO: Is there a way to handle if the user refuses?
         // IDEA: Could email or some shit?
     OneSignal.push(function() {
+        // TODO: Fiddle with this
         OneSignal.showNativePrompt();
+        console.log("OneSignal initialized?");
     });
 
     // TODO: Convert!
@@ -65,9 +49,10 @@ function onesignalNotifications() {
         console.warn('notificationOpenedCallback:', jsonData);
     };
     
-    window.plugins.OneSignal
+    /*window.plugins.OneSignal
         //.startInit(env.ONESIGNAL_ID)
         .handleNotificationOpened(notificationOpenedCallback)
         .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.Notification)
         //.endInit();
+    */
 }
