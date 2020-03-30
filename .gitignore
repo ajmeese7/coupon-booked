@@ -38,3 +38,4 @@ app/buildAndroidRelease.js
 app/playStoreIcon.png
 app/playStoreIcon_cropped.png
 app/featureGraphic.psd
+app/www/manifest.json
