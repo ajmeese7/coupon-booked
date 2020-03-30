@@ -841,7 +841,16 @@ function createCoupon() {
   // Name already validated before this function is called so
   // no need to do it again.
   globalVars.book.coupons.push(coupon);
-  development ? updateTemplate(true) : updateBook(true);
+
+  if (globalVars.book.bookId) {
+    // Update book on coupon creation
+    development ? updateTemplate(true) : updateBook(true);
+  } else {
+    // Book not created yet, so no need to update until they select create.
+    // IDEA: Rethink this and create it anyways? Determine best user flow.
+    console.log("Book not created yet! Not updating...");
+  }
+  
   displayBook();
 }
 
