@@ -14,7 +14,7 @@
         * Enable eval(): add 'unsafe-eval' to default-src
     * Create your own at http://cspisawesome.com
     -->
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com http://*.couponbooked.com https://onesignal.com/api/v1/notifications; default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com; style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com http://*.couponbooked.com https://onesignal.com/api/v1/notifications https://cdn.onesignal.com/sdks/OneSignalSDK.js; default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com; style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
 
     <!-- https://auth0.com/docs/quickstart/native/cordova/01-login;
         used this to change from single page web app to native -->
@@ -357,6 +357,8 @@
             <li class="tab"><a id="sentButton" href="#sent" class="active">Sent</a></li>
             <li class="tab"><a id="receivedButton" href="#received">Received</a></li>
         </ul>
+
+        <!-- TODO: Try to redo all the stuff I just fucking accidentially deleted -->
         <div id="gestureZone">
             <div id="sent" class="col">
                 <div id="noneSent" class="hidden">
@@ -446,8 +448,10 @@
         </defs>
     </svg>
 
-    <script src="cordova.js"></script>
-    <script src="./index.js"></script>
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
+    <script>var OneSignal = OneSignal || [];</script>
+    <script src="src/index.js"></script>
+
     <script src="js/jquery.min.js"></script>
     <script src="js/materialize.js"></script>
     <script src="js/simpleNotification.min.js"></script>
@@ -461,6 +465,9 @@
             image.src = "images/ticket.png";
         }
     </script>
+
+    <!-- Gonna try this with Browserify -->
+    <script src="js/bundle.js"></script>
 </body>
 
 </html>

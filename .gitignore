@@ -25,6 +25,7 @@ build.json
 app/www/index.js
 app/www/index.js.map
 website/scripts/env.php
+webapp/js/bundle.js
 
 # Building for release
 app/app-release-unsigned.apk
@@ -37,3 +38,4 @@ app/buildAndroidRelease.js
 app/playStoreIcon.png
 app/playStoreIcon_cropped.png
 app/featureGraphic.psd
+app/www/manifest.json

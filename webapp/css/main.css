@@ -1,0 +1,533 @@
+label {
+    margin-bottom: 10px;
+    display: block;
+}
+#main-content {
+    min-height: 550px;
+    margin-top: calc(-1 * var(--nav-height));
+}
+
+/* NOTE: None of this works when in nav.css, so just leave it here :) */
+:root {
+    --nav-color: #0b98de;
+    --nav-height: 56.3833px;
+}
+.navbar {
+    position: fixed;
+    z-index: 98;
+    height: var(--nav-height);
+    width: 100%;
+    top: 0;
+    padding: 0;
+    padding-top: 5px;
+    margin-bottom: 0px !important;
+    background-color: var(--nav-color) !important;
+    box-shadow: 0 1px 2px 0 var(--nav-color);
+}
+.navbar-collapse {
+    flex-grow: 0;
+}
+.navbar>.container,
+.navbar>.container-fluid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+.navbar-nav {
+    margin-right: 0px;
+    margin-left: 0px;
+}
+.container {
+    max-width: inherit;
+    padding-left: 5px;
+}
+@media (max-width:576px) {
+    .container {
+        padding: 0px;
+    }
+    #logo {
+        margin-right: -3px;
+    }
+}
+@media (max-width: 767px) {
+    .nav-item {
+        margin-bottom: 1.6rem /* Changed; */;
+    }
+    .navbar-nav:first-child {
+        margin-top: .25em;
+    }
+    .nav-item .nav-link {
+        padding: 0px;
+    }
+}
+.nav-user-profile {
+    max-width: 35px;
+}
+.dropdown-toggle::after {
+    margin-top: 20px;
+}
+
+#createHeader {
+    margin-top: 12px;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+/* Loading icon */
+#loader {
+    width: 100vw;
+    height: calc(100% - (var(--nav-height) + 48px)); /* TODO: Experiment with this w/ calc() and different for template page */
+    background-color: var(--background-color);
+    position: absolute;
+    top: calc(var(--nav-height) + 48px); /* 48px is tabs height; could eventually make into a variable */
+}
+.spinner {
+  margin: 100px auto;
+  width: 50px;
+  height: 40px;
+  text-align: center;
+  font-size: 10px;
+  position: absolute;
+  top: 26vh; /* 38% */
+  left: calc(50% - 25px);
+}
+.spinner > div {
+  background-color: #333;
+  height: 100%;
+  width: 6px;
+  display: inline-block;
+  
+  -webkit-animation: sk-stretchdelay 1.2s infinite ease-in-out;
+  animation: sk-stretchdelay 1.2s infinite ease-in-out;
+}
+.spinner .rect2 {
+  -webkit-animation-delay: -1.1s;
+  animation-delay: -1.1s;
+}
+.spinner .rect3 {
+  -webkit-animation-delay: -1.0s;
+  animation-delay: -1.0s;
+}
+.spinner .rect4 {
+  -webkit-animation-delay: -0.9s;
+  animation-delay: -0.9s;
+}
+.spinner .rect5 {
+  -webkit-animation-delay: -0.8s;
+  animation-delay: -0.8s;
+}
+@-webkit-keyframes sk-stretchdelay {
+  0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
+  20% { -webkit-transform: scaleY(1.0) }
+}
+@keyframes sk-stretchdelay {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4);
+    -webkit-transform: scaleY(0.4);
+  }  20% { 
+    transform: scaleY(1.0);
+    -webkit-transform: scaleY(1.0);
+  }
+}
+
+/* None of this should be necessary, but *might* speed up animations */
+.carousel .carousel-item{
+    -webkit-transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    width: 100%;
+}
+
+/* For dashboard tab menu */
+.col {
+    padding: 0px;
+}
+#noneSent, #noneReceived {
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    top: calc(50% - var(--nav-height)); /* Subtract nav height for better-looking vertical center */
+    transform: translateY(-50%);
+}
+
+/* Dashboard page elements */
+.bookPreview, .couponPreview {
+    display: inline-grid;
+    text-align: center;
+    margin-top: 15px;
+}
+.bookPreview {
+    width: 49%;
+    margin-left: .25%;
+}
+.couponPreview {
+    /* Numbers don't add up, but it's what looks prettiest to me right now */
+    width: 45%;
+    margin-left: 3.25%;
+}
+.bookImage, .couponImage {
+    margin: auto;
+    width: 80%;
+}
+.bookImage {
+    /* TODO: Work on this and decide if couponImage needs it */
+    margin-bottom: 3.5px;
+}
+.bookName, .couponName {
+    line-height: 1.4;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 7.5px;
+}
+.couponName {
+    margin-bottom: 0px;
+}
+
+.receiverText, .senderText, .couponCount {
+    color: #7E7E7E;
+}
+.senderText, .receiverText {
+    /* https://stackoverflow.com/a/7993098/6456163 */
+    width: 80%;
+    margin: auto;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+#shareCodePreview {
+    color: #7E7E7E;
+    margin-bottom: /*7.*/5px;
+}
+#shareCodePreview span {
+    color: #039be5;
+}
+
+#miniPreview {
+    display: inline-block;
+    position: relative;
+    overflow: visible;
+    width: 100%;
+}
+#miniPreviewImage {
+    /* Testing on smaller device and it's a problem;
+    TODO: Make div height adapt according to image height in JS, not CSS file;
+    also adapt previewText width calculations in JS */
+    float: left;
+    width: 150px;
+    height: 150px; /* If image doesn't exist the whole thing gets fucked up without this */
+    max-width: 38%; /* NOTE: Not finalized, but better looking on smaller screen */
+    margin-left: 25px;
+    margin-top: 25px;
+}
+#previewText {
+    float: right;
+    margin-top: 20px;
+    width: calc(100% - 175px); /* Image width is 175px because 25px margin */
+    text-align: center;
+}
+#hideBook {
+    /* TODO: Test on other screen sizes */
+    height: 35px;
+    width: 44px; /* To prevent the slightly bigger slash from shifting a tiny bit */
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin-right: 8px;
+    margin-bottom: -20px;
+}
+.filter-black {
+    /* https://stackoverflow.com/a/53336754/6456163 */
+    filter: invert(0%) sepia(61%) saturate(7468%) hue-rotate(32deg) brightness(102%) contrast(94%);
+    height: 40px;
+}
+.filter-white {
+    /* https://codepen.io/sosuke/pen/Pjoqqp 
+    TODO: Pick prettier colors to use */
+    filter: invert(100%) sepia(1%) saturate(2478%) hue-rotate(176deg) brightness(117%) contrast(100%);
+    /* invert(80%) sepia(48%) saturate(0%) hue-rotate(192deg) brightness(108%) contrast(95%); */
+    height: 40px;
+}
+
+/* TODO: Get this inside the a; preferrably w/o margin - */
+#sentButton, #receivedButton {
+    display: inline-block;
+}
+#sentArrow, #receivedArrow {
+    display: inline-block;
+    margin-left: .255em;
+    vertical-align: .255em;
+    content: "";
+    border-top: .3em solid;
+    border-right: .3em solid transparent;
+    border-bottom: 0;
+    width: 5px;
+    border-left: .3em solid transparent;
+}
+
+/* Fantastic solution from https://stackoverflow.com/a/13924997/6456163 */
+#bookDescriptionPreview {
+    /* TODO: Is it possible to cut off not in the midde of words? Shows up with width: 90%; 
+    /* TODO: Need to test multiple descriptions before making a final decision on width. */
+    line-height: 1.2; /* Not married to this yet */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* number of lines to show */
+    -webkit-box-orient: vertical;
+    width: 87.5%;
+    margin: auto;
+}
+#bookNamePreview, .bookName {
+    /* Using the same method as above */
+    /* TODO: Test thoroughly */
+    /* TODO: Implement some hint somewhere suggesting that short and sweet is best for display purposes,
+        or find an alternative solution that isn't as ugly as the ellipses method. */
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+.bookName {
+    width: 85%;
+    margin: auto;
+    margin-bottom: 2.5px;
+}
+
+/* "Temporary" solution to lack of an idea where to put redemption route link */
+#redeemLink, #redeemCoupon {
+    width: 140px;
+    height: 34px;
+    text-align: center;
+    background-color: #28a745;
+    color: #fff;
+    border: .5px solid black;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding-top: 4px;
+    margin-bottom: 12px;
+    margin-right: 12px;
+    border-radius: 8px;
+}
+#redeemHeader {
+    width: 100%;
+    text-align: center;
+    margin-top: 14px;
+    margin-bottom: 30px;
+}
+#redeemBox {
+    display: block;
+    margin: auto;
+    border: none;
+    padding: 0;
+    width: 12ch;
+    overflow: hidden;
+    background: repeating-linear-gradient(90deg, dimgrey 0, dimgrey 1ch, transparent 0, transparent 1.5ch) 
+        0 100%/ 11.5ch 2px no-repeat;
+    font: 32px droid sans mono, consolas, monospace;
+    letter-spacing: 0.5ch;
+}
+#redeemBox:focus {
+    outline: none;
+    color: dodgerblue;
+}
+#redeemButton {
+    /* TODO: Needs to be better positioning and more attractive */
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 25px;
+    width: 124px;
+    height: 48px;
+    color: #fff;
+    background-color: #28a745;
+    font-size: 24px;
+    border: none;
+    border-radius: 4px;
+    left: 50%;
+    margin-left: -62px; /* Half of width */
+}
+
+#save, #share, #createButton, #delete {
+    float: right;
+    margin-right: 13px;
+}
+
+/* Manipulate page elements */
+#topbar {
+    /* IDEA: Make this fixed in position without removing from DOM;
+        I want to prevent typing in the count field from making it scroll up */
+    width: 100%;
+    height: 40px;
+    margin-top: -2px;
+    background-color: var(--topbar-color);
+}
+#topbar a, #topbar button {
+    font-size: 18.5px;
+    line-height: 40px;
+}
+#backArrow {
+    margin-top: 2px;
+    margin-left: 13px;
+}
+
+#plus, #edit {
+    border-radius: 50%; /* Can remove for box; pretty nice */
+    position: fixed;
+    z-index: 99;
+    right: 0;
+    bottom: 0;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    width: 50px;
+    height: 50px;
+    color: white;
+    background-color: var(--nav-color);
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14),
+    0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    font-weight: 500;
+    /*background-color: #293132;*/
+}
+
+label {
+    /* NOTE: Will probably have to test this on other screen sizes; Sizzy? */
+    margin-bottom: .5rem;
+}
+input[type=text],
+textarea {
+    width: 85%;
+}
+#couponForm label, #bookForm label {
+    margin-top: 12.5px;
+    font-weight: bold;
+}
+#couponForm label,
+#couponForm input[type=text],
+#couponForm textarea,
+#bookForm label,
+#bookForm input[type=text],
+#bookForm textarea,
+#bookDescLength,
+#couponDescLength,
+#count {
+    margin-left: 7.5%;
+}
+#couponImage, #bookImage, #imgPreview {
+    /* NOTE: Probably going to have to institute max-width when starting to test tablets;
+    breaking into different column sizes in JS will likely work better */
+    width: 50%;
+    height: 50%;
+    margin: 15px 25%;
+}
+#descPreview {
+    /* NOTE: Will also have to make this different for tablets;
+    duplicated in shareCode.css */
+    width: 90%;
+    margin: auto;
+    margin-top: 25px;
+    text-align: center; /* TODO: Make this look prettier */
+}
+
+/* https://stackoverflow.com/a/7245084/6456163 */
+.imageButtons {
+    width: 67%;
+    margin: auto;
+}
+.imageButtons a {
+    display: inline-block;
+    width: 49%;
+    text-align: center;
+}
+
+#namePreview {
+    /* Trying to make it not look bad for longer names; TODO: still work to be done */
+    width: 90%;
+    padding-left: 10%;
+    margin: 0;
+    margin-top: 12px;
+    text-align: center;
+}
+
+/* Share code page */
+.ionicon {
+    height: 40px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-image: url("../images/sun.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+input:checked + .slider {
+    /* Old color that didn't match is #2196F3 if preferred */
+    background-color: var(--nav-color);
+}
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--nav-color);
+}
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+    background-image: url("../images/moon.png");
+}
+
+#animationCheckbox {
+    width: 35px;
+    height: 35px;
+}
+
+#displayNameInput {
+    margin-top: 7.5px;
+    margin-bottom: 2.5px;
+}
+#updateDisplayName {
+    margin-bottom: 17.5px;
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+.slider.round:before {
+    border-radius: 50%;
+}

@@ -1,10 +1,14 @@
 const uuidv4 = require('uuid/v4');
-const env = require('../env');
+const env = require('../js/env');
 var helper = require('./helperFunctions');
 var globalVars = require('./globalVars.js');
 
 /** True means book will be published to template database; false is normal */
 var development = false;
+
+// also implement for the home button however i did it last time (not dev mode)
+// TODO: Update automatically when creating share code so back button doesn't freak;
+  // is it still necessary to check when leaving book page after book already created? probs not.
 
 /**
  * Takes the current book JSON data and adds it to the page.
@@ -24,7 +28,7 @@ function displayBook() {
   bookContent.innerHTML = '<button id="plus">+</button>';
 
   // Create preview of book at top of display
-  /* Can have bold display with image and title and everything, then as you scroll
+  /* IDEA: Can have bold display with image and title and everything, then as you scroll
     down it collapses to a fixed nav with image on left and title right and on click
     it scrolls back up to the big info. */
   var miniPreview = document.createElement('div');
@@ -95,8 +99,8 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
     var bookToCompareTo = editPage ? newPreviousBook : globalVars.previousBook;
     var tempBookImage = helper.getById("bookImage").src;
     
-    // If image invalid, replaced with ticket.png, so have to ignore that for comparison
-    tempBook.image = tempBookImage.includes("ticket.png") ? bookToCompareTo.image : tempBookImage;
+    // If image invalid, replaced with gift.png, so have to ignore that for comparison
+    tempBook.image = tempBookImage.includes("gift.png") ? bookToCompareTo.image : tempBookImage;
     tempBook.name  = helper.getById("bookName").value;
     tempBook.description = helper.getById("bookDescription").value;
     bookToCompareTo.bookId = globalVars.book.bookId;
@@ -147,7 +151,7 @@ function createBookButton() {
   $("#createButton").unbind().click(function() {
     // Replace Android full URL with a cross-platform local one
     var imageSrc = helper.getById("bookImage").src;
-    globalVars.book.image = imageSrc.includes("ticket.png") ? "images/ticket.png" : imageSrc;
+    globalVars.book.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
 
     if (development) {
       // TODO: Renovate createTemplate with new stuff for here
@@ -163,7 +167,7 @@ function createBookButton() {
 
 // TODO: Remove automatic saving for image upload to coupon so it is checked
 // on back button, and also wait to upload until the new image is saved.
-// Keep the local preview until they leave that page
+// Keep the local preview until they leave that page 
 
 /**
  * Switches from either the book or coupon form to the book display.
@@ -184,7 +188,7 @@ function plusButton() {
     showProperButton("newCoupon");
 
     // Reset form to blank in case it is clicked after editing a coupon
-    helper.getById("couponImage").src = "images/ticket.png";
+    helper.getById("couponImage").src = "images/gift.png";
     helper.getById("name").value      = "";
     if (helper.getById("couponDescription")) { helper.getById("couponDescription").value = ""; }
     if (helper.getById("count")) { helper.getById("count").value = ""; }
@@ -200,7 +204,7 @@ function plusButton() {
 
     // Set back button to take you back to coupon list
     $("#backArrow").unbind().click(function() {
-      var blankCoupon = { image: "ticket.png", name: "", desc: "", count: "" };
+      var blankCoupon = { image: "gift.png", name: "", desc: "", count: "" };
       var newCoupon = {};
 
       // https://stackoverflow.com/a/29182327/6456163
@@ -296,6 +300,8 @@ function imageUploadListeners(coupon) {
       'maxSelectCount': 1,
       'maxSelectSize': (bytes.parse("5mb") * 8) // Megabytes to bytes to bits
   };
+
+  // TODO: Make sure the image isn't rotated for some users somehow
 
   // Error in Success callbackId: MediaPicker1340867104 : TypeError: Cannot read property 'uri' of undefined ??
   $('#bookOpenPhoto, #couponOpenPhoto').unbind().click(function() {
@@ -488,7 +494,7 @@ function createCouponElements() {
   // TODO: Implement way to rearrange organization of coupons; also change
     // display options like default, alphabetical, count remaining, etc.;
     // should changing display preference permenantly update the order?
-    // Option to hide coupons with 0 count; display 3 to a row
+    // Option to hide coupons with 0 count; display 3 to a row 
 
   $.each(globalVars.book.coupons, function(couponNumber, coupon) {
       var node = document.createElement('div');
@@ -727,7 +733,7 @@ function preventInvalidNumberInput() {
   $('#count').on('keyup', function(e) {
     if (e.key == "Undefined" || e.key == "Unidentified") {
       // TODO: Make this run AFTER the new key is added to the field
-      //count.value = count.value.slice(0, -1);
+      //count.value = count.value.slice(0, -1); 
     } else if ($(this).val() > 99 
         && e.keyCode !== 46 // keycode for delete
         && e.keyCode !== 8 // keycode for backspace
@@ -766,7 +772,7 @@ function addDeleteListeners() {
         // user sees the dashboard so the deleted book would still show up, but it's
         // hard to replicate so I don't know if the problem still exists. If noticed 
         // again in the future I'll look further into how to prevent it. Possibly with
-        // waiting for a promise or asynchronously running a function or something.
+        // waiting for a promise or asynchronously running a function or something. 
         goBack();
       }
     }
@@ -836,7 +842,7 @@ function createCoupon() {
   // Replace Android full URL with a cross-platform local one
   //var cloudGiftUrl = "https://res.cloudinary.com/couponbooked/image/upload/v1580314462/gift_rshjui.png";
   var imageSrc = helper.getById("couponImage").src;
-  coupon.image = imageSrc.includes("ticket.png") ? "images/ticket.png" : imageSrc;
+  coupon.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
 
   // Name already validated before this function is called so
   // no need to do it again.
@@ -853,7 +859,7 @@ function createCoupon() {
  */
 function updateCoupon(oldCoupon, $this) {
   // TODO: Make choosing image not be automatic and they still have to save it or
-  // choose to discard changes.
+  // choose to discard changes. 
   var form = $('#couponForm').serializeArray();
 
   var newCoupon = {};
@@ -867,7 +873,9 @@ function updateCoupon(oldCoupon, $this) {
   
   // Replace Android full URL with a cross-platform local one
   var imageSrc = helper.getById("couponImage").src;
-  newCoupon.image = imageSrc.includes("ticket.png") ? "images/ticket.png" : imageSrc;
+  newCoupon.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
+
+  //uploadImage(newCoupon.image, newCoupon);
 
   // TODO: Consider decomposing
   if (!helper.isSameObject(oldCoupon, newCoupon)) {
@@ -1066,7 +1074,7 @@ function editBookDetails() {
 
   // Replace Android full URL with a cross-platform local one
   var imageSrc = helper.getById("bookImage").src;
-  oldBook.image = imageSrc.includes("ticket.png") ? "images/ticket.png" : imageSrc;
+  oldBook.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
 
   oldBook.name        = helper.getById("bookName").value;
   oldBook.description = helper.getById("bookDescription").value;
@@ -1099,6 +1107,16 @@ function editBookDetails() {
  * to false. For more info on parameter look here: https://stackoverflow.com/a/1846715/6456163
  */
 function updateBook(silent) {
+  // TODO: Implement checking like this if it doesn't already exist,
+  // or a silent alternative so they aren't bothered and neither is the server:
+  /*
+    !helper.isSameObject(globalVars.book, globalVars.previousBook)
+    // Book hasn't been modified
+    SimpleNotification.info({
+      text: "You haven't changed anything!"
+    }, globalVars.notificationOptions);
+  */
+
   $.ajax({
     type: "POST",
     url: "http://www.couponbooked.com/scripts/updateData",
@@ -1153,6 +1171,17 @@ function nameAlreadyExists(name) {
  * displayed on the screen if the function is successful.
  */
 function updateTemplate(silent) {
+  // TODO: Implement checking like this if it doesn't already exist,
+  // or a silent alternative so they aren't bothered and neither is the server:
+  /*
+    !helper.isSameObject(globalVars.book, globalVars.previousBook)
+    // Template hasn't been modified
+    SimpleNotification.info({
+      title: "Development mode",
+      text: "You haven't changed anything!"
+    }, globalVars.notificationOptions);
+  */
+
   var userId = localStorage.getItem("user_id");
 
   $.ajax({

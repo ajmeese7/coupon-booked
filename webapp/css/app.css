@@ -1,0 +1,44 @@
+body {
+    padding-top: constant(safe-area-inset-top); /* iOS 11.0 */
+    padding-top: env(safe-area-inset-top); /* iOS 11.2 */
+}
+
+.page {
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    padding: 25px 20px;
+    margin-bottom: constant(safe-area-inset-bottom); /* iOS 11.0 */
+    margin-bottom: env(safe-area-inset-bottom); /* iOS 11.2 */
+}
+
+.btn-success {
+    background-color: #1275ff !important;
+    border-color: #0e69e8 !important;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex.full-page{
+    width: 100%;
+    height: 100%;
+}
+
+.flex.col{
+    flex-direction: column;
+}
+.flex.hor-centered{
+    justify-content: center;
+}
+
+.flex.abs-centered{
+    justify-content: center;
+    align-items: center;
+}
+
+.flex > .expand-to-fill{
+    flex: 1;
+}
