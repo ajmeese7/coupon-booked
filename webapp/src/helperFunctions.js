@@ -1,4 +1,4 @@
-var globalVars = require('./globalVars.js');
+// Need some whitespace here, so :)
 
 function getAllBySelector(arg) {
   return document.querySelectorAll(arg);
@@ -47,12 +47,12 @@ function getUserName() {
   var displayName = localStorage.getItem("display_name");
   if (displayName != "") {
     return displayName;
-  } else if (globalVars.profile.given_name) {
+  } else if (profile.given_name) {
     // Through Google; name should be whole name
-    return globalVars.profile.name;
+    return profile.name;
   } else {
     // Through Auth0; nickname should be first part of email
-    return globalVars.profile.nickname;
+    return profile.nickname;
   }
 }
 
@@ -170,16 +170,3 @@ function reorganizeBooks() {
     stop: updateIndex
   }).disableSelection();
 }
-
-// NOTE: Make sure this is always up to date with the functions 
-// that need to be accessed outside this file
-module.exports = Object.assign({
-  getAllBySelector,
-  getBySelector,
-  getById,
-  getAllByClassName,
-  fadeBetweenElements,
-  getUserName,
-  isSameObject,
-  clone
-});

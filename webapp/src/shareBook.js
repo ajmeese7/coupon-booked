@@ -1,4 +1,3 @@
-var globalVars = require('./globalVars.js');
 var sent = require('./sentBooks.js');
 
 /**
@@ -27,7 +26,7 @@ function shareButtonListeners() {
             SimpleNotification.warning({
               title: "Problem making purchase",
               text: "Please try again later."
-            }, globalVars.notificationOptions);
+            }, notificationOptions);
           });
       })
       .catch(function (err) {
@@ -58,8 +57,8 @@ function createShareCode() {
 
   $.ajax({
     type: "POST",
-    url: "http://www.couponbooked.com/scripts/createShareCode",
-    data: { bookId: globalVars.book.bookId, bookData: JSON.stringify(globalVars.book), shareCode: shareCode },
+    url: "https://www.couponbooked.com/scripts/createShareCode",
+    data: { bookId: book.bookId, bookData: JSON.stringify(book), shareCode: shareCode },
     crossDomain: true,
     cache: false,
     success: function(success) {
@@ -72,7 +71,7 @@ function createShareCode() {
       SimpleNotification.error({
         title: "Error creating share code!",
         text: "Please try again later."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
     }
   });
 
@@ -91,23 +90,23 @@ function createShareCode() {
       SimpleNotification.warning({
         // IDEA: Warning symbol for images; yellow might not be enough
         text: "Book has already been sent."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
 
     } else if (success == "Share code exists") {
       console.warn("Share code already generated.");
       SimpleNotification.warning({
         text: "Share code already generated."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
 
     } else {
       console.warn("Share code created successfully:", shareCode);
       // Share code created successfully
-      globalVars.book.shareCode = shareCode;
+      book.shareCode = shareCode;
 
       // So they can go back to dashboard without dealing with confirm prompt;
       // true means it's silent so they don't get a strange notification
       sent.updateBook(true);
-      globalVars._this.redirectTo('/shareCode');
+      _this.redirectTo('/shareCode');
     }
   }
 }
@@ -120,7 +119,7 @@ function shareCode() {
   var options = {
     // TODO: Display sender name in message -> helper.getUserName()
     subject: "You've been Coupon Booked!", // for email
-    message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${globalVars.book.shareCode}`
+    message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${book.shareCode}`
   };
   var onSuccess = function(result) {
     // On Android result.app since plugin version 5.4.0 this is no longer empty.

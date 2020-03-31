@@ -41,13 +41,14 @@ App.prototype.state = {
       id: 'loading',
       onMount: function(page) {
         console.warn("/ route...");
-        globalVars.nav = helper.getBySelector("#nav");
-        globalVars.loadingIcon = helper.getBySelector("#loader");
+        nav = getBySelector("#nav");
+        loadingIcon = getBySelector("#loader");
         createConnection();
 
         // Don't want to have to code an annoying landscape layout
         screen.orientation.lock('portrait');
-        globalVars._this = this;
+        //screen.orientation.lock('portrait');
+        _this = this;
 
         determineAuthRoute(localStorage.getItem("start_animation") != "true");
       }
@@ -61,11 +62,11 @@ App.prototype.state = {
         }
 
         // Login button at bottom of page
-        var loginButton = helper.getBySelector('.btn-login');
+        var loginButton = getBySelector('.btn-login');
         $(loginButton).unbind().click(this.login);
 
         // TODO: Call this when user logs in, and use it to check if they already exist before creating
-        helperFunctions.getUserName();
+        getUserName();
       }
     },
     '/home': {
@@ -73,7 +74,7 @@ App.prototype.state = {
       // referenced if wanting to reinstate with a new look/purpose
       id: 'home',
       onMount: function(page) {
-        globalVars._this = this;
+        _this = this;
         navBar();
 
         // Reset every time the user goes home
@@ -84,13 +85,13 @@ App.prototype.state = {
     '/create': {
       id: 'create',
       onMount: function(page) {
-        globalVars._this = this;
+        _this = this;
         navBar();
 
-        globalVars.backButtonTarget = "/create";
+        backButtonTarget = "/create";
         $('#backArrow').unbind().click(function() {
           // TODO: See if there needs to be a back button target here
-          globalVars._this.redirectTo('/dashboard');
+          _this.redirectTo('/dashboard');
         });
 
         // TODO: When back button is clicked after editing retrieved template,
@@ -99,7 +100,7 @@ App.prototype.state = {
         // TODO: Either add a similar variable to /dashboard here or implement some
         // kind of caching mechanism so they don't have to wait every time for the
         // templates to be retrieved
-        this.container.appendChild(globalVars.loadingIcon);
+        this.container.appendChild(loadingIcon);
         $("#loader").css("display", "inline-block");
         helper.fadeBetweenElements("#gestureZone, #templateContainer", "", true);
         getAllTemplates();
@@ -109,7 +110,7 @@ App.prototype.state = {
     '/sentBook': {
       id: 'sentBook',
       onMount: function(page) {
-        globalVars._this = this;
+        _this = this;
         navBar();
 
         sent.displayBook();
@@ -121,7 +122,7 @@ App.prototype.state = {
       id: 'receivedBook',
       onMount: function(page) {
         // TODO: Add way to view hidden books
-        globalVars._this = this;
+        _this = this;
         navBar();
 
         received.displayBook();
@@ -132,11 +133,11 @@ App.prototype.state = {
     '/dashboard': {
       id: 'dashboard',
       onMount: function(page) {
-        globalVars._this = this;
+        _this = this;
         navBar();
 
         if (showLoadingIcon) {
-          this.container.appendChild(globalVars.loadingIcon);
+          this.container.appendChild(loadingIcon);
           helper.fadeBetweenElements("#gestureZone", "", true);
         }
         pullUserRelatedBooks();
@@ -146,13 +147,13 @@ App.prototype.state = {
         manageTabMenu();
 
         $('#backArrow').unbind().click(function() {
-          globalVars._this.redirectTo('/dashboard');
+          _this.redirectTo('/dashboard');
         });
 
         // User clicks "Send one now!" and they're redirected to the create route;
         // does the same thing as the plus button
         $('#start, #plus').unbind().click(function() {
-          globalVars._this.redirectTo('/create');
+          _this.redirectTo('/create');
         });
 
         $('#request').unbind().click(function() {
@@ -160,24 +161,24 @@ App.prototype.state = {
         });
 
         $('#redeemLink').unbind().click(function() {
-          globalVars._this.redirectTo('/redeemCode');
+          _this.redirectTo('/redeemCode');
         });
       }
     },
     '/redeemCode': {
       id: 'redeemCode',
       onMount: function(page) {
-        globalVars._this = this;
+        _this = this;
         navBar();
         darkModeSupport();
 
         // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
-          globalVars._this.redirectTo('/dashboard');
+          _this.redirectTo('/dashboard');
         });
 
         $('#redeemButton').unbind().click(function() {
-          var code = helper.getById("redeemBox").value.toLowerCase();
+          var code = getById("redeemBox").value.toLowerCase();
           if (codeIsValid(code)) {
             redeemCode(code);
           }
@@ -218,14 +219,14 @@ App.prototype.state = {
     '/shareCode': {
       id: 'shareCode',
       onMount: function(page) {
-        globalVars._this = this;
+        _this = this;
         navBar();
         darkModeSupport();
 
         // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
-          globalVars.backButtonTarget = "/dashboard";
-          globalVars._this.redirectTo('/sentBook');
+          backButtonTarget = "/dashboard";
+          _this.redirectTo('/sentBook');
         });
         
         // Display tooltip when box or icon is clicked and copy to clipboard
@@ -235,11 +236,11 @@ App.prototype.state = {
           $(tooltip).finish().fadeTo(400, 1).delay(1500).fadeTo(400, 0);
         });
 
-        helper.getById("shareCodeText").innerText = globalVars.book.shareCode;
+        getById("shareCodeText").innerText = book.shareCode;
 
         // Display share icon based on platform
         var platform = device.platform;
-        var shareIcon = helper.getById("shareIcon");
+        var shareIcon = getById("shareIcon");
         (platform == "Android") ? shareIcon.src = "images/md-share.svg" : shareIcon.src = "images/ios-share.svg";
 
         $("#bigShareButton").unbind().click(function() {
@@ -250,7 +251,7 @@ App.prototype.state = {
     '/settings': {
       id: 'settings',
       onMount: function(page) {
-        globalVars._this = this;
+        _this = this;
         navBar();
 
         // TODO: Mess with https://auth0.com/docs/api/management/v2#!/Users/patch_users_by_id
@@ -259,14 +260,14 @@ App.prototype.state = {
         darkModeSupport(true);
         animationSetting();
         
-        var logoutButton = helper.getBySelector('.btn-logout');
+        var logoutButton = getBySelector('.btn-logout');
         $(logoutButton).unbind().click(this.logout);
       }
     },
     '/guide': {
       id: 'guide',
       onMount: function(page) {
-        globalVars._this = this;
+        _this = this;
         navBar();
         darkModeSupport();
       }
@@ -285,10 +286,10 @@ function determineAuthRoute(instant) {
 
   // Gives time for opening animation to run
   setTimeout(function() {
-    if (globalVars._this.state.authenticated === true) {
-      return globalVars._this.redirectTo('/dashboard');
+    if (_this.state.authenticated === true) {
+      return _this.redirectTo('/dashboard');
     } else {
-      return globalVars._this.redirectTo('/login');
+      return _this.redirectTo('/login');
     }
     // NOTE: The 1ms delay seems to take a good bit longer;
     // should I complicate the code to speed it up?
@@ -303,7 +304,7 @@ function createConnection() {
     // https://forum.ionicframework.com/t/err-cleartext-not-permitted-in-debug-app-on-android/164101/20
   $.ajax({
     type: "GET",
-    url: "http://www.couponbooked.com/scripts/createConnection",
+    url: "https://www.couponbooked.com/scripts/createConnection",
     datatype: "html",
     success: function(data) {
       console.warn("Successfully established database connection.");
@@ -324,23 +325,23 @@ function displayNameListeners() {
 
   // Listen for clicking of update button
   $("#updateDisplayName").unbind().click(function() {
-    var newName = helper.getById("displayNameInput").value;
+    var newName = getById("displayNameInput").value;
     if (newName.length > 30) {
       SimpleNotification.warning({
         title: "Name too long",
         text: "Please enter a shorter name."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
     } else if (newName == "") {
       SimpleNotification.info({
         title: "No name entered",
         text: "Using default username from now on."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
 
       localStorage.setItem("display_name", "");
     } else {
       SimpleNotification.success({
         text: "Display name updated"
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
 
       console.log("New display name:", newName);
       localStorage.setItem("display_name", newName);
@@ -355,12 +356,12 @@ function displayNameListeners() {
 function darkModeSupport(settingsPage) {
   if (settingsPage) {
     // https://stackoverflow.com/a/3263248/6456163
-    if (localStorage.getItem("darkMode") == "true") helper.getById("darkCheckbox").click();
+    if (localStorage.getItem("darkMode") == "true") getById("darkCheckbox").click();
 
     // NOTE: The code in here runs twice; shouldn't be a problem
-    var toggle = helper.getById("darkToggle");
+    var toggle = getById("darkToggle");
     $(toggle).unbind().click(function() {
-      var darkMode = helper.getById("darkCheckbox").checked;
+      var darkMode = getById("darkCheckbox").checked;
       localStorage.setItem("darkMode", darkMode + "");
 
       setProperMode();
@@ -372,9 +373,9 @@ function darkModeSupport(settingsPage) {
 
   /** Sets dark mode if applicable and light mode if not. */
   function setProperMode() {
-    var hideBook = helper.getById("hideBook");
-    var copyButton = helper.getById("copyButton");
-    var backArrow = helper.getById("backArrow");
+    var hideBook = getById("hideBook");
+    var copyButton = getById("copyButton");
+    var backArrow = getById("backArrow");
 
     if (localStorage.getItem('darkMode') == "true") {
       setRootProperty('--background-color', 'rgb(15, 15, 15)');
@@ -408,12 +409,12 @@ function darkModeSupport(settingsPage) {
  * the localStorage variable when the toggle is modified.
  */
 function animationSetting() {
-  if (localStorage.getItem("start_animation") == "true") helper.getById("animationCheckbox").click();
+  if (localStorage.getItem("start_animation") == "true") getById("animationCheckbox").click();
 
   // NOTE: The code in here runs twice; shouldn't be a problem
-  var toggle = helper.getById("animationToggle");
+  var toggle = getById("animationToggle");
   $(toggle).unbind().click(function() {
-    var animation = helper.getById("animationCheckbox").checked;
+    var animation = getById("animationCheckbox").checked;
     console.log("Animation state changing to " + animation + "...")
     localStorage.setItem("start_animation", animation + "");
   });
@@ -425,7 +426,7 @@ function animationSetting() {
 function getAllTemplates() {
   $.ajax({
     type: "GET",
-    url: "http://www.couponbooked.com/scripts/getAllTemplates",
+    url: "https://www.couponbooked.com/scripts/getAllTemplates",
     datatype: "json",
     success: function(data) {
       data = JSON.parse(data);
@@ -437,10 +438,10 @@ function getAllTemplates() {
       SimpleNotification.error({
         title: 'Error retreiving templates',
         text: 'Please try again later.'
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
 
       // Only way you can get to the create route, so easy to send them back
-      globalVars._this.redirectTo("/dashboard");
+      _this.redirectTo("/dashboard");
     }
   });
 }
@@ -465,12 +466,12 @@ function processTemplates(data) {
 
     // https://api.jquery.com/data/
     $(node).data("templateData", templateData);
-    helper.getById("templateContainer").appendChild(node);
+    getById("templateContainer").appendChild(node);
 
     $(node).unbind().click(function() {
-      globalVars.book = $(node).data("templateData");
-      globalVars.previousBook = helper.clone(globalVars.book);
-      globalVars._this.redirectTo('/sentBook');
+      book = $(node).data("templateData");
+      previousBook = helper.clone(book);
+      _this.redirectTo('/sentBook');
     });
   });
 
@@ -493,7 +494,7 @@ function pullUserRelatedBooks() {
   var userId = localStorage.getItem('user_id');
   $.ajax({
     type: "GET",
-      url: `http://www.couponbooked.com/scripts/getData?userId=${userId}`,
+      url: `https://www.couponbooked.com/scripts/getData?userId=${userId}`,
       datatype: "json",
       success: function(data) {
         data = JSON.parse(data);
@@ -505,7 +506,7 @@ function pullUserRelatedBooks() {
         SimpleNotification.error({
           title: 'Error reaching server',
           text: 'Please try again later.'
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       }
   });
 }
@@ -581,7 +582,7 @@ function unhideMessage(isSent) {
  */
 function addBookToPage(couponBook, isSent) {
   var bookData = JSON.parse(couponBook.bookData);
-  var applicableElement = isSent ? helper.getById("sent") : helper.getById("received");
+  var applicableElement = isSent ? getById("sent") : getById("received");
 
   // Create node and give CSS class that applies styles
   var node = document.createElement('div');
@@ -631,22 +632,22 @@ function addBookToPage(couponBook, isSent) {
 function addBookListeners(node) {
   $(node).unbind().click(function() {
     // Set the book in the global scope until another one is selected
-    globalVars.book = $(this).data("bookData");
-    globalVars.book.receiver = $(this).data("receiver");
-    globalVars.book.sender = $(this).data("sender");
-    globalVars.previousBook = helper.clone(globalVars.book);
+    book = $(this).data("bookData");
+    book.receiver = $(this).data("receiver");
+    book.sender = $(this).data("sender");
+    previousBook = helper.clone(book);
 
     // TODO: Add some kind of delay to give content time to load in;
     // IDEA: begin fading #app out, redirect, and start fading new content
     // in after a very slight delay (to fade between routes);
     // Could put in a loading screen for a short period of time
-    globalVars.backButtonTarget = "/dashboard";
+    backButtonTarget = "/dashboard";
 
     var isSent = $(this).data("isSent");
     if (isSent) {
-      globalVars._this.redirectTo('/sentBook');
+      _this.redirectTo('/sentBook');
     } else {
-      globalVars._this.redirectTo('/receivedBook');
+      _this.redirectTo('/receivedBook');
     }
   });
 }
@@ -661,7 +662,7 @@ function redeemCode(shareCode) {
   var userId = localStorage.getItem("user_id");
   $.ajax({
     type: "POST",
-    url: "http://www.couponbooked.com/scripts/redeemCode",
+    url: "https://www.couponbooked.com/scripts/redeemCode",
     data: { userId: userId, receiverName: helper.getUserName(), shareCode: shareCode },
     crossDomain: true,
     cache: false,
@@ -674,7 +675,7 @@ function redeemCode(shareCode) {
       SimpleNotification.error({
         title: "Error redeeming code!",
         text: "Please try again later."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
     }
   });
 
@@ -684,17 +685,17 @@ function redeemCode(shareCode) {
       SimpleNotification.warning({
         title: "Invalid code",
         text: "Please try again."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
     } else if (success == "Sent to self") {
       SimpleNotification.warning({
         title: "This is your code!",
         text: "Please send it to someone else."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
     } else {
       SimpleNotification.success({
         title: "Successfully redeemed code!",
         text: "Check your dashboard."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
     }
   }
 }
@@ -721,7 +722,7 @@ function codeIsValid(shareCode) {
       SimpleNotification.warning({
         title: "Invalid code",
         text: "Please try again."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
 
       return false;
     }
@@ -729,7 +730,7 @@ function codeIsValid(shareCode) {
     SimpleNotification.warning({
       title: "Not long enough",
       text: "Please enter your eight digit code."
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
 
     return false;
   }
@@ -761,45 +762,45 @@ function requestBook() {
  */
 function navBar() {
   console.warn("navBar...");
-  if (globalVars._this.state.authenticated === false) {
-    return globalVars._this.redirectTo('/login');
+  if (_this.state.authenticated === false) {
+    return _this.redirectTo('/login');
   }
 
   // Route to home on title or logo click
-  var mobile = helper.getBySelector("#mobile");
-  $(mobile).unbind().click(function() { globalVars._this.redirectTo('/dashboard') });
+  var mobile = getBySelector("#mobile");
+  $(mobile).unbind().click(function() { _this.redirectTo('/dashboard') });
 
   // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
-  var avatar = helper.getBySelector('.profile-image');
-  if (!globalVars.profile) {
-    globalVars._this.loadProfile(function(err, _profile) {
+  var avatar = getBySelector('.profile-image');
+  if (!profile) {
+    _this.loadProfile(function(err, _profile) {
       if (err) {
         console.error("Error loading profile: ", err);
 
         reacquireProfile();
       } else {
         avatar.src = _profile.picture;
-        globalVars.profile = _profile;
+        profile = _profile;
       }
     });
   } else {
     // IDEA: Switch to localStorage to avoid profile bug? Does that solve the problem, or
     // just give the appearance of solving it?
-    avatar.src = globalVars.profile.picture;
+    avatar.src = profile.picture;
   }
 
   // TODO: See if this can dynamically do dropdowns other than logout to save time in future
   // Dashboard button on dropdown
-  var dashboardButton = helper.getBySelector('.dashboard');
-  $(dashboardButton).unbind().click(function() { globalVars._this.redirectTo('/dashboard') });
+  var dashboardButton = getBySelector('.dashboard');
+  $(dashboardButton).unbind().click(function() { _this.redirectTo('/dashboard') });
 
   // Settings button on dropdown
-  var settingsButton = helper.getBySelector('.settings');
-  $(settingsButton).unbind().click(function() { globalVars._this.redirectTo('/settings') });
+  var settingsButton = getBySelector('.settings');
+  $(settingsButton).unbind().click(function() { _this.redirectTo('/settings') });
 
   // Guide button on dropdown
-  var guideButton = helper.getBySelector('.guide');
-  $(guideButton).unbind().click(function() { globalVars._this.redirectTo('/guide') });
+  var guideButton = getBySelector('.guide');
+  $(guideButton).unbind().click(function() { _this.redirectTo('/guide') });
 
   // Profile picture dropdown
   $(".account").unbind().click(function() {
@@ -832,8 +833,8 @@ function reacquireProfile() {
 
     var accessToken = JSON.parse(response.body).access_token;
     localStorage.setItem('access_token', accessToken);
-    globalVars._this.state.accessToken = accessToken;
-    globalVars._this.state.authenticated = true; // Should be set, but just in case...
+    _this.state.accessToken = accessToken;
+    _this.state.authenticated = true; // Should be set, but just in case...
 
     tempCounter++;
     if (tempCounter < 3) {
@@ -850,7 +851,7 @@ function manageTabMenu() {
   // Select the tab the user was last on; sent by default
   $('#tab-menu').tabs('select', localStorage.getItem('activeTab'));
 
-  const gestureZone = helper.getById('gestureZone');
+  const gestureZone = getById('gestureZone');
   var sentButton = $('#sentButton');
   var receivedButton = $('#receivedButton');
   var touchstartX = 0;
@@ -913,7 +914,7 @@ function manageTabMenu() {
 }
 
 App.prototype.run = function(id) {
-  this.container = helper.getBySelector(id);
+  this.container = getBySelector(id);
   this.resumeApp();
 };
 
@@ -973,7 +974,7 @@ App.prototype.logout = function(e) {
   // Have both just in case; either should cut it
   window.localStorage.clear();
   localStorage.clear();
-  globalVars.profile = null;
+  profile = null;
 
   // https://auth0.com/authenticate/cordova/auth0-oidc/
   var url = getRedirectUrl();
@@ -1000,7 +1001,7 @@ function openUrl(url) {
               console.warn('Logging user out...');
             } else if (result.event === 'closed') {
               console.warn('Logout successful!');
-              globalVars._this.redirectTo("/login");
+              _this.redirectTo("/login");
             }
           },
           function(msg) {
@@ -1024,7 +1025,7 @@ App.prototype.redirectTo = function(route) {
 App.prototype.resumeApp = function() {
   console.log("Please unhide warnings if debugging. Otherwise, you might want to hide them.");
   console.warn("resumeApp...");
-  globalVars._this = this;
+  _this = this;
   var accessToken = localStorage.getItem('access_token');
   var idToken = localStorage.getItem('id_token');
 
@@ -1120,21 +1121,21 @@ function generateAccessToken() {
 
 function successfulAuth(accessToken) {
   console.warn("Setting authentication state to true...");
-  globalVars._this.state.authenticated = true;
-  globalVars._this.state.accessToken = accessToken;
-  globalVars._this.render();
+  _this.state.authenticated = true;
+  _this.state.accessToken = accessToken;
+  _this.render();
 }
 
 function failedAuth() {
-  globalVars._this.state.authenticated = false;
-  globalVars._this.state.accessToken = null;
-  globalVars._this.render();
+  _this.state.authenticated = false;
+  _this.state.accessToken = null;
+  _this.render();
 }
 
 App.prototype.render = function() {
   //console.warn("render...");
   var currRoute = this.state.routes[this.state.currentRoute];
-  var currRouteEl = helper.getById(currRoute.id);
+  var currRouteEl = getById(currRoute.id);
   var currRouteId = currRouteEl.id;
   var element = document.importNode(currRouteEl.content, true);
   this.container.innerHTML = '';
@@ -1143,7 +1144,7 @@ App.prototype.render = function() {
   var nonNavRoutes = ["login", "loading"];
   if ($.inArray(currRouteId, nonNavRoutes) < 0) {
     // https://frontstuff.io/a-better-way-to-perform-multiple-comparisons-in-javascript
-    this.container.appendChild(globalVars.nav);
+    this.container.appendChild(nav);
 
     // NOTE: For some reason putting darkModeSupport() here doesn't work out
   }
@@ -1151,5 +1152,3 @@ App.prototype.render = function() {
   this.container.appendChild(element);
   currRoute.onMount.call(this, this.container);
 };
-
-module.exports = App;

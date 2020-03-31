@@ -1,7 +1,6 @@
 const uuidv4 = require('uuid/v4');
 const env = require('../js/env');
-var helper = require('./helperFunctions');
-var globalVars = require('./globalVars.js');
+var globalVars = require('./js');
 
 /** True means book will be published to template database; false is normal */
 var development = false;
@@ -15,14 +14,14 @@ var development = false;
  */
 function displayBook() {
   // Override the default nav listener code
-  var mobile = helper.getBySelector("#mobile");
+  var mobile = getBySelector("#mobile");
   $(mobile).unbind().click(function() {
     bookBackButtonListener(false, true);
     $('#backArrow').click();
   });
 
   showProperButton("home");
-  var bookContent = helper.getById("bookContent");
+  var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
   bookContent.innerHTML = '<button id="plus">+</button>';
@@ -33,32 +32,32 @@ function displayBook() {
     it scrolls back up to the big info. */
   var miniPreview = document.createElement('div');
   miniPreview.setAttribute("id", "miniPreview");
-  miniPreview.innerHTML += `<img id='miniPreviewImage' onerror='imageError(this)' src='${globalVars.book.image}' />`;
+  miniPreview.innerHTML += `<img id='miniPreviewImage' onerror='imageError(this)' src='${book.image}' />`;
 
   var previewText = document.createElement('div');
   previewText.setAttribute("id", "previewText");
-  previewText.innerHTML += `<h4 id='bookNamePreview'>${globalVars.book.name}</h4>`;
+  previewText.innerHTML += `<h4 id='bookNamePreview'>${book.name}</h4>`;
 
   // Sets receiver text based on the current state of the book
-  if (globalVars.book.receiver) {
+  if (book.receiver) {
     // Book has been sent and code redeemed
-    var receiver = `<p class='receiverText'>Sent to ${globalVars.book.receiver}</p>`;
+    var receiver = `<p class='receiverText'>Sent to ${book.receiver}</p>`;
     previewText.innerHTML += receiver;
-  } else if (globalVars.book.shareCode) {
+  } else if (book.shareCode) {
     // Code generated but not yet redeemed
-    var receiver = `<p id='shareCodePreview'>Share code: <span>${globalVars.book.shareCode}</span></p>`;
+    var receiver = `<p id='shareCodePreview'>Share code: <span>${book.shareCode}</span></p>`;
     previewText.innerHTML += receiver;
-  } else if (!globalVars.book.bookId) {
+  } else if (!book.bookId) {
     // For when a template is first loaded in; not yet created
     var receiver = "<p class='receiverText'>Create to share!</p>";
     previewText.innerHTML += receiver;
   }
   
-  previewText.innerHTML += `<p id='bookDescriptionPreview'>${globalVars.book.description}</p>`;
+  previewText.innerHTML += `<p id='bookDescriptionPreview'>${book.description}</p>`;
   miniPreview.appendChild(previewText);
 
   // https://stackoverflow.com/a/16270807/6456163
-  var moreOptions = helper.getById("moreOptions").innerHTML;
+  var moreOptions = getById("moreOptions").innerHTML;
   if (device.platform == "iOS") {
     // Changes icons based on platform
     $('#editBook').attr('src', "images/ios-edit.svg");
@@ -78,9 +77,9 @@ function displayBook() {
  * backButtonTarget.
  */
 function goBack() {
-  globalVars.previousBook = null;
-  globalVars.book = null;
-  globalVars._this.redirectTo(globalVars.backButtonTarget);
+  previousBook = null;
+  book = null;
+  _this.redirectTo(backButtonTarget);
 }
 
 /** To store the changes made on the edit page for comparison next time it is opened. */
@@ -95,15 +94,15 @@ var newPreviousBook = null;
 function bookBackButtonListener(editPage, homeButtonClicked) {
   $('#backArrow').unbind().click(function() {
     // Get latest book info
-    var tempBook = helper.clone(globalVars.book);
-    var bookToCompareTo = editPage ? newPreviousBook : globalVars.previousBook;
-    var tempBookImage = helper.getById("bookImage").src;
+    var tempBook = helper.clone(book);
+    var bookToCompareTo = editPage ? newPreviousBook : previousBook;
+    var tempBookImage = getById("bookImage").src;
     
     // If image invalid, replaced with gift.png, so have to ignore that for comparison
     tempBook.image = tempBookImage.includes("gift.png") ? bookToCompareTo.image : tempBookImage;
-    tempBook.name  = helper.getById("bookName").value;
-    tempBook.description = helper.getById("bookDescription").value;
-    bookToCompareTo.bookId = globalVars.book.bookId;
+    tempBook.name  = getById("bookName").value;
+    tempBook.description = getById("bookDescription").value;
+    bookToCompareTo.bookId = book.bookId;
     bookToCompareTo.hide = 0;
 
     //console.log("New book:", tempBook);
@@ -111,7 +110,7 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
     //console.log("They are the same:", helper.isSameObject(tempBook, bookToCompareTo));
 
     // If not yet saved, just discards without secondary confirmation.
-    if (!helper.isSameObject(tempBook, bookToCompareTo) && globalVars.book.bookId) {
+    if (!helper.isSameObject(tempBook, bookToCompareTo) && book.bookId) {
       function onConfirm(buttonIndex) {
         // 1 is "Discard them"
         if (buttonIndex == 1) {
@@ -134,7 +133,7 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
 
     function confirmFunction() {
       if (homeButtonClicked) {
-        globalVars._this.redirectTo('/home');
+        _this.redirectTo('/home');
       } else {
         editPage ? fadeToBookContent() : goBack();
       }
@@ -150,8 +149,8 @@ function createBookButton() {
 
   $("#createButton").unbind().click(function() {
     // Replace Android full URL with a cross-platform local one
-    var imageSrc = helper.getById("bookImage").src;
-    globalVars.book.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
+    var imageSrc = getById("bookImage").src;
+    book.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
 
     if (development) {
       // TODO: Renovate createTemplate with new stuff for here
@@ -159,7 +158,7 @@ function createBookButton() {
     } else {
       // TODO: Make leaving edited template page out of dev mode ask to confirm
 
-      console.warn("Creating book...", globalVars.book);
+      console.warn("Creating book...", book);
       createBook();
     }
   });
@@ -188,10 +187,10 @@ function plusButton() {
     showProperButton("newCoupon");
 
     // Reset form to blank in case it is clicked after editing a coupon
-    helper.getById("couponImage").src = "images/gift.png";
-    helper.getById("name").value      = "";
-    if (helper.getById("couponDescription")) { helper.getById("couponDescription").value = ""; }
-    if (helper.getById("count")) { helper.getById("count").value = ""; }
+    getById("couponImage").src = "images/gift.png";
+    getById("name").value      = "";
+    if (getById("couponDescription")) { getById("couponDescription").value = ""; }
+    if (getById("count")) { getById("count").value = ""; }
 
     imageUploadListeners(true);
     limitDescriptionLength();
@@ -208,10 +207,10 @@ function plusButton() {
       var newCoupon = {};
 
       // https://stackoverflow.com/a/29182327/6456163
-      newCoupon.image = helper.getById("couponImage").src.replace(/^.*[\\\/]/, '');
-      newCoupon.name = helper.getById("name").value;
-      newCoupon.desc = helper.getById("couponDescription").value;
-      newCoupon.count = helper.getById("count").value;
+      newCoupon.image = getById("couponImage").src.replace(/^.*[\\\/]/, '');
+      newCoupon.name = getById("name").value;
+      newCoupon.desc = getById("couponDescription").value;
+      newCoupon.count = getById("count").value;
 
       // If not yet saved, just discards without secondary confirmation.
       if (!helper.isSameObject(blankCoupon, newCoupon)) {
@@ -235,7 +234,7 @@ function plusButton() {
     });
 
     $("#createButton").unbind().click(function() {
-        var name = helper.getById("name").value;
+        var name = getById("name").value;
         if (nameAlreadyExists(name)) {
           newNameWarning();
         } else if (couponFormIsValid()) {
@@ -245,7 +244,7 @@ function plusButton() {
 
           SimpleNotification.success({
             text: 'Created coupon'
-          }, globalVars.notificationOptions);
+          }, notificationOptions);
         }
     });
   });
@@ -257,7 +256,7 @@ function plusButton() {
 function editBookButton() {
   $("#editBook").unbind().click(function() {
     helper.fadeBetweenElements("#bookContent", "#bookForm");
-    newPreviousBook = helper.clone(globalVars.book);
+    newPreviousBook = helper.clone(book);
     showProperButton("editBook");
 
     // Below the above setters so previous value doesn't change descLength
@@ -268,9 +267,9 @@ function editBookButton() {
     $('#save').unbind().click(function() {
       if (bookFormIsValid() && editBookDetails()) {
         // Update the global book with the data in the fields
-        globalVars.book.image       = helper.getById("bookImage").src;
-        globalVars.book.name        = helper.getById("bookName").value;
-        globalVars.book.description = helper.getById("bookDescription").value;
+        book.image       = getById("bookImage").src;
+        book.name        = getById("bookName").value;
+        book.description = getById("bookDescription").value;
 
         // Saves the edits from the page immediately
         development ? updateTemplate(true) : updateBook(true);
@@ -293,7 +292,7 @@ function editBookButton() {
  */
 function imageUploadListeners(coupon) {
   // TODO: Add option to reset image to present
-  var imageToUpdate = !!coupon ? helper.getById("couponImage") : helper.getById("bookImage");
+  var imageToUpdate = !!coupon ? getById("couponImage") : getById("bookImage");
   var bytes = require('bytes');
   var args = {
       'selectMode': 100,
@@ -396,14 +395,14 @@ function uploadImage(updatedImage, coupon) {
   var timestamp = Math.floor(Date.now() / 1000);
 
   // https://support.cloudinary.com/hc/en-us/community/posts/360030104392/comments/360002948811
-  if (development && !globalVars.book.bookId) {
+  if (development && !book.bookId) {
     // TODO: Figure out how to view all images in parent folder, so it's essentially
     // metadata but in the location name
     console.log("TEMPLATE folder for image upload!");
-    var folder = "templates/" + (!!coupon ? "coupons" : "books") + "/" + globalVars.book.name;
+    var folder = "templates/" + (!!coupon ? "coupons" : "books") + "/" + book.name;
   } else {
     console.log("USER folder for image upload!");
-    var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + globalVars.book.bookId;
+    var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + book.bookId;
   }
 
   // Add in the params required for Cloudinary
@@ -441,7 +440,7 @@ function uploadImage(updatedImage, coupon) {
 
       // TODO: make it work for coupons automatically too, or save the image uploading for save button
       if (!coupon) {
-        globalVars.book.image = response.secure_url;
+        book.image = response.secure_url;
         updateBook();
       }
     }, 
@@ -469,13 +468,13 @@ function addListeners() {
 
   // Will give users the chance again to share their code
   $("#shareCodePreview").unbind().click(function() {
-    globalVars._this.redirectTo('/shareCode');
+    _this.redirectTo('/shareCode');
   });
 
   // Populate the fields for editing and to help with bookBackButtonListener
-  helper.getById("bookImage").src         = globalVars.book.image;
-  helper.getById("bookName").value        = globalVars.book.name;
-  helper.getById("bookDescription").value = globalVars.book.description;
+  getById("bookImage").src         = book.image;
+  getById("bookName").value        = book.name;
+  getById("bookDescription").value = book.description;
   
   bookBackButtonListener();
   createBookButton();
@@ -496,7 +495,7 @@ function createCouponElements() {
     // should changing display preference permenantly update the order?
     // Option to hide coupons with 0 count; display 3 to a row 
 
-  $.each(globalVars.book.coupons, function(couponNumber, coupon) {
+  $.each(book.coupons, function(couponNumber, coupon) {
       var node = document.createElement('div');
       node.setAttribute("class", "couponPreview");
       node.innerHTML += `<img class='couponImage' onerror='imageError(this)' src='${coupon.image}' />`;
@@ -504,7 +503,7 @@ function createCouponElements() {
       node.innerHTML += `<p class='couponCount'>${coupon.count} remaining</p>`;
       $(node).data("coupon", coupon);
       $(node).data("couponNumber", couponNumber);
-      helper.getById("bookContent").appendChild(node);
+      getById("bookContent").appendChild(node);
 
       addCouponListeners(node);
   });
@@ -550,7 +549,7 @@ function showCouponPreview($this) {
         // new template. Error message: "Failed to execute 'appendChild' on 
         // 'Node': parameter 1 is not of type 'Node'.
         var couponNumber = $($this).data("couponNumber");
-        globalVars.book.coupons.splice(couponNumber, 1);
+        book.coupons.splice(couponNumber, 1);
         development ? updateTemplate() : updateBook();
         
         displayBook();
@@ -568,9 +567,9 @@ function showCouponPreview($this) {
 
   // Updates preview fields with actual coupon's data
   var coupon = $($this).data("coupon");
-  helper.getById("imgPreview").src        = coupon.image;
-  helper.getById("namePreview").innerText = `${coupon.name}: ${coupon.count}`;
-  helper.getById("descPreview").innerText = coupon.description;
+  getById("imgPreview").src        = coupon.image;
+  getById("namePreview").innerText = `${coupon.name}: ${coupon.count}`;
+  getById("descPreview").innerText = coupon.description;
 }
 
 /**
@@ -582,17 +581,17 @@ function showCouponEditPage($this) {
   preventInvalidNumberInput();
 
   var coupon = $($this).data("coupon");
-  helper.getById("couponImage").src         = coupon.image;
-  helper.getById("name").value              = coupon.name;
-  helper.getById("couponDescription").value = coupon.description;
-  helper.getById("count").value             = coupon.count;
+  getById("couponImage").src         = coupon.image;
+  getById("name").value              = coupon.name;
+  getById("couponDescription").value = coupon.description;
+  getById("count").value             = coupon.count;
 
   imageUploadListeners(coupon);
   limitDescriptionLength();
 
   // Override the default nav listener code
   var homeButtonClicked = false;
-  var mobile = helper.getBySelector("#mobile");
+  var mobile = getBySelector("#mobile");
   $(mobile).unbind().click(function() {
     homeButtonClicked = true;
     $('#backArrow').click();
@@ -601,10 +600,10 @@ function showCouponEditPage($this) {
   $('#backArrow').unbind().click(function() {
     // For comments, see function in plusButton()
     var newCoupon = {};
-    newCoupon.image = helper.getById("couponImage").src;
-    newCoupon.name = helper.getById("name").value;
-    newCoupon.description = helper.getById("couponDescription").value;
-    newCoupon.count = parseInt(helper.getById("count").value);
+    newCoupon.image = getById("couponImage").src;
+    newCoupon.name = getById("name").value;
+    newCoupon.description = getById("couponDescription").value;
+    newCoupon.count = parseInt(getById("count").value);
 
     if (!helper.isSameObject(coupon, newCoupon)) {
       function onConfirm(buttonIndex) {
@@ -626,7 +625,7 @@ function showCouponEditPage($this) {
     }
 
     function confirmFunction() {
-      homeButtonClicked ? globalVars._this.redirectTo('/dashboard') : showCouponPreview($this);
+      homeButtonClicked ? _this.redirectTo('/dashboard') : showCouponPreview($this);
     }
   });
 
@@ -647,7 +646,7 @@ function showCouponEditPage($this) {
  * @param {boolean} isBook - true for book, false for coupon
  */
 function limitDescriptionLength(isBook) {
-  var desc = isBook ? helper.getById("bookDescription") : helper.getById("couponDescription");
+  var desc = isBook ? getById("bookDescription") : getById("couponDescription");
   var descLength = isBook ? $("#bookDescLength") : $("#couponDescLength");
   var maxlen = desc.getAttribute('maxlength');
 
@@ -694,7 +693,7 @@ function limitDescriptionLength(isBook) {
  */
 function updateHeight(isBook) {
   // https://gomakethings.com/automatically-expand-a-textarea-as-the-user-types-using-vanilla-javascript/
-  var field = isBook ? helper.getById("bookDescription") : helper.getById("couponDescription");
+  var field = isBook ? getById("bookDescription") : getById("couponDescription");
 
   // Reset field height
   field.style.height = 'inherit';
@@ -727,7 +726,7 @@ function updateHeight(isBook) {
  */
 function preventInvalidNumberInput() {
   // Select your input element.
-  var count = helper.getById("count");
+  var count = getById("count");
 
   // https://stackoverflow.com/a/24271309/6456163
   $('#count').on('keyup', function(e) {
@@ -792,19 +791,19 @@ function addDeleteListeners() {
  * be used for analytics.
  */
 function deleteBook() {
-  var bookId = globalVars.book.bookId;
+  var bookId = book.bookId;
   if (bookId) {
     console.warn("Deleting book...");
     $.ajax({
       type: "POST",
-      url: "http://www.couponbooked.com/scripts/deleteBook",
-      data: { bookId: globalVars.book.bookId },
+      url: "https://www.couponbooked.com/scripts/deleteBook",
+      data: { bookId: book.bookId },
       crossDomain: true,
       cache: false,
       success: function(success) {
         SimpleNotification.success({
           text: "Successfully deleted book"
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.error("Error in deleteBook: ", XMLHttpRequest.responseText);
@@ -812,7 +811,7 @@ function deleteBook() {
         SimpleNotification.error({
           title: "Error deleting coupon book!",
           text: "Please try again later."
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       }
     });
   } else {
@@ -841,12 +840,12 @@ function createCoupon() {
 
   // Replace Android full URL with a cross-platform local one
   //var cloudGiftUrl = "https://res.cloudinary.com/couponbooked/image/upload/v1580314462/gift_rshjui.png";
-  var imageSrc = helper.getById("couponImage").src;
+  var imageSrc = getById("couponImage").src;
   coupon.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
 
   // Name already validated before this function is called so
   // no need to do it again.
-  globalVars.book.coupons.push(coupon);
+  book.coupons.push(coupon);
   development ? updateTemplate(true) : updateBook(true);
   displayBook();
 }
@@ -863,7 +862,7 @@ function updateCoupon(oldCoupon, $this) {
   var form = $('#couponForm').serializeArray();
 
   var newCoupon = {};
-  newCoupon.image = helper.getById("couponImage").src;
+  newCoupon.image = getById("couponImage").src;
   for (var i = 0; i < form.length; i++) {
     newCoupon[form[i].name] = form[i].value;
   }
@@ -872,7 +871,7 @@ function updateCoupon(oldCoupon, $this) {
   newCoupon.count = parseInt(newCoupon.count);
   
   // Replace Android full URL with a cross-platform local one
-  var imageSrc = helper.getById("couponImage").src;
+  var imageSrc = getById("couponImage").src;
   newCoupon.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
 
   //uploadImage(newCoupon.image, newCoupon);
@@ -885,12 +884,12 @@ function updateCoupon(oldCoupon, $this) {
         newNameWarning();
       } else {
         // Iterate over coupons until the one with the previous name is found
-        $.each(globalVars.book.coupons, function(couponNumber, coupon) {
+        $.each(book.coupons, function(couponNumber, coupon) {
           if (coupon.name == oldName) {
             // TODO: Check for special character support, i.e. other languages;
               // also in editBookDetails
             coupon = newCoupon;
-            globalVars.book.coupons[couponNumber] = newCoupon;
+            book.coupons[couponNumber] = newCoupon;
       
             $($this).data("coupon", newCoupon);
             displayBook();
@@ -904,7 +903,7 @@ function updateCoupon(oldCoupon, $this) {
 
             SimpleNotification.success({
               text: "Updated coupon"
-            }, globalVars.notificationOptions);
+            }, notificationOptions);
           }
         });
       }
@@ -915,7 +914,7 @@ function updateCoupon(oldCoupon, $this) {
     // Lie to user so they don't get confused
     SimpleNotification.success({
       text: "Updated coupon"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   }
 }
 
@@ -924,28 +923,28 @@ function updateCoupon(oldCoupon, $this) {
  * @returns {boolean} whether or not the form is valid
  */
 function couponFormIsValid() {
-  var name = helper.getById("name").value;
-  var count = helper.getById("count").value;
+  var name = getById("name").value;
+  var count = getById("count").value;
 
   // Validate that form is filled out properly
   if (name.length < 1) {
     // No name
     SimpleNotification.warning({
       text: "Please enter a name"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   } else if (name.length > 99) {
     // Name too long
     SimpleNotification.warning({
       title: "Name too long",
       text: "Please enter a shorter name"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   } else if (isNaN(count) || count < 1 || count > 99) {
     // NOTE: This is legacy code that shouldn't ever run, but leaving
     // it here in case it solves some edge case issue.
     SimpleNotification.warning({
       title: "Invalid count entered",
       text: "Please enter a number between 1 and 99"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   } else {
     return true;
   }
@@ -961,9 +960,9 @@ function couponFormIsValid() {
  * @returns {boolean} whether or not the form is valid
  */
 function bookFormIsValid() {
-  var image = helper.getById("bookImage");
-  var name = helper.getById("bookName").value;
-  var desc = helper.getById("bookDescription").value;
+  var image = getById("bookImage");
+  var name = getById("bookName").value;
+  var desc = getById("bookDescription").value;
 
   // Validate that form is filled out properly
   if (!image) {
@@ -972,18 +971,18 @@ function bookFormIsValid() {
   } else if (name.length < 1) {
     SimpleNotification.warning({
       text: "Please enter a name"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   } else if (name.length > 99) {
     SimpleNotification.warning({
       title: "Name too long",
       text: "Please enter a shorter name"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   } else if (desc.length > 280) {
     // TODO: Give an indication of characters used 
     // out of total allowed, like a textArea. Switch?
     SimpleNotification.warning({
       text: "Please enter a shorter description"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   } else {
     return true;
   }
@@ -999,13 +998,13 @@ function bookFormIsValid() {
 function showProperButton(currentPage) {
   console.warn(`showProperButton for ${currentPage}`);
 
-  if ((currentPage == "home" && !globalVars.book.bookId && !development) || currentPage == "newCoupon") {
+  if ((currentPage == "home" && !book.bookId && !development) || currentPage == "newCoupon") {
     // displayBook called last and book not yet created, or a new coupon
     // is being created by the user
     helper.fadeBetweenElements("#save, #delete, #share", "#createButton", true);
   } else if (currentPage == "home") {
     // Book already created but still on displayBook page
-    var showShareButton = !globalVars.book.receiver && !globalVars.book.shareCode && globalVars.book.bookId;
+    var showShareButton = !book.receiver && !book.shareCode && book.bookId;
     helper.fadeBetweenElements("#createButton, #save, #delete", showShareButton ? "#share" : null, true);
   } else if (currentPage == "editBook" || currentPage == "editCoupon") {
     // Save edits to book or coupon;
@@ -1027,13 +1026,13 @@ function createBook() {
   // IDEA: Option to update sender name before sharing; allows
   // for another level of personalization with nicknames.
   var senderName = helper.getUserName();
-  globalVars.book.bookId = uuid;
-  globalVars.book.hide = 0;
+  book.bookId = uuid;
+  book.hide = 0;
 
   $.ajax({
     type: "POST",
-    url: "http://www.couponbooked.com/scripts/createBook",
-    data: { bookId: uuid, sender: sender, senderName: senderName, bookData: JSON.stringify(globalVars.book) },
+    url: "https://www.couponbooked.com/scripts/createBook",
+    data: { bookId: uuid, sender: sender, senderName: senderName, bookData: JSON.stringify(book) },
     crossDomain: true,
     dataType: "html",
     cache: false,
@@ -1046,11 +1045,11 @@ function createBook() {
         createBook();
       } else {
         // Updates the "Create to share" text to the Stripe button on first save 
-        globalVars._this.redirectTo('/sentBook');
+        _this.redirectTo('/sentBook');
         
         SimpleNotification.success({
           text: "Successfully created book"
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -1059,7 +1058,7 @@ function createBook() {
       SimpleNotification.error({
         title: "Error creating book!",
         text: "Please try again later."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
     }
   });
 }
@@ -1070,29 +1069,29 @@ function createBook() {
  * Not the best function name, so sorry, but it is what it is.
  */
 function editBookDetails() {
-  var oldBook = helper.clone(globalVars.book);
+  var oldBook = helper.clone(book);
 
   // Replace Android full URL with a cross-platform local one
-  var imageSrc = helper.getById("bookImage").src;
+  var imageSrc = getById("bookImage").src;
   oldBook.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
 
-  oldBook.name        = helper.getById("bookName").value;
-  oldBook.description = helper.getById("bookDescription").value;
+  oldBook.name        = getById("bookName").value;
+  oldBook.description = getById("bookDescription").value;
 
-  if (!helper.isSameObject(globalVars.book, oldBook)) {
+  if (!helper.isSameObject(book, oldBook)) {
       SimpleNotification.success({
         text: development ? "Updated template" : "Updated book"
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
 
       return true;
   } else {
     console.warn("Book info not modified. Returning...");
-    globalVars.book = helper.clone(oldBook); // Restore to previous state
+    book = helper.clone(oldBook); // Restore to previous state
 
     // Lie to user so they don't get confused
     SimpleNotification.success({
       text: development ? "Updated template" : "Updated book"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
 
     return false;
   }
@@ -1110,27 +1109,27 @@ function updateBook(silent) {
   // TODO: Implement checking like this if it doesn't already exist,
   // or a silent alternative so they aren't bothered and neither is the server:
   /*
-    !helper.isSameObject(globalVars.book, globalVars.previousBook)
+    !helper.isSameObject(book, previousBook)
     // Book hasn't been modified
     SimpleNotification.info({
       text: "You haven't changed anything!"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   */
 
   $.ajax({
     type: "POST",
-    url: "http://www.couponbooked.com/scripts/updateData",
-    data: { bookId: globalVars.book.bookId, bookData: JSON.stringify(globalVars.book) },
+    url: "https://www.couponbooked.com/scripts/updateData",
+    data: { bookId: book.bookId, bookData: JSON.stringify(book) },
     crossDomain: true,
     cache: false,
     success: function(success) {
-      globalVars.previousBook = helper.clone(globalVars.book);
+      previousBook = helper.clone(book);
       console.warn("Successfully updated coupon book.");
 
       if (!silent) {
         SimpleNotification.success({
           text: "Successfully updated coupon book"
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -1144,7 +1143,7 @@ function updateBook(silent) {
         // Would make them awfully long but seems like a professional thing to do.
         title: "Error updating coupon book!",
         text: "Please try again later."
-      }, globalVars.notificationOptions);
+      }, notificationOptions);
     }
   });
 }
@@ -1156,7 +1155,7 @@ function updateBook(silent) {
 function nameAlreadyExists(name) {
   // Makes sure new name doesn't already exist
   var nameAlreadyExists = false;
-  $.each(globalVars.book.coupons, function(couponNumber, coupon) {
+  $.each(book.coupons, function(couponNumber, coupon) {
     if (coupon.name == name) {
       nameAlreadyExists = true;
     }
@@ -1174,31 +1173,31 @@ function updateTemplate(silent) {
   // TODO: Implement checking like this if it doesn't already exist,
   // or a silent alternative so they aren't bothered and neither is the server:
   /*
-    !helper.isSameObject(globalVars.book, globalVars.previousBook)
+    !helper.isSameObject(book, previousBook)
     // Template hasn't been modified
     SimpleNotification.info({
       title: "Development mode",
       text: "You haven't changed anything!"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   */
 
   var userId = localStorage.getItem("user_id");
 
   $.ajax({
     type: "POST",
-    url: "http://www.couponbooked.com/scripts/updateTemplate",
-    data: { name: globalVars.book.name.toLowerCase(), templateData: JSON.stringify(globalVars.book), userId: userId },
+    url: "https://www.couponbooked.com/scripts/updateTemplate",
+    data: { name: book.name.toLowerCase(), templateData: JSON.stringify(book), userId: userId },
     crossDomain: true,
     dataType: "html",
     cache: false,
     success: function(success) {
       if (success) console.warn("updateTemplate success:", success);
-      globalVars.previousBook = helper.clone(globalVars.book);
+      previousBook = helper.clone(book);
 
       if (!silent) {
         SimpleNotification.success({
           text: "Successfully updated template"
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -1210,13 +1209,13 @@ function updateTemplate(silent) {
         SimpleNotification.error({
           title: "Unauthorized template update",
           text: "Your violation has been logged."
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       } else {
         // Generic error
         SimpleNotification.error({
           title: "Error updating template",
           text: "Please try again later."
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       }
     }
   });
@@ -1229,7 +1228,7 @@ function newNameWarning() {
   SimpleNotification.warning({
     title: "Already used this name",
     text: "Please enter a unique name."
-  }, globalVars.notificationOptions);
+  }, notificationOptions);
 }
 
 // NOTE: Functions needed outside this file are listed here.

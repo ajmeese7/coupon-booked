@@ -1,12 +1,10 @@
 const env = require('../js/env');
-var helper = require('./helperFunctions.js');
-var globalVars = require('./globalVars.js');
 
 /**
  * Displays the UI for the current received book.
  */
 function displayBook() {
-  var bookContent = helper.getById("bookContent");
+  var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
   bookContent.innerHTML = "";
@@ -14,21 +12,21 @@ function displayBook() {
   // Dynamically create preview of book at top of display
   var miniPreview = document.createElement('div');
   miniPreview.setAttribute("id", "miniPreview");
-  miniPreview.innerHTML += `<img id='miniPreviewImage' onerror='imageError(this)' src='${globalVars.book.image}' />`;
+  miniPreview.innerHTML += `<img id='miniPreviewImage' onerror='imageError(this)' src='${book.image}' />`;
 
   var previewText = document.createElement('div');
   previewText.setAttribute("id", "previewText");
-  previewText.innerHTML += `<h4>${globalVars.book.name}</h4>`;
+  previewText.innerHTML += `<h4>${book.name}</h4>`;
 
   var senderText = "<p class='senderText'>";
-  senderText += globalVars.book.sender ? `Sent from ${globalVars.book.sender}` : "Sender unavailable";
+  senderText += book.sender ? `Sent from ${book.sender}` : "Sender unavailable";
   senderText += "</p>";
   previewText.innerHTML += senderText;
   miniPreview.appendChild(previewText);
 
   // NOTE: These images provided by FontAwesome
   var hideImg = "<img id='hideBook' class='filter-black' src='images/eye-";
-  hideImg += (globalVars.book.hide ? "slash-" : "") + "regular.svg' />";
+  hideImg += (book.hide ? "slash-" : "") + "regular.svg' />";
   miniPreview.innerHTML += hideImg;
   
   bookContent.appendChild(miniPreview);
@@ -43,26 +41,26 @@ function displayBook() {
 function bookListeners() {
   $('#backArrow').unbind().click(function() {
     // NOTE: previousBook probably isn't needed here, but better safe than dead
-    globalVars.previousBook = null;
-    globalVars.book = null;
-    globalVars._this.redirectTo("/dashboard");
+    previousBook = null;
+    book = null;
+    _this.redirectTo("/dashboard");
   });
 
   $('#hideBook').unbind().click(function() {
-    var newHideStatus = globalVars.book.hide ? 0 : 1;
+    var newHideStatus = book.hide ? 0 : 1;
     $(this).attr('src', "images/eye-" + (newHideStatus ? "slash-" : "") + "regular.svg");
-    globalVars.book.hide = newHideStatus;
+    book.hide = newHideStatus;
 
     $.ajax({
       type: "POST",
-      url: "http://www.couponbooked.com/scripts/changeHiddenStatus",
-      data: { bookData: JSON.stringify(globalVars.book), hide: newHideStatus, bookId: globalVars.book.bookId },
+      url: "https://www.couponbooked.com/scripts/changeHiddenStatus",
+      data: { bookData: JSON.stringify(book), hide: newHideStatus, bookId: book.bookId },
       crossDomain: true,
       cache: false,
       success: function(success) {
         // NOTE: UI to display hidden books will be implemented when I add the sorting button
         // that allows you to do custom w/ dragging, alphabetical, newest, ect.
-        if (globalVars.book.hide) {
+        if (book.hide) {
           console.warn("Book is now hidden.");
         } else {
           console.warn("Book no longer hidden.");
@@ -72,7 +70,7 @@ function bookListeners() {
         // Also, how do you see hidden books to unhide?
         /*SimpleNotification.success({
           text: "Successfully hid book"
-        }, globalVars.notificationOptions);*/
+        }, notificationOptions);*/
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.error("Error hiding book:", XMLHttpRequest.responseText);
@@ -82,7 +80,7 @@ function bookListeners() {
         SimpleNotification.warning({
           title: "Error hiding book",
           text: "Please try again later."
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       }
     });
   });
@@ -103,7 +101,7 @@ function createCouponElements() {
     // should changing display preference permenantly update the order?
     // Option to hide coupons with 0 count; display 3 to a row
 
-  $.each(globalVars.book.coupons, function(couponNumber, coupon) {
+  $.each(book.coupons, function(couponNumber, coupon) {
       var node = document.createElement('div');
       node.setAttribute("class", "couponPreview");
       node.innerHTML += `<img class='couponImage' onerror='imageError(this)' src='${coupon.image}' />`;
@@ -111,7 +109,7 @@ function createCouponElements() {
       node.innerHTML += `<p class='couponCount'>${coupon.count} remaining</p>`;
       $(node).data("coupon", coupon);
       $(node).data("couponNumber", couponNumber);
-      helper.getById("bookContent").appendChild(node);
+      getById("bookContent").appendChild(node);
 
       addCouponListeners(node);
   });
@@ -132,9 +130,9 @@ function addCouponListeners(node) {
 
     // Updates preview fields with actual coupon's data
     var coupon = $(this).data("coupon");
-    helper.getById("imgPreview").src        = coupon.image;
-    helper.getById("namePreview").innerText = `${coupon.name}: ${coupon.count}`;
-    helper.getById("descPreview").innerText = coupon.description;
+    getById("imgPreview").src        = coupon.image;
+    getById("namePreview").innerText = `${coupon.name}: ${coupon.count}`;
+    getById("descPreview").innerText = coupon.description;
 
     // This is here to pass current coupon to redeemCoupon().
     $('#redeemCoupon').unbind().click(function() {
@@ -173,8 +171,8 @@ function redeemCoupon(coupon) {
     var userId = localStorage.getItem("user_id");
     $.ajax({
       type: "POST",
-      url: "http://www.couponbooked.com/scripts/redeemCoupon",
-      data: { bookId: globalVars.book.bookId, userId: userId, couponName: coupon.name },
+      url: "https://www.couponbooked.com/scripts/redeemCoupon",
+      data: { bookId: book.bookId, userId: userId, couponName: coupon.name },
       crossDomain: true,
       cache: false,
       success: function(success) {
@@ -192,7 +190,7 @@ function redeemCoupon(coupon) {
         SimpleNotification.error({
           title: "Error redeeming coupon!",
           text: "Please try again later."
-        }, globalVars.notificationOptions);
+        }, notificationOptions);
       }
     });
   } else {
@@ -204,7 +202,7 @@ function redeemCoupon(coupon) {
       title: "No coupons remaining",
       text: "Try something else or ask for more!"
       // TODO: Decide if this should be an option / how to do
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   }
 }
 
@@ -271,7 +269,7 @@ function notificationSuccess(successResponse, coupon) {
   console.warn("Notification post success:", successResponse);
   SimpleNotification.success({
     text: "Successfully redeemed coupon"
-  }, globalVars.notificationOptions);
+  }, notificationOptions);
 }
 
 /**
@@ -291,12 +289,12 @@ function notificationError(failedResponse, coupon) {
     console.log("User no longer exists!");
     SimpleNotification.error({
       text: "User no longer exists!"
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   } else {
     SimpleNotification.error({
       title: "Error redeeming coupon",
       text: "Please try again later."
-    }, globalVars.notificationOptions);
+    }, notificationOptions);
   }
 }
 
@@ -311,8 +309,8 @@ function refundCoupon(couponName) {
   
   $.ajax({
     type: "POST",
-    url: "http://www.couponbooked.com/scripts/refundCoupon",
-    data: { bookId: globalVars.book.bookId, userId: userId, couponName: couponName },
+    url: "https://www.couponbooked.com/scripts/refundCoupon",
+    data: { bookId: book.bookId, userId: userId, couponName: couponName },
     crossDomain: true,
     cache: false,
     success: function(success) {
@@ -325,7 +323,7 @@ function refundCoupon(couponName) {
       /*SimpleNotification.error({
         title: "Error refunding coupon",
         text: "Please report this issue."
-      }, globalVars.notificationOptions);*/
+      }, notificationOptions);*/
     }
   });
 }
