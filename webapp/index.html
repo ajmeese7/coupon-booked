@@ -6,18 +6,11 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Good default declaration:
-    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-        * Enable inline JS: add 'unsafe-inline' to default-src
-        * Enable eval(): add 'unsafe-eval' to default-src
-    * Create your own at http://cspisawesome.com
-    -->
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com http://*.couponbooked.com https://onesignal.com/api/v1/notifications https://cdn.onesignal.com/sdks/OneSignalSDK.js; default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com; style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
 
-    <!-- https://auth0.com/docs/quickstart/native/cordova/01-login;
-        used this to change from single page web app to native -->
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/notifications; 
+        default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://cdn.onesignal.com https://onesignal.com https://cdn.auth0.com; 
+        style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
+    
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
     <link rel="stylesheet" type="text/css" href="css/auth0-theme.min.css" />
@@ -33,6 +26,20 @@
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <link rel="manifest" href="images/site.webmanifest">
+
+    <!-- Copied from OneSignal website -->
+    <!-- TODO: Find a way to prevent my adblocker from blocking this, and to allow
+        it through the security policy. Test new method with blocker!! -->
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script src="https://cdn.auth0.com/js/auth0/9.13.0/auth0.min.js"></script>
+    <script>
+        var OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.init({
+                appId: "40029422-22e0-4569-9d55-8b6604ce2503",
+            });
+        });
+    </script>
 
     <title>Coupon Booked</title>
 </head>
@@ -453,10 +460,9 @@
         </defs>
     </svg>
 
-    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async></script>
-    <script>var OneSignal = OneSignal || [];</script>
-    <script src="src/index.js"></script>
-
+    <script src="src/globalVars.js"></script>
+    <script src="src/helperFunctions.js"></script>
+    <script src="src/index.js" type="module"></script>
     <script src="js/jquery.min.js"></script>
     <script src="js/materialize.js"></script>
     <script src="js/simpleNotification.min.js"></script>

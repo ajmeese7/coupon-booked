@@ -1,22 +1,10 @@
-// Node modules that aren't typically supported outside of Node.
-// Hoping Browserify will let me cheat a little here.
-const request = require('request');
-const Auth0 = require('auth0-js');
-//const Auth0Cordova = require('@auth0/cordova');
+// Starts the app when called in index.js
+export function App() {
+  console.warn("Inside App()...");
 
-// Other files that are a part of the project
-const env = require('../js/env');
-var sent = require('./sentBooks.js');
-var received = require('./receivedBooks.js');
-var share = require('./shareBook.js');
-var helper = require('./helperFunctions.js');
-var globalVars = require('./globalVars.js');
-
-function App() {
-  // TODO: Extrapolate this to a web interface
-  this.auth0 = new Auth0.Authentication({
-    domain: env.AUTH0_DOMAIN,
-    clientID: env.AUTH0_CLIENT_ID
+  this.auth0 = new auth0.Authentication({
+    domain: "couponbooked.auth0.com",
+    clientID: "6XFstRMqF3LN5h24Tooi22h1BMHCdnjh"
   });
 
   this.login = this.login.bind(this);

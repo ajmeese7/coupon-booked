@@ -1,14 +1,16 @@
-//var Auth0Cordova =  require('@auth0/cordova');
-var App = require('./App');
+// Lets me initialize the entire backend
+import { App } from './App';
 
-// TODO: Get rid of this and replace it with something actually secure;
+// TODO: Get rid of env.js and replace it with something actually secure;
 // https://stackoverflow.com/a/20476846/6456163
-const env = require('../js/env');
 
 $(function() {
     console.warn("Page is ready...");
     onesignalNotifications();
 
+    var app = new App();
+    app.run('#app');
+    
     // Need to figure out if I want some kind of animation for web or not
     /*if (!localStorage.getItem("start_animation")) {
         console.warn("Initially setting animation to true...");
@@ -23,16 +25,9 @@ function onesignalNotifications() {
     // TODO: Is there a way to handle if the user refuses?
         // IDEA: Could email or some shit?
     OneSignal.push(function() {
-        // TODO: Fiddle with this
         OneSignal.showNativePrompt();
-        console.log("OneSignal initialized?");
+        console.warn("OneSignal initialized...");
     });
-
-    // TODO: Convert!
-    OneSignal.push(["init", {
-        appId: env.ONESIGNAL_ID,
-        // Your other init settings
-    }]);
 
     // IDEA: https://documentation.onesignal.com/docs/create-an-activity-feed
     //window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});

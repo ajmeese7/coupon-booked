@@ -1,5 +1,3 @@
-const env = require('../js/env');
-
 /**
  * Displays the UI for the current received book.
  */
