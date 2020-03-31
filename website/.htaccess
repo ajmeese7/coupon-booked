@@ -14,3 +14,8 @@ RewriteCond %{THE_REQUEST} /([^.]+)\.html [NC]
 RewriteRule ^ /%1 [NC,L,R]
 RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^ %{REQUEST_URI}.html [NC,L]
+
+#https://stackoverflow.com/a/39668584/6456163
+SetEnvIf Origin "http(s)?://(.+\.)?couponbooked\.com(:\d{1,5})?$" CORS=$0
+Header set Access-Control-Allow-Origin "%{CORS}e" env=CORS
+Header merge  Vary "Origin"
