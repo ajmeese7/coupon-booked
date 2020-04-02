@@ -1,7 +1,7 @@
 /**
  * Displays the UI for the current received book.
  */
-function displayBook() {
+function displayReceivedBook() {
   var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
@@ -109,7 +109,7 @@ function createCouponElements() {
       $(node).data("couponNumber", couponNumber);
       getById("bookContent").appendChild(node);
 
-      addCouponListeners(node);
+      sentCouponListeners(node);
   });
 }
 
@@ -117,13 +117,13 @@ function createCouponElements() {
  * Displays the coupon's info when the card is clicked.
  * @param {object} node - the element on the page with the coupon's data attached
  */
-function addCouponListeners(node) {
+function sentCouponListeners(node) {
   $(node).unbind().click(function() {
-    helper.fadeBetweenElements("#bookContent", "#couponPreview");
+    fadeBetweenElements("#bookContent", "#couponPreview");
 
       $('#backArrow').unbind().click(function() {
-        helper.fadeBetweenElements("#couponPreview", "#bookContent");
-        displayBook();
+        fadeBetweenElements("#couponPreview", "#bookContent");
+        displayReceivedBook();
       });
 
     // Updates preview fields with actual coupon's data
@@ -211,7 +211,7 @@ function redeemCoupon(coupon) {
  * @param {element} coupon - the coupon element that is being redeemed
  */
 function notifySender(senderId, coupon) {
-  var title = `${helper.getUserName()} redeemed \"${coupon.name}!\"`;
+  var title = `${getUserName()} redeemed \"${coupon.name}!\"`;
   var message = `${coupon.description}`; // IDEA: Current count or something?
   var notificationObj = { app_id : env.ONESIGNAL_ID,
                           headings: {en: title},
@@ -262,7 +262,7 @@ var sendNotification = function(data, coupon) {
 function notificationSuccess(successResponse, coupon) {
   // PHP updated it on the server, this just does it locally and avoids another request
   coupon.count--;
-  displayBook();
+  displayReceivedBook();
 
   console.warn("Notification post success:", successResponse);
   SimpleNotification.success({
@@ -328,5 +328,5 @@ function refundCoupon(couponName) {
 
 // NOTE: Functions needed outside this file are listed here.
 module.exports = Object.assign({
-  displayBook
+  displayReceivedBook
 });

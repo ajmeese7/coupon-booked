@@ -1,5 +1,3 @@
-var sent = require('./sentBooks.js');
-
 /**
  * Adds Google Play support to the share button
  * with native in-app purchases.
@@ -117,7 +115,7 @@ function createShareCode() {
  */
 function shareCode() {
   var options = {
-    // TODO: Display sender name in message -> helper.getUserName()
+    // TODO: Display sender name in message -> getUserName()
     subject: "You've been Coupon Booked!", // for email
     message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${book.shareCode}`
   };
@@ -133,11 +131,3 @@ function shareCode() {
   // https://css-tricks.com/how-to-use-the-web-share-api/
   //window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
 }
-
-// NOTE: Functions needed outside this file are listed here.
-module.exports = Object.assign({
-  shareButtonListeners,
-  shareCode,
-  ID_LENGTH,
-  ALPHABET
-});

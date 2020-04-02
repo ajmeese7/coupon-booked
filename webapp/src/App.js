@@ -2,9 +2,10 @@
 export function App() {
   console.warn("Inside App()...");
 
-  this.auth0 = new auth0.Authentication({
+  this.auth0 = new auth0.WebAuth({
     domain: "couponbooked.auth0.com",
-    clientID: "6XFstRMqF3LN5h24Tooi22h1BMHCdnjh"
+    clientID: "6XFstRMqF3LN5h24Tooi22h1BMHCdnjh",
+    packageIdentifier: "com.couponbooked.app"
   });
 
   this.login = this.login.bind(this);
@@ -90,7 +91,7 @@ App.prototype.state = {
         // templates to be retrieved
         this.container.appendChild(loadingIcon);
         $("#loader").css("display", "inline-block");
-        helper.fadeBetweenElements("#gestureZone, #templateContainer", "", true);
+        fadeBetweenElements("#gestureZone, #templateContainer", "", true);
         getAllTemplates();
       }
     },
@@ -101,7 +102,7 @@ App.prototype.state = {
         _this = this;
         navBar();
 
-        sent.displayBook();
+        displaySentBook();
         share.shareButtonListeners();
         darkModeSupport();
       }
@@ -113,7 +114,7 @@ App.prototype.state = {
         _this = this;
         navBar();
 
-        received.displayBook();
+        displayReceivedBook();
         darkModeSupport();
       }
     },
@@ -126,7 +127,7 @@ App.prototype.state = {
 
         if (showLoadingIcon) {
           this.container.appendChild(loadingIcon);
-          helper.fadeBetweenElements("#gestureZone", "", true);
+          fadeBetweenElements("#gestureZone", "", true);
         }
         pullUserRelatedBooks();
 
@@ -458,7 +459,7 @@ function processTemplates(data) {
 
     $(node).unbind().click(function() {
       book = $(node).data("templateData");
-      previousBook = helper.clone(book);
+      previousBook = clone(book);
       _this.redirectTo('/sentBook');
     });
   });
@@ -547,7 +548,7 @@ function hideLoadingIcon(templatesPage) {
   showLoadingIcon = false;
   
   setTimeout(function() {
-    helper.fadeBetweenElements("#loader", "#gestureZone, #templateContainer");
+    fadeBetweenElements("#loader", "#gestureZone, #templateContainer");
   }, templatesPage ? 750 : 950);
 }
 
@@ -623,7 +624,7 @@ function addBookListeners(node) {
     book = $(this).data("bookData");
     book.receiver = $(this).data("receiver");
     book.sender = $(this).data("sender");
-    previousBook = helper.clone(book);
+    previousBook = clone(book);
 
     // TODO: Add some kind of delay to give content time to load in;
     // IDEA: begin fading #app out, redirect, and start fading new content
@@ -651,7 +652,7 @@ function redeemCode(shareCode) {
   $.ajax({
     type: "POST",
     url: "https://www.couponbooked.com/scripts/redeemCode",
-    data: { userId: userId, receiverName: helper.getUserName(), shareCode: shareCode },
+    data: { userId: userId, receiverName: getUserName(), shareCode: shareCode },
     crossDomain: true,
     cache: false,
     success: function(success) {
@@ -732,7 +733,7 @@ function codeIsValid(shareCode) {
 function requestBook() {
   var options = {
     subject: "Send a Coupon Book!",
-    message: `Your friend ${helper.getUserName()} wants a Coupon Book! Go to couponbooked.com to download the app and send a Book now!`
+    message: `Your friend ${getUserName()} wants a Coupon Book! Go to couponbooked.com to download the app and send a Book now!`
   };
   var onSuccess = function(result) {
     console.warn("Shared to app:", result.app);
@@ -761,16 +762,16 @@ function navBar() {
   // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
   var avatar = getBySelector('.profile-image');
   if (!profile) {
-    _this.loadProfile(function(err, _profile) {
-      if (err) {
-        console.error("Error loading profile: ", err);
+    console.log("this.state for navBar:", _this.state);
 
-        reacquireProfile();
-      } else {
-        avatar.src = _profile.picture;
-        profile = _profile;
-      }
-    });
+    var storedProfile = JSON.parse(localStorage.getItem('user_info'));
+    if (storedProfile) {
+      avatar.src = storedProfile.picture;
+      profile = storedProfile;
+    } else {
+      console.error("Error loading profile: ", err);
+      reacquireProfile();
+    }
   } else {
     // IDEA: Switch to localStorage to avoid profile bug? Does that solve the problem, or
     // just give the appearance of solving it?
@@ -906,49 +907,24 @@ App.prototype.run = function(id) {
   this.resumeApp();
 };
 
-App.prototype.loadProfile = function(cb) {
-  this.auth0.userInfo(this.state.accessToken, cb);
-};
-
 App.prototype.login = function(e) {
+  // TODO: Add some kind of error handling with this like there was before!
   e.target.disabled = true;
 
-  // TODO: Change this for browser
-  var client = new Auth0Cordova({
-    domain: env.AUTH0_DOMAIN,
-    clientId: env.AUTH0_CLIENT_ID,
-    packageIdentifier: env.PACKAGE_ID
+  // Authentication
+  var client = new auth0.WebAuth({
+    domain: "couponbooked.auth0.com",
+    clientID: "6XFstRMqF3LN5h24Tooi22h1BMHCdnjh",
+    packageIdentifier: "com.couponbooked.app"
   });
 
-  var options = {
-    scope: 'openid profile offline_access',
-    audience: env.AUTH0_AUDIENCE
-  };
-  var self = this;
-  client.authorize(options, function(err, authResult) {
-    if (err) {
-      console.error("Problem with login ->", err);
-      return (e.target.disabled = false);
-    }
-
-    client.client.userInfo(authResult.accessToken, function(err, user) {
-      if (err) {
-        console.error("Problem in userInfo():", err);
-      } else {
-        // Now you have the user's information
-        var userId = user.sub;
-        console.warn("User sub:", userId);
-        localStorage.setItem('user_id', userId);
-
-        // Need to be able to access easily from my server
-        //window.plugins.OneSignal.setExternalUserId(userId);
-      }
-    });
-
-    localStorage.setItem('access_token', authResult.accessToken);
-    localStorage.setItem('refresh_token', authResult.refreshToken);
-    localStorage.setItem('id_token', authResult.idToken);
-    self.resumeApp();
+  client.authorize({
+    // Should I leave default scope which just includes this + email?
+    // NOTE: Testing offline again to see how to get what I need
+    scope: "openid profile offline",
+    responseType: 'code token id_token', // Was just token before
+    audience: "https://couponbooked.auth0.com/userinfo",
+    redirectUri: 'https://couponbooked.com/webapp/callback'
   });
 };
 
@@ -1018,19 +994,23 @@ App.prototype.resumeApp = function() {
   var idToken = localStorage.getItem('id_token');
 
   if (accessToken) {
-    // Verifies the access token is still valid;
-    // https://stackoverflow.com/a/38552302/6456163
+    // Verifies the access token is still valid
     var decoded = parseJwt(idToken);
     var expDate = decoded.exp;
-    var currentDate = Math.ceil(Date.now() / 1000);
 
-    // NOTE: To test `expired` code, reverse the direction of the angle bracket
-    if (expDate < currentDate) {
-      console.warn("Tokens expired. Acquiring new tokens using refresh token...");
-      handleExpiredToken();
+    if (expDate) {
+        var currentDate = Math.ceil(Date.now() / 1000);
+
+        // NOTE: To test `expired` code, reverse the direction of the angle bracket
+        if (expDate < currentDate) {
+          console.warn("Tokens expired. Acquiring new tokens using refresh token...");
+          handleExpiredToken();
+        } else {
+          console.warn("The tokens are not yet expired.");
+          successfulAuth(accessToken);
+        }
     } else {
-      console.warn("The tokens are not yet expired.");
-      successfulAuth(accessToken);
+        console.error("Error parsing idToken! Freaking out and not fixing the problem...");
     }
   } else {
     console.warn("No access token. Setting authentication state to false...");
@@ -1038,15 +1018,17 @@ App.prototype.resumeApp = function() {
   }
 };
 
-/** The only feature from jsonwebtoken that I need, the decoding. */
+/** The decoding feature is all I needed from jsonwebtoken. */
 function parseJwt(token) {
+  // https://stackoverflow.com/a/38552302/6456163
   var base64Url = token.split('.')[1];
   var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+  var stringifiedToken = decodeURIComponent(atob(base64).split('').map(function(c) {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
   }).join(''));
 
-  return JSON.parse(jsonPayload);
+  localStorage.setItem('user_info', stringifiedToken);
+  return JSON.parse(stringifiedToken);
 };
 
 /**

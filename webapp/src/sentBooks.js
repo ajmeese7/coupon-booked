@@ -1,18 +1,13 @@
-const uuidv4 = require('uuid/v4');
-const env = require('../js/env');
-var globalVars = require('./js');
-
 /** True means book will be published to template database; false is normal */
 var development = false;
 
-// also implement for the home button however i did it last time (not dev mode)
 // TODO: Update automatically when creating share code so back button doesn't freak;
   // is it still necessary to check when leaving book page after book already created? probs not.
 
 /**
  * Takes the current book JSON data and adds it to the page.
  */
-function displayBook() {
+function displaySentBook() {
   // Override the default nav listener code
   var mobile = getBySelector("#mobile");
   $(mobile).unbind().click(function() {
@@ -94,7 +89,7 @@ var newPreviousBook = null;
 function bookBackButtonListener(editPage, homeButtonClicked) {
   $('#backArrow').unbind().click(function() {
     // Get latest book info
-    var tempBook = helper.clone(book);
+    var tempBook = clone(book);
     var bookToCompareTo = editPage ? newPreviousBook : previousBook;
     var tempBookImage = getById("bookImage").src;
     
@@ -107,10 +102,10 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
 
     //console.log("New book:", tempBook);
     //console.log("Book to compare to:", bookToCompareTo);
-    //console.log("They are the same:", helper.isSameObject(tempBook, bookToCompareTo));
+    //console.log("They are the same:", isSameObject(tempBook, bookToCompareTo));
 
     // If not yet saved, just discards without secondary confirmation.
-    if (!helper.isSameObject(tempBook, bookToCompareTo) && book.bookId) {
+    if (!isSameObject(tempBook, bookToCompareTo) && book.bookId) {
       function onConfirm(buttonIndex) {
         // 1 is "Discard them"
         if (buttonIndex == 1) {
@@ -173,9 +168,9 @@ function createBookButton() {
  */
 function fadeToBookContent() {
   //console.warn("Fading to book content...");
-  helper.fadeBetweenElements("#couponForm, #bookForm", "#bookContent");
+  fadeBetweenElements("#couponForm, #bookForm", "#bookContent");
   addListeners();
-  displayBook();
+  displaySentBook();
 }
 
 /**
@@ -183,7 +178,7 @@ function fadeToBookContent() {
  */
 function plusButton() {
   $('#plus').unbind().click(function() {
-    helper.fadeBetweenElements("#bookContent", "#couponForm");
+    fadeBetweenElements("#bookContent", "#couponForm");
     showProperButton("newCoupon");
 
     // Reset form to blank in case it is clicked after editing a coupon
@@ -213,7 +208,7 @@ function plusButton() {
       newCoupon.count = getById("count").value;
 
       // If not yet saved, just discards without secondary confirmation.
-      if (!helper.isSameObject(blankCoupon, newCoupon)) {
+      if (!isSameObject(blankCoupon, newCoupon)) {
         function onConfirm(buttonIndex) {
           // 1 is "Discard them"
           if (buttonIndex == 1) {
@@ -255,8 +250,8 @@ function plusButton() {
  */
 function editBookButton() {
   $("#editBook").unbind().click(function() {
-    helper.fadeBetweenElements("#bookContent", "#bookForm");
-    newPreviousBook = helper.clone(book);
+    fadeBetweenElements("#bookContent", "#bookForm");
+    newPreviousBook = clone(book);
     showProperButton("editBook");
 
     // Below the above setters so previous value doesn't change descLength
@@ -505,7 +500,7 @@ function createCouponElements() {
       $(node).data("couponNumber", couponNumber);
       getById("bookContent").appendChild(node);
 
-      addCouponListeners(node);
+      receivedCouponListeners(node);
   });
 }
 
@@ -513,7 +508,7 @@ function createCouponElements() {
  * Adds click listeners to the specified sent coupon element.
  * @param {node} node - the coupon element
  */
-function addCouponListeners(node) {
+function receivedCouponListeners(node) {
   //console.log("addSentCouponListeners...");
   $(node).unbind().click(function() {
     /** Allows coupon node to be passed as parameter to functions */
@@ -532,13 +527,13 @@ function addCouponListeners(node) {
  * that was selected. Also adds listeners for going back to `/sentBook`.
  */
 function showCouponPreview($this) {
-  helper.fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
+  fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
 
   $('#backArrow').unbind().click(function() {
-    helper.fadeBetweenElements("#couponPreview", "#bookContent");
+    fadeBetweenElements("#couponPreview", "#bookContent");
 
     // Calls this again in case data was updated and needs to be redisplayed
-    displayBook();
+    displaySentBook();
   });
 
   showProperButton("couponPreview");
@@ -552,8 +547,8 @@ function showCouponPreview($this) {
         book.coupons.splice(couponNumber, 1);
         development ? updateTemplate() : updateBook();
         
-        displayBook();
-        helper.fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
+        displaySentBook();
+        fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
       }
     }
     
@@ -577,7 +572,7 @@ function showCouponPreview($this) {
  * displays the edit page.
  */
 function showCouponEditPage($this) {
-  helper.fadeBetweenElements("#couponPreview", "#couponForm");
+  fadeBetweenElements("#couponPreview", "#couponForm");
   preventInvalidNumberInput();
 
   var coupon = $($this).data("coupon");
@@ -605,7 +600,7 @@ function showCouponEditPage($this) {
     newCoupon.description = getById("couponDescription").value;
     newCoupon.count = parseInt(getById("count").value);
 
-    if (!helper.isSameObject(coupon, newCoupon)) {
+    if (!isSameObject(coupon, newCoupon)) {
       function onConfirm(buttonIndex) {
         if (buttonIndex == 1) {
           // Will show the new data
@@ -847,7 +842,7 @@ function createCoupon() {
   // no need to do it again.
   book.coupons.push(coupon);
   development ? updateTemplate(true) : updateBook(true);
-  displayBook();
+  displaySentBook();
 }
 
 /**
@@ -877,7 +872,7 @@ function updateCoupon(oldCoupon, $this) {
   //uploadImage(newCoupon.image, newCoupon);
 
   // TODO: Consider decomposing
-  if (!helper.isSameObject(oldCoupon, newCoupon)) {
+  if (!isSameObject(oldCoupon, newCoupon)) {
       var oldName = oldCoupon.name;
       var newName = newCoupon.name;
       if (newName != oldName && nameAlreadyExists(newName)) {
@@ -892,7 +887,7 @@ function updateCoupon(oldCoupon, $this) {
             book.coupons[couponNumber] = newCoupon;
       
             $($this).data("coupon", newCoupon);
-            displayBook();
+            displaySentBook();
       
             // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
             // TODO: Explain this line, and also test the new version
@@ -999,20 +994,20 @@ function showProperButton(currentPage) {
   console.warn(`showProperButton for ${currentPage}`);
 
   if ((currentPage == "home" && !book.bookId && !development) || currentPage == "newCoupon") {
-    // displayBook called last and book not yet created, or a new coupon
+    // displaySentBook called last and book not yet created, or a new coupon
     // is being created by the user
-    helper.fadeBetweenElements("#save, #delete, #share", "#createButton", true);
+    fadeBetweenElements("#save, #delete, #share", "#createButton", true);
   } else if (currentPage == "home") {
-    // Book already created but still on displayBook page
+    // Book already created but still on displaySentBook page
     var showShareButton = !book.receiver && !book.shareCode && book.bookId;
-    helper.fadeBetweenElements("#createButton, #save, #delete", showShareButton ? "#share" : null, true);
+    fadeBetweenElements("#createButton, #save, #delete", showShareButton ? "#share" : null, true);
   } else if (currentPage == "editBook" || currentPage == "editCoupon") {
     // Save edits to book or coupon;
     // TODO: only show save button once there are changes
-    helper.fadeBetweenElements("#createButton, #delete, #share", "#save", true);
+    fadeBetweenElements("#createButton, #delete, #share", "#save", true);
   } else if (currentPage == "couponPreview") {
     // For if they want to delete a coupon
-    helper.fadeBetweenElements("#createButton, #save, #share", "#delete", true);
+    fadeBetweenElements("#createButton, #save, #share", "#delete", true);
   }
 }
 
@@ -1025,7 +1020,7 @@ function createBook() {
 
   // IDEA: Option to update sender name before sharing; allows
   // for another level of personalization with nicknames.
-  var senderName = helper.getUserName();
+  var senderName = getUserName();
   book.bookId = uuid;
   book.hide = 0;
 
@@ -1069,7 +1064,7 @@ function createBook() {
  * Not the best function name, so sorry, but it is what it is.
  */
 function editBookDetails() {
-  var oldBook = helper.clone(book);
+  var oldBook = clone(book);
 
   // Replace Android full URL with a cross-platform local one
   var imageSrc = getById("bookImage").src;
@@ -1078,7 +1073,7 @@ function editBookDetails() {
   oldBook.name        = getById("bookName").value;
   oldBook.description = getById("bookDescription").value;
 
-  if (!helper.isSameObject(book, oldBook)) {
+  if (!isSameObject(book, oldBook)) {
       SimpleNotification.success({
         text: development ? "Updated template" : "Updated book"
       }, notificationOptions);
@@ -1086,7 +1081,7 @@ function editBookDetails() {
       return true;
   } else {
     console.warn("Book info not modified. Returning...");
-    book = helper.clone(oldBook); // Restore to previous state
+    book = clone(oldBook); // Restore to previous state
 
     // Lie to user so they don't get confused
     SimpleNotification.success({
@@ -1109,7 +1104,7 @@ function updateBook(silent) {
   // TODO: Implement checking like this if it doesn't already exist,
   // or a silent alternative so they aren't bothered and neither is the server:
   /*
-    !helper.isSameObject(book, previousBook)
+    !isSameObject(book, previousBook)
     // Book hasn't been modified
     SimpleNotification.info({
       text: "You haven't changed anything!"
@@ -1123,7 +1118,7 @@ function updateBook(silent) {
     crossDomain: true,
     cache: false,
     success: function(success) {
-      previousBook = helper.clone(book);
+      previousBook = clone(book);
       console.warn("Successfully updated coupon book.");
 
       if (!silent) {
@@ -1173,7 +1168,7 @@ function updateTemplate(silent) {
   // TODO: Implement checking like this if it doesn't already exist,
   // or a silent alternative so they aren't bothered and neither is the server:
   /*
-    !helper.isSameObject(book, previousBook)
+    !isSameObject(book, previousBook)
     // Template hasn't been modified
     SimpleNotification.info({
       title: "Development mode",
@@ -1192,7 +1187,7 @@ function updateTemplate(silent) {
     cache: false,
     success: function(success) {
       if (success) console.warn("updateTemplate success:", success);
-      previousBook = helper.clone(book);
+      previousBook = clone(book);
 
       if (!silent) {
         SimpleNotification.success({
@@ -1230,10 +1225,3 @@ function newNameWarning() {
     text: "Please enter a unique name."
   }, notificationOptions);
 }
-
-// NOTE: Functions needed outside this file are listed here.
-module.exports = Object.assign({
-  displayBook,
-  addCouponListeners,
-  updateBook
-});
