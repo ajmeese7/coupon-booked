@@ -794,9 +794,10 @@ function navBar() {
   // Profile picture dropdown
   $(".account").unbind().click(function() {
       // TODO: See if it is possible to have the shadow visible before the entire element is unrolled
-      // IDEA: Container element?
+      // IDEA: Paired element that's shadow colored and unroll at same time
+      // https://tobiasahlin.com/blog/how-to-animate-box-shadow/
       if (!$('.submenu').is(':visible')) {
-        $(".submenu").slideDown();
+        $(".submenu").show("slide", { direction: "up" }, 500 );
       }
   });
   $(document).unbind().mouseup(function() {

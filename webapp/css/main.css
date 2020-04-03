@@ -35,6 +35,7 @@ label {
     justify-content: space-between;
 }
 .navbar-nav {
+    cursor: pointer;
     margin-right: 0px;
     margin-left: 0px;
 }
