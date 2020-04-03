@@ -8,7 +8,7 @@
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0b98de">
 
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/notifications; 
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/; 
         default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://cdn.onesignal.com https://onesignal.com https://cdn.auth0.com https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/; 
         style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
     
@@ -28,13 +28,14 @@
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <link rel="manifest" href="images/site.webmanifest">
 
-    <!-- Copied from OneSignal website -->
     <!-- TODO: Find a way to prevent my adblocker from blocking this, and to allow
         it through the security policy. Test new method with blocker!! -->
     <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <script src="https://cdn.auth0.com/js/auth0/9.13.0/auth0.min.js"></script>
     <script src="https://cdn.auth0.com/w2/auth0-7.2.min.js"></script>
+    <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
     <script>
+        // Copied from OneSignal website
         var OneSignal = window.OneSignal || [];
         OneSignal.push(function() {
             OneSignal.init({
@@ -71,7 +72,6 @@
                                         <!-- Profile image should be set to the profile picture from the id token;
                                             src is the default image until the user's profile pic loads in -->
                                         <img alt="Profile picture" src="images/default.png" class="nav-user-profile profile-image" />
-                                        <!-- TODO: Find a way to cache previous image; localStorage? -->
                                     </a>
                                 </li>
                             </ul>

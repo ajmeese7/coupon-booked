@@ -10,12 +10,6 @@ $(function() {
 
     var app = new App();
     app.run('#app');
-    
-    // Need to figure out if I want some kind of animation for web or not
-    /*if (!localStorage.getItem("start_animation")) {
-        console.warn("Initially setting animation to true...");
-        localStorage.setItem("start_animation", "true");
-    }*/
 });
 
 /**
@@ -30,8 +24,6 @@ function onesignalNotifications() {
     });
 
     // IDEA: https://documentation.onesignal.com/docs/create-an-activity-feed
-    //window.plugins.OneSignal.setLogLevel({logLevel: 4, visualLevel: 4});
-    
     // IDEA: On notificationReceived refresh the display and pull books in case they're also viewing the book/coupon
     var notificationOpenedCallback = function(jsonData) {
         // TODO: When notification clicked, display something in app, 
@@ -45,9 +37,7 @@ function onesignalNotifications() {
     };
     
     /*window.plugins.OneSignal
-        //.startInit(env.ONESIGNAL_ID)
         .handleNotificationOpened(notificationOpenedCallback)
         .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.Notification)
-        //.endInit();
     */
 }

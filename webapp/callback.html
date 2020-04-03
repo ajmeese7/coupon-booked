@@ -19,7 +19,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
     <link rel="manifest" href="images/site.webmanifest">
-
+    
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <script src="https://cdn.auth0.com/js/auth0/9.13.0/auth0.min.js"></script>
     <script src="https://cdn.auth0.com/w2/auth0-7.2.min.js"></script>
     <script>
@@ -31,41 +32,30 @@
         });
 
         client.parseHash({ hash: window.location.hash }, function(err, authResult) {
-            console.log("Parsing hash...");
+            console.warn("Parsing hash...");
             if (err) {
                 return console.error(err);
             } else if (!authResult) {
                 return console.log("There is no authResult! You must've not used the login page to get here...");
             } else {
                 console.log("authResult:", authResult);
-
-                // NOTE: Do I need to do anything with idTokenPayload?
+                var userId = authResult.idTokenPayload.sub;
+                localStorage.setItem('user_id', userId);
                 localStorage.setItem('access_token', authResult.accessToken);
                 localStorage.setItem('id_token', authResult.idToken);
+
+                // Gives us a way to bypass OneSignal userIds and use our own
+                OneSignal.push(function() {
+                    // TODO: Confirm that this is working eventually by pushing notifications
+                    OneSignal.setExternalUserId(userId);
+                    console.log("Setting OneSignal externalUserId to", userId);
+
+                    // Go back to the original page now that the localStorage has been set and the user authorized
+                    // TODO: Is there a way to wait to error check this or something?
+                    window.location.replace("https://couponbooked.com/webapp");
+                });
             }
-            
-            // TODO: Get a better variable name so this flow makes more sense
-            client.client.userInfo(authResult.accessToken, function(err, user) {
-                // Now you have the user's information
-                if (err) {
-                    console.error("Problem in userInfo():", err);
-                } else {
-                    // Now you have the user's information
-                    var userId = user.sub;
-                    //console.warn("User sub:", userId);
-                    localStorage.setItem('user_id', userId);
-            
-                    // TODO: Need to be able to access easily from my server
-                    //window.plugins.OneSignal.setExternalUserId(userId);
-                }
-
-                // Go back to the original page now that the localStorage has been set and the user authorized
-                window.location.replace("https://couponbooked.com/webapp");
-            });
         });
-
-        // NOTE: Skipping this one for now until I can find a real need for it
-        //localStorage.setItem('refresh_token', globalAuthResult.refreshToken);
     </script>
 
     <title>Coupon Booked</title>

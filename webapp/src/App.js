@@ -727,8 +727,6 @@ function navBar() {
   // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
   var avatar = getBySelector('.profile-image');
   if (!profile) {
-    console.log("this.state for navBar:", _this.state);
-
     var storedProfile = JSON.parse(localStorage.getItem('user_info'));
     if (storedProfile) {
       avatar.src = storedProfile.picture;
@@ -738,8 +736,6 @@ function navBar() {
       reacquireProfile();
     }
   } else {
-    // IDEA: Switch to localStorage to avoid profile bug? Does that solve the problem, or
-    // just give the appearance of solving it?
     avatar.src = profile.picture;
   }
 
@@ -886,8 +882,7 @@ App.prototype.login = function(e) {
 
   client.authorize({
     // Should I leave default scope which just includes this + email?
-    // NOTE: Testing offline again to see how to get what I need
-    scope: "openid profile offline",
+    scope: "openid profile",
     responseType: 'code token id_token', // Was just token before
     audience: "https://couponbooked.auth0.com/userinfo",
     redirectUri: 'https://couponbooked.com/webapp/callback'
@@ -969,8 +964,8 @@ App.prototype.resumeApp = function() {
 
         // NOTE: To test `expired` code, reverse the direction of the angle bracket
         if (expDate < currentDate) {
-          console.warn("Tokens expired. Acquiring new tokens using refresh token...");
-          handleExpiredToken();
+          //_this.login();
+          _this.redirectTo("/login");
         } else {
           console.warn("The tokens are not yet expired.");
           successfulAuth(accessToken);
@@ -996,64 +991,6 @@ function parseJwt(token) {
   localStorage.setItem('user_info', stringifiedToken);
   return JSON.parse(stringifiedToken);
 };
-
-/**
- * Generates a new access token and attemprs to reauthenticate
- * with it.
- */
-function handleExpiredToken() {
-  var getNewAccessToken = generateAccessToken();
-  getNewAccessToken.then(function(result) {
-    console.warn("Access token retrieval successful!"); // New access token:", result
-    localStorage.setItem('access_token', result);
-    
-    successfulAuth(result);
-  }, function(error) {
-    // NOTE: This is broken now! Look into fixing somehow...
-    console.log("Retrieval of new access token failed! Setting authentication state to false...");
-    console.error(error);
-
-    failedAuth();
-  });
-}
-
-/**
- * Uses the local refresh token from Auth0 to request a new
- * access token for the user.
- */
-function generateAccessToken() {
-  var refreshToken = localStorage.getItem('refresh_token');
-  
-  // https://auth0.com/docs/tokens/refresh-token/current#use-a-refresh-token
-  var options = {
-    method: 'POST',
-    url: 'https://couponbooked.auth0.com/oauth/token',
-    headers: {'content-type': 'application/x-www-form-urlencoded'},
-    form: {
-      grant_type: 'refresh_token',
-      client_id: env.AUTH0_CLIENT_ID,
-      refresh_token: refreshToken
-    }
-  };
-
-  // Return new promise
-  return new Promise(function(resolve, reject) {
-    // Gets a new access token using the refresh token
-    request(options, function (error, response, body) {
-      if (error) {
-        reject(error);
-      } else {
-        var body = JSON.parse(body);
-        var idToken = body.id_token;
-        console.warn("ID token retrieval successful!"); // New ID token:", idToken
-        localStorage.setItem('id_token', idToken);
-
-        var accessToken = body.access_token;
-        resolve(accessToken);
-      }
-    });
-  });
-}
 
 function successfulAuth(accessToken) {
   console.warn("Setting authentication state to true...");
