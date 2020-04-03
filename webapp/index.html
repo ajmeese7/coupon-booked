@@ -105,19 +105,6 @@
         </div>
 
         <style> .spinner { display: none; } </style>
-
-        <link rel="stylesheet" type="text/css" href="css/bookAnimation.css" />
-        <div id="animationBackground"></div>
-        <div id="book">
-            <div class="back"></div>
-            <div class="page6"><p>Booked</p></div>
-            <div class="page5"><p>Coupon</p></div>
-            <div class="page4"></div>
-            <div class="page3"></div>
-            <div class="page2"></div>
-            <div class="page1"></div>
-            <div class="front"></div>
-        </div>
     </template>
 
     <template id="login">
@@ -421,18 +408,8 @@
                 <span class="slider round"></span>
             </label>
             <br />
-
-            <b>Display startup animation</b>
-            <br />
-            <label id="animationToggle">
-                <input type="checkbox" id="animationCheckbox">
-            </label>
-            
-            <!-- Display name; set initially with profile and have some separate storage 
-                from there that's always checked somehow. Custom Auth0 field or something? -->
-
-            <br />
             <hr />
+
             <div class="flex hor-centered">
                 <button class="btn btn-success btn-logout">
                     <span>Log Out</span>

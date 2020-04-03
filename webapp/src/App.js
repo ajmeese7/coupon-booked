@@ -39,7 +39,12 @@ App.prototype.state = {
         //screen.orientation.lock('portrait');
         _this = this;
 
-        determineAuthRoute(localStorage.getItem("start_animation") != "true");
+        // NOTE: If I want to, can always go back and replace startup animation code from app.
+        if (this.state.authenticated === true) {
+          return this.redirectTo('/dashboard');
+        } else {
+          return this.redirectTo('/login');
+        }
       }
     },
     '/login': {
@@ -247,7 +252,6 @@ App.prototype.state = {
           // to hopefully allow users to edit their data (what for?); use something similar to login functions?
         displayNameListeners();
         darkModeSupport(true);
-        animationSetting();
         
         var logoutButton = getBySelector('.btn-logout');
         $(logoutButton).unbind().click(this.logout);
@@ -265,32 +269,9 @@ App.prototype.state = {
 };
 
 /**
- * Decides whether to redirect to the home page or the login page,
- * depending on the current authentication state of the user.
- * @param {boolean} instant - true for zero delay, false for time for 
- * animation to display to the user.
- */
-function determineAuthRoute(instant) {
-  console.warn("Showing startup animation:", !instant);
-
-  // Gives time for opening animation to run
-  setTimeout(function() {
-    if (_this.state.authenticated === true) {
-      return _this.redirectTo('/dashboard');
-    } else {
-      return _this.redirectTo('/login');
-    }
-    // NOTE: The 1ms delay seems to take a good bit longer;
-    // should I complicate the code to speed it up?
-  }, instant ? 1 : 3500);
-}
-
-/**
  * Establish connection with the database so no load times later on.
  */
 function createConnection() {
-  // NOTE: Follow the guide here to get this to work with the latest software versions -
-    // https://forum.ionicframework.com/t/err-cleartext-not-permitted-in-debug-app-on-android/164101/20
   $.ajax({
     type: "GET",
     url: "https://www.couponbooked.com/scripts/createConnection",
@@ -391,22 +372,6 @@ function darkModeSupport(settingsPage) {
   function setRootProperty(name, value) {
     document.documentElement.style.setProperty(name, value);
   }
-}
-
-/**
- * Helps display the toggle for startup animation and modify
- * the localStorage variable when the toggle is modified.
- */
-function animationSetting() {
-  if (localStorage.getItem("start_animation") == "true") getById("animationCheckbox").click();
-
-  // NOTE: The code in here runs twice; shouldn't be a problem
-  var toggle = getById("animationToggle");
-  $(toggle).unbind().click(function() {
-    var animation = getById("animationCheckbox").checked;
-    console.log("Animation state changing to " + animation + "...")
-    localStorage.setItem("start_animation", animation + "");
-  });
 }
 
 /**
