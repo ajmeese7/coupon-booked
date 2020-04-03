@@ -10,6 +10,12 @@ a {
   color: #039be5;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  /* TODO: Make sure this works on mobile */
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 .tabs {

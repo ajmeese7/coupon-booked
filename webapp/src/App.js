@@ -150,7 +150,7 @@ App.prototype.state = {
           _this.redirectTo('/create');
         });
 
-        $('#request').unbind().click(function() {
+        getById("request").addEventListener('click', async () => {
           requestBook();
         });
 
@@ -695,19 +695,30 @@ function codeIsValid(shareCode) {
  * TODO: Have a button to call this always, not just when you
  * don't have any received books.
  */
-function requestBook() {
+async function requestBook() {
+  var userName = getUserName(), messageStart = "";
+  if (userName) {
+    messageStart = `Your friend ${userName} wants a Coupon Book! `;
+  } else {
+    // TODO: Throw some kind of error or something here because this shouldn't happen
+  }
+
   var options = {
-    subject: "Send a Coupon Book!",
-    message: `Your friend ${getUserName()} wants a Coupon Book! Go to couponbooked.com to download the app and send a Book now!`
-  };
-  var onSuccess = function(result) {
-    console.warn("Shared to app:", result.app);
-  };
-  var onError = function(msg) {
-    console.error("Sharing failed with message:", msg);
+    // TODO: Eventually come back and fix this URL once the site directory is solidified,
+    // and then fix it in shareCode() too
+    title: "Send a Coupon Book!",
+    text: `${messageStart}Go to https://couponbooked.com/webapp to send a Book now!`
   };
 
-  //window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+  // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
+  try {
+    await navigator.share(options);
+    console.log('Successfully ran share');
+  } catch(err) {
+    // TODO: Some alternative sharing method for where it isn't supported like
+    // https://css-tricks.com/how-to-use-the-web-share-api/; change in other file too
+    console.error("Error running share:", err);
+  }
 }
 
 /**

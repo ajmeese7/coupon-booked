@@ -47,12 +47,15 @@ function getUserName() {
   var displayName = localStorage.getItem("display_name");
   if (displayName != "") {
     return displayName;
-  } else if (profile.given_name) {
+  } else if (profile.name) {
     // Through Google; name should be whole name
     return profile.name;
-  } else {
+  } else if (profile.nickname) {
     // Through Auth0; nickname should be first part of email
     return profile.nickname;
+  } else {
+    console.error("There is no available userName!");
+    return null;
   }
 }
 

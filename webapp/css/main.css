@@ -307,7 +307,7 @@ label {
     text-align: center;
     background-color: #28a745;
     color: #fff;
-    border: .5px solid black;
+    border: .5px solid black; /* TODO: Switch this to shadow to make it look better */
     position: absolute;
     bottom: 0;
     right: 0;
@@ -315,6 +315,7 @@ label {
     margin-bottom: 12px;
     margin-right: 12px;
     border-radius: 8px;
+    cursor: pointer;
 }
 #redeemHeader {
     width: 100%;
