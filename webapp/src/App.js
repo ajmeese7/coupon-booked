@@ -973,41 +973,13 @@ App.prototype.logout = function(e) {
   profile = null;
 
   // https://auth0.com/authenticate/cordova/auth0-oidc/
-  var url = getRedirectUrl();
-  openUrl(url);
+  var returnTo = "https://couponbooked.com/webapp/callback";
+  var url = `https://couponbooked.auth0.com/v2/logout?client_id=6XFstRMqF3LN5h24Tooi22h1BMHCdnjh&returnTo=${returnTo}`;
+  window.location.replace(url);
+
+  // NOTE: This should be obsolete now, but I'm scared to remove it
   this.resumeApp();
 };
-
-function getRedirectUrl() {
-  var returnTo = `${env.PACKAGE_ID}://${env.AUTH0_DOMAIN}/cordova/${env.PACKAGE_ID}/callback`;
-  var url = `https://${env.AUTH0_DOMAIN}/v2/logout?client_id=${env.AUTH0_CLIENT_ID}&returnTo=${returnTo}`;
-  return url;
-}
-
-function openUrl(url) {
-  SafariViewController.isAvailable(function (available) {
-    if (available) {
-      SafariViewController.show({
-            url: url
-          },
-          function(result) {
-            if (result.event === 'opened') {
-              console.warn('Opened logout connection...');
-            } else if (result.event === 'loaded') {
-              console.warn('Logging user out...');
-            } else if (result.event === 'closed') {
-              console.warn('Logout successful!');
-              _this.redirectTo("/login");
-            }
-          },
-          function(msg) {
-            console.log("KO:", JSON.stringify(msg));
-          })
-    } else {
-      window.open(url, '_system');
-    }
-  })
-}
 
 App.prototype.redirectTo = function(route) {
   console.warn(`redirectTo ${route}...`);
