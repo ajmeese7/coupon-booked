@@ -1,7 +1,5 @@
 // Starts the app when called in index.js
-export function App() {
-  console.warn("Inside App()...");
-
+function App() {
   this.auth0 = new auth0.WebAuth({
     domain: "couponbooked.auth0.com",
     clientID: "6XFstRMqF3LN5h24Tooi22h1BMHCdnjh",
@@ -15,8 +13,6 @@ export function App() {
 
 // IDEA: Make it when you click back from a coupon preview it takes you to where you were scrolled;
   // perhaps with a tags that automatically save id as you scroll with name? Need to handle name updating...
-// IDEA: Press and hold coupon to preview it or something to avoid a lot of clicking;
-  // Maybe dropdown instead of entire other preview page?
 // TODO: Still have to redo home page...
 
 App.prototype.state = {
@@ -72,7 +68,6 @@ App.prototype.state = {
         navBar();
 
         // Reset every time the user goes home
-        // NOTE: Small stuff like this can stay. It doesn't matter
         localStorage.setItem('activeTab', 'sent');
       }
     },
@@ -184,7 +179,7 @@ App.prototype.state = {
             for (var i = 0; i < this.value.length; i++) {
               var currentChar = this.value.toLowerCase().charAt(i);
               
-              if (!share.ALPHABET.includes(currentChar)) {
+              if (!ALPHABET.includes(currentChar)) {
                 //console.log(`Problematic char: '${currentChar}'`);
                 //var before = this.value;
                 this.value = this.value.replace(currentChar, '');
@@ -197,14 +192,14 @@ App.prototype.state = {
             }
           } else {
             var currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
-            if (!share.ALPHABET.includes(currentChar)) {
+            if (!ALPHABET.includes(currentChar)) {
               //console.log(`Problematic char: '${currentChar}'`);
               this.value = this.value.slice(0, this.value.length - 1);
             }
           }
 
           // Cut length down to desired amount
-          if (this.value.length > share.ID_LENGTH) {
+          if (this.value.length > ID_LENGTH) {
             this.value = this.value.slice(0, 8);
           }
         });

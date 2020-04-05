@@ -325,8 +325,3 @@ function refundCoupon(couponName) {
     }
   });
 }
-
-// NOTE: Functions needed outside this file are listed here.
-module.exports = Object.assign({
-  displayReceivedBook
-});

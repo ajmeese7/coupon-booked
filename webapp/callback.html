@@ -36,7 +36,9 @@
             if (err) {
                 return console.error(err);
             } else if (!authResult) {
-                return console.log("There is no authResult! You must've not used the login page to get here...");
+                // TODO: Test new method, and figure out how this falls into error screen idea
+                console.log("There is no authResult! You must've not used the login page to get here...")
+                window.location.replace("https://couponbooked.com/webapp");
             } else {
                 console.log("authResult:", authResult);
                 var userId = authResult.idTokenPayload.sub;

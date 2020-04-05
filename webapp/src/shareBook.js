@@ -103,7 +103,7 @@ function createShareCode() {
 
       // So they can go back to dashboard without dealing with confirm prompt;
       // true means it's silent so they don't get a strange notification
-      sent.updateBook(true);
+      updateBook(true);
       _this.redirectTo('/shareCode');
     }
   }
@@ -112,7 +112,7 @@ function createShareCode() {
 /**
  * Opens native share function of device populated with the coded options.
  */
-function shareCode() {
+async function shareCode() {
   // TODO: Test this once backend scripts allow me to (i.e. post-book creation)
   var options = {
     // TODO: Display sender name in message -> getUserName()

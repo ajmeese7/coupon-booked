@@ -1,6 +1,3 @@
-// Lets me initialize the entire backend
-import { App } from './App';
-
 // TODO: Get rid of env.js and replace it with something actually secure;
 // https://stackoverflow.com/a/20476846/6456163
 

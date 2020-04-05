@@ -160,6 +160,7 @@ label {
 .bookPreview {
     width: 49%;
     margin-left: .25%;
+    cursor: pointer;
 }
 .couponPreview {
     /* Numbers don't add up, but it's what looks prettiest to me right now */
@@ -191,7 +192,6 @@ label {
     /* https://stackoverflow.com/a/7993098/6456163 */
     width: 80%;
     margin: auto;
-    line-height: 1.15;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -205,6 +205,7 @@ label {
 }
 #shareCodePreview span {
     color: #039be5;
+    cursor: pointer;
 }
 
 #miniPreview {
@@ -273,7 +274,6 @@ label {
 #bookDescriptionPreview {
     /* TODO: Is it possible to cut off not in the midde of words? Shows up with width: 90%; 
     /* TODO: Need to test multiple descriptions before making a final decision on width. */
-    line-height: 1.2; /* Not married to this yet */
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -372,10 +372,14 @@ label {
 #topbar a, #topbar button {
     font-size: 18.5px;
     line-height: 40px;
+    position: absolute;
+    right: 0;
+    margin-right: 12.5px;
 }
 #backArrow {
     margin-top: 2px;
     margin-left: 13px;
+    cursor: pointer;
 }
 
 #plus, #edit {
@@ -396,6 +400,7 @@ label {
     Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
     font-weight: 500;
     /*background-color: #293132;*/
+    cursor: pointer;
 }
 
 label {

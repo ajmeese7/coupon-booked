@@ -63,6 +63,9 @@ a {
   padding: 0;
   margin: 0;
   text-transform: uppercase;
+  /* Testing full width on desktop until I decide if I want to 
+  leave the top bar for small screens only */
+  width: 49.85%;
 }
 .tabs .tab a {
   color: rgba(238, 110, 115, 0.7);

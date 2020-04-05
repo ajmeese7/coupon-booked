@@ -86,6 +86,9 @@
     margin-left: 10px;
     margin-bottom: -5px;
 }
+#shareCodeText, #copyButton {
+    cursor: pointer;
+}
 
 #shareCodeDescription, #descPreview {
     /* NOTE: Will also have to make this different for tablets */
