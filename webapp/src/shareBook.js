@@ -1,38 +1,3 @@
-/**
- * Adds Google Play support to the share button
- * with native in-app purchases.
- */
-function shareButtonListeners() {
-  $('#share').unbind().click(function() {
-    inAppPurchase
-      .getProducts([ 'book' ])
-      .then(function (products) {
-        console.log("getProducts data:", products);
-        inAppPurchase
-          .buy('book')
-          .then(function (data) {
-            // ...then mark it as consumed:
-            console.log("data:", data);
-            return inAppPurchase.consume(data.productType, data.receipt, data.signature);
-          })
-          .then(function (data) {
-            console.log("Purchase data:", data);
-            createShareCode();
-          })
-          .catch(function (err) {
-            console.log("Error making purchase:", err);
-            SimpleNotification.warning({
-              title: "Problem making purchase",
-              text: "Please try again later."
-            }, notificationOptions);
-          });
-      })
-      .catch(function (err) {
-        console.log("Error retrieving products:", err);
-      });
-  });
-}
-
 /* The characters allowed in the share code and the code length.
  * Needed for createShareCode, redeemCode, and the route. */
 var ALPHABET = '23456789abdegjkmnpqrvwxyz';

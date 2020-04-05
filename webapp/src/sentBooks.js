@@ -4,6 +4,10 @@ var development = false;
 // TODO: Update automatically when creating share code so back button doesn't freak;
   // is it still necessary to check when leaving book page after book already created? probs not.
 
+// https://stackoverflow.com/a/58065241/6456163
+var isIOS = /iPad|iPhone|iPod/.test(navigator.platform)
+|| (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
 /**
  * Takes the current book JSON data and adds it to the page.
  */
@@ -53,7 +57,7 @@ function displaySentBook() {
 
   // https://stackoverflow.com/a/16270807/6456163
   var moreOptions = getById("moreOptions").innerHTML;
-  if (device.platform == "iOS") {
+  if (isIOS) {
     // Changes icons based on platform
     $('#editBook').attr('src', "images/ios-edit.svg");
     $('#deleteBook').attr('src', "images/ios-trash.svg");
@@ -192,7 +196,7 @@ function plusButton() {
     preventInvalidNumberInput();
 
     // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
-    if (device.platform == "iOS") {
+    if (isIOS) {
       $("#edit img").attr("src", "images/ios-edit.svg");
     }
 

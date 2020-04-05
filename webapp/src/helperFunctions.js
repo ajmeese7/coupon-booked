@@ -39,6 +39,17 @@ function fadeBetweenElements(fadeOut, fadeIn, instant) {
   }
 }
 
+// https://stackoverflow.com/a/8845823/6456163
+function getUrlVars() {
+  var vars = [], hash;
+  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+  for (var i = 0; i < hashes.length; i++) {
+    hash = hashes[i].split('=');                        
+    vars[hash[0]] = hash[1];
+  }
+  return vars;
+}
+
 /**
  * Gets the name of the current user.
  * @returns {string}

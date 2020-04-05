@@ -37,6 +37,12 @@ App.prototype.state = {
 
         // NOTE: If I want to, can always go back and replace startup animation code from app.
         if (this.state.authenticated === true) {
+          // To check if directed here by the successful payments page
+          var url_vars = getUrlVars();
+          if (url_vars.shared && url_vars.bookId) {
+            handlePayments();
+          }
+
           return this.redirectTo('/dashboard');
         } else {
           return this.redirectTo('/login');
@@ -103,8 +109,32 @@ App.prototype.state = {
         navBar();
 
         displaySentBook();
-        share.shareButtonListeners();
         darkModeSupport();
+
+        var stripe = Stripe('pk_test_EAwuFkepc11nHEyPnzAH2XF600aoA16vHm');
+        var share = document.querySelector('#share');
+        share.addEventListener('click', function () {
+          // To access the current book after redirect, i.e. preventing requiring
+          // retrieving the data again. Ideally I can set the succeeded flag on
+          // redirect and avoid all this, but we'll see how that goes.
+          localStorage.setItem('book', JSON.stringify(book));
+
+          stripe.redirectToCheckout({
+            items: [{
+              sku: 'sku_H2NWOmtSCuAH2l', //sku_H2MwwLWIIYdV4M
+              quantity: 1
+            }],
+            // TODO: Switch to HTML layout or something like normal sites so I can
+            // use the book page as a URL success thing here
+            successUrl: `https://www.couponbooked.com/webapp/success?bookId=${book.bookId}`,
+            cancelUrl: 'https://www.couponbooked.com/webapp/cancel',
+            //customerEmail: 'customer@example.com' // TODO: Find way to get this to prefill
+          }).then(function (result) {
+            // TODO: Do something similar to example on products page for error handling
+            console.log("Result:", result);
+            if (result.error.message) console.error("Error with payment =>", result.error.message);
+          });
+        });
       }
     },
     '/receivedBook': {
@@ -221,19 +251,19 @@ App.prototype.state = {
         // Display tooltip when box or icon is clicked and copy to clipboard
         var tooltip = $(".copytooltip .copytooltiptext");
         $('#copyButton, #shareCodeText').unbind().click(function() {
-          cordova.plugins.clipboard.copy($("#shareCodeText").text());
+          copyToClipboard("#shareCodeText");
           $(tooltip).finish().fadeTo(400, 1).delay(1500).fadeTo(400, 0);
         });
 
         getById("shareCodeText").innerText = book.shareCode;
 
         // Display share icon based on platform
-        var platform = device.platform;
+        //var platform = device.platform;
         var shareIcon = getById("shareIcon");
-        (platform == "Android") ? shareIcon.src = "images/md-share.svg" : shareIcon.src = "images/ios-share.svg";
+        isIOS ? shareIcon.src = "images/ios-share.svg" : shareIcon.src = "images/md-share.svg"; // TODO: TEST
 
         $("#bigShareButton").unbind().click(function() {
-          share.shareCode();
+          shareCode();
         });
       }
     },
@@ -262,6 +292,19 @@ App.prototype.state = {
     }
   }
 };
+
+/**
+ * Copies text from the selected element.
+ * @param {object} element - the element that the text
+ * is going to be copied from.
+ */
+function copyToClipboard(element) {
+  var $temp = $("<input>");
+  $("body").append($temp);
+  $temp.val($(element).text()).select();
+  document.execCommand("copy");
+  $temp.remove();
+}
 
 /**
  * Establish connection with the database so no load times later on.
@@ -367,6 +410,29 @@ function darkModeSupport(settingsPage) {
   function setRootProperty(name, value) {
     document.documentElement.style.setProperty(name, value);
   }
+}
+
+// IDEA: Only allow if paymentStatus != "succeeded"
+function handlePayments() {
+  // TODO: If not actually using localStorage (check) then delete this shit
+  book = JSON.parse(localStorage.getItem('book'));
+  if (book) {
+    localStorage.removeItem('book');
+    book.paymentStatus = "succeeded"; // TODO: Use this properly...
+    updateBook(true);
+
+    // TODO: Need to update succeeded status on completion of successful payment
+    createShareCode();
+  } else {
+    console.log("Either something is fucked up or you're trying to be naughty!");
+    // IDEA: Go to the page anyways or something? How to handle?
+  }
+
+  // TODO: Proper handling for other occurances
+  /*SimpleNotification.warning({
+    title: "Problem processing payment",
+    text: "Please try again later."
+  }, notificationOptions);*/
 }
 
 /**
@@ -655,10 +721,10 @@ function redeemCode(shareCode) {
  * @param {string} shareCode 
  */
 function codeIsValid(shareCode) {
-  if (shareCode.length == share.ID_LENGTH) {
+  if (shareCode.length == ID_LENGTH) {
     var validCode = true;
-    for (var i = 0; i < share.ID_LENGTH; i++) {
-      if (!share.ALPHABET.includes(shareCode.charAt(i))) {
+    for (var i = 0; i < ID_LENGTH; i++) {
+      if (!ALPHABET.includes(shareCode.charAt(i))) {
         validCode = false;
       }
     }
@@ -887,9 +953,8 @@ App.prototype.login = function(e) {
   });
 
   client.authorize({
-    // Should I leave default scope which just includes this + email?
     scope: "openid profile",
-    responseType: 'code token id_token', // Was just token before
+    responseType: 'code token id_token',
     audience: "https://couponbooked.auth0.com/userinfo",
     redirectUri: 'https://couponbooked.com/webapp/callback'
   });

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b98de">
+
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/; 
+        default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://cdn.onesignal.com https://onesignal.com https://cdn.auth0.com https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/; 
+        style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
+
+    <!-- Hangle all the icons on different platforms, courtesy of https://favicon.io/favicon-converter/ -->
+    <!-- TODO: Do I need to bog down the redirect page with all this? Should I leave it blank, or go all out and say
+        if you're seeing this page something went wrong and to try again? -->
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <link rel="manifest" href="images/site.webmanifest">
+    
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+    <script src="https://cdn.auth0.com/js/auth0/9.13.0/auth0.min.js"></script>
+    <script src="https://cdn.auth0.com/w2/auth0-7.2.min.js"></script>
+    <script src="src/helperFunctions.js"></script>
+
+    <title>Coupon Booked</title>
+</head>
+
+<body>
+    <!-- HTML is my templating engine and CSS is my router -->
+    <div class="app" id="app">Payment successful! Redirecting to share code page...</div>
+    <script>
+        // TODO: Could entirely bypass this page and pass params directly to App.js...
+        setTimeout(function() {
+            // TODO: Change this to share URL then bookId as param or something;
+            // TODO: Also double check to make sure URL wasn't manually entered and it
+                // actually has a share code on the server
+            window.location.replace(`https://couponbooked.com/webapp?shared=true&bookId=${getUrlVars().bookId}`);
+        }, 5000);
+    </script>
+</body>
+
+</html>
