@@ -260,7 +260,7 @@ App.prototype.state = {
         // Display share icon based on platform
         //var platform = device.platform;
         var shareIcon = getById("shareIcon");
-        isIOS ? shareIcon.src = "images/ios-share.svg" : shareIcon.src = "images/md-share.svg"; // TODO: TEST
+        isIOS ? shareIcon.src = "./images/ios-share.svg" : shareIcon.src = "./images/md-share.svg"; // TODO: TEST
 
         $("#bigShareButton").unbind().click(function() {
           shareCode();

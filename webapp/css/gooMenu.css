@@ -2,8 +2,8 @@
   modified for this project so not exact in all cases */
 
 .menu {
-  -webkit-filter: url("#shadowed-goo");
-          filter: url("#shadowed-goo");
+  -webkit-filter: url("../images/buttonFilter.svg#shadowed-goo");
+          filter: url("../images/buttonFilter.svg#shadowed-goo");
 }
 
 .menu-item, .menu-open-button {

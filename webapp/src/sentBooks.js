@@ -59,8 +59,8 @@ function displaySentBook() {
   var moreOptions = getById("moreOptions").innerHTML;
   if (isIOS) {
     // Changes icons based on platform
-    $('#editBook').attr('src', "images/ios-edit.svg");
-    $('#deleteBook').attr('src', "images/ios-trash.svg");
+    $('#editBook').attr('src', "./images/ios-edit.svg");
+    $('#deleteBook').attr('src', "./images/ios-trash.svg");
   }
   miniPreview.innerHTML += moreOptions;
 
