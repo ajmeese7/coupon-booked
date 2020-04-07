@@ -1,6 +1,7 @@
 // TODO: Get rid of env.js and replace it with something actually secure;
 // https://stackoverflow.com/a/20476846/6456163
 
+// When document is ready, initialize the application
 $(function() {
     console.warn("Page is ready...");
     onesignalNotifications();

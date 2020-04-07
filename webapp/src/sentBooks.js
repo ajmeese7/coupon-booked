@@ -97,8 +97,8 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
     var bookToCompareTo = editPage ? newPreviousBook : previousBook;
     var tempBookImage = getById("bookImage").src;
     
-    // If image invalid, replaced with gift.png, so have to ignore that for comparison
-    tempBook.image = tempBookImage.includes("gift.png") ? bookToCompareTo.image : tempBookImage;
+    // If image invalid, replaced with ticket.png, so have to ignore that for comparison
+    tempBook.image = tempBookImage.includes("ticket.png") ? bookToCompareTo.image : tempBookImage;
     tempBook.name  = getById("bookName").value;
     tempBook.description = getById("bookDescription").value;
     bookToCompareTo.bookId = book.bookId;
@@ -149,7 +149,7 @@ function createBookButton() {
   $("#createButton").unbind().click(function() {
     // Replace Android full URL with a cross-platform local one
     var imageSrc = getById("bookImage").src;
-    book.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
+    book.image = imageSrc.includes("ticket.png") ? "./images/ticket.png" : imageSrc;
 
     if (development) {
       // TODO: Renovate createTemplate with new stuff for here
@@ -186,7 +186,7 @@ function plusButton() {
     showProperButton("newCoupon");
 
     // Reset form to blank in case it is clicked after editing a coupon
-    getById("couponImage").src = "images/gift.png";
+    getById("couponImage").src = "./images/ticket.png";
     getById("name").value      = "";
     if (getById("couponDescription")) { getById("couponDescription").value = ""; }
     if (getById("count")) { getById("count").value = ""; }
@@ -197,12 +197,12 @@ function plusButton() {
 
     // Set edit icon based on platform (iOS or not iOS); default is not iOS icon
     if (isIOS) {
-      $("#edit img").attr("src", "images/ios-edit.svg");
+      $("#edit img").attr("src", "./images/ios-edit.svg");
     }
 
     // Set back button to take you back to coupon list
     $("#backArrow").unbind().click(function() {
-      var blankCoupon = { image: "gift.png", name: "", desc: "", count: "" };
+      var blankCoupon = { image: "ticket.png", name: "", desc: "", count: "" };
       var newCoupon = {};
 
       // https://stackoverflow.com/a/29182327/6456163
@@ -840,7 +840,7 @@ function createCoupon() {
   // Replace Android full URL with a cross-platform local one
   //var cloudGiftUrl = "https://res.cloudinary.com/couponbooked/image/upload/v1580314462/gift_rshjui.png";
   var imageSrc = getById("couponImage").src;
-  coupon.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
+  coupon.image = imageSrc.includes("ticket.png") ? "./images/ticket.png" : imageSrc;
 
   // Name already validated before this function is called so
   // no need to do it again.
@@ -871,7 +871,7 @@ function updateCoupon(oldCoupon, $this) {
   
   // Replace Android full URL with a cross-platform local one
   var imageSrc = getById("couponImage").src;
-  newCoupon.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
+  newCoupon.image = imageSrc.includes("ticket.png") ? "./images/ticket.png" : imageSrc;
 
   //uploadImage(newCoupon.image, newCoupon);
 
@@ -1072,7 +1072,7 @@ function editBookDetails() {
 
   // Replace Android full URL with a cross-platform local one
   var imageSrc = getById("bookImage").src;
-  oldBook.image = imageSrc.includes("gift.png") ? "images/gift.png" : imageSrc;
+  oldBook.image = imageSrc.includes("ticket.png") ? "./images/ticket.png" : imageSrc;
 
   oldBook.name        = getById("bookName").value;
   oldBook.description = getById("bookDescription").value;
