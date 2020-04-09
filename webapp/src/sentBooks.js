@@ -385,7 +385,6 @@ function uploadImage(updatedImage, coupon) {
   console.warn("Uploading image...");
 
   // https://github.com/collectmeaustralia/cordova-cloudinary-upload/issues/1
-  var Hashes = require('jshashes');
   var uri = encodeURI('https://api.cloudinary.com/v1_1/couponbooked/image/upload');
   var fileToUploadPath = filePath;
 
