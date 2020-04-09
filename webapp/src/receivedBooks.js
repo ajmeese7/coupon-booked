@@ -92,7 +92,7 @@ function bookListeners() {
  * @param {object} coupon - the data for the current coupon
  * NOTE: This is duplicated for sent books until I find a way to share it
  */
-function createCouponElements() {
+function createReceivedCouponElements() {
   // TODO: Figure out how to display image licenses if not paying for yearly subscription
   // TODO: Implement way to rearrange organization of coupons; also change
     // display options like default, alphabetical, count remaining, etc.;
@@ -109,7 +109,7 @@ function createCouponElements() {
       $(node).data("couponNumber", couponNumber);
       getById("bookContent").appendChild(node);
 
-      sentCouponListeners(node);
+      receivedCouponListeners(node);
   });
 }
 
@@ -117,14 +117,14 @@ function createCouponElements() {
  * Displays the coupon's info when the card is clicked.
  * @param {object} node - the element on the page with the coupon's data attached
  */
-function sentCouponListeners(node) {
+function receivedCouponListeners(node) {
   $(node).unbind().click(function() {
     fadeBetweenElements("#bookContent", "#couponPreview");
 
-      $('#backArrow').unbind().click(function() {
-        fadeBetweenElements("#couponPreview", "#bookContent");
-        displayReceivedBook();
-      });
+    $('#backArrow').unbind().click(function() {
+      fadeBetweenElements("#couponPreview", "#bookContent");
+      displayReceivedBook();
+    });
 
     // Updates preview fields with actual coupon's data
     var coupon = $(this).data("coupon");
@@ -134,19 +134,25 @@ function sentCouponListeners(node) {
 
     // This is here to pass current coupon to redeemCoupon().
     $('#redeemCoupon').unbind().click(function() {
-      function onConfirm(buttonIndex) {
-        if (buttonIndex == 1) {
+      $( "#redeemCouponConfirm" ).dialog({
+        draggable: false,
+        resizable: false,
+        height: "auto",
+        width: 400,
+        modal: true,
+        buttons: {
+          "Redeem it": function() {
+            // TODO: Test coupon redemption + notification;
+            // how to handle if they've logged out of device? Email? Text?
+            $( this ).dialog( "close" );
             redeemCoupon(coupon);
             $('#backArrow').click();
+          },
+          Cancel: function() {
+            $( this ).dialog( "close" );
           }
         }
-        
-        navigator.notification.confirm(
-            "Do you want to redeem this coupon?",
-            onConfirm,
-            "Redemption confirmation",
-            ["Redeem it", "Cancel"]
-      );
+      });
     });
   });
 }
@@ -303,6 +309,7 @@ function notificationError(failedResponse, coupon) {
  * @param {string} couponName - the name of the coupon being refunded
  */
 function refundCoupon(couponName) {
+  console.warn("Refunding coupon...");
   var userId = localStorage.getItem("user_id");
   
   $.ajax({

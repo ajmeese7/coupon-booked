@@ -104,27 +104,25 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
     bookToCompareTo.bookId = book.bookId;
     bookToCompareTo.hide = 0;
 
-    //console.log("New book:", tempBook);
-    //console.log("Book to compare to:", bookToCompareTo);
-    //console.log("They are the same:", isSameObject(tempBook, bookToCompareTo));
-
     // If not yet saved, just discards without secondary confirmation.
     if (!isSameObject(tempBook, bookToCompareTo) && book.bookId) {
-      function onConfirm(buttonIndex) {
-        // 1 is "Discard them"
-        if (buttonIndex == 1) {
-          confirmFunction();
+      $( "#discardBookEditsConfirm" ).dialog({
+        draggable: false,
+        resizable: false,
+        height: "auto",
+        width: 400,
+        modal: true,
+        buttons: {
+          "Discard them": function() {
+            $( this ).dialog( "close" );
+            confirmFunction();
+          },
+          Cancel: function() {
+            // "Wait, no!"
+            $( this ).dialog( "close" );
+          }
         }
-      }
-
-      // TODO: Eventually should probably replace this with a more attractive alternative
-      // custom tailored stylistically to the tone of the application instead of native boring
-      navigator.notification.confirm(
-          'Are you sure you want to discard your changes?',
-          onConfirm,
-          'Discard all changes',
-          ["Discard them","Wait, no!"]
-      );
+      });
     } else {
       // Book hasn't been modified
       confirmFunction();
@@ -171,7 +169,6 @@ function createBookButton() {
  * Switches from either the book or coupon form to the book display.
  */
 function fadeToBookContent() {
-  //console.warn("Fading to book content...");
   fadeBetweenElements("#couponForm, #bookForm", "#bookContent");
   addListeners();
   displaySentBook();
@@ -213,19 +210,23 @@ function plusButton() {
 
       // If not yet saved, just discards without secondary confirmation.
       if (!isSameObject(blankCoupon, newCoupon)) {
-        function onConfirm(buttonIndex) {
-          // 1 is "Discard them"
-          if (buttonIndex == 1) {
-            fadeToBookContent();
+        // NOTE: This is copied in showCouponEditPage()
+        $( "#discardCouponConfirm" ).dialog({
+          draggable: false,
+          resizable: false,
+          height: "auto",
+          width: 400,
+          modal: true,
+          buttons: {
+            "Discard them": function() {
+              fadeToBookContent();
+              $( this ).dialog( "close" );
+            },
+            Cancel: function() {
+              $( this ).dialog( "close" );
+            }
           }
-        }
-        
-        navigator.notification.confirm(
-            "Are you sure you want to discard your changes?",
-            onConfirm,
-            "Discard all changes",
-            ["Discard them","Wait, no!"]
-        );
+        });
       } else {
         // Coupon hasn't been modified
         fadeToBookContent();
@@ -479,7 +480,7 @@ function addListeners() {
   createBookButton();
   editBookButton();
   plusButton();
-  createCouponElements();
+  createSentCouponElements();
 }
 
 /**
@@ -488,7 +489,7 @@ function addListeners() {
  * @param {object} coupon - the data for the current coupon
  * NOTE: This is duplicated for sent books until I find a way to share it
  */
-function createCouponElements() {
+function createSentCouponElements() {
   // TODO: Implement way to rearrange organization of coupons; also change
     // display options like default, alphabetical, count remaining, etc.;
     // should changing display preference permenantly update the order?
@@ -504,7 +505,7 @@ function createCouponElements() {
       $(node).data("couponNumber", couponNumber);
       getById("bookContent").appendChild(node);
 
-      receivedCouponListeners(node);
+      sentCouponListeners(node);
   });
 }
 
@@ -512,8 +513,7 @@ function createCouponElements() {
  * Adds click listeners to the specified sent coupon element.
  * @param {node} node - the coupon element
  */
-function receivedCouponListeners(node) {
-  //console.log("addSentCouponListeners...");
+function sentCouponListeners(node) {
   $(node).unbind().click(function() {
     /** Allows coupon node to be passed as parameter to functions */
     var $this = this;
@@ -532,6 +532,7 @@ function receivedCouponListeners(node) {
  */
 function showCouponPreview($this) {
   fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
+  showProperButton("couponPreview");
 
   $('#backArrow').unbind().click(function() {
     fadeBetweenElements("#couponPreview", "#bookContent");
@@ -540,28 +541,32 @@ function showCouponPreview($this) {
     displaySentBook();
   });
 
-  showProperButton("couponPreview");
   $('#delete').unbind().click(function() {
-    function onConfirm(buttonIndex) {
-      if (buttonIndex == 1) {
-        // TODO: Fix this not working immediately after displaying a 
-        // new template. Error message: "Failed to execute 'appendChild' on 
-        // 'Node': parameter 1 is not of type 'Node'.
-        var couponNumber = $($this).data("couponNumber");
-        book.coupons.splice(couponNumber, 1);
-        development ? updateTemplate() : updateBook();
-        
-        displaySentBook();
-        fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
+    $( "#deleteCouponConfirm" ).dialog({
+      draggable: false,
+      resizable: false,
+      height: "auto",
+      width: 400,
+      modal: true,
+      buttons: {
+        "Delete it": function() {
+          $( this ).dialog( "close" );
+
+          // TODO: Fix this not working immediately after displaying a 
+          // new template. Error message: "Failed to execute 'appendChild' on 
+          // 'Node': parameter 1 is not of type 'Node'.
+          var couponNumber = $($this).data("couponNumber");
+          book.coupons.splice(couponNumber, 1);
+          development ? updateTemplate() : updateBook();
+          
+          displaySentBook();
+          fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
+        },
+        Cancel: function() {
+          $( this ).dialog( "close" );
+        }
       }
-    }
-    
-    navigator.notification.confirm(
-        'Are you sure you want to delete this coupon?',
-        onConfirm,
-        'Delete coupon confirmation',
-        ['Delete it', 'Cancel']
-    );
+    });
   });
 
   // Updates preview fields with actual coupon's data
@@ -605,19 +610,23 @@ function showCouponEditPage($this) {
     newCoupon.count = parseInt(getById("count").value);
 
     if (!isSameObject(coupon, newCoupon)) {
-      function onConfirm(buttonIndex) {
-        if (buttonIndex == 1) {
-          // Will show the new data
-          confirmFunction();
+      // NOTE: This is copied from plusButton
+      $( "#discardCouponConfirm" ).dialog({
+        draggable: false,
+        resizable: false,
+        height: "auto",
+        width: 400,
+        modal: true,
+        buttons: {
+          "Discard them": function() {
+            fadeToBookContent();
+            $( this ).dialog( "close" );
+          },
+          Cancel: function() {
+            $( this ).dialog( "close" );
+          }
         }
-      }
-      
-      navigator.notification.confirm(
-          'Are you sure you want to discard your changes?',
-          onConfirm,
-          'Discard all changes',
-          ["Discard them","Wait, no!"]
-      );
+      });
     } else {
       // Coupon hasn't been modified
       confirmFunction();
@@ -758,30 +767,38 @@ function openBookPreview() {
  * Adds click listener to trash can icon in miniPreview.
  */
 function addDeleteListeners() {
-  //console.warn("addDeleteListeners...");
-  $("#deleteBook").unbind().click(function() {
-    function onConfirm(buttonIndex) {
-      // NOTE: Button 0 is clicking out of confirmation box;
-      // 1 is delete and 2 is cancel
-      if (buttonIndex == 1) {
-        deleteBook();
+    // 'Wait, stop!'
 
-        // NOTE: This used to not always pull the new data in time for when the
-        // user sees the dashboard so the deleted book would still show up, but it's
-        // hard to replicate so I don't know if the problem still exists. If noticed 
-        // again in the future I'll look further into how to prevent it. Possibly with
-        // waiting for a promise or asynchronously running a function or something. 
-        goBack();
-      }
-    }
-    
-    navigator.notification.confirm(
-        'Are you sure you want to delete this book?', // message
-        onConfirm, // callback function
-        'Delete book confirmation', // title
-        ['Delete it', 'Wait, stop!'] // buttonLabels; added to page from right to left
-    );
-  });
+    $('#deleteBook').unbind().click(function(event) {
+      // Stop page from scrolling when clicking delete button;
+      // https://stackoverflow.com/a/21876609/6456163
+      event.preventDefault();
+
+      $( "#deleteBookConfirm" ).dialog({
+        draggable: false,
+        resizable: false,
+        height: "auto",
+        width: 400,
+        modal: true,
+        buttons: {
+          "Delete it": function() {
+            $( this ).dialog( "close" );
+            deleteBook();
+
+            // TODO: Fix the below stuff after moving to separate HTML flow
+            // NOTE: This used to not always pull the new data in time for when the
+            // user sees the dashboard so the deleted book would still show up, but it's
+            // hard to replicate so I don't know if the problem still exists. If noticed 
+            // again in the future I'll look further into how to prevent it. Possibly with
+            // waiting for a promise or asynchronously running a function or something. 
+            goBack();
+          },
+          Cancel: function() {
+            $( this ).dialog( "close" );
+          }
+        }
+      });
+    });
 }
 
 /**

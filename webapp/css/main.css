@@ -160,7 +160,6 @@ label {
 .bookPreview {
     width: 49%;
     margin-left: .25%;
-    cursor: pointer;
 }
 .couponPreview {
     /* Numbers don't add up, but it's what looks prettiest to me right now */
@@ -168,6 +167,7 @@ label {
     margin-left: 3.25%;
 }
 .bookImage, .couponImage {
+    cursor: pointer;
     margin: auto;
     width: 80%;
 }
@@ -305,9 +305,9 @@ label {
     width: 140px;
     height: 34px;
     text-align: center;
-    background-color: #28a745;
+    border: var(--button-border);
+    background-color: var(--primary-button-color);
     color: #fff;
-    border: .5px solid black; /* TODO: Switch this to shadow to make it look better */
     position: absolute;
     bottom: 0;
     right: 0;
@@ -347,7 +347,7 @@ label {
     width: 124px;
     height: 48px;
     color: #fff;
-    background-color: #28a745;
+    background-color: var(--primary-button-color);
     font-size: 24px;
     border: none;
     border-radius: 4px;
@@ -368,13 +368,6 @@ label {
     height: 40px;
     margin-top: -2px;
     background-color: var(--topbar-color);
-}
-#topbar a, #topbar button {
-    font-size: 18.5px;
-    line-height: 40px;
-    position: absolute;
-    right: 0;
-    margin-right: 12.5px;
 }
 #backArrow {
     margin-top: 2px;
@@ -431,7 +424,9 @@ textarea {
     breaking into different column sizes in JS will likely work better */
     width: 50%;
     height: 50%;
-    margin: 15px 25%;
+    display: block;
+    margin: 15px auto;
+    max-width: 300px; /* TODO: Decide on how to make this look good on mobile & desktop */
 }
 #descPreview {
     /* NOTE: Will also have to make this different for tablets;

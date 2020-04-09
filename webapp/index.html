@@ -10,7 +10,7 @@
 
     <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/ https://checkout.stripe.com; 
         default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://cdn.onesignal.com https://onesignal.com https://cdn.auth0.com 
-        https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/ https://js.stripe.com/ https://checkout.stripe.com/; 
+        https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/ https://js.stripe.com/ https://checkout.stripe.com/ https://cdnjs.cloudflare.com/ajax/libs/jshashes/; 
         style-src 'self' 'unsafe-inline' https://cdn.auth0.com https://checkout.stripe.com/v3/checkout/; media-src *; img-src *; font-src *;" />
     
     <link rel="stylesheet" type="text/css" href="css/index.css" />
@@ -22,6 +22,7 @@
     <link rel="stylesheet" type="text/css" href="css/materialize.css" />
     <link rel="stylesheet" type="text/css" href="css/simpleNotification.css" />
     <link rel="stylesheet" type="text/css" href="css/gooMenu.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 
     <!-- Hangle all the icons on different platforms, courtesy of https://favicon.io/favicon-converter/ -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
@@ -63,7 +64,7 @@
                             <span class="menu-btn">
                                 <img id="logo" src="./images/logo.png">
                             </span>
-                            <a id="brand" href="#">Coupon Booked</a>
+                            <a id="brand" href="https://couponbooked.com/webapp">Coupon Booked</a>
                         </div>
         
                         <div class="collapse navbar-collapse">
@@ -185,10 +186,10 @@
     <template id="sentBook">
         <div id="topbar">
             <img id="backArrow" src="./images/back.svg" />
-            <a id="createButton">Create</a>
-            <a id="save" class="hide">Save</a>
-            <a id="delete" class="hide">Delete</a>
-            <a id="share" class="hide">Pay</a>
+            <button id="createButton">Create</button>
+            <button id="save" class="hide">Save</button>
+            <button id="delete" class="hide">Delete</button>
+            <button id="share" class="hide">Pay</button>
         </div>
         
         <div id="bookContent" class="col">
@@ -206,6 +207,13 @@
             <button id="edit"><img src="./images/md-edit.svg" /></button>
         </div>
 
+        <div id="deleteCouponConfirm" class="dialog-box" title="Delete coupon confirmation">
+            <p id="confirmText">
+                <span class="ui-icon ui-icon-alert"></span>
+                Are you sure you want to delete this coupon?
+            </p>
+        </div>
+
         <form id="couponForm" class="hide col">
             <!-- https://picnicss.com/documentation#dropimage -->
             <!-- https://stackoverflow.com/questions/4112575/client-checking-file-size-using-html5 -->
@@ -217,7 +225,15 @@
             <div class="imageButtons">
                 <a id="couponOpenPhoto">Choose Image</a>
                 <a id="couponTakePhoto">Take Photo</a>
-    		</div>
+            </div>
+            
+            <!-- TODO: Need to get this to run on browser back button for desktop and native mobile -->
+            <div id="discardCouponConfirm" class="dialog-box" title="Discard all changes?">
+                <p id="confirmText">
+                    <span class="ui-icon ui-icon-alert"></span>
+                    Are you sure you want to discard your changes?
+                </p>
+            </div>
 
             <!-- IDEA: Cycle through an array of these for examples; appropriate to template? 
                 Could be paired arrays to have description matched with name, or objects & pull fields -->
@@ -238,11 +254,20 @@
                 <img id="bookImage" height="100px" onerror="imageError(this)" src="./images/ticket.png" />
             </div>
 
+            <!-- https://www.w3schools.com/tags/att_input_accept.asp;
+                also for coupons -->
             <div class="imageButtons">
                 <a id="bookOpenPhoto">Choose Image</a>
                 <a id="bookTakePhoto">Take Photo</a>
                 <!-- TODO: Online search or sumn -->
-    		</div>
+            </div>
+            
+            <div id="discardBookEditsConfirm" class="dialog-box" title="Discard all changes">
+                <p id="confirmText">
+                    <span class="ui-icon ui-icon-alert"></span>
+                    Are you sure you want to discard your changes?
+                </p>
+            </div>
 
             <label for="name">Book Name</label>
             <input type="text" id="bookName" name="name" placeholder="#1 Dad">
@@ -253,15 +278,22 @@
             <div id="bookDescLength">0</div>
         </form>
 
+        <div id="deleteBookConfirm" class="dialog-box" title="Delete book confirmation">
+            <p id="confirmText">
+                <span class="ui-icon ui-icon-alert"></span>
+                Are you sure you want to delete this book?
+            </p>
+        </div>
+
         <script id="moreOptions" type="text/html">
             <nav class="menu">
                 <!-- TODO: Try to speed up this animation, and probably replace the hamburger
                     icon with ellipses or something. -->
                 <input type="checkbox" href="#" class="menu-open" name="menu-open" id="menu-open"/>
                 <label class="menu-open-button" for="menu-open">
-                <span class="hamburger hamburger-1"></span>
-                <span class="hamburger hamburger-2"></span>
-                <span class="hamburger hamburger-3"></span>
+                    <span class="hamburger hamburger-1"></span>
+                    <span class="hamburger hamburger-2"></span>
+                    <span class="hamburger hamburger-3"></span>
                 </label>
                 
                 <a href="#editBook" class="menu-item">
@@ -286,6 +318,15 @@
             <hr />
             <img id="imgPreview" onerror="imageError(this)" src="./images/ticket.png" />
             <p id="descPreview"></p>
+
+            <div id="redeemCouponConfirm" class="dialog-box" title="Redemption confirmation">
+                <p id="confirmText">
+                    <span class="ui-icon ui-icon-alert"></span>
+                    <!--"Do you want to redeem this coupon?" 
+                        need to figure out if icon is needed and stuff + which text to use -->
+                    Are you sure you want to redeem this coupon?
+                </p>
+            </div>
 
             <div id="redeemCoupon">Redeem coupon</div>
         </div>
