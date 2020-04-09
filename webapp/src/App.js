@@ -6,7 +6,6 @@ function App() {
     packageIdentifier: "com.couponbooked.app"
   });
 
-  this.login = this.login.bind(this);
   this.logout = this.logout.bind(this);
   darkModeSupport();
 }
@@ -28,7 +27,6 @@ App.prototype.state = {
         console.warn("/ route...");
         nav = getBySelector("#nav");
         loadingIcon = getBySelector("#loader");
-        createConnection();
 
         // Don't want to have to code an annoying landscape layout
         screen.orientation.lock('portrait');
@@ -37,6 +35,10 @@ App.prototype.state = {
 
         // NOTE: If I want to, can always go back and replace startup animation code from app.
         if (this.state.authenticated === true) {
+          // Only try to create the connection once authenticated, since login route
+          // takes them away from my site anyways. Unless I bring login screen in-house...
+          createConnection();
+
           // To check if directed here by the successful payments page
           var url_vars = getUrlVars();
           if (url_vars.shared && url_vars.bookId) {
@@ -55,14 +57,25 @@ App.prototype.state = {
         console.warn("/login route...");
         if (this.state.authenticated === true) {
           return this.redirectTo('/dashboard');
+        } else {
+          // Show loading screen while waiting for redirect
+          this.container.appendChild(loadingIcon);
+          console.log("Trying to redirect to Auth0 login...");
+
+          // Authentication
+          var client = new auth0.WebAuth({
+            domain: "couponbooked.auth0.com",
+            clientID: "6XFstRMqF3LN5h24Tooi22h1BMHCdnjh",
+            packageIdentifier: "com.couponbooked.app"
+          });
+
+          client.authorize({
+            scope: "openid profile",
+            responseType: 'code token id_token',
+            audience: "https://couponbooked.auth0.com/userinfo",
+            redirectUri: 'https://couponbooked.com/webapp/callback'
+          });
         }
-
-        // Login button at bottom of page
-        var loginButton = getBySelector('.btn-login');
-        $(loginButton).unbind().click(this.login);
-
-        // TODO: Call this when user logs in, and use it to check if they already exist before creating
-        getUserName();
       }
     },
     '/home': {
@@ -941,44 +954,27 @@ App.prototype.run = function(id) {
   this.resumeApp();
 };
 
-App.prototype.login = function(e) {
-  // TODO: Add some kind of error handling with this like there was before!
-  e.target.disabled = true;
+// NOTE: This code is pasted into App() and navBar(), so any changes
+// made here should be made there as well.
+App.prototype.logout = function() {
+  console.warn("Logging user out...");
+  // https://documentation.onesignal.com/docs/cordova-sdk#section--removeexternaluserid-
+  // TODO: Test logging in and out of devices to make sure notifications still work properly.
+  //window.plugins.OneSignal.removeExternalUserId();
 
-  // Authentication
+  localStorage.clear();
+  profile = null;
+
   var client = new auth0.WebAuth({
     domain: "couponbooked.auth0.com",
     clientID: "6XFstRMqF3LN5h24Tooi22h1BMHCdnjh",
     packageIdentifier: "com.couponbooked.app"
   });
-
-  client.authorize({
-    scope: "openid profile",
-    responseType: 'code token id_token',
-    audience: "https://couponbooked.auth0.com/userinfo",
-    redirectUri: 'https://couponbooked.com/webapp/callback'
+  
+  client.logout({
+    returnTo: 'https://couponbooked.com/webapp',
+    client_id: '6XFstRMqF3LN5h24Tooi22h1BMHCdnjh'
   });
-};
-
-// NOTE: This code is pasted into App() and navBar(), so any changes
-// made here should be made there as well.
-App.prototype.logout = function(e) {
-  // https://documentation.onesignal.com/docs/cordova-sdk#section--removeexternaluserid-
-  // TODO: Test logging in and out of devices to make sure notifications still work properly.
-  //window.plugins.OneSignal.removeExternalUserId();
-
-  // Have both just in case; either should cut it
-  window.localStorage.clear();
-  localStorage.clear();
-  profile = null;
-
-  // https://auth0.com/authenticate/cordova/auth0-oidc/
-  var returnTo = "https://couponbooked.com/webapp/callback";
-  var url = `https://couponbooked.auth0.com/v2/logout?client_id=6XFstRMqF3LN5h24Tooi22h1BMHCdnjh&returnTo=${returnTo}`;
-  window.location.replace(url);
-
-  // NOTE: This should be obsolete now, but I'm scared to remove it
-  this.resumeApp();
 };
 
 App.prototype.redirectTo = function(route) {
@@ -1007,7 +1003,10 @@ App.prototype.resumeApp = function() {
 
         // NOTE: To test `expired` code, reverse the direction of the angle bracket
         if (expDate < currentDate) {
-          //_this.login();
+          console.log("Access token expired! Going back to login screen...");
+
+          // TODO: Remember why I did this and fix it;
+          // once done use to replace reacquireProfile()
           _this.redirectTo("/login");
         } else {
           console.warn("The tokens are not yet expired.");
