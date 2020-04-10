@@ -59,7 +59,7 @@ App.prototype.state = {
           return this.redirectTo('/dashboard');
         } else {
           // Show loading screen while waiting for redirect
-          this.container.appendChild(loadingIcon);
+          if (loadingIcon) this.container.appendChild(loadingIcon);
           console.log("Trying to redirect to Auth0 login...");
 
           // Authentication
