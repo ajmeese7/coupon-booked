@@ -11,6 +11,7 @@
         width: 100%;
         float: right;
         padding-left: var(--nav-width);
+        min-height: 100vh;
     }
     #loader {
         max-width: 100vw;
@@ -93,16 +94,26 @@
         margin-left: 5px;
     }
 
+    #gestureZone {
+        position: absolute;
+        top: var(--tab-height);
+        width: calc(100vw - var(--nav-width));
+        min-height: calc(100vh - var(--tab-height));
+    }
+    .col {
+        min-height: calc(100vh - var(--tab-height));
+    }
+
     /* TODO: Figure out how to make the row with different number of
     elements still display aligned underneath other rows? Grid? */
-    #templateContainer, #sent, #received {
+    #templateContainer, #sent, #received, #couponContainer {
         /* https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
         display: flex;
         flex-wrap: wrap;
         justify-content: space-evenly;
         align-items: baseline;
     }
-    .bookPreview {
+    .bookPreview, .couponPreview {
         max-width: 400px;
     }
 }

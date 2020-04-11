@@ -78,10 +78,10 @@ label {
 /* Loading icon */
 #loader {
     width: 100vw;
-    height: calc(100% - (var(--nav-height) + 48px)); /* TODO: Experiment with this w/ calc() and different for template page */
+    height: calc(100% - (var(--nav-height) + var(--tab-height)));
     background-color: var(--background-color);
     position: absolute;
-    top: calc(var(--nav-height) + 48px); /* 48px is tabs height; could eventually make into a variable */
+    top: calc(var(--nav-height) + var(--tab-height));
 }
 .spinner {
   margin: 100px auto;
@@ -151,7 +151,7 @@ label {
     transform: translateY(-50%);
 }
 .active {
-    display: block;
+    display: block !important;
 }
 #gestureZone .col {
     display: none;
@@ -314,7 +314,7 @@ label {
     border: var(--button-border);
     background-color: var(--primary-button-color);
     color: #fff;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     right: 0;
     padding-top: 4px;
