@@ -2343,14 +2343,15 @@ $jscomp.polyfill = function (e, r, p, m) {
           }
         } else {
           if (this.$content.length) {
-            this.$content[0].style.display = 'block';
+            // NOTE: Commented out these lines to make my life easier
+            //this.$content[0].style.display = 'block';
             this.$content.addClass('active');
             if (typeof this.options.onShow === 'function') {
               this.options.onShow.call(this, this.$content[0]);
             }
 
             if ($oldContent.length && !$oldContent.is(this.$content)) {
-              $oldContent[0].style.display = 'none';
+              //$oldContent[0].style.display = 'none';
               $oldContent.removeClass('active');
             }
           }
@@ -2492,7 +2493,7 @@ $jscomp.polyfill = function (e, r, p, m) {
           if (!!link.hash) {
             var $currContent = $(M.escapeHash(link.hash));
             if ($currContent.length) {
-              $currContent[0].style.display = 'none';
+              //$currContent[0].style.display = 'none';
             }
           }
         });

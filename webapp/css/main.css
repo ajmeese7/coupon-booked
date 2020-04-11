@@ -71,7 +71,7 @@ label {
 
 #createHeader {
     margin-top: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 30px;
     text-align: center;
 }
 
@@ -150,12 +150,18 @@ label {
     top: calc(50% - var(--nav-height)); /* Subtract nav height for better-looking vertical center */
     transform: translateY(-50%);
 }
+.active {
+    display: block;
+}
+#gestureZone .col {
+    display: none;
+}
 
 /* Dashboard page elements */
 .bookPreview, .couponPreview {
     display: inline-grid;
     text-align: center;
-    margin-top: 15px;
+    margin-bottom: 15px;
 }
 .bookPreview {
     width: 49%;
@@ -256,7 +262,7 @@ label {
 
 /* TODO: Get this inside the a; preferrably w/o margin - */
 #sentButton, #receivedButton {
-    display: inline-block;
+    display: inline-block !important;
 }
 #sentArrow, #receivedArrow {
     display: inline-block;

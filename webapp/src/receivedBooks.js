@@ -141,15 +141,15 @@ function receivedCouponListeners(node) {
         width: 400,
         modal: true,
         buttons: {
+          Cancel: function() {
+            $( this ).dialog( "close" );
+          },
           "Redeem it": function() {
             // TODO: Test coupon redemption + notification;
             // how to handle if they've logged out of device? Email? Text?
             $( this ).dialog( "close" );
             redeemCoupon(coupon);
             $('#backArrow').click();
-          },
-          Cancel: function() {
-            $( this ).dialog( "close" );
           }
         }
       });
