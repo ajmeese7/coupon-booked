@@ -1,17 +1,17 @@
-// Handle the click of the scroll button and nav bar links
+﻿// Handle the click of the scroll button and nav bar links
 $(function() {
     // IDEA: Combine all of these under a forEach function
-    $('#scroll-why').click (function() {
-        $('html, body').animate({scrollTop: $('section#why').offset().top - 40 }, 'slow');
+    $('#scroll-create').click (function() {
+        $('html, body').animate({scrollTop: $('section#create').offset().top - 40 }, 'slow');
         return false;
     });
-    $('#scroll-example').click (function() {
-        $('html, body').animate({scrollTop: $('section#examples').offset().top - 39 }, 'slow');
+    $('#scroll-about').click (function() {
+        $('html, body').animate({scrollTop: $('section#about').offset().top - 39 }, 'slow');
         return false;
     });
     $('.scroll-down').click (function() {
         // TODO: Look into resolution with previous problem of combining under one ID
-        $('html, body').animate({scrollTop: $('section#examples').offset().top - 39 }, 'slow');
+        $('html, body').animate({scrollTop: $('section#about').offset().top - 39 }, 'slow');
         return false;
     });
 });

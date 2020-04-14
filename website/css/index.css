@@ -37,18 +37,33 @@ footer a {
 }
 
 #create {
-
-#why {
-    /* TODO: Dramatically decrease load times for image; store on other server? */
-    background-image: url("../images/notebook.jpg"); /*Photo by Team Easil on Unsplash*/
+    background-image: url("../images/notebook_min.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
 }
+@media screen and (min-width: 1550px) {
+    #create {
+        background-image: url("../images/notebook_medium_min.jpg");
+    }
+    #title {
+        padding: 70px 0px 50px 70px !important;
+    }
+}
+@media screen and (max-width: 800px) {
+    #title {
+        padding: 0 !important;
+        max-width: 90% !important;
+    }
+    #title p {
+        padding: 0 !important;
+        max-width: 99% !important;
     }
 
-}
+    #create {
+        background-image: url("../images/mobile_min.png") !important;
     }
+}
 @media screen and (max-width: 600px) {
     footer {
         height: initial;
@@ -68,32 +83,31 @@ footer a {
     }
 }
 
+#title a {
+	font-variant: small-caps;
 	color: black;
+	font-size: 40px;
+	font-weight: bold;
+}
 #title {
     line-height: 2.0; 
-    padding: 120px 50px 50px 50px;
-    width: 400px;
-    margin: 20px auto;
+    padding: 60px 0px 50px 55px;
+    width: 525px;
+    margin: 0 auto 20px auto;
 }
-#title h2, #title p {
-    background-color: black;
-    color: #fff; 
-    display: inline;
-    padding: 0.5rem;
-    
-    -webkit-box-decoration-break: clone;
-    box-decoration-break: clone;
+#title p {
+    padding: 0.2rem;
+    font-style: oblique;
 }
 
-/* EXAMPLES */
-
-#examples h2, #create h2 {
+section:not(#download) {
+    /* TODO: Make this work better for when viewing desktop mode on mobile */
+    width: 100vw;
+    min-height: calc(100vh - var(--nav-height));
+}
+#download {
+    width: 100vw;
+}
+#download h2 {
     text-align: center;
-}
-#examples img {
-    width: 300px;
-    margin: auto;
-    margin-top: 20px;
-    padding: 0;
-    border: 3px solid black;
 }
