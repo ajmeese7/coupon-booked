@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/picnic" />
     <link rel="stylesheet" type="text/css" href="css/mobile-nav.css" />
@@ -16,7 +16,7 @@
     <meta http-equiv=”Expires” content=”-1″>
     <meta http-equiv=”CACHE-CONTROL” content=”NO-CACHE”>
 
-    <!-- Hangle all the icons on different platforms, courtesy of https://favicon.io/favicon-converter/ -->
+    <!-- Handle all the icons on different platforms, courtesy of https://favicon.io/favicon-converter/ -->
     <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
@@ -29,9 +29,10 @@
 <body>
     <nav>
         <div id="desktop">
-            <a id="brand" href="/index"><img id="logo" src="images/logo.png">Coupon Booked</a>
-            <a id="scroll-why" href="#why">Why us?</a>
-            <a id="scroll-example" href="#examples">Examples</a>
+            <!-- Is it better to have /index here or actual page URL? -->
+            <a id="brand" href="/index"><img id="logo" src="images/logo_small.png">Coupon Booked</a>
+            <a id="scroll-create" href="#create">Create Your Own</a>
+            <a id="scroll-about" href="#about">Why us?</a>
 
             <!-- IDEA: Can eventually add a web interface if there is enough interest -->
             <!--<a id="scroll-create" href="#create">Create Your Own</a>-->
@@ -42,10 +43,9 @@
             </a>
         </div>
 
-        <!-- TODO: This looks a little small on actual mobile. Field testing? -->
         <div id="mobile">
             <span class="menu-btn" style="font-size: 30px; cursor: pointer; float: left;">
-                <img id="logo" src="images/logo.png">
+                <img id="logo" src="images/logo_small.png">
             </span>
             <a id="brand" href="/index">Coupon Booked</a>
         </div>
