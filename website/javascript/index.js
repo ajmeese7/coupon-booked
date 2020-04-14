@@ -1,4 +1,4 @@
-﻿// Handle the click of the scroll button and nav bar links
+// Handle the click of the scroll button and nav bar links
 $(function() {
     // IDEA: Combine all of these under a forEach function
     $('#scroll-why').click (function() {
@@ -14,10 +14,6 @@ $(function() {
         $('html, body').animate({scrollTop: $('section#examples').offset().top - 39 }, 'slow');
         return false;
     });
-    /*$('#scroll-create').click (function() {
-        $('html, body').animate({scrollTop: $('section#create').offset().top - 39 }, 'slow');
-        return false;
-    });*/
 });
 
 // This is a general function that removes one class and adds another;

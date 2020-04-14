@@ -1,5 +1,6 @@
 :root {
-    --nav-height: 40px;
+    --nav-height: 48px;
+    --nav-color: #0b98de;
 }
 
 nav {

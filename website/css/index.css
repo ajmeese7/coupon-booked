@@ -1,29 +1,34 @@
 /* GENERAL */
-
 * {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Temporary; https://fonts.google.com/ */
 }
-
 body {
-  	background-color: #f9f9f9 !important;
+  	background-color: #e8f6fa !important;
     margin: 0px;
     padding: 0px;
     width: 100%;
     overflow-x: hidden;
 }
-
 a {
     text-decoration: none;
 }
 
-section:not(#create) {
-    /* TODO: Make this work better for when viewing desktop mode on mobile */
-    min-height: 100vh; /* TODO: Work on height for mobile sections, because arrow is below screen */
-    width: 100vw;
+footer {
+    width: 100%;
+    height: 40px;
+    background-color: #76cde5;
+    box-shadow: 0 -0.5px 2px 0 #76cde5;
+    position: relative;
+    bottom: 0;
 }
-#create {
-    width: 100vw;
+footer p, footer a {
+    color: azure;
+    display: inline-block;
+    margin: 5px 20px 0px 20px;
+}
+footer a {
+    float: right;
 }
 
 /* Used for toggling whether an element is displayed */
@@ -31,7 +36,7 @@ section:not(#create) {
     display: none;
 }
 
-/* WHY */
+#create {
 
 #why {
     /* TODO: Dramatically decrease load times for image; store on other server? */
@@ -40,7 +45,30 @@ section:not(#create) {
     background-position: center;
     background-size: cover;
 }
+    }
 
+}
+    }
+@media screen and (max-width: 600px) {
+    footer {
+        height: initial;
+    }
+    footer a, footer p {
+        text-align: center;
+        margin: 2px;
+        display: block;
+    }
+    footer p {
+        padding-top: 5px;
+        padding-bottom: 2px;
+    }
+    footer a {
+        float: none;
+        padding-bottom: 10px;
+    }
+}
+
+	color: black;
 #title {
     line-height: 2.0; 
     padding: 120px 50px 50px 50px;
