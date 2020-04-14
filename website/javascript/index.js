@@ -5,12 +5,7 @@ $(function() {
         $('html, body').animate({scrollTop: $('section#create').offset().top - 40 }, 'slow');
         return false;
     });
-    $('#scroll-about').click (function() {
-        $('html, body').animate({scrollTop: $('section#about').offset().top - 39 }, 'slow');
-        return false;
-    });
-    $('.scroll-down').click (function() {
-        // TODO: Look into resolution with previous problem of combining under one ID
+    $('#scroll-about, .scroll-down').click (function() {
         $('html, body').animate({scrollTop: $('section#about').offset().top - 39 }, 'slow');
         return false;
     });
