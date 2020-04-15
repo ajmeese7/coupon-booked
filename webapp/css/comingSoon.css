@@ -1,0 +1,71 @@
+/* Set height to 100% for body and html to enable the background image to cover the whole page: */
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.bgimg {
+    background-image: url("../../images/notebook_min.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    height: 100%;
+    position: relative;
+    color: black;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 25px;
+}
+@media screen and (min-width: 1550px) {
+    .bgimg {
+        background-image: url("../../images/notebook_medium_min.jpg") !important;
+    }
+}
+
+.topleft {
+    position: absolute;
+    top: 0;
+    left: 16px;
+}
+.topleft img {
+    width: 70px;
+}
+
+.bottomleft {
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+}
+
+.middle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+hr {
+    margin: auto;
+    width: 40%;
+}
+
+@media only screen and (max-width: 992px) {
+    .topleft img {
+        width: 135px;
+    }
+
+    .bottomleft {
+        left: 32px;
+        font-size: 50px;
+    }
+
+    .middle {
+        width: 100%;
+    }
+
+    .bgimg {
+        font-size: 40px;
+        background-image: url("../../images/mobile_min.png") !important;
+    }
+}
