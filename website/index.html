@@ -9,6 +9,8 @@
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
     <link rel="stylesheet" type="text/css" href="css/scroll-down.css" />
+    <link rel="stylesheet" href="css/glide.core.min.css">
+    <link rel="stylesheet" href="css/glide.theme.min.css">
 
     <!-- I'm sick of having to delete my cache every time I change something. Hopefully I'll
         remember to remove this once pushed to production. -->
@@ -23,6 +25,7 @@
     <link rel="manifest" href="images/site.webmanifest">
 
     <script src="javascript/jquery-1.8.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide"></script>
 
     <title>Coupon Booked</title>
 </head>
@@ -31,8 +34,9 @@
         <div id="desktop">
             <!-- Is it better to have /index here or actual page URL? -->
             <a id="brand" href="/index"><img id="logo" src="images/logo_small.png">Coupon Booked</a>
-            <a id="scroll-create" href="#create">Create Your Own</a>
-            <a id="scroll-about" href="#about">Why us?</a>
+            <a class="scrollButton" id="scroll-create" href="#create">Create Your Own</a>
+            <a class="scrollButton" id="scroll-about" href="#about">About us</a>
+            <a class="scrollButton" id="scroll-testimonials" href="#testimonials">Testimonials</a>
 
             <a id="googlePlay" href='https://play.google.com/store/apps/details?id=com.couponbooked.app&ah=qaCcfnp8-UbIF1zcpTQUsbcRcp8&utm_source=website'>
                 <!-- Google Play and the Google Play logo are trademarks of Google LLC. -->
@@ -52,18 +56,135 @@
         <div id="nav-spacing"><!-- Whitespace to compensate for nav --></div>
         <section id="create">
             <div id="title">
-                <a href="https://couponbooked.com/webapp">Create one now</a>
+                <a id="siteHeader" href="https://couponbooked.com/webapp">Create one now</a>
                 <br />
+                <p>Inspired by the coupons you made as a kid.</p>
                 <p>
-                    Inspired by the coupons you made as a kid. Where homemade gifts meet technology.
+                    Our service works for any situation, whether you're looking to get out of the
+                    doghouse or go the extra mile to show you care.
                 </p>
+                <p>The point of a gift is to make someone feel just as special as they are in your eyes.</p>
+                <p>What better way to do that than by making a gift personalized to their tastes?</p>
+                <p>Parents, siblings, significant others; everyone deserves a gift.</p>
+                <p>Why not be the one to give it to them?</p>
+                <p>Coupon Booked. Where homemade gifts meet technology.</p>
+
+                <a href="https://couponbooked.com/webapp"><button id="openBook">Turn the page...</button></a>
+
+                <!-- TODO: Have this be factored into the height on mobile! -->
                 <a href="#create" class="scroll-down" address="true"></a>
             </div>
         </section>
 
         <section id="about">
-            <h2>Try it out now!</h2>
-            <p>We have a web interface that works on all major platforms to keep you from ever missing a notification.</p>
+            <div id="aaron">
+                <img src="../images/graduation_min.JPG"/>
+                <p>
+                    Aaron has been developing Coupon Booked for well over a year.
+                </p>
+                <p>
+                    One year for Christmas, his girlfriend asked him to make her something unique. Not knowing how to work with his hands,
+                    he decided to program something.
+                </p>
+            </div>
+
+            <div id="madison">
+                <img src="../images/madison_cropped_min.PNG"/>
+                <p>
+                    Madison joined the Coupon Booked team only a few months ago, but the project wouldn't be what it is today without her. 
+                </p>
+                <p>
+                    She created all of our beautiful artwork by hand, and is the driving force behind the unique look of the entire project.
+                </p>
+            </div>
+        </section>
+
+        <section id="testimonials">
+            <h1>Testimonials</h1>
+
+            <div id="quoteContainer" class="glide">
+                <div class="glide__track" data-glide-el="track">
+                    <div class="glide__slides">
+                        <!-- TODO: Make leftmost one more flexible, so middle one is always centered -->
+                        <div class="glide__slide">
+                            <q>This shit gas as fuck!</q>
+                            <p>-Yung Gravy</p>
+
+                            <!-- TODO: See if I can just paste the ratings in from JavaScript or something
+                                so I don't have to duplicate them so many times on the page -->
+                            <!-- TODO: Get a greyed out star to sprinkle in a few four stars -->
+                            <div id="rating">
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                            </div>
+                        </div>
+                        <div class="glide__slide">
+                            <q>I don't know what to say other than fuck the Taliban!</q>
+                            <p>-Ethan Spencer</p>
+
+                            <div id="rating">
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                            </div>
+                        </div>
+                        <div class="glide__slide">
+                            <q>I gave my husband a book for his birthday and I've never seen such a smile!</q>
+                            <p>-Susan</p>
+
+                            <div id="rating">
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                            </div>
+                        </div>
+                        <div class="glide__slide">
+                            <q>This won me some major brownie points with my girlfriend. Thanks Coupon Booked!</q>
+                            <p>-Jonathan Long</p>
+
+                            <div id="rating">
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                            </div>
+                        </div>
+                        <div class="glide__slide">
+                            <q>I got one for my mum on Mother's Day and she was thrilled. Five stars.</q>
+                            <p>-Lachlan Reid</p>
+
+                            <div id="rating">
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                                <img src="images/star_new_min.png" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glide__arrows" data-glide-el="controls">
+                    <button class="glide__arrow glide__arrow--left" data-glide-dir="<">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                            <path d="M0 12l10.975 11 2.848-2.828-6.176-6.176H24v-3.992H7.646l6.176-6.176L10.975 1 0 12z"></path>
+                        </svg>
+                    </button>
+                    <button class="glide__arrow glide__arrow--right" data-glide-dir=">">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                            <path d="M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </section>
 
         <section id="download" class="hide">

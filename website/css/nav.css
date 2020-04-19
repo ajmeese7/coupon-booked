@@ -35,18 +35,18 @@ nav a {
     text-shadow: 1px 1px 2px #c4c4c4;
     margin: 0px 18px;
 }
-#brand, #scroll-create, #scroll-about {
+#brand, .scrollButton {
     display: block; 
     float: left;
 }
 
 /* Navigation links next to branding */
-#scroll-create, #scroll-about {
+.scrollButton {
     font-size: 14px;
     padding: 0px 12px;
     line-height: var(--nav-height);
 }
-#scroll-create:hover, #scroll-about:hover {
+.scrollButton:hover {
     background-color: #17b0cf;
 }
 

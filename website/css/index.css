@@ -3,6 +3,9 @@
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Temporary; https://fonts.google.com/ */
 }
+*:focus {
+    outline: 0;
+}
 body {
   	background-color: #e8f6fa !important;
     margin: 0px;
@@ -60,11 +63,32 @@ footer a {
         max-width: 99% !important;
     }
 
+    #openBook {
+        /* Using this until we decide what mobile layout should be */
+        display: none;
+    }
+
     #create {
         background-image: url("../images/mobile_min.png") !important;
     }
+
+    .glide__slide q {
+        max-width: 85% !important;
+    }
 }
 @media screen and (max-width: 600px) {
+    #aaron p {
+        width: inherit !important;
+        margin-left: 0 !important;
+    }
+
+    #quoteContainer {
+        margin-top: 0px !important;
+    }
+    .glide__arrow {
+        display: none !important;
+    }
+
     footer {
         height: initial;
     }
@@ -80,6 +104,7 @@ footer a {
     footer a {
         float: none;
         padding-bottom: 10px;
+        margin-bottom: 0;
     }
 }
 
@@ -98,6 +123,61 @@ footer a {
 #title p {
     padding: 0.2rem;
     font-style: oblique;
+}
+
+@font-face {
+    font-family: Bariol-Regular;
+    src: url(../fonts/Bariol_Regular.otf);
+}
+#quoteContainer {
+    margin-top: 65px;
+}
+.glide__slide {
+    display: table;
+    margin: auto;
+    margin-top: 50px;
+    max-width: 85%;
+}
+.glide__slide q {
+    max-width: 600px;
+    font-size: 28px;
+    display: block;
+    margin: auto;
+    text-align: center;
+
+    /* http://typ.io/s/3xx4 */
+    font-family: Bariol-Regular, serif;
+	font-size: 42px;
+	font-style: normal;
+	font-weight: normal;
+	letter-spacing: normal;
+	line-height: normal;
+	text-transform: none;
+	color: #707C80;
+}
+.glide__slide p {
+    text-align: center;
+    font-family: Gotham-Book, sans-serif;
+    font-size: 22px;
+    font-style: normal;
+    font-weight: normal;
+    letter-spacing: 1px;
+    line-height: normal;
+    text-transform: uppercase;
+    color: #394042;
+}
+.glide__arrow:hover {
+	/* border: 1px solid grey; */
+	background: #76cde5 !important;
+}
+#rating {
+    margin: auto;
+    display: table;
+}
+#rating img {
+    height: 35px;
+    width: 35px;
+    display: inline-block;
 }
 
 section:not(#download) {
