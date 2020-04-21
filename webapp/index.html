@@ -10,7 +10,8 @@
 
     <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/ https://checkout.stripe.com; 
         default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://cdn.onesignal.com https://onesignal.com https://cdn.auth0.com 
-        https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/ https://js.stripe.com/ https://checkout.stripe.com/ https://cdnjs.cloudflare.com/ajax/libs/jshashes/; 
+        https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/ https://js.stripe.com/ https://checkout.stripe.com/ https://cdnjs.cloudflare.com/ajax/libs/jshashes/
+        https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.8.2/ https://widget.cloudinary.com/v2.0/global/ https://widget.cloudinary.com/v2.0/n/couponbooked/; 
         style-src 'self' 'unsafe-inline' https://cdn.auth0.com https://checkout.stripe.com/v3/checkout/; media-src *; img-src *; font-src *;" />
     
     <link rel="stylesheet" type="text/css" href="css/index.css" />
@@ -38,6 +39,7 @@
     <script src="https://cdn.auth0.com/w2/auth0-7.2.min.js"></script>
     <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
     <script src="https://js.stripe.com/v3"></script>
+
     <script>
         // Copied from OneSignal website
         var OneSignal = window.OneSignal || [];
@@ -229,10 +231,7 @@
             </div>
 
             <!-- NOTE: Nearly all of this is copied directly from bookForm, so changes should be reflected there -->
-            <div class="imageButtons">
-                <a id="couponOpenPhoto">Choose Image</a>
-                <a id="couponTakePhoto">Take Photo</a>
-            </div>
+            <button type="button" class="cloudinary-button">Change image</button>
             
             <!-- TODO: Need to get this to run on browser back button for desktop and native mobile -->
             <div id="discardCouponConfirm" class="dialog-box" title="Discard all changes?">
@@ -261,13 +260,7 @@
                 <img id="bookImage" height="100px" onerror="imageError(this)" src="./images/ticket.png" />
             </div>
 
-            <!-- https://www.w3schools.com/tags/att_input_accept.asp;
-                also for coupons -->
-            <div class="imageButtons">
-                <a id="bookOpenPhoto">Choose Image</a>
-                <a id="bookTakePhoto">Take Photo</a>
-                <!-- TODO: Online search or sumn -->
-            </div>
+            <button type="button" class="cloudinary-button">Change image</button>
             
             <div id="discardBookEditsConfirm" class="dialog-box" title="Discard all changes">
                 <p id="confirmText">
@@ -471,6 +464,10 @@
             image.src = "images/ticket.png";
         }
     </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.8.2/cloudinary-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.8.2/cloudinary-core.js.map"></script>
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
 </body>
 
 </html>

@@ -291,168 +291,43 @@ function editBookButton() {
  * TODO: maybe also allow users to search through (browse) all the templated images
  */
 function imageUploadListeners(coupon) {
-  // TODO: Add option to reset image to present
-  var imageToUpdate = !!coupon ? getById("couponImage") : getById("bookImage");
-  var bytes = require('bytes');
-  var args = {
-      'selectMode': 100,
-      'maxSelectCount': 1,
-      'maxSelectSize': (bytes.parse("5mb") * 8) // Megabytes to bytes to bits
-  };
+  // TODO: is there a built-in way to have it browse the images in the template folders 
+  // and show thumbnails for them? If not that would be the way to go
+  // TODO: Fix problem with pay button showing up after saving
 
-  // TODO: Make sure the image isn't rotated for some users somehow
+  //var timestamp = Math.floor(Date.now() / 1000);
+  var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + book.bookId;
 
-  // Error in Success callbackId: MediaPicker1340867104 : TypeError: Cannot read property 'uri' of undefined ??
-  $('#bookOpenPhoto, #couponOpenPhoto').unbind().click(function() {
-    // TODO: Get uniform cropping; the take photo one is better so try to expand usage
-    MediaPicker.getMedias(args, function(image) {
-      // TODO: Eventually try to make the initial sizing better (100% width)
-      // TODO: resize to uniform, i.e. 512x512?
-      var uncroppedImage = image[0].uri;
-      if (uncroppedImage.includes(".png")) {
-        // Temporary fix that ignores the cropping of PNG images so they retain their
-        // transparency. The logs for this issue are located here:
-        // https://github.com/DmcSDK/cordova-plugin-mediaPicker/issues/102
-        // https://github.com/jeduan/cordova-plugin-crop/issues/78
-        console.log("Not cropping PNG due to transparency loss...");
-        imageToUpdate.src = uncroppedImage;
-        uploadImage(imageToUpdate, coupon);
-      } else {
-          // Lets the user crop the selected image in a square shape
-          plugins.crop.promise(image[0].uri, { quality: 100 })
-          .then(function success(newPath) {
-              // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
-              console.log("Cropped image data:", newPath);
-              imageToUpdate.src = newPath;
-              uploadImage(imageToUpdate, coupon);
-          })
-          .catch(function fail(err) {
-            console.error("Problem cropping image ->", err);
-          });
+  // TODO: Have some unused bit or way to delete images of books that are old
+  // TODO: Add our images to Dropbox or something to display that; also remove Cloudinary logo
+  var uploadWidget = cloudinary.createUploadWidget({
+    // TODO: Make sure videos don't work, or convert short videos to GIFs
+    cloudName: 'couponbooked', uploadPreset: 'default_unsigned', cropping: true, 
+    apiKey: "363493359893521", folder: folder, multiple: false, croppingAspectRatio: 1}, (error, result) => { 
+      if (!error && result && result.event === "success") {
+        //console.log('Done! Here is the image info:', result.info);
+        var imageToUpdate = !!coupon ? getById("couponImage") : getById("bookImage");
+        imageToUpdate.src = result.info.secure_url;
       }
-    }, function(e) { console.error("Problem in selecting media ->", e) })
-  });
-
-  /** Shows a loading circle when waiting for the image to upload */
-  function loadingUI() {
-    // TODO - because when uploading a photo you take it can take a second to load
-  }
-
-  $('#bookTakePhoto, #couponTakePhoto').unbind().click(function() {
-    // https://stackoverflow.com/a/35133183/6456163;
-    // is it possible to add a circular option or would that have to be after the fact?
-    var cameraOptions = {
-      quality: 75,
-      allowEdit: true,
-      targetWidth: 512,
-      targetHeight: 512,
-      mediaType: Camera.MediaType.PICTURE
-    };
-
-    MediaPicker.takePhoto(cameraOptions, function(media) {
-      loadingUI();
-
-      // Need to call this in a function for some reason otherwise media isn't ready yet
-      handlePreparedPhoto(media);
-    }, function(e) { console.error("Error in takePhoto ->", e) });
-  });
-
-  /** Literally just a handler function to wait until a variable is ready */
-  function handlePreparedPhoto(media) {
-    //console.log("handlePreparedPhoto media:", media);
-    imageToUpdate.src = media.uri;
-    uploadImage(imageToUpdate, coupon);
-  }
+    }
+  )
   
-  function compressImage(compressedImage) {
-    compressedImage.quality = 80; // when the value is 100, return original image
-    MediaPicker.compressImage(compressedImage, function(compressData) {
-        // https://stackoverflow.com/a/40360666/6456163
-        console.log("Compressed image path:", compressData.path);
-    }, function(e) { console.error("Error in compressImage ->", e) });
-  }
-}
-
-/**
- * Compresses the image and sends it to Cloudinary.
- * @param {string} updatedImage - the image with the new src
- * @param {object} coupon - coupon object if not called for book.
- * If for book, it will be null.
- */
-function uploadImage(updatedImage, coupon) {
-  // NOTE: !!coupon == (isCoupon && !isBook), for reference
-  var filePath = updatedImage.src;
-  console.warn("Uploading image...");
-
-  // https://github.com/collectmeaustralia/cordova-cloudinary-upload/issues/1
-  var uri = encodeURI('https://api.cloudinary.com/v1_1/couponbooked/image/upload');
-  var fileToUploadPath = filePath;
-
-  var options = new FileUploadOptions();
-    options.fileKey = "file";
-    options.fileName = fileToUploadPath.substr(fileToUploadPath.lastIndexOf('/') + 1);
-  var timestamp = Math.floor(Date.now() / 1000);
-
-  // https://support.cloudinary.com/hc/en-us/community/posts/360030104392/comments/360002948811
-  if (development && !book.bookId) {
-    // TODO: Figure out how to view all images in parent folder, so it's essentially
-    // metadata but in the location name
-    console.log("TEMPLATE folder for image upload!");
-    var folder = "templates/" + (!!coupon ? "coupons" : "books") + "/" + book.name;
-  } else {
-    console.log("USER folder for image upload!");
-    var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + book.bookId;
-  }
-
-  // Add in the params required for Cloudinary
-  options.params = {
-      api_key: env.CLOUDINARY_KEY,
-      folder: folder,
-      timestamp: timestamp,
-      signature: new Hashes.SHA1().hex(`folder=${folder}&timestamp=${timestamp}${env.CLOUDINARY_SECRET}`)
-  };
-
-  var ft = new FileTransfer();
-
-  // Leaving this here in case I ever need it
-  ft.onprogress = (function(progressEvent) {
-    try {
-        if (progressEvent.lengthComputable) {
-            // if we can calculate the length of the upload ...
-            var percentageComplete = ((progressEvent.loaded / progressEvent.total) * 100);
-            console.log("Percentage complete:", percentageComplete)
-        } else {
-          // otherwise increment some counter by 1
-        }
-
-        // do something with the latest progress...
-    } catch(err) {
-      console.error("Problem computing progress:", err);
+  $(".cloudinary-button").unbind().click(function() {
+    if (uploadWidget.isMinimized()) {
+      uploadWidget.show();
+    } else {
+      uploadWidget.open();
     }
   });
 
-  ft.upload(fileToUploadPath, uri, 
-    function(result) {
-      var response = JSON.parse(result.response);
-      console.log("Upload response:", response);
-      updatedImage.src = response.secure_url;
+  // TODO: Add file size checking on client and server-side
+  // TODO: resize to uniform, i.e. 512x512?
+}
 
-      // TODO: make it work for coupons automatically too, or save the image uploading for save button
-      if (!coupon) {
-        book.image = response.secure_url;
-        updateBook();
-      }
-    }, 
-    function(error) {
-      console.error("Problem in image upload:", error);
-      if (!!error.body) {
-        // Saves me a couple annoying seconds of scrolling through the message
-        console.error("Error body:", JSON.parse(error.body));
-      }
-    },
-    options
-  );
-};
+// TODO: Update notifications to be centered on the preview on desktop too
+// TODO: Eventually have this signed with PHP sending back hash with secret
+// https://cloudinary.com/documentation/upload_images#generating_authentication_signatures
+// signature: new Hashes.SHA1().hex(`folder=${folder}&timestamp=${timestamp}${env.CLOUDINARY_SECRET}`)
 
 /**
  * The normal listeners for the /sentBook route.
@@ -689,7 +564,7 @@ function limitDescriptionLength(isBook) {
       descLength.text(`${length}/${maxlen}`);
 
       setTimeout(function() {
-        if (initial) console.log("Initial text update, adding small delay to height update...");
+        if (initial) console.warn("Initial text update, adding small delay to height update...");
         updateHeight(isBook);
       }, initial ? 250 : 1);
     }
@@ -1030,7 +905,8 @@ function showProperButton(currentPage) {
     // TODO: only show save button once there are changes
     fadeBetweenElements("#createButton, #delete, #share", "#save", true);
   } else if (currentPage == "couponPreview") {
-    // For if they want to delete a coupon
+    // For if they want to delete a coupon;
+    // TODO: Figure out why the share button is still visible after this
     fadeBetweenElements("#createButton, #save, #share", "#delete", true);
   }
 }

@@ -443,15 +443,11 @@ textarea {
     text-align: center; /* TODO: Make this look prettier */
 }
 
-/* https://stackoverflow.com/a/7245084/6456163 */
-.imageButtons {
-    width: 67%;
+.cloudinary-button {
+    /* TODO: Make this fit in with the app style */
+    display: table !important;
+    padding: 2px 14px !important;
     margin: auto;
-}
-.imageButtons a {
-    display: inline-block;
-    width: 49%;
-    text-align: center;
 }
 
 #namePreview {
