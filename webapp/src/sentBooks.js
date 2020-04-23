@@ -890,7 +890,7 @@ function bookFormIsValid() {
  * @param {string} currentPage - the page for which the display needs to be updated
  */
 function showProperButton(currentPage) {
-  console.warn(`showProperButton for ${currentPage}`);
+  //console.warn(`showProperButton for ${currentPage}`);
 
   if ((currentPage == "home" && !book.bookId && !development) || currentPage == "newCoupon") {
     // displaySentBook called last and book not yet created, or a new coupon
@@ -1001,16 +1001,6 @@ function editBookDetails() {
  * to false. For more info on parameter look here: https://stackoverflow.com/a/1846715/6456163
  */
 function updateBook(silent) {
-  // TODO: Implement checking like this if it doesn't already exist,
-  // or a silent alternative so they aren't bothered and neither is the server:
-  /*
-    !isSameObject(book, previousBook)
-    // Book hasn't been modified
-    SimpleNotification.info({
-      text: "You haven't changed anything!"
-    }, notificationOptions);
-  */
-
   $.ajax({
     type: "POST",
     url: "https://www.couponbooked.com/scripts/updateData",
