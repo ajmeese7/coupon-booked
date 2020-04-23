@@ -434,6 +434,9 @@ textarea {
     margin: 15px auto;
     max-width: 300px; /* TODO: Decide on how to make this look good on mobile & desktop */
 }
+#couponImage, #bookImage {
+    cursor: pointer;
+}
 #descPreview {
     /* NOTE: Will also have to make this different for tablets;
     duplicated in shareCode.css */

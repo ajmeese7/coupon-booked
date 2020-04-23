@@ -278,7 +278,7 @@ function editBookButton() {
     });
 
     $("#bookImage").unbind().click(function() {
-      // TODO: Just click 'Choose Image' or something here?
+      $(".cloudinary-button").click();
     });
   });
 }
@@ -522,6 +522,10 @@ function showCouponEditPage($this) {
       development ? updateTemplate(true) : updateBook(true);
       showCouponPreview($this);
     }
+  });
+
+  $("#couponImage").unbind().click(function() {
+    $(".cloudinary-button").click();
   });
 }
 
