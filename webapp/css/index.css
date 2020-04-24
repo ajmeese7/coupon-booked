@@ -17,7 +17,8 @@ body {
     margin: 0px;
     padding: 0px;
     width: 100%;
-    text-transform: none !important; /* Should I let this be uppercase like Cordova does? */
+    text-transform: none !important;
+    overflow-x: hidden; /* TODO: Fix needless scrollbars sometimes, like on dashboard */
 }
 
 hr {
@@ -38,14 +39,6 @@ button:focus, a:focus {
 section {
     min-height: calc(100vh - var(--nav-height));
     width: 100vw;
-}
-
-iframe[seamless] {
-    background-color: transparent;
-    border: none;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
 }
 
 /* Used for testing purposes and toggling whether an element is displayed */

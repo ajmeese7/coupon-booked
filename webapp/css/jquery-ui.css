@@ -80,6 +80,7 @@ body {
 }
 input[type="text"], input[type="number"], textarea {
 	border: 1px solid #c0d2d7;
+	padding-left: 3px;
 }
 
 
