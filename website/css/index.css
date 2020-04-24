@@ -17,40 +17,36 @@ a {
     text-decoration: none;
 }
 
-footer {
-    width: 100%;
-    height: 40px;
-    background-color: #76cde5;
-    box-shadow: 0 -0.5px 2px 0 #76cde5;
-    position: relative;
-    bottom: 0;
-}
-footer p, footer a {
-    color: azure;
-    display: inline-block;
-    margin: 5px 20px 0px 20px;
-}
-footer a {
-    float: right;
-}
-
 /* Used for toggling whether an element is displayed */
 .hide {
     display: none;
 }
 
-#create {
-    background-image: url("../images/notebook_min.png");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-}
 @media screen and (min-width: 1550px) {
     #create {
-        background-image: url("../images/notebook_medium_min.jpg");
+        background-image: url("../images/notebook_medium_min.jpg") !important;
     }
     #title {
-        padding: 70px 0px 50px 70px !important;
+        padding: 70px 0px 0px 70px !important;
+    }
+    #openBook {
+        bottom: 65px !important;
+    }
+}
+@media screen and (max-width: 1000px) {
+    :root {
+        --about-image-width: 300px !important;
+    }
+
+    #about p {
+        max-width: none !important;
+    }
+    #aaron, #madison {
+        float: none !important;
+        margin: auto;
+    }
+    #top {
+        padding-bottom: 25px;
     }
 }
 @media screen and (max-width: 800px) {
@@ -108,20 +104,120 @@ footer a {
     }
 }
 
-#title a {
+/******************************
+        CREATE YOUR OWN
+ ******************************/
+
+ /* TODO: Make sure styles still work on different screen heights, like laptops! */
+#create {
+    background-image: url("../images/notebook_min.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    box-shadow: 3px 3px 3px #bdc9cc;
+}
+#title {
+    position: relative;
+    line-height: 2.0;
+    margin: 0 auto 20px auto;
+    padding: 60px 0px 50px 55px;
+    width: 525px;
+    min-height: 94vh;
+}
+#siteHeader {
 	font-variant: small-caps;
 	color: black;
 	font-size: 40px;
 	font-weight: bold;
 }
-#title {
-    line-height: 2.0; 
-    padding: 60px 0px 50px 55px;
-    width: 525px;
-    margin: 0 auto 20px auto;
-}
 #title p {
-    padding: 0.2rem;
+    padding-top: 0.2rem;
+    padding-left: 0.2rem;
+    font-style: oblique;
+}
+
+#openBook {
+    border: 1px dashed black;
+    background: none;
+    color: black;
+    letter-spacing: 0.075ch;
+    position: absolute;
+    bottom: 50px;
+    height: 50px;
+    right: -25px;
+}
+#openBook:hover {
+    background: rgba( 240, 138, 127, 0.35) !important;
+}
+
+/******************************
+              ABOUT
+ ******************************/
+
+:root {
+    /* Was 300 */
+    --about-image-width: 250px;
+}
+#about {
+    width: 85% !important;
+    max-width: 1500px;
+    margin: auto;
+    padding-top: 25px;
+}
+#about img {
+    width: var(--about-image-width);
+    border-radius: 2px;
+    box-shadow: 3px 3px 1px #ccc;
+}
+#about p:not(.name) {
+    display: inline-block;
+    max-width: calc(100% - var(--about-image-width) - 50px);
+    margin-bottom: 0;
+    margin-top: 14px; /* NOTE: WIP */
+}
+
+#top, #bottom {
+    min-height: calc(var(--about-image-width) + 25px);
+}
+#aaron, #madison {
+    /* TODO: Decide if this needs variable too */
+    min-height: 325px;
+    width: var(--about-image-width);
+}
+.name {
+    margin: auto;
+    margin-top: 5px;
+    display: table;
+    font-weight: bold;
+}
+
+#top p:not(.name) {
+    margin-left: 25px;
+}
+#aaron {
+    float: left;
+}
+
+#bottom {
+    margin-top: 25px;
+}
+#madison {
+    float: right;
+}
+#madison img {
+    /*height: 320px;*/
+}
+
+/******************************
+          TESTIMONIALS
+ ******************************/
+
+#testimonials {
+    /*background: #333;*/
+}
+#testimonials h1 {
+    margin: auto;
+    text-align: center;
     font-style: oblique;
 }
 
@@ -180,6 +276,10 @@ footer a {
     display: inline-block;
 }
 
+/******************************
+            DOWNLOADS
+ ******************************/
+
 section:not(#download) {
     /* TODO: Make this work better for when viewing desktop mode on mobile */
     width: 100vw;
@@ -190,4 +290,25 @@ section:not(#download) {
 }
 #download h2 {
     text-align: center;
+}
+
+/******************************
+             FOOTER
+ ******************************/
+
+footer {
+    width: 100%;
+    height: 40px;
+    background-color: #76cde5;
+    box-shadow: 0 -0.5px 2px 0 #76cde5;
+    position: relative;
+    bottom: 0;
+}
+footer p, footer a {
+    color: azure;
+    display: inline-block;
+    margin: 5px 20px 0px 20px;
+}
+footer a {
+    float: right;
 }

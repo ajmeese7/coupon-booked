@@ -398,7 +398,6 @@ function sentCouponListeners(node) {
     showCouponPreview($this);
 
     $("#edit").unbind().click(function() {
-      console.log("Edit button pressed!");
       showCouponEditPage($this);
     });
   });

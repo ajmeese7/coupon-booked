@@ -6,7 +6,6 @@ $(function() {
         return false;
     });
     $('#scroll-about, .scroll-down').click (function() {
-        /* TODO: Fix this one */
         $('html, body').animate({scrollTop: $('section#about').offset().top - 48 }, 'slow');
         return false;
     });
