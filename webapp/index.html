@@ -203,6 +203,55 @@
                     I am in the process of working on a fix for this, but unfortunately I cannot give a timeline for when it will be resolved.
                 </p>
             </div>
+
+            <h5 id="reachOut">
+                Still not answering your question? Reach out to us and we'll do our best to help.
+            </h5>
+
+            <!-- https://www.w3schools.com/css/css_form.asp -->
+            <div id="helpFormContainer">
+                <form id="helpForm"> <!-- action="/form_submit.php" -->
+                    <div class="row">
+                        <div>
+                            <label for="topic">Topic</label>
+                        </div>
+                        <div>
+                            <select id="topic" name="topic">
+                                <option value="feedback">Feedback</option>
+                                <option value="bugs">Bug Reporting</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label for="name">Your Name</label>
+                        </div>
+                        <div>
+                            <input type="text" id="name" name="name" placeholder="Your name..">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label for="email">Your Email</label>
+                        </div>
+                        <div>
+                            <input type="email" id="email" name="email" placeholder="someone@something.com">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label for="subject">Subject</label>
+                        </div>
+                        <div>
+                            <textarea id="subject" name="subject" placeholder="Write something.." style="height:200px"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <input id="submit" type="submit" value="Submit">
+                    </div>
+                </form>
+            </div>
         </div>
     </template>
 

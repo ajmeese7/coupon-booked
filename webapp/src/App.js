@@ -300,6 +300,40 @@ App.prototype.state = {
         _this = this;
         navBar();
         darkModeSupport();
+
+        var userId = localStorage.getItem("user_id");
+        $("#submit").unbind().click(function(event) {
+          event.preventDefault();
+
+          var form = $('#helpForm').serializeArray();
+          var formData = {};
+          for (var i = 0; i < form.length; i++) {
+            formData[form[i].name] = form[i].value;
+          }
+
+          // TODO: Client side verification before submission
+          $.ajax({
+            type: "POST",
+            url: "https://www.couponbooked.com/scripts/form_submit",
+            data: { userId: userId, formData: JSON.stringify(formData) },
+            crossDomain: true,
+            cache: false,
+            success: function(success) {
+              // TODO: Show them a notification or fade the form into a success text or something
+              SimpleNotification.success({
+                text: "Form successfully submitted"
+              }, notificationOptions);
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+              console.error("Error with form submission:", XMLHttpRequest.responseText);
+
+              SimpleNotification.error({
+                title: "Error submitting form",
+                text: "Please try again later."
+              }, notificationOptions);
+            }
+          });
+        });
       }
     }
   }

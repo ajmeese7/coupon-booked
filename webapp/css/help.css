@@ -20,7 +20,7 @@
     overflow: hidden;
     transition: max-height 0.2s ease-out;
 }
-.panel, .accordion {
+.panel, .accordion, #helpFormContainer {
     /* TODO: Find a better way to handle large screens */
     max-width: 1000px;
 }
@@ -54,4 +54,63 @@
 .panel p:last-child {
     padding-bottom: 10px;
     margin-bottom: 0;
+}
+
+
+/**********************
+         Form
+***********************/
+input[type=text], input[type=email], select, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical;
+}
+label {
+    padding: 12px 12px 12px 0;
+    display: inline-block;
+}
+input[type=submit] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    float: right;
+}
+input[type=submit]:hover {
+    background-color: #45a049;
+}
+
+#reachOut {
+    margin-top: 25px;
+    max-width: 1000px;
+    text-align: center;
+}
+#helpFormContainer {
+    border-radius: 5px;
+    /*background-color: #f2f2f2;*/
+    padding: 20px;
+}
+
+.row {
+    margin: 0 !important;
+}
+.row:after {
+    /* Clear floats after the columns */
+    content: "";
+    display: table;
+    clear: both;
+}
+.row div {
+    float: left;
+}
+.row div, input[type=submit] {
+    width: 100% !important;
+    margin-top: 0 !important;
+}
+#submit {
+    margin-top: 10px !important;
 }
