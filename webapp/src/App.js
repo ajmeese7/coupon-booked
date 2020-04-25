@@ -294,8 +294,8 @@ App.prototype.state = {
         $(logoutButton).unbind().click(this.logout);
       }
     },
-    '/guide': {
-      id: 'guide',
+    '/help': {
+      id: 'help',
       onMount: function(page) {
         _this = this;
         navBar();
@@ -833,13 +833,17 @@ function navBar() {
   var createButton = getBySelector('.create');
   $(createButton).unbind().click(function() { _this.redirectTo('/create') });
 
+  // Redeem button on dropdown
+  var redeemButton = getBySelector('.redeem');
+  $(redeemButton).unbind().click(function() { _this.redirectTo('/redeemCode') });
+
   // Settings button on dropdown
   var settingsButton = getBySelector('.settings');
   $(settingsButton).unbind().click(function() { _this.redirectTo('/settings') });
 
-  // Guide button on dropdown
-  var guideButton = getBySelector('.guide');
-  $(guideButton).unbind().click(function() { _this.redirectTo('/guide') });
+  // Help button on dropdown
+  var helpButton = getBySelector('.help');
+  $(helpButton).unbind().click(function() { _this.redirectTo('/help') });
 
   // Profile picture dropdown
   $(".account").unbind().click(function() {

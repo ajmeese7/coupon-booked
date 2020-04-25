@@ -84,10 +84,12 @@
                         </div> <!-- navbar-collapse -->
                     </div> <!-- container -->
 
+                    <!-- TODO: Decide on what to do about `Redeem a Code` -->
                     <ul id="desktopNav" style="display: none;">
                         <li class="dashboard">Dashboard</li>
                         <li class="create">Create a Book</li>
-                        <li class="guide">Guide</li>
+                        <li class="redeem">Redeem Code</li> <!-- IDEA: Claim Book? -->
+                        <li class="help">Help</li>
                         <li class="settings">Settings</li>
                     </ul>
                 </nav> <!-- navbar -->
@@ -96,11 +98,13 @@
             <!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
             <div class="dropdown">
                 <div class="submenu" style="display: none;">
+                    <!-- TODO: Find a more intuitive menu for this many options on mobile -->
                     <ul class="root">
                         <!-- IDEA: Can add relevant icons for each item -->
                         <li><a href="#" class="dashboard">Dashboard</a></li>
                         <li><a href="#" class="create">Create a Book</a></li>
-                        <li><a href="#" class="guide">Guide</a></li>
+                        <li><a href="#" class="redeem">Redeem a Code</a></li>
+                        <li><a href="#" class="help">Help</a></li>
                         <li><a href="#" class="settings">Settings</a></li>
                     </ul>
                 </div>
@@ -131,58 +135,74 @@
         </div>
     </template>
 
-    <template id="guide">
+    <template id="help">
         <link rel="stylesheet" type="text/css" href="css/app.css" />
+        <link rel="stylesheet" type="text/css" href="css/help.css" />
+        <script src="js/help.js"></script>
 
         <div class="page">
-            <h2>Guide</h2>
+            <h2>Help</h2>
             <br />
 
-            <!-- NOTE: Can also switch to https://jsfiddle.net/ajmeese7/bhsf2q3u/1/ sometime if I want to -->
-            <h4>Creating a new book</h4>
-            <p>
-                To create a book, go to the dashboard and click the 'Sent' tab.
-                From here you can click the blue plus button in the bottom right
-                corner of the screen and it will redirect you to the book creation
-                screen. Once you select the template you want you will be able to 
-                modify the book however you want. To save it to edit in the future,
-                click the "Create" button in the upper right hand corner.
-            </p>
+            <!-- NOTE: Can also switch stytes to https://jsfiddle.net/ajmeese7/bhsf2q3u/1/ -->
+            <button class="accordion">Creating a new book</button>
+            <div class="panel">
+                <p>
+                    On desktop, you select the <q>Create a Book</q> option on the sidebar. From there you select a template and start customizing the book.
+                    Once you are ready to create it, click the <q>Create</q> button in the upper right corner of the screen.
+                </p>
+                <p>
+                    On mobile, you open the dropdown by selecting your profile picture. When you select the <q>Create a Book</q> option from the dropdown, a
+                    list of templates will be displayed. You can select any template and begin editing. When you want to save your work, select the <q>Create</q>
+                    button in the upper right corner of the screen.
+                </p>
+                <!-- IDEA: Make this a `Save` button or something instead? Ask consumers. -->
+                <p>
+                    Don't be afraid to create a book. All it does is save your progress to your account so you can edit it further in the future. You don't have
+                    to have the book finished when you create it.
+                </p>
+            </div>
 
-            <h4>Sharing a book</h4>
-            <p>
-                Once you have created a coupon book, you can share it by clicking the 
-                "Share" button in the upper right hand corner. You are free to edit the
-                book any time before sending it and after you have sent it, so don't stress
-                if you need to go back and add more coupons later. We are currently only
-                charging to share the book and have no plans to change that in the future.
-            </p>
+            <!-- TODO: Probably switch back from `Pay` to `Share` -->
+            <button class="accordion">Sharing a book</button>
+            <div class="panel">
+                <p>
+                    Once you have created a coupon book, you can share it by clicking the "Share" button in the upper right hand corner.    
+                </p>
+                <p>
+                    You are free to edit the book any time before sending it and after you have sent it, so don't stress if you need to go back and add more coupons later. 
+                </p>
+                <p>
+                    We only charge you to initially send a book to someone, so we have enough revenue to keep the service going. It's free to modify the book and reload 
+                    coupons after you send it, so don't be stingy with them!
+                </p>
+            </div>
 
-            <h4>Redeeming a book code</h4>
-            <p>
-                To redeem a book code, go to the dashboard and click the 'Received' tab.
-                From here you can click the green "Redeem a code" button in the bottom
-                right corner of the screen and it will redirect you to the code redemption
-                screen.
-            </p>
+            <button class="accordion">Changing your display name</button>
+            <div class="panel">
+                <p>
+                    When you send someone a coupon code and they redeem it, the book will display who sent it. If you logged in through Google this will be your name, 
+                    but if you created an account you will have to change it on the settings page.
+                </p>
+                <!-- TODO: Read this stuff -->
+                <p>
+                    You can type whatever you want to be shown to people in the "Display Name" field and click the update button to submit the new display name. 
+                    If you update when the field is empty, your default display name will show again.
+                </p>
+            </div>
 
-            <h4>Changing your display name</h4>
-            <p>
-                When you send someone a coupon code and they redeem it, the book will display
-                who sent it. If you logged in through Google this will be your name, but if you
-                created an account you will have to change it on the settings page. You can
-                type whatever you want to be shown to people in the "Display Name" field and 
-                click the update button to submit the new display name. If you update when the 
-                field is empty, your default display name will show again.
-            </p>
-
-            <h4>App looks strange</h4>
-            <p>
-                If you have your accessibility settings set to anything other than the device's 
-                default, the app may be displayed strangely. I am currently working on a fix for 
-                this but unfortunately as of now there is no way to resolve it other than by changing 
-                the settings on your device.
-            </p>
+            <button class="accordion">App looks strange</button>
+            <div class="panel">
+                <p>
+                    If you have your accessibility settings set to anything other than your device's default, the app may be displayed strangely.
+                </p>
+                <p>
+                    Currently, the only way to resolve this is to change the settings on your device.
+                </p>
+                <p>
+                    I am in the process of working on a fix for this, but unfortunately I cannot give a timeline for when it will be resolved.
+                </p>
+            </div>
         </div>
     </template>
 

@@ -3,9 +3,10 @@
 
 // When document is ready, initialize the application
 $(function() {
-    console.warn("Page is ready...");
+    // Called to prepare for application start
     onesignalNotifications();
 
+    // Actually starts the app up
     var app = new App();
     app.run('#app');
 });

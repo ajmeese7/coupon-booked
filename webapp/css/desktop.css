@@ -122,4 +122,7 @@
         /* NOTE: I have no idea why this works, so don't touch it */
         left: calc(50vw - (var(--nav-width) / 3.5)) !important;
     }
+    #redeemButton {
+        left: calc(50% + (var(--nav-width) / 3.5)); /* VM voodoo magic */
+    }
 }
