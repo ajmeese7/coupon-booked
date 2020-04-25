@@ -24,7 +24,7 @@ App.prototype.state = {
     '/': {
       id: 'loading',
       onMount: function(page) {
-        console.warn("/ route...");
+        //console.warn("/ route...");
         nav = getBySelector("#nav");
         loadingIcon = getBySelector("#loader");
 
@@ -182,9 +182,8 @@ App.prototype.state = {
           _this.redirectTo('/dashboard');
         });
 
-        // User clicks "Send one now!" and they're redirected to the create route;
-        // does the same thing as the plus button
-        $('#start, #plus').unbind().click(function() {
+        // User clicks "Send one now!" and they're redirected to the create route
+        $('#start').unbind().click(function() {
           _this.redirectTo('/create');
         });
 
@@ -800,7 +799,7 @@ async function requestBook() {
  * Redirects to login if user not authenticated.
  */
 function navBar() {
-  console.warn("navBar...");
+  //console.warn("navBar...");
   if (_this.state.authenticated === false) {
     return _this.redirectTo('/login');
   }
@@ -824,10 +823,15 @@ function navBar() {
     avatar.src = profile.picture;
   }
 
-  // TODO: See if this can dynamically do dropdowns other than logout to save time in future
+  // TODO: See if this can dynamically do dropdowns
+  // TODO: Try to have it not bug the server if they click the link of the page they're already on
   // Dashboard button on dropdown
   var dashboardButton = getBySelector('.dashboard');
   $(dashboardButton).unbind().click(function() { _this.redirectTo('/dashboard') });
+
+  // Settings button on dropdown
+  var createButton = getBySelector('.create');
+  $(createButton).unbind().click(function() { _this.redirectTo('/create') });
 
   // Settings button on dropdown
   var settingsButton = getBySelector('.settings');
@@ -978,7 +982,7 @@ App.prototype.logout = function() {
 };
 
 App.prototype.redirectTo = function(route) {
-  console.warn(`redirectTo ${route}...`);
+  //console.warn(`redirectTo ${route}...`);
   if (!this.state.routes[route]) {
     throw new Error(`Unknown route ${route}.`);
   }
