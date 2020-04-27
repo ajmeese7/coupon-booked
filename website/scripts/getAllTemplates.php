@@ -1,7 +1,7 @@
 <?php
   include('createConnection.php');
 
-  // TODO: Determine if this page should have some for of validation, possibly a working userId
+  // TODO: Determine if this page should have some forM of validation, possibly a working userId
   $stmt = $conn->prepare("SELECT templateData, sortOrder FROM templates");
   $stmt->execute();
   $stmt->store_result();

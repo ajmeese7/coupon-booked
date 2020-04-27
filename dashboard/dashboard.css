@@ -1,0 +1,70 @@
+#ticketContainer {
+    width: 635px;
+    background-color: #16113a;
+    border-radius: 10px;
+    display: inline-block;
+    color: white;
+    margin-left: 25px;
+}
+
+.ticketPreview {
+	width: 600px;
+	background-color: #272953;
+	border-radius: 10px;
+    margin: 20px auto;
+    cursor: pointer;
+}
+.activeTicket {
+    cursor: initial !important;
+}
+
+/* Inspired by https://www.geckoboard.com/uploads/CEO-dashboard-geckoboard.png
+    and assisted by https://imagecolorpicker.com/en/ */
+.ticketCount, .ticketType, .ticketStatus {
+    display: inline-block;
+}
+.ticketCount {
+    margin-left: 10px;
+    margin-right: 25px;
+    color: #3e81bd;
+}
+.ticketType {
+    color: #cb5097;
+}
+.ticketStatus {
+    float: right;
+    margin-right: 10px;
+    color: #62b869;
+}
+.ticketHeader {
+    width: 90%;
+    margin: auto;
+    margin-bottom: 10px;
+    color: #e3e3e3;
+}
+.ticketHeader {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.activeTicket .ticketHeader {
+    white-space: normal;
+    overflow: inherit;
+    text-overflow: initial;
+}
+.userEmail {
+    display: none;
+}
+.activeTicket .userEmail {
+    display: inline-block;
+    margin-left: 30px;
+}
+.ticketTimestamp {
+    text-align: right;
+    margin-right: 10px;
+    color: #7e7f88;
+}
+.activeTicket .ticketTimestamp {
+    display: inline-block;
+    float: right;
+}

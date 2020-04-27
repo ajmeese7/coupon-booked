@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b98de">
+    
+    <!-- Just including all these for now and will take out the ones I don't need as I go -->
+    <link rel="stylesheet" type="text/css" href="../webapp/css/index.css" />
+    <link rel="stylesheet" type="text/css" href="../webapp/css/nav.css" />
+    <link rel="stylesheet" type="text/css" href="../webapp/css/auth0-theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="../webapp/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="../webapp/css/index.css" />
+    <link rel="stylesheet" type="text/css" href="../webapp/css/fontawesome.css" />
+    <link rel="stylesheet" type="text/css" href="../webapp/css/materialize.css" />
+    <link rel="stylesheet" type="text/css" href="../webapp/css/simpleNotification.css" />
+    <link rel="stylesheet" type="text/css" href="../webapp/css/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="../webapp/css/desktop.css">
+    <link rel="stylesheet" type="text/css" href="dashboard.css">
+
+    <!-- Hangle all the icons on different platforms, courtesy of https://favicon.io/favicon-converter/ -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../images/favicon-16x16.png">
+    <link rel="manifest" href="../images/site.webmanifest">
+
+    <script src="../webapp/js/jquery.min.js"></script>
+    <script src="../webapp/js/simpleNotification.min.js"></script>
+    <script src="dashboard.js"></script>
+
+    <!-- TODO: eventually get desktop or Discord notifications when a ticket is made and stuff -->
+    <!--<script>
+        // Copied from OneSignal website
+        var OneSignal = window.OneSignal || [];
+        OneSignal.push(function() {
+            OneSignal.init({
+                appId: "40029422-22e0-4569-9d55-8b6604ce2503",
+            });
+        });
+    </script>-->
+
+    <title>Dashboard - Coupon Booked</title>
+</head>
+<body>
+    <div class="app" id="app">
+        <!-- NOTE: Just copied from webapp; need to make changes here as I make improvements there;
+            also really need to work on the mobile navigation as soon as I figure out how to improve
+            it in both locations -->
+        <div id="nav">
+            <div class="nav-container">
+                <nav class="navbar navbar-expand-md navbar-light">
+                    <div class="container">
+                        <div id="mobile">
+                            <span class="menu-btn">
+                                <img id="logo" src="../images/logo_small.png">
+                            </span>
+                            <a id="brand" href="https://couponbooked.com/webapp">Coupon Booked</a>
+                        </div>
+        
+                        <div class="collapse navbar-collapse">
+                            <ul class="navbar-nav">
+                                <!-- Fullsize dropdown: show if authenticated -->
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle account" data-toggle="dropdown">
+                                        <!-- TODO: This looks like shit, so I should eventually fix it -->
+                                        <img alt="Profile picture" src="profilePic.jpg" class="nav-user-profile profile-image" />
+                                    </a>
+                                </li>
+                            </ul>
+                        </div> <!-- navbar-collapse -->
+                    </div> <!-- container -->
+
+                    <!-- TODO: Decide on what to do about `Redeem a Code` -->
+                    <ul id="desktopNav" style="display: none;">
+                        <li class="dashboard">Dashboard</li>
+                    </ul>
+                </nav> <!-- navbar -->
+            </div> <!-- nav-container -->
+        
+            <!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
+            <div class="dropdown">
+                <div class="submenu" style="display: none;">
+                    <!-- TODO: Find a more intuitive menu for this many options on mobile -->
+                    <ul class="root">
+                        <!-- IDEA: Can add relevant icons for each item -->
+                        <li><a href="#" class="dashboard">Dashboard</a></li>
+                    </ul>
+                </div>
+            </div> <!-- dropdown -->
+        </div>
+
+        <div id="ticketContainer">
+
+        </div>
+    </div>
+</body>
+</html>
