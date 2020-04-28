@@ -56,12 +56,17 @@ function getUrlVars() {
  */
 function getUserName() {
   var displayName = localStorage.getItem("display_name");
-  if (displayName != "") {
+  if (displayName != "" && !!displayName && displayName != null) {
+    console.warn("Using display name:", displayName);
     return displayName;
   } else if (profile.name) {
+    console.warn("Using profile name:", profile.name);
+
     // Through Google; name should be whole name
     return profile.name;
   } else if (profile.nickname) {
+    console.warn("Using profile nickname:", profile.nickname);
+
     // Through Auth0; nickname should be first part of email
     return profile.nickname;
   } else {
