@@ -77,9 +77,9 @@ label {
 
 /* Loading icon */
 #loader {
-    width: 100vw;
+    width: calc(100vw - var(--nav-width));
     height: calc(100% - (var(--nav-height) + var(--tab-height)));
-    background-color: var(--background-color);
+    background-color: #e8f6fa/*var(--background-color)*/;
     position: absolute;
     top: calc(var(--nav-height) + var(--tab-height));
 }
@@ -175,7 +175,7 @@ label {
 .bookImage, .couponImage {
     cursor: pointer;
     margin: auto;
-    width: 80%;
+    width: 90%;
 }
 .bookImage {
     /* TODO: Work on this and decide if couponImage needs it */
@@ -414,6 +414,7 @@ textarea {
     margin-top: 12.5px;
     font-weight: bold;
 }
+#displayNameInput,
 #couponForm label,
 #couponForm input[type=text],
 #couponForm textarea,
@@ -423,7 +424,13 @@ textarea {
 #bookDescLength,
 #couponDescLength,
 #count {
-    margin-left: 7.5%;
+    /* TODO: Switch back to the 7.5% version on a breakpoint, or at least test it */
+    /*margin-left: 7.5%;*/
+    width: 85%;
+    max-width: 600px;
+    display: block;
+    margin: auto;
+    margin-top: 5px;
 }
 #couponImage, #bookImage, #imgPreview {
     /* NOTE: Probably going to have to institute max-width when starting to test tablets;
@@ -524,8 +531,8 @@ input:checked + .slider:before {
 }
 
 #displayNameInput {
-    margin-top: 7.5px;
-    margin-bottom: 2.5px;
+    /* TODO: Revamp the look of this whole section */
+    margin: 7.5px 0 2.5px 0;
 }
 #updateDisplayName {
     margin-bottom: 17.5px;

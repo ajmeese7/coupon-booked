@@ -10,6 +10,14 @@ function App() {
   darkModeSupport();
 }
 
+/**
+ * NOTE: I don't know HOW this works or even if it DOES work, 
+ * but at the moment it appears to stop the loading animation
+ * from displaying when returning to the dashboard. Can mess around
+ * with it in the future if any problems appear.
+ */
+var showLoadingIcon = true;
+
 // IDEA: Make it when you click back from a coupon preview it takes you to where you were scrolled;
   // perhaps with a tags that automatically save id as you scroll with name? Need to handle name updating...
 // TODO: Still have to redo home page...
@@ -538,14 +546,6 @@ function processTemplates(data) {
 
   hideLoadingIcon(true);
 }
-
-/**
- * NOTE: I don't know HOW this works or even if it DOES work, 
- * but at the moment it appears to stop the loading animation
- * from displaying when returning to the dashboard. Can mess around
- * with it in the future if any problems appear.
- */
-var showLoadingIcon = true;
 
 /**
  * Retrieve coupon books the user has sent or received.

@@ -84,11 +84,10 @@
                         </div> <!-- navbar-collapse -->
                     </div> <!-- container -->
 
-                    <!-- TODO: Decide on what to do about `Redeem a Code` -->
                     <ul id="desktopNav" style="display: none;">
                         <li class="dashboard">Dashboard</li>
                         <li class="create">Create a Book</li>
-                        <li class="redeem">Redeem Code</li> <!-- IDEA: Claim Book? -->
+                        <li class="redeem">Claim Book</li>
                         <li class="help">Help</li>
                         <li class="settings">Settings</li>
                     </ul>
@@ -103,7 +102,7 @@
                         <!-- IDEA: Can add relevant icons for each item -->
                         <li><a href="#" class="dashboard">Dashboard</a></li>
                         <li><a href="#" class="create">Create a Book</a></li>
-                        <li><a href="#" class="redeem">Redeem a Code</a></li>
+                        <li><a href="#" class="redeem">Claim Book</a></li>
                         <li><a href="#" class="help">Help</a></li>
                         <li><a href="#" class="settings">Settings</a></li>
                     </ul>
@@ -141,7 +140,7 @@
         <script src="js/help.js"></script>
 
         <div class="page">
-            <h2>Help</h2>
+            <h2 id="helpHeader">Help</h2>
             <br />
 
             <!-- NOTE: Can also switch stytes to https://jsfiddle.net/ajmeese7/bhsf2q3u/1/ -->
@@ -244,6 +243,7 @@
                             <label for="subject">Subject</label>
                         </div>
                         <div>
+                            <!-- TODO: Limit the length like in coupon description -->
                             <textarea id="subject" name="subject" placeholder="Write something.." style="height:200px"></textarea>
                         </div>
                     </div>
@@ -490,14 +490,14 @@
             <br />
             
             <!-- Dark mode inspired by https://github.com/GoogleChromeLabs/dark-mode-toggle -->
-            <b>Dark Mode</b>
+            <!--<b>Dark Mode</b>
             <br />
             <label class="switch" id="darkToggle">
                 <br />
                 <input type="checkbox" id="darkCheckbox">
                 <span class="slider round"></span>
             </label>
-            <br />
+            <br />-->
             <hr />
 
             <div class="flex hor-centered">
