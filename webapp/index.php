@@ -7,74 +7,12 @@
     <!-- HTML is my templating engine and CSS is my router -->
     <!-- Replacement idea: https://www.filamentgroup.com/lab/html-includes/#another-demo%3A-including-another-html-file -->
     <!-- But if I did it this way would I still be able to transition between the main areas with fading? Could I include the
-        body parts with the templating emgine instead of the nav and stuff to include that still? -->
+        body parts with the templating engine instead of the nav and stuff to include that still? -->
     <div class="app" id="app"></div>
 
     <template id="loading">
-        <!-- NOTE: This is just here to be saved for other routes -->
-        <div id="nav">
-            <div class="nav-container">
-                <nav class="navbar navbar-expand-md navbar-light">
-                    <div class="container">
-                        <div id="mobile">
-                            <span class="menu-btn">
-                                <img id="logo" src="../images/logo_small.png">
-                            </span>
-                            <a id="brand" href="https://couponbooked.com/webapp">Coupon Booked</a>
-                        </div>
-        
-                        <div class="collapse navbar-collapse">
-                            <ul class="navbar-nav">
-                                <!-- Fullsize dropdown: show if authenticated -->
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle account" data-toggle="dropdown">
-                                        <!-- Profile image should be set to the profile picture from the id token;
-                                            src is the default image until the user's profile pic loads in -->
-                                        <img alt="Profile picture" src="./images/default.png" class="nav-user-profile profile-image" />
-                                    </a>
-                                </li>
-                            </ul>
-                        </div> <!-- navbar-collapse -->
-                    </div> <!-- container -->
-
-                    <ul id="desktopNav" style="display: none;">
-                        <li class="dashboard">Dashboard</li>
-                        <li class="create">Create a Book</li>
-                        <li class="redeem">Claim Book</li>
-                        <li class="help">Help</li>
-                        <li class="settings">Settings</li>
-                    </ul>
-                </nav> <!-- navbar -->
-            </div> <!-- nav-container -->
-        
-            <!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
-            <div class="dropdown">
-                <div class="submenu" style="display: none;">
-                    <!-- TODO: Find a more intuitive menu for this many options on mobile -->
-                    <ul class="root">
-                        <!-- IDEA: Can add relevant icons for each item -->
-                        <li><a href="#" class="dashboard">Dashboard</a></li>
-                        <li><a href="#" class="create">Create a Book</a></li>
-                        <li><a href="#" class="redeem">Claim Book</a></li>
-                        <li><a href="#" class="help">Help</a></li>
-                        <li><a href="#" class="settings">Settings</a></li>
-                    </ul>
-                </div>
-            </div> <!-- dropdown -->
-        </div>
-
-        <!-- Loading icon - https://tobiasahlin.com/spinkit/ -->
-        <div id="loader">
-            <div class="spinner">
-                <div class="rect1"></div>
-                <div class="rect2"></div>
-                <div class="rect3"></div>
-                <div class="rect4"></div>
-                <div class="rect5"></div>
-            </div>
-        </div>
-
-        <style> .spinner { display: none; } </style>
+        <?php include('nav.php'); ?>
+        <?php include('loading.php'); ?>
     </template>
 
     <template id="login">
@@ -88,124 +26,7 @@
     </template>
 
     <template id="help">
-        <link rel="stylesheet" type="text/css" href="css/app.css" />
-        <link rel="stylesheet" type="text/css" href="css/help.css" />
-        <script src="js/help.js"></script>
-
-        <div class="page">
-            <h2 id="helpHeader">Help</h2>
-            <br />
-
-            <!-- NOTE: Can also switch stytes to https://jsfiddle.net/ajmeese7/bhsf2q3u/1/ -->
-            <button class="accordion">Creating a new book</button>
-            <div class="panel">
-                <p>
-                    On desktop, you select the <q>Create a Book</q> option on the sidebar. From there you select a template and start customizing the book.
-                    Once you are ready to create it, click the <q>Create</q> button in the upper right corner of the screen.
-                </p>
-                <p>
-                    On mobile, you open the dropdown by selecting your profile picture. When you select the <q>Create a Book</q> option from the dropdown, a
-                    list of templates will be displayed. You can select any template and begin editing. When you want to save your work, select the <q>Create</q>
-                    button in the upper right corner of the screen.
-                </p>
-                <!-- IDEA: Make this a `Save` button or something instead? Ask consumers. -->
-                <p>
-                    Don't be afraid to create a book. All it does is save your progress to your account so you can edit it further in the future. You don't have
-                    to have the book finished when you create it.
-                </p>
-            </div>
-
-            <!-- TODO: Probably switch back from `Pay` to `Share` -->
-            <button class="accordion">Sharing a book</button>
-            <div class="panel">
-                <p>
-                    Once you have created a coupon book, you can share it by clicking the "Share" button in the upper right hand corner.    
-                </p>
-                <p>
-                    You are free to edit the book any time before sending it and after you have sent it, so don't stress if you need to go back and add more coupons later. 
-                </p>
-                <p>
-                    We only charge you to initially send a book to someone, so we have enough revenue to keep the service going. It's free to modify the book and reload 
-                    coupons after you send it, so don't be stingy with them!
-                </p>
-            </div>
-
-            <button class="accordion">Changing your display name</button>
-            <div class="panel">
-                <p>
-                    When you send someone a coupon code and they redeem it, the book will display who sent it. If you logged in through Google this will be your name, 
-                    but if you created an account you will have to change it on the settings page.
-                </p>
-                <!-- TODO: Read this stuff -->
-                <p>
-                    You can type whatever you want to be shown to people in the "Display Name" field and click the update button to submit the new display name. 
-                    If you update when the field is empty, your default display name will show again.
-                </p>
-            </div>
-
-            <button class="accordion">App looks strange</button>
-            <div class="panel">
-                <p>
-                    If you have your accessibility settings set to anything other than your device's default, the app may be displayed strangely.
-                </p>
-                <p>
-                    Currently, the only way to resolve this is to change the settings on your device.
-                </p>
-                <p>
-                    I am in the process of working on a fix for this, but unfortunately I cannot give a timeline for when it will be resolved.
-                </p>
-            </div>
-
-            <h5 id="reachOut">
-                Still not answering your question? Reach out to us and we'll do our best to help.
-            </h5>
-
-            <!-- https://www.w3schools.com/css/css_form.asp -->
-            <div id="helpFormContainer">
-                <form id="helpForm"> <!-- action="/form_submit.php" -->
-                    <div class="row">
-                        <div>
-                            <label for="topic">Topic</label>
-                        </div>
-                        <div>
-                            <select id="topic" name="topic">
-                                <option value="feedback">Feedback</option>
-                                <option value="bugs">Bug Reporting</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div>
-                            <label for="name">Your Name</label>
-                        </div>
-                        <div>
-                            <input type="text" id="name" name="name" placeholder="Your name..">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div>
-                            <label for="email">Your Email</label>
-                        </div>
-                        <div>
-                            <input type="email" id="email" name="email" placeholder="someone@something.com">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div>
-                            <label for="subject">Subject</label>
-                        </div>
-                        <div>
-                            <!-- TODO: Limit the length like in coupon description -->
-                            <textarea id="subject" name="subject" placeholder="Write something.." style="height:200px"></textarea>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <input id="submit" type="submit" value="Submit">
-                    </div>
-                </form>
-            </div>
-        </div>
+        <?php include('help.php'); ?>
     </template>
 
     <template id="create">
@@ -217,169 +38,15 @@
     </template>
 
     <template id="sentBook">
-        <div id="topbar">
-            <img id="backArrow" src="./images/back.svg" />
-            <button id="createButton">Create</button>
-            <button id="save" class="hide">Save</button>
-            <button id="delete" class="hide">Delete</button>
-            <button id="share" class="hide">Pay</button>
-        </div>
-        
-        <div id="bookContent" class="col">
-            <!-- Will create new coupon -->
-            <button id="plus">+</button>
-        </div>
-
-        <div id="couponPreview" class="hide col">
-            <h3 id="namePreview"></h3>
-            <hr />
-            <img id="imgPreview" onerror="imageError(this)" src="./images/ticket.png" />
-            <p id="descPreview"></p> <!-- TODO: Make this look better for short descriptions -->
-
-            <!-- If iOS, icon is changed in Node -->
-            <button id="edit"><img src="./images/md-edit.svg" /></button>
-        </div>
-
-        <div id="deleteCouponConfirm" class="dialog-box" title="Delete coupon confirmation">
-            <p id="confirmText">
-                <span class="ui-icon ui-icon-alert"></span>
-                Are you sure you want to delete this coupon?
-            </p>
-        </div>
-
-        <form id="couponForm" class="hide col">
-            <!-- https://picnicss.com/documentation#dropimage -->
-            <!-- https://stackoverflow.com/questions/4112575/client-checking-file-size-using-html5 -->
-            <div>
-                <img id="couponImage" height="100px" onerror="imageError(this)" src="./images/ticket.png" />
-            </div>
-
-            <!-- NOTE: Nearly all of this is copied directly from bookForm, so changes should be reflected there -->
-            <button type="button" class="cloudinary-button">Change image</button>
-            
-            <!-- TODO: Need to get this to run on browser back button for desktop and native mobile -->
-            <div id="discardCouponConfirm" class="dialog-box" title="Discard all changes?">
-                <p id="confirmText">
-                    <span class="ui-icon ui-icon-alert"></span>
-                    Are you sure you want to discard your changes?
-                </p>
-            </div>
-
-            <!-- IDEA: Cycle through an array of these for examples; appropriate to template? 
-                Could be paired arrays to have description matched with name, or objects & pull fields -->
-            <label for="name">Coupon Name</label>
-            <input type="text" id="name" name="name" placeholder="Backrub">
-
-            <label for="description">Description</label>
-            <textarea id="couponDescription" name="description" placeholder="A nice, long massage." 
-                maxlength="180"></textarea>
-            <div id="couponDescLength">0</div>
-            
-            <label for="count">Count</label>
-            <input type="number" id="count" name="count" min="1" max="99" placeholder="3">
-        </form>
-
-        <form id="bookForm" class="hide col">
-            <div>
-                <img id="bookImage" height="100px" onerror="imageError(this)" src="./images/ticket.png" />
-            </div>
-
-            <button type="button" class="cloudinary-button">Change image</button>
-            
-            <div id="discardBookEditsConfirm" class="dialog-box" title="Discard all changes">
-                <p id="confirmText">
-                    <span class="ui-icon ui-icon-alert"></span>
-                    Are you sure you want to discard your changes?
-                </p>
-            </div>
-
-            <label for="name">Book Name</label>
-            <input type="text" id="bookName" name="name" placeholder="#1 Dad">
-
-            <label for="desc">Description</label>
-            <textarea id="bookDescription" name="description" placeholder="Thank you for everything you do." 
-                maxlength="180"></textarea>
-            <div id="bookDescLength">0</div>
-        </form>
-
-        <div id="deleteBookConfirm" class="dialog-box" title="Delete book confirmation">
-            <p id="confirmText">
-                <span class="ui-icon ui-icon-alert"></span>
-                Are you sure you want to delete this book?
-            </p>
-        </div>
-
-        <script id="moreOptions" type="text/html">
-            <nav class="menu">
-                <!-- TODO: Try to speed up this animation, and probably replace the hamburger
-                    icon with ellipses or something. -->
-                <input type="checkbox" href="#" class="menu-open" name="menu-open" id="menu-open"/>
-                <label class="menu-open-button" for="menu-open">
-                    <span class="hamburger hamburger-1"></span>
-                    <span class="hamburger hamburger-2"></span>
-                    <span class="hamburger hamburger-3"></span>
-                </label>
-                
-                <a href="#editBook" class="menu-item">
-                    <img id='editBook' class='ionicon' src='./images/md-edit.svg' />
-                </a>
-                <a href="#deleteBook" class="menu-item">
-                    <img id='deleteBook' class='ionicon' src='./images/md-trash.svg' />
-                </a>
-            </nav>
-        </script>
+        <?php include('sentBook.php'); ?>
     </template>
 
     <template id="receivedBook">
-        <div id="topbar">
-            <img id="backArrow" src="./images/back.svg" />
-        </div>
-        
-        <div id="bookContent" class="col"></div>
-
-        <div id="couponPreview" class="hide col">
-            <h3 id="namePreview"></h3>
-            <hr />
-            <img id="imgPreview" onerror="imageError(this)" src="./images/ticket.png" />
-            <p id="descPreview"></p>
-
-            <div id="redeemCouponConfirm" class="dialog-box" title="Redemption confirmation">
-                <p id="confirmText">
-                    <span class="ui-icon ui-icon-alert"></span>
-                    <!--"Do you want to redeem this coupon?" 
-                        need to figure out if icon is needed and stuff + which text to use -->
-                    Are you sure you want to redeem this coupon?
-                </p>
-            </div>
-
-            <div id="redeemCoupon">Redeem coupon</div>
-        </div>
+        <?php include('receivedBook.php'); ?>
     </template>
 
     <template id="shareCode">
-        <link rel="stylesheet" type="text/css" href="css/shareCode.css" />
-        <div id="topbar">
-            <img id="backArrow" src="./images/back.svg" />
-        </div>
-
-        <h4 id="shareHeader">Your book is ready to be sent!</h4>
-        <div class="copytooltip">
-            <span class="copytooltiptext" style="opacity: 0;">Copied to clipboard</span>
-        </div>
-        <div id="shareCodeDiv">
-            <!-- TODO: Switch to having icons in different folders for different OS -->
-            <p id="shareCodeText">88888888</p>
-            <img id="copyButton" src="./images/copy.svg" />
-            <!-- https://ionicons.com/ -->
-        </div>
-
-        <p id="shareCodeDescription">
-            Send this code to whomever you want to receive your Coupon Book.
-            They must create an account if they don't already have one to 
-            redeem the code.
-        </p>
-
-        <button id="bigShareButton"><img id="shareIcon" class="ionicon" />SHARE</button>
+        <?php include('shareCode.php'); ?>
     </template>
 
     <template id="redeemCode">
@@ -396,33 +63,7 @@
     </template>
 
     <template id="dashboard">
-        <!-- Invisible back arrow to support functions without much modification -->
-        <img class="hide" id="backArrow" />
-        <ul id="tab-menu" class="tabs">
-            <li class="tab"><a id="sentButton" href="#sent" class="active">Sent</a></li>
-            <li class="tab"><a id="receivedButton" href="#received">Received</a></li>
-        </ul>
-
-        <!-- TODO: Try to redo all the stuff I just fucking accidentially deleted -->
-        <div id="gestureZone">
-            <div id="sent" class="col">
-                <div id="noneSent" class="hidden">
-                    <!-- Formatted like this in case I decide to add something else to message; 
-                        if not, will switch to paragraph -->
-                    You haven't sent any Books yet. <br />
-                    <a id="start">Send one now!</a>
-                </div>
-            </div>
-            <div id="received" class="col">
-                <div id="noneReceived" class="hidden">
-                    <!-- IDEA: Implement UI for this elsewhere -->
-                    You haven't received any Books yet. <br />
-                    Want to <a id="request">request one</a>?
-                </div>
-
-                <div id="redeemLink">Redeem a code!</div>
-            </div>
-        </div>
+        <?php include('dashboard.php'); ?>
     </template>
 
     <template id="settings">

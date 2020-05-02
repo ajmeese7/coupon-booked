@@ -4,8 +4,6 @@
     crossorigin="anonymous">
 </script>
 
-<!-- TODO: Once switching to different HTML files (if I choose to), only need to
-    import this one for sentBooks.js on one small part. -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jshashes/1.0.8/hashes.min.js"></script>
 <script src="src/globalVars.js"></script>
 <script src="src/helperFunctions.js"></script>
