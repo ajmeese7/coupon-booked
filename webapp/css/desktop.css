@@ -81,6 +81,9 @@
     #desktopNav li:hover {
         background: #e8f6fa;
         color: #054c6f !important;
+
+        /* TODO: Decide if I like this delay */
+        transition: all 0.15s ease-in-out;
     }
     #logo {
         width: 50px;
@@ -115,7 +118,7 @@
         align-items: baseline;
     }
     .bookPreview, .couponPreview {
-        max-width: 400px;
+        max-width: 350px;
     }
 
     .ui-dialog {

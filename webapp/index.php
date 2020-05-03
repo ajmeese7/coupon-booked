@@ -19,16 +19,6 @@
         <!-- Loading screen for redirect to Auth0 login page -->
     </template>
 
-    <template id="home">
-        <div class="page">
-            <!-- TODO -->
-        </div>
-    </template>
-
-    <template id="help">
-        <?php include('help.php'); ?>
-    </template>
-
     <template id="create">
         <!-- Invisible back arrow to support functions without much modification -->
         <img class="hide" id="backArrow" />
@@ -37,70 +27,13 @@
         <div id="templateContainer"></div>
     </template>
 
-    <template id="sentBook">
-        <?php include('sentBook.php'); ?>
-    </template>
-
-    <template id="receivedBook">
-        <?php include('receivedBook.php'); ?>
-    </template>
-
-    <template id="shareCode">
-        <?php include('shareCode.php'); ?>
-    </template>
-
-    <template id="redeemCode">
-        <div id="topbar">
-            <img id="backArrow" src="./images/back.svg" />
-        </div>
-
-        <h3 id="redeemHeader">Enter your code below</h3>
-        <div>
-            <input id="redeemBox" maxlength='8' autocapitalize="none" />
-        </div>
-
-        <button id="redeemButton">Redeem</button>
-    </template>
-
-    <template id="dashboard">
-        <?php include('dashboard.php'); ?>
-    </template>
-
-    <template id="settings">
-        <link rel="stylesheet" type="text/css" href="css/app.css" />
-        
-        <div class="page">
-            <h2>Settings</h2>
-            <br />
-
-            <!-- I honestly have no idea what this is -->
-            <style id="switchStyle"></style>
-
-            <b>Display Name</b>
-            <label id="displayName">
-                <input type="text" id="displayNameInput" name="displayName" placeholder="Robert Downey Jr.">
-            </label>
-            <button id="updateDisplayName">Update</button>
-            <br />
-            
-            <!-- Dark mode inspired by https://github.com/GoogleChromeLabs/dark-mode-toggle -->
-            <!--<b>Dark Mode</b>
-            <br />
-            <label class="switch" id="darkToggle">
-                <br />
-                <input type="checkbox" id="darkCheckbox">
-                <span class="slider round"></span>
-            </label>
-            <br />-->
-            <hr />
-
-            <div class="flex hor-centered">
-                <button class="btn btn-success btn-logout">
-                    <span>Log Out</span>
-                </button>
-            </div>
-        </div>
-    </template>
+    <?php include('help.php'); ?>
+    <?php include('sentBook.php'); ?>
+    <?php include('receivedBook.php'); ?>
+    <?php include('shareCode.php'); ?>
+    <?php include('redeemCode.php'); ?>
+    <?php include('dashboard.php'); ?>
+    <?php include('settings.php'); ?>
 
     <?php include('footer.php'); ?>
 </body>
