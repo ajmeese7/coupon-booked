@@ -35,10 +35,6 @@ App.prototype.state = {
         //console.warn("/ route...");
         nav = getBySelector("#nav");
         loadingIcon = getBySelector("#loader");
-
-        // Don't want to have to code an annoying landscape layout
-        screen.orientation.lock('portrait');
-        //screen.orientation.lock('portrait');
         _this = this;
 
         // NOTE: If I want to, can always go back and replace startup animation code from app.
@@ -86,18 +82,6 @@ App.prototype.state = {
         }
       }
     },
-    '/home': {
-      // NOTE: Currently not referenced anywhere; look before this commit to see where it WAS
-      // referenced if wanting to reinstate with a new look/purpose
-      id: 'home',
-      onMount: function(page) {
-        _this = this;
-        navBar();
-
-        // Reset every time the user goes home
-        localStorage.setItem('activeTab', 'sent');
-      }
-    },
     '/create': {
       id: 'create',
       onMount: function(page) {
@@ -122,7 +106,6 @@ App.prototype.state = {
         getAllTemplates();
       }
     },
-    // https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_navbar_shrink_scroll
     '/sentBook': {
       id: 'sentBook',
       onMount: function(page) {
