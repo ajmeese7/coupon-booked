@@ -68,7 +68,7 @@ App.prototype.state = {
         } else {
           // Show loading screen while waiting for redirect
           if (loadingIcon) this.container.appendChild(loadingIcon);
-          console.log("Trying to redirect to Auth0 login...");
+          console.warn("Trying to redirect to Auth0 login...");
 
           // Authentication
           var client = new auth0.WebAuth({
@@ -81,7 +81,7 @@ App.prototype.state = {
             scope: "openid profile",
             responseType: 'code token id_token',
             audience: "https://couponbooked.auth0.com/userinfo",
-            redirectUri: 'https://couponbooked.com/webapp/callback'
+            redirectUri: "https://couponbooked.com/webapp/callback"
           });
         }
       }
@@ -132,23 +132,22 @@ App.prototype.state = {
         displaySentBook();
         darkModeSupport();
 
-        var stripe = Stripe('pk_test_EAwuFkepc11nHEyPnzAH2XF600aoA16vHm');
-        var share = document.querySelector('#share');
-        share.addEventListener('click', function () {
+        var stripe = Stripe("pk_test_EAwuFkepc11nHEyPnzAH2XF600aoA16vHm");
+        var share = document.querySelector("#share");
+        share.addEventListener("click", function () {
           // To access the current book after redirect, i.e. preventing requiring
           // retrieving the data again. Ideally I can set the succeeded flag on
           // redirect and avoid all this, but we'll see how that goes.
-          localStorage.setItem('book', JSON.stringify(book));
+          localStorage.setItem("book", JSON.stringify(book));
 
           stripe.redirectToCheckout({
             items: [{
-              sku: 'sku_H2NWOmtSCuAH2l', //sku_H2MwwLWIIYdV4M
+              sku: "sku_H2NWOmtSCuAH2l", //sku_H2MwwLWIIYdV4M
               quantity: 1
             }],
-            // TODO: Switch to HTML layout or something like normal sites so I can
-            // use the book page as a URL success thing here
-            successUrl: `https://www.couponbooked.com/webapp/success?bookId=${book.bookId}`,
-            cancelUrl: 'https://www.couponbooked.com/webapp/cancel',
+            successUrl: `https://www.couponbooked.com/webapp/success?shared=true&bookId=${book.bookId}`,
+            cancelUrl: "https://www.couponbooked.com/webapp/index", // TODO: Make this work properly!
+
             //customerEmail: 'customer@example.com' // TODO: Find way to get this to prefill
           }).then(function (result) {
             // TODO: Do something similar to example on products page for error handling
@@ -466,9 +465,7 @@ function darkModeSupport(settingsPage) {
   }
 }
 
-// IDEA: Only allow if paymentStatus != "succeeded"
 function handlePayments() {
-  // TODO: If not actually using localStorage (check) then delete this shit
   book = JSON.parse(localStorage.getItem('book'));
   if (book) {
     localStorage.removeItem('book');
@@ -478,15 +475,11 @@ function handlePayments() {
     // TODO: Need to update succeeded status on completion of successful payment
     createShareCode();
   } else {
-    console.log("Either something is fucked up or you're trying to be naughty!");
-    // IDEA: Go to the page anyways or something? How to handle?
+    // Typically means they refreshed the page with the URL variables still up there.
+    // Not really an issue I'm worried about, that's why I clear the localStorage so it doesn't
+    // try to process the payments twice.
+    console.error("There was a problem retrieving the book to update payment status...");
   }
-
-  // TODO: Proper handling for other occurances
-  /*SimpleNotification.warning({
-    title: "Problem processing payment",
-    text: "Please try again later."
-  }, notificationOptions);*/
 }
 
 /**

@@ -35,13 +35,13 @@
         client.parseHash({ hash: window.location.hash }, function(err, authResult) {
             console.warn("Parsing hash...");
             if (err) {
-                return console.error(err);
+                return console.error("Error inside callback:", err);
             } else if (!authResult) {
                 // TODO: Test new method, and figure out how this falls into error screen idea
                 console.log("There is no authResult! You must've not used the login page to get here...")
-                window.location.replace("https://couponbooked.com/webapp");
+                window.location.replace("https://couponbooked.com/webapp/index");
             } else {
-                console.log("authResult:", authResult);
+                console.warn("authResult in callback:", authResult);
                 var userId = authResult.idTokenPayload.sub;
                 localStorage.setItem('user_id', userId);
                 localStorage.setItem('access_token', authResult.accessToken);
@@ -55,7 +55,7 @@
 
                     // Go back to the original page now that the localStorage has been set and the user authorized
                     // TODO: Is there a way to wait to error check this or something?
-                    window.location.replace("https://couponbooked.com/webapp");
+                    window.location.replace("https://couponbooked.com/webapp/index");
                 });
             }
         });

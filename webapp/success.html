@@ -32,13 +32,8 @@
     <!-- HTML is my templating engine and CSS is my router -->
     <div class="app" id="app">Payment successful! Redirecting to share code page...</div>
     <script>
-        // TODO: Could entirely bypass this page and pass params directly to App.js...
-        setTimeout(function() {
-            // TODO: Change this to share URL then bookId as param or something;
-            // TODO: Also double check to make sure URL wasn't manually entered and it
-                // actually has a share code on the server
-            window.location.replace(`https://couponbooked.com/webapp?shared=true&bookId=${getUrlVars().bookId}`);
-        }, 5000);
+        console.log("On success page! Redirecting back to share code page...");
+        window.location.replace(`https://couponbooked.com/webapp/index?shared=true&bookId=${getUrlVars().bookId}`);
     </script>
 </body>
 
