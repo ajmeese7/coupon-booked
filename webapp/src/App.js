@@ -20,7 +20,6 @@ var showLoadingIcon = true;
 
 // IDEA: Make it when you click back from a coupon preview it takes you to where you were scrolled;
   // perhaps with a tags that automatically save id as you scroll with name? Need to handle name updating...
-// TODO: Still have to redo home page...
 
 App.prototype.state = {
   authenticated: false,
@@ -277,6 +276,7 @@ App.prototype.state = {
 
         // TODO: Mess with https://auth0.com/docs/api/management/v2#!/Users/patch_users_by_id
           // to hopefully allow users to edit their data (what for?); use something similar to login functions?
+        getUserInfo();
         displayNameListeners();
         darkModeSupport(true);
         
@@ -360,6 +360,33 @@ function createConnection() {
 }
 
 /**
+ * Gets the current user info from the server and updates
+ * the contents of the settings page to reflect it.
+ */
+function getUserInfo() {
+  var userId = localStorage.getItem('user_id');
+  $.ajax({
+    type: "GET",
+    url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}`,
+    datatype: "html",
+    success: function(data) {
+      if (data) {
+        console.warn("Successfully retrieved user info.");
+
+        data = JSON.parse(data);
+        $("#displayNameInput").val(data.displayName);
+        localStorage.setItem("display_name", data.displayName);
+      } else {
+        console.warn("There was no user info to retrieve...");
+      }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error retrieving user info:", XMLHttpRequest.responseText);
+    }
+  });
+}
+
+/**
  * Takes the name the user entered in the field on the settings
  * page and sets it in localStorage for display purposes.
  */
@@ -370,11 +397,13 @@ function displayNameListeners() {
   // Listen for clicking of update button
   $("#updateDisplayName").unbind().click(function() {
     var newName = getById("displayNameInput").value;
+    var updateName = true;
     if (newName.length > 30) {
       SimpleNotification.warning({
         title: "Name too long",
         text: "Please enter a shorter name."
       }, notificationOptions);
+      updateUser = false;
     } else if (newName == "") {
       SimpleNotification.info({
         title: "No name entered",
@@ -387,8 +416,37 @@ function displayNameListeners() {
         text: "Display name updated"
       }, notificationOptions);
 
-      console.log("New display name:", newName);
       localStorage.setItem("display_name", newName);
+    }
+
+    // If there isn't a problem like "name too long", the update function will be called
+    if (updateName) updateUser(newName);
+  });
+}
+
+/**
+ * Sends the updated display name to the server. In the future
+ * this function will also send updates to other settings, but
+ * none of those have been implemented yet.
+ * @param {string} newName - the name to replace the display name
+ * with; null if no display name
+ */
+function updateUser(newName) {
+  var userId = localStorage.getItem('user_id');
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/updateUserInfo",
+    data: { userId: userId, displayName: newName },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.warn("Successfully updated user...");
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      // TODO: Need to think of an elegant way to show user that it failed,
+      // but I'll have to get fancy with all the above notifications and
+      // I honestly just don't want to do that right now.
+      console.error("Error in updateUser:", XMLHttpRequest.responseText);
     }
   });
 }

@@ -703,7 +703,7 @@ function deleteBook() {
         }, notificationOptions);
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
-        console.error("Error in deleteBook: ", XMLHttpRequest.responseText);
+        console.error("Error in deleteBook:", XMLHttpRequest.responseText);
 
         SimpleNotification.error({
           title: "Error deleting coupon book!",

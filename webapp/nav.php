@@ -6,7 +6,7 @@
                     <span class="menu-btn">
                         <img id="logo" src="../images/logo_small.png">
                     </span>
-                    <a id="brand" href="https://couponbooked.com/webapp">Coupon Booked</a>
+                    <a id="brand" href="https://couponbooked.com/webapp/index">Coupon Booked</a>
                 </div>
 
                 <div class="collapse navbar-collapse">
