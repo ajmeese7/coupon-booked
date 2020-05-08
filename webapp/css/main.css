@@ -62,11 +62,65 @@ label {
         padding: 0px;
     }
 }
-.nav-user-profile {
-    max-width: 35px;
+
+#sideMenuIcon {
+    width: 45px;
+    margin-top: 7.5px;
+    margin-right: 3.5px;
 }
-.dropdown-toggle::after {
-    margin-top: 20px;
+#mobileNav {
+    /* Similar to #desktopNav in desktop.css */
+    list-style-type: none;
+    font-size: 40px;
+    color: white;
+    cursor: pointer;
+    padding-left: 22px;
+    padding-bottom: 8px;
+    line-height: 1.75;
+    letter-spacing: -0.75px;
+    text-shadow: 1px 1px 2px #c4c4c4;
+}
+.contentShadow, .mobileSideMenu {
+    -webkit-transition: transform .1s ease-in-out;
+       -moz-transition: transform .1s ease-in-out;
+         -o-transition: transform .1s ease-in-out;
+            transition: transform .1s ease-in-out;
+}
+.mobileSideMenu {
+    width: 80vw;
+    height: 100vh;
+    z-index: 999;
+    position: fixed;
+    top: 0;
+    background-color: var(--nav-color);
+    box-shadow: 0px 0px 2px 0 var(--nav-color); /* NOTE: Work in progress */
+    transform: translate3d(-80vw, 0, 0);
+}
+.mobileSideMenu--open {
+    transform: translate3d(0, 0, 0);
+}
+.contentShadow {
+    /* TODO: Add click listener to close menu; also on menu selection */
+    background-color: black;
+    opacity: 0.7;
+    position: fixed;
+    z-index: 998;
+    top: 0;
+    right: 0;
+
+    width: 20vw;
+    height: 100vh;
+    transform: translate3d(20vw, 0, 0);
+}
+.contentShadow--open {
+    transform: translate3d(0, 0, 0);
+}
+.nav-user-profile {
+    /* TODO: See if I can display their name and stuff like the example */
+    width: 60px;
+    margin: auto;
+    margin-top: 35px;
+    display: table;
 }
 
 #createHeader {
@@ -77,7 +131,7 @@ label {
 
 /* Loading icon */
 #loader {
-    width: calc(100vw - var(--nav-width));
+    width: 100vw;
     height: calc(100% - (var(--nav-height) + var(--tab-height)));
     background-color: #e8f6fa/*var(--background-color)*/;
     position: absolute;

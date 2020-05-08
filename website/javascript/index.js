@@ -26,21 +26,3 @@ $(function() {
     
     glide.mount();
 });
-
-// This is a general function that removes one class and adds another;
-// currently not in use but it's beautiful so I can't delete it
-function toggleClass(target, addedClass) {
-    // If target is an element rather than a list, it is converted to array form
-    if (!NodeList.prototype.isPrototypeOf(target)) {
-        target = [target];
-    }
-
-    // Allows for multiple elements to be toggled, such as by using the querySelectorAll() method
-    [].forEach.call(target, (element) => {
-        if (element.classList.contains(addedClass)) {
-            element.classList.remove(addedClass);
-        } else {
-            element.classList.add(addedClass);
-        }
-    });
-};

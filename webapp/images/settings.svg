@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="1200" viewBox="0 0 1200 1200">
+    <g transform="translate(600 600) scale(0.69 -0.69) rotate(180) translate(-600 -600)" style="fill:#FFFFFF">
+        <svg fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 24" x="0px" y="0px">
+            <title>Settings</title>
+            <g data-name="Слой 2">
+            <g data-name="Слой 1">
+                <path d="M1,5H4.13a4,4,0,0,0,7.74,0H29a1,1,0,0,0,0-2H11.87A4,4,0,0,0,4.13,3H1A1,1,0,0,0,1,5ZM8,2A2,2,0,1,1,6.27,3,2,2,0,0,1,8,2Z"></path>
+                <path d="M29,11H25.87a4,4,0,0,0-7.74,0H1a1,1,0,0,0,0,2H18.13a4,4,0,0,0,7.74,0H29a1,1,0,0,0,0-2Zm-7,3a2,2,0,1,1,1.73-1A2,2,0,0,1,22,14Z"></path>
+                <path d="M29,19H15.87a4,4,0,0,0-7.74,0H1a1,1,0,0,0,0,2H8.13a4,4,0,0,0,7.74,0H29a1,1,0,0,0,0-2ZM12,22a2,2,0,1,1,1.73-1A2,2,0,0,1,12,22Z"></path>
+            </g>
+            </g>
+        </svg>
+    </g>
+</svg>

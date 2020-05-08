@@ -167,6 +167,23 @@ function clone(item) {
   return result;
 }
 
+// This is a general function that removes one class and adds another
+function toggleClass(target, addedClass) {
+  // If target is an element rather than a list, it is converted to array form
+  if (!NodeList.prototype.isPrototypeOf(target)) {
+      target = [target];
+  }
+
+  // Allows for multiple elements to be toggled, such as by using the querySelectorAll() method
+  [].forEach.call(target, (element) => {
+      if (element.classList.contains(addedClass)) {
+          element.classList.remove(addedClass);
+      } else {
+          element.classList.add(addedClass);
+      }
+  });
+};
+
 // TODO: Edit order button that makes things draggable
 function reorganizeBooks() {
   var fixHelperModified = function(e, tr) {

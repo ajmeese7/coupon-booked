@@ -872,10 +872,6 @@ function navBar() {
     return _this.redirectTo('/login');
   }
 
-  // Route to home on title or logo click
-  var mobile = getBySelector("#mobile");
-  $(mobile).unbind().click(function() { _this.redirectTo('/dashboard') });
-
   // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
   var avatar = getBySelector('.profile-image');
   if (!profile) {
@@ -891,40 +887,42 @@ function navBar() {
     avatar.src = profile.picture;
   }
 
-  // TODO: See if this can dynamically do dropdowns
   // TODO: Try to have it not bug the server if they click the link of the page they're already on
-  // Dashboard button on dropdown
-  var dashboardButton = getBySelector('.dashboard');
-  $(dashboardButton).unbind().click(function() { _this.redirectTo('/dashboard') });
+  $("#mobile").unbind().click(function() { _this.redirectTo('/dashboard') });
 
-  // Settings button on dropdown
-  var createButton = getBySelector('.create');
-  $(createButton).unbind().click(function() { _this.redirectTo('/create') });
-
-  // Redeem button on dropdown
-  var redeemButton = getBySelector('.redeem');
-  $(redeemButton).unbind().click(function() { _this.redirectTo('/redeemCode') });
-
-  // Settings button on dropdown
-  var settingsButton = getBySelector('.settings');
-  $(settingsButton).unbind().click(function() { _this.redirectTo('/settings') });
-
-  // Help button on dropdown
-  var helpButton = getBySelector('.help');
-  $(helpButton).unbind().click(function() { _this.redirectTo('/help') });
-
-  // Profile picture dropdown
-  $(".account").unbind().click(function() {
-      // TODO: See if it is possible to have the shadow visible before the entire element is unrolled
-      // IDEA: Paired element that's shadow colored and unroll at same time
-      // https://tobiasahlin.com/blog/how-to-animate-box-shadow/
-      if (!$('.submenu').is(':visible')) {
-        $(".submenu").show("slide", { direction: "up" }, 500 );
-      }
+  // TODO: Make this all programmatic
+  $(".dashboard").unbind().click(function() {
+    toggleMobileMenu();
+    _this.redirectTo('/dashboard');
   });
-  $(document).unbind().mouseup(function() {
-    $(".submenu").slideUp();
+  $(".create").unbind().click(function() {
+    toggleMobileMenu();
+    _this.redirectTo('/create');
   });
+  $(".redeem").unbind().click(function() {
+    toggleMobileMenu();
+    _this.redirectTo('/redeemCode');
+  });
+  $(".settings").unbind().click(function() {
+    toggleMobileMenu();
+    _this.redirectTo('/settings');
+  });
+  $(".help").unbind().click(function() {
+    toggleMobileMenu();
+    _this.redirectTo('/help');
+  });
+
+  // Mobile menu will slide open on icon click
+  $("#sideMenuIcon, .contentShadow").unbind().click(function() {
+    toggleMobileMenu();
+  });
+}
+
+function toggleMobileMenu() {
+  // TODO: Eventually transfer this to real animation, so it doesn't skip it
+  // when going to a route
+  toggleClass(document.querySelector('.mobileSideMenu'), 'mobileSideMenu--open');
+  toggleClass(document.querySelector('.contentShadow'), 'contentShadow--open');
 }
 
 var tempCounter = 0;
