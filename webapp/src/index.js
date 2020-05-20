@@ -15,28 +15,36 @@ $(function() {
  * Initialize OneSignal connection once user is authenticated.
  */
 function onesignalNotifications() {
+    var userId = localStorage.getItem('user_id');
+
     // TODO: Is there a way to handle if the user refuses?
         // IDEA: Could email or some shit?
     OneSignal.push(function() {
         OneSignal.showNativePrompt();
         console.warn("OneSignal initialized...");
+
+        // Adds the OneSignal ID to the database
+        OneSignal.getUserId(function(onesignalId) {
+            console.warn("Setting local OneSignal user ID...", onesignalId);
+            localStorage.setItem('onesignal_id', onesignalId);
+
+            $.ajax({
+                type: "POST",
+                url: "https://www.couponbooked.com/scripts/addOneSignalUserId",
+                data: { userId: userId, onesignalId: onesignalId },
+                crossDomain: true,
+                cache: false,
+                success: function(success) {
+                    console.warn("Successfully set user's OneSignal ID...");
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    console.error("Error setting OneSignal ID:", XMLHttpRequest.responseText);
+                }
+            });
+        });
     });
 
     // IDEA: https://documentation.onesignal.com/docs/create-an-activity-feed
-    // IDEA: On notificationReceived refresh the display and pull books in case they're also viewing the book/coupon
-    var notificationOpenedCallback = function(jsonData) {
-        // TODO: When notification clicked, display something in app, 
-        // like the coupon clicked, description, image, remaining count;
-        // how to do? IDEA: handleNotificationReceived Cordova SDK, or replace
-        // the code of this. To do across files use localStorage and a listener
-        // for the value of the variable changing
-        jsonData.notification.payload.rawPayload = JSON.parse(jsonData.notification.payload.rawPayload);
-        jsonData.notification.payload.rawPayload.custom = JSON.parse(jsonData.notification.payload.rawPayload.custom);
-        console.warn('notificationOpenedCallback:', jsonData);
-    };
-    
-    /*window.plugins.OneSignal
-        .handleNotificationOpened(notificationOpenedCallback)
-        .inFocusDisplaying(window.plugins.OneSignal.OSInFocusDisplayOption.Notification)
-    */
 }
+
+// safari_web_id: "myID",

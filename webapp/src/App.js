@@ -370,18 +370,54 @@ function getUserInfo() {
     url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}`,
     datatype: "html",
     success: function(data) {
+      // IDEA: Set mobile menu to creator, giver, etc. Have settings page on desktop show
+      // something similar with the profile so they aren't missing out
       if (data) {
         console.warn("Successfully retrieved user info.");
-
         data = JSON.parse(data);
+
+        // Display name
         $("#displayNameInput").val(data.displayName);
         localStorage.setItem("display_name", data.displayName);
+
+        // User stats; should try to make this programmatic later
+        localStorage.setItem("stats", data.stats);
+        var stats = JSON.parse(data.stats);
+        getById("createdBooks").innerText += ` ${stats.createdBooks}`;
+        getById("sentBooks").innerText += ` ${stats.sentBooks}`;
+        getById("receivedBooks").innerText += ` ${stats.receivedBooks}`;
+        getById("redeemedCoupons").innerText += ` ${stats.redeemedCoupons}`;
+        getById("fulfilledCoupons").innerText += ` ${stats.fulfilledCoupons}`;
       } else {
-        console.warn("There was no user info to retrieve...");
+        console.warn("There was no user info to retrieve. Creating data...");
+        createUserInfo();
       }
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error retrieving user info:", XMLHttpRequest.responseText);
+    }
+  });
+}
+
+/**
+ * Is called by getUserInfo() if there is no data returned from
+ * the server for the user. Generates inital data for the user
+ * and saves it for later modification.
+ */
+function createUserInfo() {
+  var userId = localStorage.getItem('user_id');
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/createUserInfo",
+    data: { userId: userId },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.warn("Successfully created user info...");
+      getUserInfo();
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error creating user info:", XMLHttpRequest.responseText);
     }
   });
 }
@@ -420,7 +456,7 @@ function displayNameListeners() {
     }
 
     // If there isn't a problem like "name too long", the update function will be called
-    if (updateName) updateUser(newName);
+    if (updateName) updateDisplayName(newName);
   });
 }
 
@@ -431,22 +467,22 @@ function displayNameListeners() {
  * @param {string} newName - the name to replace the display name
  * with; null if no display name
  */
-function updateUser(newName) {
+function updateDisplayName(newName) {
   var userId = localStorage.getItem('user_id');
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/updateUserInfo",
+    url: "https://www.couponbooked.com/scripts/updateDisplayName",
     data: { userId: userId, displayName: newName },
     crossDomain: true,
     cache: false,
     success: function(success) {
-      console.warn("Successfully updated user...");
+      console.warn("Successfully updated display name...");
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       // TODO: Need to think of an elegant way to show user that it failed,
       // but I'll have to get fancy with all the above notifications and
       // I honestly just don't want to do that right now.
-      console.error("Error in updateUser:", XMLHttpRequest.responseText);
+      console.error("Error in updateDisplayName:", XMLHttpRequest.responseText);
     }
   });
 }
@@ -867,7 +903,6 @@ async function requestBook() {
  * Redirects to login if user not authenticated.
  */
 function navBar() {
-  //console.warn("navBar...");
   if (_this.state.authenticated === false) {
     return _this.redirectTo('/login');
   }

@@ -142,8 +142,6 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
  * Calls functions to create books and templates accordingly.
  */
 function createBookButton() {
-  // TODO: Test this method on an unsaved book and normal process
-
   $("#createButton").unbind().click(function() {
     // Replace Android full URL with a cross-platform local one
     var imageSrc = getById("bookImage").src;
@@ -233,6 +231,7 @@ function plusButton() {
       }
     });
 
+    // For creating coupons
     $("#createButton").unbind().click(function() {
         var name = getById("name").value;
         if (nameAlreadyExists(name)) {
@@ -935,13 +934,15 @@ function createBook() {
     dataType: "html",
     cache: false,
     success: function(success) {
-      // Uncomment to debug book creation
-      //console.warn("createBook success:", success);
-
       if (success.includes("bookId in use")) {
         console.warn("bookId in use. Generating new one and trying again...");
         createBook();
       } else {
+        var stats = JSON.parse(localStorage.getItem("stats"));
+        stats.createdBooks++;
+        localStorage.setItem("stats", JSON.stringify(stats));
+        updateStats();
+
         // Updates the "Create to share" text to the Stripe button on first save 
         _this.redirectTo('/sentBook');
         

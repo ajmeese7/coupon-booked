@@ -39,6 +39,28 @@ function fadeBetweenElements(fadeOut, fadeIn, instant) {
   }
 }
 
+/**
+ * After modifying the stats localStorage, functions call this
+ * to update the data on the server to reflect the changes.
+ */
+function updateStats() {
+  var userId = localStorage.getItem('user_id');
+  var stats = localStorage.getItem('stats');
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/updateUserStats",
+    data: { userId: userId, stats: stats },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.warn("Successfully updated stats...");
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error in updateStats:", XMLHttpRequest.responseText);
+    }
+  });
+}
+
 // https://stackoverflow.com/a/8845823/6456163
 function getUrlVars() {
   var vars = [], hash;
@@ -56,7 +78,7 @@ function getUrlVars() {
  */
 function getUserName() {
   var displayName = localStorage.getItem("display_name");
-  if (displayName != "" && !!displayName && displayName != null) {
+  if (displayName && displayName != "" && !!displayName && displayName != null && displayName != "null") {
     console.warn("Using display name:", displayName);
     return displayName;
   } else if (profile.name) {

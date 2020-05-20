@@ -49,9 +49,10 @@
 
                 // Gives us a way to bypass OneSignal userIds and use our own
                 OneSignal.push(function() {
-                    // TODO: Confirm that this is working eventually by pushing notifications
+                    // NOTE: This is currently not used at all because PHP is refusing to cooperate with the 
+                    // external ID, but I'm adding it anyways in case there is a usage case down the line
+                    console.warn("Setting OneSignal externalUserId to", userId);
                     OneSignal.setExternalUserId(userId);
-                    console.log("Setting OneSignal externalUserId to", userId);
 
                     // Go back to the original page now that the localStorage has been set and the user authorized
                     // TODO: Is there a way to wait to error check this or something?

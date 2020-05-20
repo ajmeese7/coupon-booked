@@ -29,12 +29,24 @@
                   $bookData->coupons = $coupons;
                   $bookData = json_encode($bookData);
 
-                  // Sends back ID for notification purposes in Node
-                  echo $sender;
-
-                  $stmt = $conn->prepare("UPDATE couponBooks SET bookData=? WHERE bookId=?");
-                  $stmt->bind_param("ss", $bookData, $bookId);
+                  // Get the OneSignal ID for the specified sender
+                  $stmt = $conn->prepare("SELECT onesignalId FROM userData WHERE userId=?");
+                  $stmt->bind_param("s", $sender);
                   $stmt->execute();
+                  $stmt->store_result();
+                  $stmt->bind_result($onesignalId);
+
+                  // Make sure the OneSignal ID is retrieved; probably a shorter way out there
+                  if ($stmt->num_rows > 0) {
+                    while ($stmt->fetch()) {
+                        // Sends back OneSignal ID for notification purposes in Node
+                        echo $onesignalId;
+
+                        $stmt = $conn->prepare("UPDATE couponBooks SET bookData=? WHERE bookId=?");
+                        $stmt->bind_param("ss", $bookData, $bookId);
+                        $stmt->execute();
+                    }
+                  }
                 } else {
                   // Return that they are out of that coupon, on top of the local check
                   echo "None left";

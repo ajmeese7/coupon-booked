@@ -24,6 +24,15 @@
             <span class="slider round"></span>
         </label>
         <br />-->
+
+        <b>Stats</b>
+        <div id="userStats">
+            <p id="createdBooks">Created books:</p>
+            <p id="sentBooks">Sent books:</p>
+            <p id="receivedBooks">Received books:</p>
+            <p id="redeemedCoupons">Coupons redeemed:</p>
+            <p id="fulfilledCoupons">Coupons fulfilled:</p>
+        </div>
         <hr />
 
         <div class="flex hor-centered">
