@@ -17,10 +17,6 @@
     $stmt->execute();
     $stmt->store_result();
 
-    // NOTE: Right now I don't ever retrieve this info anywhere in my normal code;
-    // once I validate that this works I need to add retrieval into the initial
-    // page connection or something to grab it and store it in localStorage.
-
     // Updates user info if it already exists and creates new info if it doesn't;
     // TODO: Compare this against current checks to make sure the empty
     // data doesn't break the already existing existance clauses

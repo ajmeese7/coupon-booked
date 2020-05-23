@@ -93,12 +93,13 @@ function bookListeners() {
  * NOTE: This is duplicated for sent books until I find a way to share it
  */
 function createReceivedCouponElements() {
-  // TODO: Figure out how to display image licenses if not paying for yearly subscription
   // TODO: Implement way to rearrange organization of coupons; also change
     // display options like default, alphabetical, count remaining, etc.;
     // should changing display preference permenantly update the order?
     // Option to hide coupons with 0 count; display 3 to a row
 
+  var couponContainer = document.createElement('div');
+  couponContainer.setAttribute("id", "couponContainer");
   $.each(book.coupons, function(couponNumber, coupon) {
       var node = document.createElement('div');
       node.setAttribute("class", "couponPreview");
@@ -107,10 +108,12 @@ function createReceivedCouponElements() {
       node.innerHTML += `<p class='couponCount'>${coupon.count} remaining</p>`;
       $(node).data("coupon", coupon);
       $(node).data("couponNumber", couponNumber);
-      getById("bookContent").appendChild(node);
+      couponContainer.appendChild(node);
 
       receivedCouponListeners(node);
   });
+
+  getById("bookContent").appendChild(couponContainer);
 }
 
 /**
@@ -248,7 +251,7 @@ function notifySender(onesignalId, coupon) {
  * from a successful fetch.
  */
 function notificationSuccess(successResponse, coupon) {
-  console.warn("Notification post success:", successResponse);
+  //console.warn("Notification post success:", successResponse);
   SimpleNotification.success({
     text: "Successfully redeemed coupon"
   }, notificationOptions);

@@ -63,8 +63,13 @@ function createShareCode() {
 
     } else {
       console.warn("Share code created successfully:", shareCode);
-      // Share code created successfully
       book.shareCode = shareCode;
+
+      // Update sent books stats
+      var stats = JSON.parse(localStorage.getItem("stats"));
+      stats.sentBooks++;
+      localStorage.setItem("stats", JSON.stringify(stats));
+      updateStats();
 
       // So they can go back to dashboard without dealing with confirm prompt;
       // true means it's silent so they don't get a strange notification

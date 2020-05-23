@@ -41,6 +41,7 @@ App.prototype.state = {
           // Only try to create the connection once authenticated, since login route
           // takes them away from my site anyways. Unless I bring login screen in-house...
           createConnection();
+          getUserInfo();
 
           // To check if directed here by the successful payments page
           var url_vars = getUrlVars();
@@ -274,9 +275,9 @@ App.prototype.state = {
         _this = this;
         navBar();
 
-        // TODO: Mess with https://auth0.com/docs/api/management/v2#!/Users/patch_users_by_id
-          // to hopefully allow users to edit their data (what for?); use something similar to login functions?
-        getUserInfo();
+        // Called again to refresh data
+        getUserInfo(true);
+
         displayNameListeners();
         darkModeSupport(true);
         
@@ -362,8 +363,10 @@ function createConnection() {
 /**
  * Gets the current user info from the server and updates
  * the contents of the settings page to reflect it.
+ * @param {boolean} updatePage - whether the setings page information
+ * should be updated on successful data retrieval.
  */
-function getUserInfo() {
+function getUserInfo(updatePage) {
   var userId = localStorage.getItem('user_id');
   $.ajax({
     type: "GET",
@@ -374,20 +377,25 @@ function getUserInfo() {
       // something similar with the profile so they aren't missing out
       if (data) {
         console.warn("Successfully retrieved user info.");
+
+        // Store all the data in localStorage for later use
         data = JSON.parse(data);
-
-        // Display name
-        $("#displayNameInput").val(data.displayName);
         localStorage.setItem("display_name", data.displayName);
-
-        // User stats; should try to make this programmatic later
         localStorage.setItem("stats", data.stats);
+
+        // Adds user info to mobile sidebar menu
+        getById("sidebarName").innerText = getUserName();
         var stats = JSON.parse(data.stats);
-        getById("createdBooks").innerText += ` ${stats.createdBooks}`;
-        getById("sentBooks").innerText += ` ${stats.sentBooks}`;
-        getById("receivedBooks").innerText += ` ${stats.receivedBooks}`;
-        getById("redeemedCoupons").innerText += ` ${stats.redeemedCoupons}`;
-        getById("fulfilledCoupons").innerText += ` ${stats.fulfilledCoupons}`;
+        if (stats.sentBooks > stats.receivedBooks) {
+          var quip = "Giver";
+        } else if (stats.createdBooks > stats.sentBooks + 1) {
+          var quip = "Creator";
+        } else {
+          var quip = "Explorer";
+        }
+
+        getById("sidebarQuip").innerText = quip;
+        if (updatePage) displayUserData();
       } else {
         console.warn("There was no user info to retrieve. Creating data...");
         createUserInfo();
@@ -397,6 +405,28 @@ function getUserInfo() {
       console.error("Error retrieving user info:", XMLHttpRequest.responseText);
     }
   });
+}
+
+/**
+ * Takes the user's stats and adds them to the settings page.
+ */
+function displayUserData() {
+  // Put current display name in settings page input
+  var displayName = localStorage.getItem("display_name");
+  if (displayNameExists()) {
+    // Stringified null would be put in the input box otherwise
+    $("#displayNameInput").val(displayName);
+  }
+
+  // Update all the individual stats elements
+  var stats = JSON.parse(localStorage.getItem("stats"));
+  getById("createdBooks").innerText += ` ${stats.createdBooks}`;
+  getById("sentBooks").innerText += ` ${stats.sentBooks}`;
+  getById("receivedBooks").innerText += ` ${stats.receivedBooks}`;
+  getById("redeemedCoupons").innerText += ` ${stats.redeemedCoupons}`;
+
+  // TODO: Still need to either do this one or get rid of it
+  getById("fulfilledCoupons").innerText += ` ${stats.fulfilledCoupons}`;
 }
 
 /**
@@ -427,9 +457,6 @@ function createUserInfo() {
  * page and sets it in localStorage for display purposes.
  */
 function displayNameListeners() {
-  // Update textbox with current displayName
-  $("#displayNameInput").val(localStorage.getItem("display_name"));
-
   // Listen for clicking of update button
   $("#updateDisplayName").unbind().click(function() {
     var newName = getById("displayNameInput").value;
@@ -827,6 +854,12 @@ function redeemCode(shareCode) {
         title: "Successfully redeemed code!",
         text: "Check your dashboard."
       }, notificationOptions);
+
+      // Update received book stats
+      var stats = JSON.parse(localStorage.getItem("stats"));
+      stats.receivedBooks++;
+      localStorage.setItem("stats", JSON.stringify(stats));
+      updateStats();
     }
   }
 }

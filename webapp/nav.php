@@ -31,9 +31,16 @@
 
     <!-- Inspiration: https://dribbble.com//shots/2494865-Coach-profile -->
     <div class="mobileSideMenu">
-        <!-- Profile image should be set to the profile picture from the id token;
-            src is the default image until the user's profile pic loads in -->
-        <img alt="Profile picture" src="./images/default.png" class="nav-user-profile profile-image" />
+        <div id="sidebarTop">
+            <div id="hideWhite"></div>
+            <!-- Profile image should be set to the profile picture from the id token;
+                src is the default image until the user's profile pic loads in -->
+            <img alt="Profile picture" src="./images/default.png" class="nav-user-profile profile-image" />
+            <div id="sidebarUserInfo">
+                <p id="sidebarName"></p>
+                <p id="sidebarQuip"></p>
+            </div>
+        </div>
 
         <ul id="mobileNav">
             <li class="dashboard">Dashboard</li>

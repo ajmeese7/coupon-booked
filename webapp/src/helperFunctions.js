@@ -78,7 +78,7 @@ function getUrlVars() {
  */
 function getUserName() {
   var displayName = localStorage.getItem("display_name");
-  if (displayName && displayName != "" && !!displayName && displayName != null && displayName != "null") {
+  if (displayNameExists()) {
     console.warn("Using display name:", displayName);
     return displayName;
   } else if (profile.name) {
@@ -94,6 +94,19 @@ function getUserName() {
   } else {
     console.error("There is no available userName!");
     return null;
+  }
+}
+
+/**
+ * Need to use this nasty code in two places, so figured I'd go ahead
+ * and make a function out of it.
+ */
+function displayNameExists() {
+  var displayName = localStorage.getItem("display_name");
+  if (displayName && displayName != "" && !!displayName && displayName != null && displayName != "null") {
+    return true;
+  } else {
+    return false;
   }
 }
 
