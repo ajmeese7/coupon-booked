@@ -50,6 +50,10 @@ a {
     }
 }
 @media screen and (max-width: 800px) {
+    #create {
+        background-image: url("../images/mobile_min.png") !important;
+    }
+
     #title {
         padding: 0 !important;
         max-width: 90% !important;
@@ -64,10 +68,9 @@ a {
         display: none;
     }
 
-    #create {
-        background-image: url("../images/mobile_min.png") !important;
+    #bottom {
+        margin-bottom: 30px;
     }
-
     .glide__slide q {
         max-width: 85% !important;
     }
@@ -84,24 +87,25 @@ a {
     .glide__arrow {
         display: none !important;
     }
-
-    footer {
-        height: initial;
-    }
+}
+@media screen and (max-width: 535px) {
     footer a, footer p {
-        text-align: center;
-        margin: 2px;
-        display: block;
+        display: table !important;
+        margin: auto !important;
     }
     footer p {
         padding-top: 5px;
         padding-bottom: 2px;
     }
     footer a {
-        float: none;
+        float: none !important;
         padding-bottom: 10px;
-        margin-bottom: 0;
+        margin-bottom: 0 !important;
     }
+}
+
+#about, #testimonials {
+    min-height: 80vh;
 }
 
 /******************************
@@ -115,6 +119,7 @@ a {
     background-position: center;
     background-size: cover;
     box-shadow: 0px 3px 3px #bdc9cc;
+    min-height: calc(100vh - var(--nav-height));
 }
 #title {
     position: relative;
@@ -212,10 +217,7 @@ a {
           TESTIMONIALS
  ******************************/
 
-#testimonials {
-    /*background: #333;*/
-}
-#testimonials h1 {
+#testimonials h1, #download h2 {
     margin: auto;
     text-align: center;
     font-style: oblique;
@@ -280,12 +282,8 @@ a {
             DOWNLOADS
  ******************************/
 
-section:not(#download) {
+section {
     /* TODO: Make this work better for when viewing desktop mode on mobile */
-    width: 100vw;
-    min-height: calc(100vh - var(--nav-height));
-}
-#download {
     width: 100vw;
 }
 #download h2 {
@@ -296,9 +294,10 @@ section:not(#download) {
              FOOTER
  ******************************/
 
+ /* TODO: Unfuck this on mobile */
 footer {
     width: 100%;
-    height: 40px;
+    min-height: 40px;
     background-color: #76cde5;
     box-shadow: 0 -0.5px 2px 0 #76cde5;
     position: relative;
