@@ -17,7 +17,7 @@ function displayReceivedBook() {
   previewText.innerHTML += `<h4>${book.name}</h4>`;
 
   var senderText = "<p class='senderText'>";
-  senderText += book.sender ? `Sent from ${book.sender}` : "Sender unavailable";
+  senderText += book.senderName ? `Sent from ${book.senderName}` : "Sender unavailable";
   senderText += "</p>";
   previewText.innerHTML += senderText;
   miniPreview.appendChild(previewText);
