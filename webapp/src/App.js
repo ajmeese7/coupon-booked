@@ -538,7 +538,6 @@ function darkModeSupport(settingsPage) {
 
   /** Sets dark mode if applicable and light mode if not. */
   function setProperMode() {
-    var hideBook = getById("hideBook");
     var copyButton = getById("copyButton");
     var backArrow = getById("backArrow");
 
@@ -548,7 +547,6 @@ function darkModeSupport(settingsPage) {
       setRootProperty('--topbar-color', '#474747');
       setRootProperty('--tab-color', '#474747');
       setRootProperty('--hr-style', '1px solid rgba(255,255,255,.35)');
-      if (hideBook) hideBook.className = "filter-white";
       if (copyButton) copyButton.className = "filter-white";
       if (backArrow) backArrow.className = "filter-white";
     } else {
@@ -557,7 +555,6 @@ function darkModeSupport(settingsPage) {
       setRootProperty('--topbar-color', '#EEEEEE');
       setRootProperty('--tab-color', '#fff');
       setRootProperty('--hr-style', '1px solid rgba(0,0,0,.1)');
-      if (hideBook) hideBook.className = "filter-black";
       if (copyButton) copyButton.className = "filter-black";
       if (backArrow) backArrow.className = "filter-black";
     }
@@ -1181,13 +1178,13 @@ function successfulAuth(accessToken) {
   _this.state.authenticated = true;
   _this.state.accessToken = accessToken;
   _this.render();
-}
+};
 
 function failedAuth() {
   _this.state.authenticated = false;
   _this.state.accessToken = null;
   _this.render();
-}
+};
 
 App.prototype.render = function() {
   //console.warn("render...");

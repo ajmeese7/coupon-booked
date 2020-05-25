@@ -21,11 +21,6 @@ function displayReceivedBook() {
   senderText += "</p>";
   previewText.innerHTML += senderText;
   miniPreview.appendChild(previewText);
-
-  // NOTE: These images provided by FontAwesome
-  var hideImg = "<img id='hideBook' class='filter-black' src='images/eye-";
-  hideImg += (book.hide ? "slash-" : "") + "regular.svg' />";
-  miniPreview.innerHTML += hideImg;
   
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
@@ -44,46 +39,7 @@ function bookListeners() {
     _this.redirectTo("/dashboard");
   });
 
-  $('#hideBook').unbind().click(function() {
-    var newHideStatus = book.hide ? 0 : 1;
-    $(this).attr('src', "images/eye-" + (newHideStatus ? "slash-" : "") + "regular.svg");
-    book.hide = newHideStatus;
-
-    $.ajax({
-      type: "POST",
-      url: "https://www.couponbooked.com/scripts/changeHiddenStatus",
-      data: { bookData: JSON.stringify(book), hide: newHideStatus, bookId: book.bookId },
-      crossDomain: true,
-      cache: false,
-      success: function(success) {
-        // NOTE: UI to display hidden books will be implemented when I add the sorting button
-        // that allows you to do custom w/ dragging, alphabetical, newest, ect.
-        if (book.hide) {
-          console.warn("Book is now hidden.");
-        } else {
-          console.warn("Book no longer hidden.");
-        }
-
-        // NOTE: Should I include this or let the icon speak for itself?
-        // Also, how do you see hidden books to unhide?
-        /*SimpleNotification.success({
-          text: "Successfully hid book"
-        }, notificationOptions);*/
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        console.error("Error hiding book:", XMLHttpRequest.responseText);
-        // TODO: Undo hide action here; shoud literally never run so
-        // not making this a priority
-
-        SimpleNotification.warning({
-          title: "Error hiding book",
-          text: "Please try again later."
-        }, notificationOptions);
-      }
-    });
-  });
-
-  createCouponElements();
+  createReceivedCouponElements();
 }
 
 /**
