@@ -135,6 +135,9 @@
         display: block !important;
     }
 
+    .gn-notification {
+        margin-left: calc(50% + 50px) !important;
+    }
     .copytooltip .copytooltiptext {
         left: calc(50% + 50px) !important;
         margin-left: 0 !important;
