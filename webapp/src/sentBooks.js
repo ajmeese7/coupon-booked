@@ -53,6 +53,7 @@ function displaySentBook() {
   }
   
   previewText.innerHTML += `<p id='bookDescriptionPreview'>${book.description}</p>`;
+  previewText.innerHTML += "<p id='bookDescriptionShortcut'>Click for description</p>";
   miniPreview.appendChild(previewText);
 
   // https://stackoverflow.com/a/16270807/6456163
@@ -333,9 +334,7 @@ function imageUploadListeners(coupon) {
  * TODO: Come up with a better function name.
  */
 function addListeners() {
-  $("#bookDescriptionPreview").unbind().click(function() {
-    // IDEA: Add this to the image too, or just view the image in
-    // its entirety? Do that option once the preview is opened from here?
+  $("#bookDescriptionPreview, #bookDescriptionShortcut, #miniPreviewImage").unbind().click(function() {
     openBookPreview();
   });
 
@@ -407,11 +406,11 @@ function sentCouponListeners(node) {
  * that was selected. Also adds listeners for going back to `/sentBook`.
  */
 function showCouponPreview($this) {
-  fadeBetweenElements("#bookContent, #couponForm", "#couponPreview");
+  fadeBetweenElements("#bookContent, #couponForm", "#dataPreview");
   showProperButton("couponPreview");
 
   $('#backArrow').unbind().click(function() {
-    fadeBetweenElements("#couponPreview", "#bookContent");
+    fadeBetweenElements("#dataPreview", "#bookContent");
 
     // Calls this again in case data was updated and needs to be redisplayed
     displaySentBook();
@@ -436,7 +435,7 @@ function showCouponPreview($this) {
           development ? updateTemplate() : updateBook();
           
           displaySentBook();
-          fadeBetweenElements("#couponForm, #couponPreview", "#bookContent");
+          fadeBetweenElements("#couponForm, #dataPreview", "#bookContent");
         },
         Cancel: function() {
           $( this ).dialog( "close" );
@@ -457,7 +456,8 @@ function showCouponPreview($this) {
  * displays the edit page.
  */
 function showCouponEditPage($this) {
-  fadeBetweenElements("#couponPreview", "#couponForm");
+  // TODO: Reset scrollbar to the top of the page to prevent the weird bugs
+  fadeBetweenElements("#dataPreview", "#couponForm");
   preventInvalidNumberInput();
 
   var coupon = $($this).data("coupon");
@@ -640,14 +640,22 @@ function preventInvalidNumberInput() {
 function openBookPreview() {
   // IDEA: Also add click listener to image on edit page that
   // shows the image fullscreen with a nav bar or sumn?
+  fadeBetweenElements("#bookContent", "#dataPreview");
 
+  $('#backArrow').unbind().click(function() {
+    fadeBetweenElements("#dataPreview", "#bookContent");
+  });
+
+  getById("imgPreview").src        = book.image;
+  getById("namePreview").innerText = book.name;
+  getById("descPreview").innerText = book.description;
 }
 
 /**
  * Adds click listener to trash can icon in miniPreview.
  */
 function addDeleteListeners() {
-    // 'Wait, stop!'
+    // TODO: 'Wait, stop!'
 
     $('#deleteBook').unbind().click(function(event) {
       // Stop page from scrolling when clicking delete button;

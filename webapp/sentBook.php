@@ -12,7 +12,8 @@
         <button id="plus">+</button>
     </div>
 
-    <div id="couponPreview" class="hide col">
+    <!-- Can be populated by a book or a coupon preview -->
+    <div id="dataPreview" class="hide col">
         <h3 id="namePreview"></h3>
         <hr />
         <img id="imgPreview" onerror="imageError(this)" src="./images/ticket.png" />

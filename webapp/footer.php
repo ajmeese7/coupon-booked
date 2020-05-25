@@ -20,8 +20,7 @@
         // TODO: Do something more helpful than logging element, such as making it
         // easier to track down which one has the problem, or just permenantly reset
         // the image in the JSON
-        console.warn("Error loading image! Setting to default URL...", image);
-        image.src = "images/ticket.png";
+        image.src = "https://couponbooked.com/webapp/images/ticket.png";
     }
 </script>
 

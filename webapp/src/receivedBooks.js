@@ -78,10 +78,10 @@ function createReceivedCouponElements() {
  */
 function receivedCouponListeners(node) {
   $(node).unbind().click(function() {
-    fadeBetweenElements("#bookContent", "#couponPreview");
+    fadeBetweenElements("#bookContent", "#dataPreview");
 
     $('#backArrow').unbind().click(function() {
-      fadeBetweenElements("#couponPreview", "#bookContent");
+      fadeBetweenElements("#dataPreview", "#bookContent");
       displayReceivedBook();
     });
 
