@@ -43,12 +43,19 @@ label {
     max-width: inherit;
     padding-left: 5px;
 }
-@media (max-width:576px) {
+@media (max-width: 576px) {
     .container {
         padding: 0px;
     }
     #logo {
         margin-right: -3px;
+    }
+
+    #bookDescriptionPreview {
+        display: none !important;
+    }
+    #bookDescriptionShortcut {
+        display: inherit !important;
     }
 }
 @media (max-width: 767px) {
@@ -87,7 +94,7 @@ label {
             transition: transform .1s ease-in-out;
 }
 .mobileSideMenu {
-    width: 80vw;
+    width: 280px;
     height: 100vh;
     z-index: 999;
     position: fixed;
@@ -107,9 +114,10 @@ label {
     top: 0;
     right: 0;
 
-    width: 20vw;
+    /* Covers the area not covered by the mobile menu */
+    width: calc(100vw - 280px);
     height: 100vh;
-    transform: translate3d(20vw, 0, 0);
+    transform: translate3d(calc(100vw - 280px), 0, 0);
 }
 .contentShadow--open {
     transform: translate3d(0, 0, 0);
@@ -124,7 +132,10 @@ label {
     background-color: var(--nav-color);
 }
 #sidebarTop {
+    /* TODO: Make this and the whole side nav look better on tablet form factor */
     width: calc(100% - 5px);
+    max-width: 305px;
+    height: 59px;
     margin-top: 35px;
     margin-bottom: 10px;
     border-radius: 20px;
@@ -134,10 +145,12 @@ label {
     margin-bottom: 0px;
     overflow: hidden;
     text-overflow: ellipsis;
+    padding-top: 3px;
 }
 #sidebarUserInfo {
     display: inline-block;
     width: calc(100% - 90px);
+    height: 58px;
     margin-left: 5px;
 }
 .nav-user-profile {
@@ -145,7 +158,7 @@ label {
     width: 60px;
     z-index: 2;
     position: relative;
-    margin-top: -32px;
+    margin-top: -42px;
     margin-left: 15px;
 }
 
@@ -302,12 +315,10 @@ label {
 }
 #miniPreviewImage {
     /* Testing on smaller device and it's a problem;
-    TODO: Make div height adapt according to image height in JS, not CSS file;
-    also adapt previewText width calculations in JS */
+        IDEA: do image on top and name underneath for mobile? */
     float: left;
     width: 150px;
     height: 150px; /* If image doesn't exist the whole thing gets fucked up without this */
-    max-width: 38%; /* NOTE: Not finalized, but better looking on smaller screen */
     margin-left: 25px;
     margin-top: 25px;
 }
@@ -316,16 +327,6 @@ label {
     margin-top: 20px;
     width: calc(100% - 175px); /* Image width is 175px because 25px margin */
     text-align: center;
-}
-#hideBook {
-    /* TODO: Test on other screen sizes */
-    height: 35px;
-    width: 44px; /* To prevent the slightly bigger slash from shifting a tiny bit */
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    margin-right: 8px;
-    margin-bottom: -20px;
 }
 .filter-black {
     /* https://stackoverflow.com/a/53336754/6456163 */
@@ -356,6 +357,11 @@ label {
     border-left: .3em solid transparent;
 }
 
+#bookDescriptionPreview, #bookDescriptionShortcut, 
+#shareCodePreview, #miniPreviewImage {
+    cursor: pointer;
+}
+
 /* Fantastic solution from https://stackoverflow.com/a/13924997/6456163 */
 #bookDescriptionPreview {
     /* TODO: Is it possible to cut off not in the midde of words? Shows up with width: 90%; 
@@ -367,6 +373,10 @@ label {
     -webkit-box-orient: vertical;
     width: 87.5%;
     margin: auto;
+}
+#bookDescriptionShortcut {
+    display: none;
+    font-style: italic;
 }
 #bookNamePreview, .bookName {
     /* Using the same method as above */
@@ -525,12 +535,11 @@ textarea {
     cursor: pointer;
 }
 #descPreview {
-    /* NOTE: Will also have to make this different for tablets;
-    duplicated in shareCode.css */
     width: 90%;
+    max-width: 500px;
     margin: auto;
     margin-top: 25px;
-    text-align: center; /* TODO: Make this look prettier */
+    text-align: center;
 }
 
 .cloudinary-button {

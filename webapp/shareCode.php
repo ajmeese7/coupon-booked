@@ -17,6 +17,7 @@
 
     <p id="shareCodeDescription">
         Send this code to whomever you want to receive your Coupon Book.
+        <br id="desktopBreak" />
         They must create an account if they don't already have one to 
         redeem the code.
     </p>

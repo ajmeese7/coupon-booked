@@ -126,7 +126,17 @@
         /* NOTE: I have no idea why this works, so don't touch it */
         left: calc(50vw - (var(--nav-width) / 3.5)) !important;
     }
-    #redeemButton {
-        left: calc(50% + (var(--nav-width) / 3.5)); /* VM voodoo magic */
+    #redeemButton, #bigShareButton {
+        left: calc(50% + (var(--nav-width) / 3.5)) !important; /* VM voodoo magic */
+        margin-left: 0 !important;
+    }
+
+    #desktopBreak {
+        display: block !important;
+    }
+
+    .copytooltip .copytooltiptext {
+        left: calc(50% + 50px) !important;
+        margin-left: 0 !important;
     }
 }

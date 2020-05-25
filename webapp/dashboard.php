@@ -6,7 +6,6 @@
         <li class="tab"><a id="receivedButton" href="#received">Received</a></li>
     </ul>
 
-    <!-- TODO: Try to redo all the stuff I just fucking accidentially deleted -->
     <div id="gestureZone">
         <div id="sent" class="col">
             <div id="noneSent" class="hidden">
