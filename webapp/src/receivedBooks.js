@@ -135,6 +135,10 @@ function redeemCoupon(coupon) {
       cache: false,
       success: function(success) {
         console.warn("redeemCoupon success:", success);
+        gtag('event', 'Coupon Redeemed', {
+          'event_category' : 'Book Modification',
+          'event_label' : 'Success'
+        });
         
         if (success == "None left") {
           noneLeft();
@@ -144,6 +148,10 @@ function redeemCoupon(coupon) {
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.error("Error in redeemCoupon:", XMLHttpRequest.responseText);
+        gtag('event', 'Coupon Redeemed', {
+          'event_category' : 'Book Modification',
+          'event_label' : 'Error'
+        });
 
         SimpleNotification.error({
           title: "Error redeeming coupon!",
@@ -191,6 +199,11 @@ function notifySender(onesignalId, coupon) {
         },
         error: function(XMLHttpRequest, textStatus, errorThrown) {
           console.error("Error sending notification:", XMLHttpRequest.responseText);
+          gtag('event', 'Notification Not Sent', {
+            'event_category' : 'Notification',
+            'event_label' : 'notifySender',
+            'non_interaction': true
+          });
         }
       });
   } else {
@@ -207,10 +220,14 @@ function notifySender(onesignalId, coupon) {
  * from a successful fetch.
  */
 function notificationSuccess(successResponse, coupon) {
-  //console.warn("Notification post success:", successResponse);
   SimpleNotification.success({
     text: "Successfully redeemed coupon"
   }, notificationOptions);
+
+  gtag('event', 'Notification Sent', {
+    'event_category' : 'Notification',
+    'non_interaction': true
+  });
 
   // Update redeemed coupons stats
   var stats = JSON.parse(localStorage.getItem("stats"));
@@ -232,6 +249,12 @@ function notificationSuccess(successResponse, coupon) {
 function notificationError(failedResponse, coupon) {
   console.error("Notification post failed:", data);
   refundCoupon(coupon.name);
+
+  gtag('event', 'Notification Not Sent', {
+    'event_category' : 'Notification',
+    'event_label' : 'notificationError',
+    'non_interaction': true
+  });
 
   // TODO: Test if this actually works and can detect if the user has been deleted;
   // it probably won't but whatever. Not really important
@@ -266,15 +289,17 @@ function refundCoupon(couponName) {
     cache: false,
     success: function(success) {
       console.warn("refundCoupon SUCCESS:", success);
+      gtag('event', 'Coupon Refunded', {
+        'event_category' : 'Refund',
+        'non_interaction': true
+      });
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("ERROR in refundCoupon: ", XMLHttpRequest.responseText);
-
-      // IDEA: Create a way to report problems such as this
-      /*SimpleNotification.error({
-        title: "Error refunding coupon",
-        text: "Please report this issue."
-      }, notificationOptions);*/
+      gtag('event', 'Coupon Not Refunded', {
+        'event_category' : 'Refund',
+        'non_interaction': true
+      });
     }
   });
 }

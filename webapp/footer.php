@@ -5,7 +5,6 @@
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jshashes/1.0.8/hashes.min.js"></script>
-<script src="src/globalVars.js"></script>
 <script src="src/helperFunctions.js"></script>
 <script src="src/sentBooks.js"></script>
 <script src="src/receivedBooks.js"></script>

@@ -5,9 +5,6 @@
 
 <body>
     <!-- HTML is my templating engine and CSS is my router -->
-    <!-- Replacement idea: https://www.filamentgroup.com/lab/html-includes/#another-demo%3A-including-another-html-file -->
-    <!-- But if I did it this way would I still be able to transition between the main areas with fading? Could I include the
-        body parts with the templating engine instead of the nav and stuff to include that still? -->
     <div class="app" id="app"></div>
 
     <template id="loading">

@@ -18,9 +18,6 @@ function App() {
  */
 var showLoadingIcon = true;
 
-// IDEA: Make it when you click back from a coupon preview it takes you to where you were scrolled;
-  // perhaps with a tags that automatically save id as you scroll with name? Need to handle name updating...
-
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -31,7 +28,7 @@ App.prototype.state = {
     '/': {
       id: 'loading',
       onMount: function(page) {
-        //console.warn("/ route...");
+        gtag('config', googleID, { 'page_title' : 'root', 'page_path' : '/' });
         nav = getBySelector("#nav");
         loadingIcon = getBySelector("#loader");
         _this = this;
@@ -58,6 +55,8 @@ App.prototype.state = {
     '/login': {
       id: 'login',
       onMount: function(page) {
+        gtag('config', googleID, { 'page_title' : 'Login Page', 'page_path' : '/login' });
+
         console.warn("/login route...");
         if (this.state.authenticated === true) {
           return this.redirectTo('/dashboard');
@@ -85,6 +84,8 @@ App.prototype.state = {
     '/create': {
       id: 'create',
       onMount: function(page) {
+        gtag('config', googleID, { 'page_title' : 'Create Book', 'page_path' : '/create' });
+
         _this = this;
         navBar();
 
@@ -109,6 +110,8 @@ App.prototype.state = {
     '/sentBook': {
       id: 'sentBook',
       onMount: function(page) {
+        gtag('config', googleID, { 'page_title' : 'Sent Book Page', 'page_path' : '/sentBook' });
+
         _this = this;
         navBar();
 
@@ -143,7 +146,8 @@ App.prototype.state = {
     '/receivedBook': {
       id: 'receivedBook',
       onMount: function(page) {
-        // TODO: Add way to view hidden books
+        gtag('config', googleID, { 'page_title' : 'Received Book Page', 'page_path' : '/receivedBook' });
+
         _this = this;
         navBar();
 
@@ -155,6 +159,8 @@ App.prototype.state = {
     '/dashboard': {
       id: 'dashboard',
       onMount: function(page) {
+        gtag('config', googleID, { 'page_title' : 'Dashboard', 'page_path' : '/dashboard' });
+
         _this = this;
         navBar();
 
@@ -189,6 +195,8 @@ App.prototype.state = {
     '/redeemCode': {
       id: 'redeemCode',
       onMount: function(page) {
+        gtag('config', googleID, { 'page_title' : 'Redeem Code Page', 'page_path' : '/redeemCode' });
+
         _this = this;
         navBar();
         darkModeSupport();
@@ -198,48 +206,14 @@ App.prototype.state = {
           _this.redirectTo('/dashboard');
         });
 
-        $('#redeemButton').unbind().click(function() {
-          var code = getById("redeemBox").value.toLowerCase();
-          if (codeIsValid(code)) {
-            redeemCode(code);
-          }
-        });
-
-        // https://www.outsystems.com/forums/discussion/27816/mobile-max-length-of-input-not-working/#Post101576
-        $('#redeemBox').on("input", function (event) {
-          if (event.originalEvent.inputType == "insertFromPaste") {
-            for (var i = 0; i < this.value.length; i++) {
-              var currentChar = this.value.toLowerCase().charAt(i);
-              
-              if (!ALPHABET.includes(currentChar)) {
-                //console.log(`Problematic char: '${currentChar}'`);
-                //var before = this.value;
-                this.value = this.value.replace(currentChar, '');
-                //console.log(`Before: ${before}, after: ${this.value}`);
-
-                // To retest that same character spot since the string shifted now.
-                // No out of bounds issue because it's about to i++ in the loop.
-                i--;
-              }
-            }
-          } else {
-            var currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
-            if (!ALPHABET.includes(currentChar)) {
-              //console.log(`Problematic char: '${currentChar}'`);
-              this.value = this.value.slice(0, this.value.length - 1);
-            }
-          }
-
-          // Cut length down to desired amount
-          if (this.value.length > ID_LENGTH) {
-            this.value = this.value.slice(0, 8);
-          }
-        });
+        redeemListeners();
       }
     },
     '/shareCode': {
       id: 'shareCode',
       onMount: function(page) {
+        gtag('config', googleID, { 'page_title' : 'Share Code Page', 'page_path' : '/shareCode' });
+
         _this = this;
         navBar();
         darkModeSupport();
@@ -272,6 +246,8 @@ App.prototype.state = {
     '/settings': {
       id: 'settings',
       onMount: function(page) {
+        gtag('config', googleID, { 'page_title' : 'Settings Page', 'page_path' : '/settings' });
+
         _this = this;
         navBar();
 
@@ -288,43 +264,13 @@ App.prototype.state = {
     '/help': {
       id: 'help',
       onMount: function(page) {
+        gtag('config', googleID, { 'page_title' : 'Help Page', 'page_path' : '/help' });
+
         _this = this;
         navBar();
         darkModeSupport();
 
-        var userId = localStorage.getItem("user_id");
-        $("#submit").unbind().click(function(event) {
-          event.preventDefault();
-
-          var form = $('#helpForm').serializeArray();
-          var formData = {};
-          for (var i = 0; i < form.length; i++) {
-            formData[form[i].name] = form[i].value;
-          }
-
-          // TODO: Client side verification before submission
-          $.ajax({
-            type: "POST",
-            url: "https://www.couponbooked.com/scripts/form_submit",
-            data: { userId: userId, formData: JSON.stringify(formData) },
-            crossDomain: true,
-            cache: false,
-            success: function(success) {
-              // TODO: Show them a notification or fade the form into a success text or something
-              SimpleNotification.success({
-                text: "Form successfully submitted"
-              }, notificationOptions);
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-              console.error("Error with form submission:", XMLHttpRequest.responseText);
-
-              SimpleNotification.error({
-                title: "Error submitting form",
-                text: "Please try again later."
-              }, notificationOptions);
-            }
-          });
-        });
+        helpFormListeners();
       }
     }
   }
@@ -353,9 +299,17 @@ function createConnection() {
     datatype: "html",
     success: function(data) {
       console.warn("Successfully established database connection.");
+      gtag('event', 'Connection Established', {
+        'event_category' : 'Connection',
+        'non_interaction': true
+      });
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error establishing connection:", XMLHttpRequest.responseText);
+      gtag('event', 'Connection Not Established', {
+        'event_category' : 'Connection',
+        'non_interaction': true
+      });
     }
   });
 }
@@ -468,6 +422,8 @@ function displayNameListeners() {
       }, notificationOptions);
       updateUser = false;
     } else if (newName == "") {
+      gtag('event', 'Display Name Reset', { 'event_category' : 'Display Name' });
+
       SimpleNotification.info({
         title: "No name entered",
         text: "Using default username from now on."
@@ -475,6 +431,8 @@ function displayNameListeners() {
 
       localStorage.setItem("display_name", "");
     } else {
+      gtag('event', 'Display Name Updated', { 'event_category' : 'Display Name' });
+
       SimpleNotification.success({
         text: "Display name updated"
       }, notificationOptions);
@@ -808,6 +766,95 @@ function addBookListeners(node) {
 }
 
 /**
+ * Adds the listeners for the help route.
+ */
+function helpFormListeners() {
+  var userId = localStorage.getItem("user_id");
+  $("#submit").unbind().click(function(event) {
+    event.preventDefault();
+
+    // TODO: Properly grab new lines from subject
+    var form = $('#helpForm').serializeArray();
+    var formData = {};
+    for (var i = 0; i < form.length; i++) {
+      formData[form[i].name] = form[i].value;
+    }
+
+    // TODO: Client side verification before submission
+    $.ajax({
+      type: "POST",
+      url: "https://www.couponbooked.com/scripts/form_submit",
+      data: { userId: userId, formData: JSON.stringify(formData) },
+      crossDomain: true,
+      cache: false,
+      success: function(success) {
+        // TODO: Test, and also finish the pagination
+        gtag('event', 'Help Form Submitted', {
+          'event_category' : 'Form Submission',
+          'event_label' : formData.topic
+        });
+
+        // TODO: Show them a notification or fade the form into a success text or something
+        SimpleNotification.success({
+          text: "Form successfully submitted"
+        }, notificationOptions);
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        console.error("Error with form submission:", XMLHttpRequest.responseText);
+        gtag('event', 'Help Form Submitted', {
+          'event_category' : 'Form Submission',
+          'event_label' : 'Error'
+        });
+
+        SimpleNotification.error({
+          title: "Error submitting form",
+          text: "Please try again later."
+        }, notificationOptions);
+      }
+    });
+  });
+}
+
+/**
+ * Makes sure the stuff entered falls within the defined parameters.
+ */
+function redeemListeners() {
+  $('#redeemButton').unbind().click(function() {
+    var code = getById("redeemBox").value.toLowerCase();
+    if (codeIsValid(code)) {
+      redeemCode(code);
+    }
+  });
+
+  // https://www.outsystems.com/forums/discussion/27816/mobile-max-length-of-input-not-working/#Post101576
+  $('#redeemBox').on("input", function (event) {
+    if (event.originalEvent.inputType == "insertFromPaste") {
+      for (var i = 0; i < this.value.length; i++) {
+        var currentChar = this.value.toLowerCase().charAt(i);
+        
+        if (!ALPHABET.includes(currentChar)) {
+          this.value = this.value.replace(currentChar, '');
+
+          // To retest that same character spot since the string shifted now.
+          // No out of bounds issue because it's about to i++ in the loop.
+          i--;
+        }
+      }
+    } else {
+      var currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
+      if (!ALPHABET.includes(currentChar)) {
+        this.value = this.value.slice(0, this.value.length - 1);
+      }
+    }
+
+    // Cut length down to desired amount
+    if (this.value.length > ID_LENGTH) {
+      this.value = this.value.slice(0, 8);
+    }
+  });
+}
+
+/**
  * Sends code to server to see if it is valid, and redeems it to
  * the current user if it is.
  * @param {string} shareCode the code to be redeemed for access
@@ -826,6 +873,10 @@ function redeemCode(shareCode) {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error in redeemCode: ", XMLHttpRequest.responseText);
+      gtag('event', 'Share Code Redeemed', {
+        'event_category' : 'Redemption',
+        'event_label' : 'Error'
+      });
 
       SimpleNotification.error({
         title: "Error redeeming code!",
@@ -835,7 +886,6 @@ function redeemCode(shareCode) {
   });
 
   function handleSuccess(success) {
-    // TODO: Something to prevent spam, i.e. IP limiting
     if (success == "Not valid") {
       SimpleNotification.warning({
         title: "Invalid code",
@@ -847,6 +897,11 @@ function redeemCode(shareCode) {
         text: "Please send it to someone else."
       }, notificationOptions);
     } else {
+      gtag('event', 'Share Code Redeemed', {
+        'event_category' : 'Redemption',
+        'event_label' : 'Success'
+      });
+
       SimpleNotification.success({
         title: "Successfully redeemed code!",
         text: "Check your dashboard."
@@ -906,8 +961,6 @@ async function requestBook() {
   var userName = getUserName(), messageStart = "";
   if (userName) {
     messageStart = `Your friend ${userName} wants a Coupon Book! `;
-  } else {
-    // TODO: Throw some kind of error or something here because this shouldn't happen
   }
 
   var options = {
@@ -921,10 +974,21 @@ async function requestBook() {
   try {
     await navigator.share(options);
     console.log('Successfully ran share');
+
+    gtag('event', 'Book Requested', {
+      'event_category' : 'Book Sharing',
+      'event_label' : 'Navigator Implementation'
+    });
   } catch(err) {
     // TODO: Some alternative sharing method for where it isn't supported like
     // https://css-tricks.com/how-to-use-the-web-share-api/; change in other file too
     console.error("Error running share:", err);
+
+    // TODO; also in shareBook.js
+    /*gtag('event', 'Book Requested', {
+      'event_category' : 'Book Sharing',
+      'event_label' : 'Custom Implementation'
+    });*/
   }
 }
 
@@ -952,8 +1016,7 @@ function navBar() {
     avatar.src = profile.picture;
   }
 
-  // TODO: Try to have it not bug the server if they click the link of the page they're already on
-  $("#mobile").unbind().click(function() { _this.redirectTo('/dashboard') });
+  $("#mobile").unbind().click(function() { _this.redirectTo('/dashboard'); });
 
   // TODO: Make this all programmatic
   $(".dashboard").unbind().click(function() {
@@ -984,8 +1047,6 @@ function navBar() {
 }
 
 function toggleMobileMenu() {
-  // TODO: Eventually transfer this to real animation, so it doesn't skip it
-  // when going to a route
   toggleClass(document.querySelector('.mobileSideMenu'), 'mobileSideMenu--open');
   toggleClass(document.querySelector('.contentShadow'), 'contentShadow--open');
 }
@@ -1071,6 +1132,7 @@ function manageTabMenu() {
   // TODO: Replicate behavior of color fading away when tab clicked off of,
   // i.e. when the user is scrolling down the page
   function sentTab() {
+    gtag('event', 'Sent tab', { 'event_category' : 'Navigation' });
     localStorage.setItem('activeTab', 'sent');
     
     sentButton.css('background-color', 'rgba(246, 178, 181, 0.2)');
@@ -1079,6 +1141,7 @@ function manageTabMenu() {
     receivedButton.css('text-decoration', 'none');
   }
   function receivedTab() {
+    gtag('event', 'Received tab', { 'event_category' : 'Navigation' });
     localStorage.setItem('activeTab', 'received');
 
     receivedButton.css('background-color', 'rgba(246, 178, 181, 0.2)');

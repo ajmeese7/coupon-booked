@@ -1,9 +1,6 @@
 /** True means book will be published to template database; false is normal */
 var development = false;
 
-// TODO: Update automatically when creating share code so back button doesn't freak;
-  // is it still necessary to check when leaving book page after book already created? probs not.
-
 // https://stackoverflow.com/a/58065241/6456163
 var isIOS = /iPad|iPhone|iPod/.test(navigator.platform)
 || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -116,6 +113,7 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
         buttons: {
           "Discard them": function() {
             $( this ).dialog( "close" );
+            gtag('event', 'Book Changes Discarded', { 'event_category' : 'Book Modification' });
             confirmFunction();
           },
           Cancel: function() {
@@ -219,6 +217,7 @@ function plusButton() {
           buttons: {
             "Discard them": function() {
               fadeToBookContent();
+              gtag('event', 'New Coupon Discarded', { 'event_category' : 'Book Modification' });
               $( this ).dialog( "close" );
             },
             Cancel: function() {
@@ -409,6 +408,8 @@ function showCouponPreview($this) {
   fadeBetweenElements("#bookContent, #couponForm", "#dataPreview");
   showProperButton("couponPreview");
 
+  gtag('config', googleID, { 'page_title' : 'Coupon Preview' });
+
   $('#backArrow').unbind().click(function() {
     fadeBetweenElements("#dataPreview", "#bookContent");
 
@@ -436,6 +437,7 @@ function showCouponPreview($this) {
           
           displaySentBook();
           fadeBetweenElements("#couponForm, #dataPreview", "#bookContent");
+          gtag('event', 'Coupon Deleted', { 'event_category' : 'Book Modification' });
         },
         Cancel: function() {
           $( this ).dialog( "close" );
@@ -459,6 +461,8 @@ function showCouponEditPage($this) {
   // TODO: Reset scrollbar to the top of the page to prevent the weird bugs
   fadeBetweenElements("#dataPreview", "#couponForm");
   preventInvalidNumberInput();
+
+  gtag('config', googleID, { 'page_title' : 'Edit Coupon' });
 
   var coupon = $($this).data("coupon");
   getById("couponImage").src         = coupon.image;
@@ -486,7 +490,6 @@ function showCouponEditPage($this) {
     newCoupon.count = parseInt(getById("count").value);
 
     if (!isSameObject(coupon, newCoupon)) {
-      // NOTE: This is copied from plusButton
       $( "#discardCouponConfirm" ).dialog({
         draggable: false,
         resizable: false,
@@ -497,6 +500,7 @@ function showCouponEditPage($this) {
           "Discard them": function() {
             fadeToBookContent();
             $( this ).dialog( "close" );
+            gtag('event', 'Coupon Changes Discarded', { 'event_category' : 'Book Modification' });
           },
           Cancel: function() {
             $( this ).dialog( "close" );
@@ -509,6 +513,8 @@ function showCouponEditPage($this) {
     }
 
     function confirmFunction() {
+      // If the user hits the home button, it's treated as a back button press
+      // but sends them to the dashboard. If not, it sends them back to the preview.
       homeButtonClicked ? _this.redirectTo('/dashboard') : showCouponPreview($this);
     }
   });
@@ -626,7 +632,7 @@ function preventInvalidNumberInput() {
         && e.keyCode !== 8 // keycode for backspace
        ) {
        e.preventDefault();
-       console.log("Preventing count from going too high. Setting to 99...");
+       console.warn("Preventing count from going too high. Setting to 99...");
        $(this).val(99);
     }
   });
@@ -641,6 +647,7 @@ function openBookPreview() {
   // IDEA: Also add click listener to image on edit page that
   // shows the image fullscreen with a nav bar or sumn?
   fadeBetweenElements("#bookContent", "#dataPreview");
+  gtag('config', googleID, { 'page_title' : 'Book Preview' });
 
   $('#backArrow').unbind().click(function() {
     fadeBetweenElements("#dataPreview", "#bookContent");
@@ -705,12 +712,22 @@ function deleteBook() {
       crossDomain: true,
       cache: false,
       success: function(success) {
+        // Update Google Analytics with book deletion
+        gtag('event', 'Book Deleted', {
+          'event_category' : 'Book Modification',
+          'event_label' : 'Success'
+        });
+
         SimpleNotification.success({
           text: "Successfully deleted book"
         }, notificationOptions);
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.error("Error in deleteBook:", XMLHttpRequest.responseText);
+        gtag('event', 'Book Deleted', {
+          'event_category' : 'Book Modification',
+          'event_label' : 'Error'
+        });
 
         SimpleNotification.error({
           title: "Error deleting coupon book!",
@@ -743,9 +760,11 @@ function createCoupon() {
   coupon.count = parseInt(coupon.count);
 
   // Replace Android full URL with a cross-platform local one
-  //var cloudGiftUrl = "https://res.cloudinary.com/couponbooked/image/upload/v1580314462/gift_rshjui.png";
   var imageSrc = getById("couponImage").src;
-  coupon.image = imageSrc.includes("ticket.png") ? "./images/ticket.png" : imageSrc;
+  coupon.image = imageSrc.includes("ticket.png") ? "https://couponbooked.com/webapp/images/ticket.png" : imageSrc;
+
+  // Update Google Analytics with coupon creation
+  gtag('event', 'Coupon Created', { 'event_category' : 'Book Modification' });
 
   // Name already validated before this function is called so
   // no need to do it again.
@@ -773,7 +792,7 @@ function updateCoupon(oldCoupon, $this) {
 
   // Convert from string to number
   newCoupon.count = parseInt(newCoupon.count);
-  
+
   // Replace Android full URL with a cross-platform local one
   var imageSrc = getById("couponImage").src;
   newCoupon.image = imageSrc.includes("ticket.png") ? "./images/ticket.png" : imageSrc;
@@ -790,20 +809,21 @@ function updateCoupon(oldCoupon, $this) {
         // Iterate over coupons until the one with the previous name is found
         $.each(book.coupons, function(couponNumber, coupon) {
           if (coupon.name == oldName) {
-            // TODO: Check for special character support, i.e. other languages;
-              // also in editBookDetails
             coupon = newCoupon;
             book.coupons[couponNumber] = newCoupon;
-      
+
             $($this).data("coupon", newCoupon);
             displaySentBook();
-      
+
             // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
-            // TODO: Explain this line, and also test the new version
+            // I'm honestly not 100% sure what this line does, but don't touch it
             $(`#bookContent p:contains('${newName}')`).parent()[0].click();
-            
+
             console.warn("Coupon updated!");
             showCouponPreview($this);
+
+            // Update Google Analytics with coupon update
+            gtag('event', 'Coupon Updated', { 'event_category' : 'Book Modification' });
 
             SimpleNotification.success({
               text: "Updated coupon"
@@ -815,7 +835,7 @@ function updateCoupon(oldCoupon, $this) {
     // Coupon hasn't been modified
     console.warn("Coupon not modified. Returning...");
 
-    // Lie to user so they don't get confused
+    // Lie to the user so they don't get confused
     SimpleNotification.success({
       text: "Updated coupon"
     }, notificationOptions);
@@ -951,6 +971,12 @@ function createBook() {
         localStorage.setItem("stats", JSON.stringify(stats));
         updateStats();
 
+        // Update Google Analytics with book creation
+        gtag('event', 'Book Creation', {
+          'event_category' : 'Book Modification',
+          'event_label' : 'Success'
+        });
+
         // Updates the "Create to share" text to the Stripe button on first save 
         _this.redirectTo('/sentBook');
         
@@ -961,6 +987,10 @@ function createBook() {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error in createBook:", XMLHttpRequest.responseText);
+      gtag('event', 'Book Creation', {
+        'event_category' : 'Book Modification',
+        'event_label' : 'Error'
+      });
 
       SimpleNotification.error({
         title: "Error creating book!",
@@ -985,20 +1015,19 @@ function editBookDetails() {
   oldBook.name        = getById("bookName").value;
   oldBook.description = getById("bookDescription").value;
 
-  if (!isSameObject(book, oldBook)) {
-      SimpleNotification.success({
-        text: development ? "Updated template" : "Updated book"
-      }, notificationOptions);
+  // Even if nothing is changed, we lie to the user so they don't get confused
+  SimpleNotification.success({
+    text: development ? "Updated template" : "Updated book"
+  }, notificationOptions);
 
-      return true;
+  if (!isSameObject(book, oldBook)) {
+    // Update Google Analytics with book details edited
+    gtag('event', 'Book Details Edited', { 'event_category' : 'Book Modification' });
+
+    return true;
   } else {
     console.warn("Book info not modified. Returning...");
     book = clone(oldBook); // Restore to previous state
-
-    // Lie to user so they don't get confused
-    SimpleNotification.success({
-      text: development ? "Updated template" : "Updated book"
-    }, notificationOptions);
 
     return false;
   }
@@ -1023,6 +1052,13 @@ function updateBook(silent) {
       previousBook = clone(book);
       console.warn("Successfully updated coupon book.");
 
+      // Update Google Analytics with book update
+      gtag('event', 'Book Updated', {
+        'event_category' : 'Book Modification',
+        'event_label' : 'Success',
+        'non_interaction': true
+      });
+
       if (!silent) {
         SimpleNotification.success({
           text: "Successfully updated coupon book"
@@ -1031,6 +1067,11 @@ function updateBook(silent) {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error in updateCouponBook:", XMLHttpRequest.responseText);
+      gtag('event', 'Book Updated', {
+        'event_category' : 'Book Modification',
+        'event_label' : 'Error',
+        'non_interaction': true
+      });
 
       // TODO: Think of a good way to resolve bugs for users; some log data saved?
       // IDEA: Have a 'report bug' thing somewhere that includes logs in report; send it where?
