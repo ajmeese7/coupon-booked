@@ -449,6 +449,7 @@ label {
     font-size: 24px;
     border-radius: 4px; /* 8 */
     left: 50%;
+    margin-left: -62px; /* Negative half of width to center element */
 }
 
 #save, #share, #createButton, #delete {

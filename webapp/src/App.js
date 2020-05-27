@@ -184,7 +184,20 @@ App.prototype.state = {
         });
 
         getById("request").addEventListener('click', async () => {
-          requestBook();
+          if (navigator.share) {
+            requestBook();
+          } else {
+            gtag('event', 'Book Requested', {
+              'event_category' : 'Book Sharing',
+              'event_label' : 'Email Implementation'
+            });
+
+            // For now, if the share API isn't supported, it just opens the default
+            // email client with the specified contents
+            var subject = "I want a gift!";
+            var emailBody = "I want a Coupon Book! Go to https://couponbooked.com/webapp/index to make me something special :)";
+            document.location = "mailto:?subject="+subject+"&body="+emailBody;
+          }
         });
 
         $('#redeemLink').unbind().click(function() {
@@ -238,9 +251,16 @@ App.prototype.state = {
         var shareIcon = getById("shareIcon");
         isIOS ? shareIcon.src = "./images/ios-share.svg" : shareIcon.src = "./images/md-share.svg"; // TODO: TEST
 
-        $("#bigShareButton").unbind().click(function() {
-          shareCode();
-        });
+        // Hides share button if native share API not supported;
+        // can implement my own alternative later if desired like in
+        // https://css-tricks.com/how-to-use-the-web-share-api/
+        if (navigator.share) {
+          $("#bigShareButton").unbind().click(function() {
+            shareCode();
+          });
+        } else {
+          $("#bigShareButton").hide();
+        }
       }
     },
     '/settings': {
@@ -960,35 +980,32 @@ function codeIsValid(shareCode) {
 async function requestBook() {
   var userName = getUserName(), messageStart = "";
   if (userName) {
+    // NOTE: This can probably be improved. Think on it
     messageStart = `Your friend ${userName} wants a Coupon Book! `;
   }
 
   var options = {
-    // TODO: Eventually come back and fix this URL once the site directory is solidified,
-    // and then fix it in shareCode() too
     title: "Send a Coupon Book!",
     text: `${messageStart}Go to https://couponbooked.com/webapp to send a Book now!`
   };
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
   try {
+    // TODO: Work on adding a dedicated Snapchat share like Spotify does
     await navigator.share(options);
-    console.log('Successfully ran share');
+    console.log('Successfully requested book');
 
     gtag('event', 'Book Requested', {
       'event_category' : 'Book Sharing',
       'event_label' : 'Navigator Implementation'
     });
   } catch(err) {
-    // TODO: Some alternative sharing method for where it isn't supported like
-    // https://css-tricks.com/how-to-use-the-web-share-api/; change in other file too
     console.error("Error running share:", err);
 
-    // TODO; also in shareBook.js
-    /*gtag('event', 'Book Requested', {
+    gtag('event', 'Book Requested', {
       'event_category' : 'Book Sharing',
-      'event_label' : 'Custom Implementation'
-    });*/
+      'event_label' : 'Error'
+    });
   }
 }
 

@@ -101,12 +101,16 @@ async function shareCode() {
     await navigator.share(options);
     console.log('Successfully ran share');
 
-    // TODO: Finish this when finishing requestBook()
     gtag('event', 'Book Shared', {
       'event_category' : 'Book Sharing',
       'event_label' : 'Navigator Implementation'
     });
   } catch(err) {
     console.error("Error running share:", err);
+
+    gtag('event', 'Book Shared', {
+      'event_category' : 'Book Sharing',
+      'event_label' : 'Error'
+    });
   }
 }
