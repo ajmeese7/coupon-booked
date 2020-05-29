@@ -5,7 +5,7 @@
 
     <div id="bookContent" class="col"></div>
 
-    <div id="couponPreview" class="hide col">
+    <div id="dataPreview" class="hide col">
         <h3 id="namePreview"></h3>
         <hr />
         <img id="imgPreview" onerror="imageError(this)" src="./images/ticket.png" />
