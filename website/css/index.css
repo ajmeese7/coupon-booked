@@ -51,7 +51,7 @@ a {
 }
 @media screen and (max-width: 800px) {
     #create {
-        background-image: url("../images/mobile_min.png") !important;
+        background-image: url("../images/mobile_landing_soft_min.png") !important;
     }
 
     #title {
@@ -64,8 +64,10 @@ a {
     }
 
     #openBook {
-        /* Using this until we decide what mobile layout should be */
-        display: none;
+        /* TODO: Improve this */
+        position: inherit !important;
+        margin-bottom: 20px;
+        background: rgba( 240, 138, 127, 0.35) !important;
     }
 
     #bottom {
@@ -73,14 +75,10 @@ a {
     }
     .glide__slide q {
         max-width: 85% !important;
+        font-size: 38px !important;
     }
 }
 @media screen and (max-width: 600px) {
-    #aaron p {
-        width: inherit !important;
-        margin-left: 0 !important;
-    }
-
     #quoteContainer {
         margin-top: 0px !important;
     }
@@ -112,7 +110,6 @@ a {
         CREATE YOUR OWN
  ******************************/
 
- /* TODO: Make sure styles still work on different screen heights, like laptops! */
 #create {
     background-image: url("../images/notebook_min.png");
     background-repeat: no-repeat;
@@ -160,7 +157,6 @@ a {
  ******************************/
 
 :root {
-    /* Was 300 */
     --about-image-width: 250px;
 }
 #about {
@@ -208,9 +204,6 @@ a {
 }
 #madison {
     float: right;
-}
-#madison img {
-    /*height: 320px;*/
 }
 
 /******************************
@@ -283,7 +276,7 @@ a {
  ******************************/
 
 section {
-    /* TODO: Make this work better for when viewing desktop mode on mobile */
+    /* NOTE: Let's just hope they don't use desktop mode on mobile lmao */
     width: 100vw;
 }
 #download h2 {
@@ -294,7 +287,6 @@ section {
              FOOTER
  ******************************/
 
- /* TODO: Unfuck this on mobile */
 footer {
     width: 100%;
     min-height: 40px;
