@@ -158,10 +158,6 @@ function createBookButton() {
   });
 }
 
-// TODO: Remove automatic saving for image upload to coupon so it is checked
-// on back button, and also wait to upload until the new image is saved.
-// Keep the local preview until they leave that page 
-
 /**
  * Switches from either the book or coupon form to the book display.
  */
@@ -321,7 +317,6 @@ function imageUploadListeners(coupon) {
   });
 }
 
-// TODO: Update notifications to be centered on the preview on desktop too
 // TODO: Eventually have this signed with PHP sending back hash with secret
 // https://cloudinary.com/documentation/upload_images#generating_authentication_signatures
 // signature: new Hashes.SHA1().hex(`folder=${folder}&timestamp=${timestamp}${env.CLOUDINARY_SECRET}`)
@@ -650,6 +645,7 @@ function openBookPreview() {
 
   $('#backArrow').unbind().click(function() {
     fadeBetweenElements("#dataPreview", "#bookContent");
+    bookBackButtonListener(false, false);
   });
 
   getById("imgPreview").src        = book.image;
