@@ -252,33 +252,31 @@ function plusButton() {
 /**
  * Modified plusButton() function for editing the book's details.
  */
-function editBookButton() {
-  $("#editBook").unbind().click(function() {
-    fadeBetweenElements("#bookContent", "#bookForm");
-    newPreviousBook = clone(book);
-    showProperButton("editBook");
+function editBook() {
+  fadeBetweenElements("#bookContent, #dataPreview", "#bookForm");
+  newPreviousBook = clone(book);
+  showProperButton("editBook");
 
-    // Below the above setters so previous value doesn't change descLength
-    limitDescriptionLength(true);
-    imageUploadListeners();
-    bookBackButtonListener(true);
+  // Below the above setters so previous value doesn't change descLength
+  limitDescriptionLength(true);
+  imageUploadListeners();
+  bookBackButtonListener(true);
 
-    $('#save').unbind().click(function() {
-      if (bookFormIsValid() && editBookDetails()) {
-        // Update the global book with the data in the fields
-        book.image       = getById("bookImage").src;
-        book.name        = getById("bookName").value;
-        book.description = getById("bookDescription").value;
+  $('#save').unbind().click(function() {
+    if (bookFormIsValid() && editBookDetails()) {
+      // Update the global book with the data in the fields
+      book.image       = getById("bookImage").src;
+      book.name        = getById("bookName").value;
+      book.description = getById("bookDescription").value;
 
-        // Saves the edits from the page immediately
-        development ? updateTemplate(true) : updateBook(true);
-        fadeToBookContent();
-      }
-    });
+      // Saves the edits from the page immediately
+      development ? updateTemplate(true) : updateBook(true);
+      fadeToBookContent();
+    }
+  });
 
-    $("#bookImage").unbind().click(function() {
-      $(".cloudinary-button").click();
-    });
+  $("#bookImage").unbind().click(function() {
+    $(".cloudinary-button").click();
   });
 }
 
@@ -287,26 +285,29 @@ function editBookButton() {
  * @param {object} coupon - exists if for the coupon image, so if for
  * book it'll be null, allowing it to serve as a Boolean detector for 
  * which purpose the function is being called for.
- * TODO: maybe also allow users to search through (browse) all the templated images
+ * TODO: Fix problem with pay button showing up after saving
  */
 function imageUploadListeners(coupon) {
-  // TODO: is there a built-in way to have it browse the images in the template folders 
-  // and show thumbnails for them? If not that would be the way to go
-  // TODO: Fix problem with pay button showing up after saving
-
   //var timestamp = Math.floor(Date.now() / 1000);
   var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + book.bookId;
 
   // TODO: Have some unused bit or way to delete images of books that are old
-  // TODO: Add our images to Dropbox or something to display that; also remove Cloudinary logo
+  // TODO: Add our images to Dropbox or something to display that; https://cloudinary.com/documentation/media_library_widget?
   var uploadWidget = cloudinary.createUploadWidget({
-    // TODO: Make sure videos don't work, or convert short videos to GIFs
-    cloudName: 'couponbooked', uploadPreset: 'default_unsigned', cropping: true, 
-    apiKey: "363493359893521", folder: folder, multiple: false, croppingAspectRatio: 1}, (error, result) => { 
+    // IDEA: https://demo.cloudinary.com/uw/#/
+    // NOTE: maxImageWidth/Height really ruin the photo quality since they are applied before cropping,
+    // so it might be worth looking into eventually for a replacement after cropping
+    cloudName: "couponbooked", uploadPreset: "default_unsigned", cropping: true, maxFileSize: 1500000, 
+    resourceType: "image", maxImageWidth: 512, maxImageHeight: 512, apiKey: "363493359893521", folder: folder, 
+    multiple: false, croppingAspectRatio: 1}, (error, result) => {
       if (!error && result && result.event === "success") {
-        //console.log('Done! Here is the image info:', result.info);
         var imageToUpdate = !!coupon ? getById("couponImage") : getById("bookImage");
         imageToUpdate.src = result.info.secure_url;
+
+        gtag('event', 'Image Uploaded', {
+          'event_category' : 'Images',
+          'event_label' : (!!coupon ? "Coupon" : "Book")
+        });
       }
     }
   )
@@ -318,9 +319,6 @@ function imageUploadListeners(coupon) {
       uploadWidget.open();
     }
   });
-
-  // TODO: Add file size checking on client and server-side
-  // TODO: resize to uniform, i.e. 512x512?
 }
 
 // TODO: Update notifications to be centered on the preview on desktop too
@@ -347,9 +345,9 @@ function addListeners() {
   getById("bookName").value        = book.name;
   getById("bookDescription").value = book.description;
   
+  $("#editBook").unbind().click(function() { editBook() });
   bookBackButtonListener();
   createBookButton();
-  editBookButton();
   plusButton();
   createSentCouponElements();
 }
@@ -648,6 +646,7 @@ function openBookPreview() {
   // shows the image fullscreen with a nav bar or sumn?
   fadeBetweenElements("#bookContent", "#dataPreview");
   gtag('config', googleID, { 'page_title' : 'Book Preview' });
+  $("#edit").unbind().click(function() { editBook() });
 
   $('#backArrow').unbind().click(function() {
     fadeBetweenElements("#dataPreview", "#bookContent");
