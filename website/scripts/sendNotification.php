@@ -11,18 +11,28 @@
     $content = array(
       "en" => $message
     );
+    $headings = array(
+      "en" => $title
+    );
+    $iosPicture = array(
+      "id1" => $image
+    );
 
-    // TODO: Sometimes they take a long time to come through; how to speed up?
     $fields = array(
-      //'headings' => $title,
-      //'big_picture' => $image, // TODO: Decide if I like this or not
-      //'ttl' => 2419200,
-      //'priority' => 10,
       'app_id' => $ONESIGNAL_APP_ID,
       'include_player_ids' => array($senderId),
-      'data' => array("testing" => "user data"),
-      'contents' => $content
-      //'included_segments' => array('All'),
+      'priority' => 10,
+      'ttl' => 2419200,
+      // This doesn't look good because the length is limited. Try something else?
+      //'headings' => $headings,
+      'contents' => $content,
+      //'data' => array("a" => "b"),
+      'big_picture' => $image,
+      'chrome_web_image' => $image,
+      'adm_big_picture' => $image,
+
+      // TODO: Test on an iOS device once Safari is set up; app too
+      'ios_attachments' => $image
     );
 
     $fields = json_encode($fields);
