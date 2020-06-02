@@ -99,6 +99,7 @@
                         <label for="email">Your Email</label>
                     </div>
                     <div>
+                        <!-- TODO: Prevent form submission until the email syntax is validated -->
                         <input type="email" id="email" name="email" placeholder="someone@something.com">
                     </div>
                 </div>

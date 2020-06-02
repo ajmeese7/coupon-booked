@@ -6,18 +6,16 @@
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Good default declaration:
-    * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-    * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-    * Disables use of eval() and inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-        * Enable inline JS: add 'unsafe-inline' to default-src
-        * Enable eval(): add 'unsafe-eval' to default-src
-    * Create your own at http://cspisawesome.com
-    -->
-    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com http://*.couponbooked.com https://onesignal.com/api/v1/notifications; default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com; style-src 'self' 'unsafe-inline' https://cdn.auth0.com; media-src *; img-src *; font-src *;" />
+    <meta name="theme-color" content="#0b98de">
 
-    <!-- https://auth0.com/docs/quickstart/native/cordova/01-login;
-        used this to change from single page web app to native -->
+    <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/ https://checkout.stripe.com 
+        https://www.google-analytics.com https://stats.g.doubleclick.net; 
+        default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://cdn.onesignal.com https://onesignal.com https://cdn.auth0.com 
+        https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/ https://js.stripe.com/ https://checkout.stripe.com/ https://cdnjs.cloudflare.com/ajax/libs/jshashes/
+        https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.8.2/ https://widget.cloudinary.com/v2.0/global/ https://widget.cloudinary.com/v2.0/n/couponbooked/ 
+        https://www.googletagmanager.com/gtag/js https://www.google-analytics.com/; 
+        style-src 'self' 'unsafe-inline' https://cdn.auth0.com https://checkout.stripe.com/v3/checkout/; media-src *; img-src *; font-src *;" />
+    
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
     <link rel="stylesheet" type="text/css" href="css/auth0-theme.min.css" />
@@ -27,8 +25,9 @@
     <link rel="stylesheet" type="text/css" href="css/materialize.css" />
     <link rel="stylesheet" type="text/css" href="css/simpleNotification.css" />
     <link rel="stylesheet" type="text/css" href="css/gooMenu.css" />
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/desktop.css">
 
-    <!-- TODO: Implement https://pointdeveloper.com/add-app-icon-phonegap-build-apps/ in the future -->
     <title>Coupon Booked</title>
 </head>
 
@@ -44,39 +43,54 @@
                     <div class="container">
                         <div id="mobile">
                             <span class="menu-btn">
-                                <img id="logo" src="images/logo.png">
+                                <img id="logo" src="./images/logo_small.png">
                             </span>
                             <a id="brand" href="#">Coupon Booked</a>
                         </div>
         
                         <div class="collapse navbar-collapse">
                             <ul class="navbar-nav">
-                                <!-- Fullsize dropdown: show if authenticated -->
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle account" data-toggle="dropdown">
-                                        <!-- Profile image should be set to the profile picture from the id token;
-                                            src is the default image until the user's profile pic loads in -->
-                                        <img alt="Profile picture" src="images/default.png" class="nav-user-profile profile-image" />
-                                        <!-- TODO: Find a way to cache previous image; localStorage? -->
-                                    </a>
+                                <li class="nav-item">
+                                    <!-- Other ideas: https://icons8.com/icons/set/slider -->
+                                    <img alt="Open side menu" id="sideMenuIcon" src="./images/settings.svg" />
                                 </li>
                             </ul>
                         </div> <!-- navbar-collapse -->
                     </div> <!-- container -->
+        
+                    <ul id="desktopNav" style="display: none;">
+                        <li class="dashboard">Dashboard</li>
+                        <li class="create">Create a Book</li>
+                        <li class="redeem">Claim Book</li>
+                        <li class="help">Help</li>
+                        <li class="settings">Settings</li>
+                    </ul>
                 </nav> <!-- navbar -->
             </div> <!-- nav-container -->
         
-            <!-- https://www.labw3.com/2014/08/round-avatar-with-drop-down-profiles-menu-code.html -->
-            <div class="dropdown">
-                <div class="submenu" style="display: none;">
-                    <ul class="root">
-                        <!-- IDEA: Can add relevant icons for each item -->
-                        <li><a href="#" class="dashboard">Dashboard</a></li>
-                        <li><a href="#" class="guide">Guide</a></li>
-                        <li><a href="#" class="settings">Settings</a></li>
-                    </ul>
+            <!-- Inspiration: https://dribbble.com//shots/2494865-Coach-profile -->
+            <div class="mobileSideMenu">
+                <div id="sidebarTop">
+                    <div id="hideWhite"></div>
+                    <!-- Profile image should be set to the profile picture from the id token;
+                        src is the default image until the user's profile pic loads in -->
+                    <img alt="Profile picture" src="./images/default.png" class="nav-user-profile profile-image" />
+                    <div id="sidebarUserInfo">
+                        <p id="sidebarName"></p>
+                        <p id="sidebarQuip"></p>
+                    </div>
                 </div>
-            </div> <!-- dropdown -->
+        
+                <ul id="mobileNav">
+                    <li class="dashboard">Dashboard</li>
+                    <li class="create">Create a Book</li>
+                    <li class="redeem">Claim Book</li>
+                    <li class="help">Help</li>
+                    <li class="settings">Settings</li>
+                </ul>
+            </div>
+            <!-- This overlay shades the content next to the menu -->
+            <div class="contentShadow"></div>
         </div>
 
         <!-- Loading icon - https://tobiasahlin.com/spinkit/ -->
@@ -92,6 +106,7 @@
 
         <style> .spinner { display: none; } </style>
 
+        <!-- TODO: Think about if I want to leave this or just get rid of it -->
         <link rel="stylesheet" type="text/css" href="css/bookAnimation.css" />
         <div id="animationBackground"></div>
         <div id="book">
@@ -106,7 +121,9 @@
         </div>
     </template>
 
+    <!-- TODO: Get rid of this like in the webapp -->
     <template id="login">
+        <!-- Loading screen for redirect to Auth0 login page -->
         <link rel="stylesheet" type="text/css" href="css/auth0.min.css" />
         <link rel="stylesheet" type="text/css" href="css/app.css" />
         <style> .page { position: absolute; } </style>
@@ -133,67 +150,6 @@
         </div>
     </template>
 
-    <template id="home">
-        <div class="page">
-            <!-- TODO -->
-        </div>
-    </template>
-
-    <template id="guide">
-        <link rel="stylesheet" type="text/css" href="css/app.css" />
-
-        <div class="page">
-            <h2>Guide</h2>
-            <br />
-
-            <!-- NOTE: Can also switch to https://jsfiddle.net/ajmeese7/bhsf2q3u/1/ sometime if I want to -->
-            <h4>Creating a new book</h4>
-            <p>
-                To create a book, go to the dashboard and click the 'Sent' tab.
-                From here you can click the blue plus button in the bottom right
-                corner of the screen and it will redirect you to the book creation
-                screen. Once you select the template you want you will be able to 
-                modify the book however you want. To save it to edit in the future,
-                click the "Create" button in the upper right hand corner.
-            </p>
-
-            <h4>Sharing a book</h4>
-            <p>
-                Once you have created a coupon book, you can share it by clicking the 
-                "Share" button in the upper right hand corner. You are free to edit the
-                book any time before sending it and after you have sent it, so don't stress
-                if you need to go back and add more coupons later. We are currently only
-                charging to share the book and have no plans to change that in the future.
-            </p>
-
-            <h4>Redeeming a book code</h4>
-            <p>
-                To redeem a book code, go to the dashboard and click the 'Received' tab.
-                From here you can click the green "Redeem a code" button in the bottom
-                right corner of the screen and it will redirect you to the code redemption
-                screen.
-            </p>
-
-            <h4>Changing your display name</h4>
-            <p>
-                When you send someone a coupon code and they redeem it, the book will display
-                who sent it. If you logged in through Google this will be your name, but if you
-                created an account you will have to change it on the settings page. You can
-                type whatever you want to be shown to people in the "Display Name" field and 
-                click the update button to submit the new display name. If you update when the 
-                field is empty, your default display name will show again.
-            </p>
-
-            <h4>App looks strange</h4>
-            <p>
-                If you have your accessibility settings set to anything other than the device's 
-                default, the app may be displayed strangely. I am currently working on a fix for 
-                this but unfortunately as of now there is no way to resolve it other than by changing 
-                the settings on your device.
-            </p>
-        </div>
-    </template>
-
     <template id="create">
         <!-- Invisible back arrow to support functions without much modification -->
         <img class="hide" id="backArrow" />
@@ -202,48 +158,183 @@
         <div id="templateContainer"></div>
     </template>
 
+    <template id="help">
+        <link rel="stylesheet" type="text/css" href="css/app.css" />
+        <link rel="stylesheet" type="text/css" href="css/help.css" />
+        <script src="js/help.js"></script>
+    
+        <div class="page">
+            <h2 id="helpHeader">Help</h2>
+            <br />
+    
+            <!-- NOTE: Can also switch stytes to https://jsfiddle.net/ajmeese7/bhsf2q3u/1/ -->
+            <button class="accordion">Creating a new book</button>
+            <div class="panel">
+                <p>
+                    On desktop, you select the <q>Create a Book</q> option on the sidebar. From there you select a template and start customizing the book.
+                    Once you are ready to create it, click the <q>Create</q> button in the upper right corner of the screen.
+                </p>
+                <p>
+                    On mobile, you open the dropdown by selecting your profile picture. When you select the <q>Create a Book</q> option from the dropdown, a
+                    list of templates will be displayed. You can select any template and begin editing. When you want to save your work, select the <q>Create</q>
+                    button in the upper right corner of the screen.
+                </p>
+                <!-- IDEA: Make this a `Save` button or something instead? Ask consumers. -->
+                <p>
+                    Don't be afraid to create a book. All it does is save your progress to your account so you can edit it further in the future. You don't have
+                    to have the book finished when you create it.
+                </p>
+            </div>
+    
+            <!-- TODO: Probably switch back from `Pay` to `Share` -->
+            <button class="accordion">Sharing a book</button>
+            <div class="panel">
+                <p>
+                    Once you have created a coupon book, you can share it by clicking the "Share" button in the upper right hand corner.    
+                </p>
+                <p>
+                    You are free to edit the book any time before sending it and after you have sent it, so don't stress if you need to go back and add more coupons later. 
+                </p>
+                <p>
+                    We only charge you to initially send a book to someone, so we have enough revenue to keep the service going. It's free to modify the book and reload 
+                    coupons after you send it, so don't be stingy with them!
+                </p>
+            </div>
+    
+            <button class="accordion">Changing your display name</button>
+            <div class="panel">
+                <p>
+                    When you send someone a coupon code and they redeem it, the book will display who sent it. If you logged in through Google this will be your name, 
+                    but if you created an account you will have to change it on the settings page.
+                </p>
+                <!-- TODO: Read this stuff -->
+                <p>
+                    You can type whatever you want to be shown to people in the "Display Name" field and click the update button to submit the new display name. 
+                    If you update when the field is empty, your default display name will show again.
+                </p>
+            </div>
+    
+            <button class="accordion">App looks strange</button>
+            <div class="panel">
+                <p>
+                    If you have your accessibility settings set to anything other than your device's default, the app may be displayed strangely.
+                </p>
+                <p>
+                    Currently, the only way to resolve this is to change the settings on your device.
+                </p>
+                <p>
+                    I am in the process of working on a fix for this, but unfortunately I cannot give a timeline for when it will be resolved.
+                </p>
+            </div>
+    
+            <h5 id="reachOut">
+                Still not answering your question? Reach out to us and we'll do our best to help.
+            </h5>
+    
+            <!-- https://www.w3schools.com/css/css_form.asp -->
+            <div id="helpFormContainer">
+                <form id="helpForm"> <!-- action="/form_submit.php" -->
+                    <div class="row">
+                        <div>
+                            <label for="topic">Topic</label>
+                        </div>
+                        <div>
+                            <select id="topic" name="topic">
+                                <option value="feedback">Feedback</option>
+                                <option value="bugs">Bug Reporting</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label for="name">Your Name</label>
+                        </div>
+                        <div>
+                            <input type="text" id="name" name="name" placeholder="Your name..">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label for="email">Your Email</label>
+                        </div>
+                        <div>
+                            <!-- TODO: Prevent form submission until the email syntax is validated -->
+                            <input type="email" id="email" name="email" placeholder="someone@something.com">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div>
+                            <label for="subject">Subject</label>
+                        </div>
+                        <div>
+                            <!-- TODO: Limit the length like in coupon description -->
+                            <textarea id="subject" name="subject" placeholder="Write something.." style="height:200px"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <input id="submit" type="submit" value="Submit">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+
     <template id="sentBook">
         <div id="topbar">
-            <img id="backArrow" src="images/back.svg" />
-            <a id="createButton">Create</a>
-            <a id="save" class="hide">Save</a>
-            <a id="delete" class="hide">Delete</a>
-            <a id="share" class="hide">Share</a>
+            <img id="backArrow" src="./images/back.svg" />
+            <button id="createButton">Create</button>
+            <button id="save" class="hide">Save</button>
+            <button id="delete" class="hide">Delete</button>
+            <button id="share" class="hide">Pay</button>
         </div>
-        
+    
         <div id="bookContent" class="col">
             <!-- Will create new coupon -->
             <button id="plus">+</button>
         </div>
-
-        <div id="couponPreview" class="hide col">
+    
+        <!-- Can be populated by a book or a coupon preview -->
+        <div id="dataPreview" class="hide col">
             <h3 id="namePreview"></h3>
             <hr />
-            <img id="imgPreview" onerror="imageError(this)" src="images/ticket.png" />
+            <img id="imgPreview" onerror="imageError(this)" src="./images/ticket.png" />
             <p id="descPreview"></p> <!-- TODO: Make this look better for short descriptions -->
-
+    
             <!-- If iOS, icon is changed in Node -->
-            <button id="edit"><img src="images/md-edit.svg" /></button>
+            <button id="edit"><img src="./images/md-edit.svg" /></button>
         </div>
-
+    
+        <div id="deleteCouponConfirm" class="dialog-box" title="Delete coupon confirmation">
+            <p id="confirmText">
+                <span class="ui-icon ui-icon-alert"></span>
+                Are you sure you want to delete this coupon?
+            </p>
+        </div>
+    
         <form id="couponForm" class="hide col">
             <!-- https://picnicss.com/documentation#dropimage -->
             <!-- https://stackoverflow.com/questions/4112575/client-checking-file-size-using-html5 -->
             <div>
-                <img id="couponImage" height="100px" onerror="imageError(this)" src="images/ticket.png" />
+                <img id="couponImage" height="100px" onerror="imageError(this)" src="./images/ticket.png" />
             </div>
-
+    
             <!-- NOTE: Nearly all of this is copied directly from bookForm, so changes should be reflected there -->
-            <div class="imageButtons">
-                <a id="couponOpenPhoto">Choose Image</a>
-                <a id="couponTakePhoto">Take Photo</a>
-    		</div>
-
+            <button type="button" class="cloudinary-button">Change image</button>
+            
+            <!-- TODO: Need to get this to run on browser back button for desktop and native mobile -->
+            <div id="discardCouponConfirm" class="dialog-box" title="Discard all changes?">
+                <p id="confirmText">
+                    <span class="ui-icon ui-icon-alert"></span>
+                    Are you sure you want to discard your changes?
+                </p>
+            </div>
+    
             <!-- IDEA: Cycle through an array of these for examples; appropriate to template? 
                 Could be paired arrays to have description matched with name, or objects & pull fields -->
             <label for="name">Coupon Name</label>
             <input type="text" id="name" name="name" placeholder="Backrub">
-
+    
             <label for="description">Description</label>
             <textarea id="couponDescription" name="description" placeholder="A nice, long massage." 
                 maxlength="180"></textarea>
@@ -252,43 +343,53 @@
             <label for="count">Count</label>
             <input type="number" id="count" name="count" min="1" max="99" placeholder="3">
         </form>
-
+    
         <form id="bookForm" class="hide col">
             <div>
-                <img id="bookImage" height="100px" onerror="imageError(this)" src="images/ticket.png" />
+                <img id="bookImage" height="100px" onerror="imageError(this)" src="./images/ticket.png" />
             </div>
-
-            <div class="imageButtons">
-                <a id="bookOpenPhoto">Choose Image</a>
-                <a id="bookTakePhoto">Take Photo</a>
-                <!-- TODO: Online search or sumn -->
-    		</div>
-
+    
+            <button type="button" class="cloudinary-button">Change image</button>
+            
+            <div id="discardBookEditsConfirm" class="dialog-box" title="Discard all changes">
+                <p id="confirmText">
+                    <span class="ui-icon ui-icon-alert"></span>
+                    Are you sure you want to discard your changes?
+                </p>
+            </div>
+    
             <label for="name">Book Name</label>
             <input type="text" id="bookName" name="name" placeholder="#1 Dad">
-
+    
             <label for="desc">Description</label>
             <textarea id="bookDescription" name="description" placeholder="Thank you for everything you do." 
                 maxlength="180"></textarea>
             <div id="bookDescLength">0</div>
         </form>
-
+    
+        <div id="deleteBookConfirm" class="dialog-box" title="Delete book confirmation">
+            <p id="confirmText">
+                <span class="ui-icon ui-icon-alert"></span>
+                Are you sure you want to delete this book?
+            </p>
+        </div>
+    
         <script id="moreOptions" type="text/html">
             <nav class="menu">
                 <!-- TODO: Try to speed up this animation, and probably replace the hamburger
                     icon with ellipses or something. -->
                 <input type="checkbox" href="#" class="menu-open" name="menu-open" id="menu-open"/>
                 <label class="menu-open-button" for="menu-open">
-                <span class="hamburger hamburger-1"></span>
-                <span class="hamburger hamburger-2"></span>
-                <span class="hamburger hamburger-3"></span>
+                    <span class="hamburger hamburger-1"></span>
+                    <span class="hamburger hamburger-2"></span>
+                    <span class="hamburger hamburger-3"></span>
                 </label>
                 
                 <a href="#editBook" class="menu-item">
-                    <img id='editBook' class='ionicon' src='images/md-edit.svg' />
+                    <img id='editBook' class='ionicon' src='./images/md-edit.svg' />
                 </a>
                 <a href="#deleteBook" class="menu-item">
-                    <img id='deleteBook' class='ionicon' src='images/md-trash.svg' />
+                    <img id='deleteBook' class='ionicon' src='./images/md-trash.svg' />
                 </a>
             </nav>
         </script>
@@ -296,17 +397,26 @@
 
     <template id="receivedBook">
         <div id="topbar">
-            <img id="backArrow" src="images/back.svg" />
+            <img id="backArrow" src="./images/back.svg" />
         </div>
-        
+    
         <div id="bookContent" class="col"></div>
-
-        <div id="couponPreview" class="hide col">
+    
+        <div id="dataPreview" class="hide col">
             <h3 id="namePreview"></h3>
             <hr />
-            <img id="imgPreview" onerror="imageError(this)" src="images/ticket.png" />
+            <img id="imgPreview" onerror="imageError(this)" src="./images/ticket.png" />
             <p id="descPreview"></p>
-
+    
+            <div id="redeemCouponConfirm" class="dialog-box" title="Redemption confirmation">
+                <p id="confirmText">
+                    <span class="ui-icon ui-icon-alert"></span>
+                    <!--"Do you want to redeem this coupon?" 
+                        need to figure out if icon is needed and stuff + which text to use -->
+                    Are you sure you want to redeem this coupon?
+                </p>
+            </div>
+    
             <div id="redeemCoupon">Redeem coupon</div>
         </div>
     </template>
@@ -314,9 +424,9 @@
     <template id="shareCode">
         <link rel="stylesheet" type="text/css" href="css/shareCode.css" />
         <div id="topbar">
-            <img id="backArrow" src="images/back.svg" />
+            <img id="backArrow" src="./images/back.svg" />
         </div>
-
+    
         <h4 id="shareHeader">Your book is ready to be sent!</h4>
         <div class="copytooltip">
             <span class="copytooltiptext" style="opacity: 0;">Copied to clipboard</span>
@@ -324,31 +434,32 @@
         <div id="shareCodeDiv">
             <!-- TODO: Switch to having icons in different folders for different OS -->
             <p id="shareCodeText">88888888</p>
-            <img id="copyButton" src="images/copy.svg" />
+            <img id="copyButton" src="./images/copy.svg" />
             <!-- https://ionicons.com/ -->
         </div>
-
+    
         <p id="shareCodeDescription">
             Send this code to whomever you want to receive your Coupon Book.
+            <br id="desktopBreak" />
             They must create an account if they don't already have one to 
             redeem the code.
         </p>
-
+    
         <button id="bigShareButton"><img id="shareIcon" class="ionicon" />SHARE</button>
     </template>
 
     <template id="redeemCode">
         <div id="topbar">
-            <img id="backArrow" src="images/back.svg" />
+            <img id="backArrow" src="./images/back.svg" />
         </div>
-
+    
         <h3 id="redeemHeader">Enter your code below</h3>
         <div>
             <input id="redeemBox" maxlength='8' autocapitalize="none" />
         </div>
-
+    
         <button id="redeemButton">Redeem</button>
-    </template>
+    </template> 
 
     <template id="dashboard">
         <!-- Invisible back arrow to support functions without much modification -->
@@ -357,6 +468,7 @@
             <li class="tab"><a id="sentButton" href="#sent" class="active">Sent</a></li>
             <li class="tab"><a id="receivedButton" href="#received">Received</a></li>
         </ul>
+    
         <div id="gestureZone">
             <div id="sent" class="col">
                 <div id="noneSent" class="hidden">
@@ -365,7 +477,6 @@
                     You haven't sent any Books yet. <br />
                     <a id="start">Send one now!</a>
                 </div>
-                <button id="plus">+</button>
             </div>
             <div id="received" class="col">
                 <div id="noneReceived" class="hidden">
@@ -373,7 +484,7 @@
                     You haven't received any Books yet. <br />
                     Want to <a id="request">request one</a>?
                 </div>
-
+    
                 <div id="redeemLink">Redeem a code!</div>
             </div>
         </div>
@@ -385,38 +496,29 @@
         <div class="page">
             <h2>Settings</h2>
             <br />
-
+    
             <!-- I honestly have no idea what this is -->
             <style id="switchStyle"></style>
-
+    
             <b>Display Name</b>
             <label id="displayName">
                 <input type="text" id="displayNameInput" name="displayName" placeholder="Robert Downey Jr.">
             </label>
             <button id="updateDisplayName">Update</button>
             <br />
-            
-            <!-- Dark mode inspired by https://github.com/GoogleChromeLabs/dark-mode-toggle -->
-            <b>Dark Mode</b>
-            <br />
-            <label class="switch" id="darkToggle">
-                <br />
-                <input type="checkbox" id="darkCheckbox">
-                <span class="slider round"></span>
-            </label>
-            <br />
+    
+            <b>Stats</b>
+            <div id="userStats">
+                <p id="createdBooks">Created books:</p>
+                <p id="sentBooks">Sent books:</p>
+                <p id="receivedBooks">Received books:</p>
+                <p id="redeemedCoupons">Coupons redeemed:</p>
 
-            <b>Display startup animation</b>
-            <br />
-            <label id="animationToggle">
-                <input type="checkbox" id="animationCheckbox">
-            </label>
-            
-            <!-- Display name; set initially with profile and have some separate storage 
-                from there that's always checked somehow. Custom Auth0 field or something? -->
-
-            <br />
+                <!-- TODO: Work on this in app and webapp -->
+                <p id="fulfilledCoupons">Coupons fulfilled:</p>
+            </div>
             <hr />
+    
             <div class="flex hor-centered">
                 <button class="btn btn-success btn-logout">
                     <span>Log Out</span>
@@ -425,30 +527,16 @@
         </div>
     </template>
 
-    <!-- filters for book ellipses button -->
-    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="display: none;">
-        <defs>
-        <filter id="shadowed-goo">
-            
-            <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10" />
-            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
-            <feGaussianBlur in="goo" stdDeviation="3" result="shadow" />
-            <feColorMatrix in="shadow" mode="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 -0.2" result="shadow" />
-            <feOffset in="shadow" dx="1" dy="1" result="shadow" />
-            <feComposite in2="shadow" in="goo" result="goo" />
-            <feComposite in2="goo" in="SourceGraphic" result="mix" />
-        </filter>
-        <filter id="goo">
-            <feGaussianBlur in="SourceGraphic" result="blur" stdDeviation="10" />
-            <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7" result="goo" />
-            <feComposite in2="goo" in="SourceGraphic" result="mix" />
-        </filter>
-        </defs>
-    </svg>
-
     <script src="cordova.js"></script>
     <script src="./index.js"></script>
+
     <script src="js/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+        integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+        crossorigin="anonymous">
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jshashes/1.0.8/hashes.min.js"></script>
     <script src="js/materialize.js"></script>
     <script src="js/simpleNotification.min.js"></script>
     <script>
@@ -457,10 +545,13 @@
             // TODO: Do something more helpful than logging element, such as making it
             // easier to track down which one has the problem, or just permenantly reset
             // the image in the JSON
-            console.warn("Error loading image! Setting to default URL...", image);
-            image.src = "images/ticket.png";
+            image.src = "https://couponbooked.com/webapp/images/ticket.png";
         }
     </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.8.2/cloudinary-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.8.2/cloudinary-core.js.map"></script>
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
 </body>
 
 </html>

@@ -14,16 +14,6 @@
         </label>
         <button id="updateDisplayName">Update</button>
         <br />
-        
-        <!-- Dark mode inspired by https://github.com/GoogleChromeLabs/dark-mode-toggle -->
-        <!--<b>Dark Mode</b>
-        <br />
-        <label class="switch" id="darkToggle">
-            <br />
-            <input type="checkbox" id="darkCheckbox">
-            <span class="slider round"></span>
-        </label>
-        <br />-->
 
         <b>Stats</b>
         <div id="userStats">
@@ -31,6 +21,8 @@
             <p id="sentBooks">Sent books:</p>
             <p id="receivedBooks">Received books:</p>
             <p id="redeemedCoupons">Coupons redeemed:</p>
+
+            <!-- TODO: Work on this in app and webapp -->
             <p id="fulfilledCoupons">Coupons fulfilled:</p>
         </div>
         <hr />

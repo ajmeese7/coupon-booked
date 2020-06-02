@@ -100,7 +100,6 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
     tempBook.name  = getById("bookName").value;
     tempBook.description = getById("bookDescription").value;
     bookToCompareTo.bookId = book.bookId;
-    bookToCompareTo.hide = 0;
 
     // If not yet saved, just discards without secondary confirmation.
     if (!isSameObject(tempBook, bookToCompareTo) && book.bookId) {
@@ -117,7 +116,7 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
             confirmFunction();
           },
           Cancel: function() {
-            // "Wait, no!"
+            // TODO: "Wait, no!"
             $( this ).dialog( "close" );
           }
         }
@@ -197,8 +196,8 @@ function plusButton() {
 
       // https://stackoverflow.com/a/29182327/6456163
       newCoupon.image = getById("couponImage").src.replace(/^.*[\\\/]/, '');
-      newCoupon.name = getById("name").value;
-      newCoupon.desc = getById("couponDescription").value;
+      newCoupon.name  = getById("name").value;
+      newCoupon.desc  = getById("couponDescription").value;
       newCoupon.count = getById("count").value;
 
       // If not yet saved, just discards without secondary confirmation.
@@ -675,7 +674,6 @@ function addDeleteListeners() {
             $( this ).dialog( "close" );
             deleteBook();
 
-            // TODO: Fix the below stuff after moving to separate HTML flow
             // NOTE: This used to not always pull the new data in time for when the
             // user sees the dashboard so the deleted book would still show up, but it's
             // hard to replicate so I don't know if the problem still exists. If noticed 
@@ -754,7 +752,7 @@ function createCoupon() {
   // Convert from string to number
   coupon.count = parseInt(coupon.count);
 
-  // Replace Android full URL with a cross-platform local one
+  // Replace Android full URL with a cross-platform cloud one
   var imageSrc = getById("couponImage").src;
   coupon.image = imageSrc.includes("ticket.png") ? "https://couponbooked.com/webapp/images/ticket.png" : imageSrc;
 
@@ -791,8 +789,6 @@ function updateCoupon(oldCoupon, $this) {
   // Replace Android full URL with a cross-platform local one
   var imageSrc = getById("couponImage").src;
   newCoupon.image = imageSrc.includes("ticket.png") ? "./images/ticket.png" : imageSrc;
-
-  //uploadImage(newCoupon.image, newCoupon);
 
   // TODO: Consider decomposing
   if (!isSameObject(oldCoupon, newCoupon)) {
@@ -915,8 +911,6 @@ function bookFormIsValid() {
  * @param {string} currentPage - the page for which the display needs to be updated
  */
 function showProperButton(currentPage) {
-  //console.warn(`showProperButton for ${currentPage}`);
-
   if ((currentPage == "home" && !book.bookId && !development) || currentPage == "newCoupon") {
     // displaySentBook called last and book not yet created, or a new coupon
     // is being created by the user
@@ -947,7 +941,6 @@ function createBook() {
   // for another level of personalization with nicknames.
   var senderName = getUserName();
   book.bookId = uuid;
-  book.hide = 0;
 
   $.ajax({
     type: "POST",

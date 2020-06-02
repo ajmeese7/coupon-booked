@@ -4,10 +4,18 @@ const env = require('../env');
 
 document.addEventListener('deviceready', main);
 function main() {
+    // TODO: Make sure app analytics can be differentiated from website
     console.warn("Device is ready...");
+    window.ga.startTrackerWithId(env.GOOGLE_ID);
+    window.ga.setAllowIDFACollection(true);
+    cordova.getAppVersion.getVersionNumber(function(versionNumber) {
+        window.ga.setAppVersion(versionNumber);
+    });
+
     document.addEventListener("backbutton", handleNativeBackButton, false);
     onesignalNotifications();
 
+    // TODO: Add some way to ignore accessibility settings
     if (!localStorage.getItem("start_animation")) {
         console.warn("Initially setting animation to true...");
         localStorage.setItem("start_animation", "true");

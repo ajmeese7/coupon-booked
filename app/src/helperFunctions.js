@@ -40,19 +40,62 @@ function fadeBetweenElements(fadeOut, fadeIn, instant) {
 }
 
 /**
+ * After modifying the stats localStorage, functions call this
+ * to update the data on the server to reflect the changes.
+ */
+function updateStats() {
+  var userId = localStorage.getItem('user_id');
+  var stats = localStorage.getItem('stats');
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/updateUserStats",
+    data: { userId: userId, stats: stats },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.warn("Successfully updated stats...");
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error in updateStats:", XMLHttpRequest.responseText);
+    }
+  });
+}
+
+/**
  * Gets the name of the current user.
  * @returns {string}
  */
 function getUserName() {
   var displayName = localStorage.getItem("display_name");
-  if (displayName != "") {
+  if (displayNameExists()) {
+    console.warn("Using display name:", displayName);
     return displayName;
-  } else if (globalVars.profile.given_name) {
+  } else if (profile.name) {
+    console.warn("Using profile name:", profile.name);
+
     // Through Google; name should be whole name
     return globalVars.profile.name;
-  } else {
+  } else if (profile.nickname) {
+    console.warn("Using profile nickname:", profile.nickname);
+
     // Through Auth0; nickname should be first part of email
     return globalVars.profile.nickname;
+  } else {
+    console.error("There is no available userName!");
+    return null;
+  }
+}
+
+/**
+ * Need to use this nasty code in two places, so figured I'd go ahead
+ * and make a function out of it.
+ */
+function displayNameExists() {
+  var displayName = localStorage.getItem("display_name");
+  if (displayName && displayName != "" && !!displayName && displayName != null && displayName != "null") {
+    return true;
+  } else {
+    return false;
   }
 }
 
@@ -148,6 +191,23 @@ function clone(item) {
   return result;
 }
 
+// This is a general function that removes one class and adds another
+function toggleClass(target, addedClass) {
+  // If target is an element rather than a list, it is converted to array form
+  if (!NodeList.prototype.isPrototypeOf(target)) {
+      target = [target];
+  }
+
+  // Allows for multiple elements to be toggled, such as by using the querySelectorAll() method
+  [].forEach.call(target, (element) => {
+      if (element.classList.contains(addedClass)) {
+          element.classList.remove(addedClass);
+      } else {
+          element.classList.add(addedClass);
+      }
+  });
+};
+
 // NOTE: Make sure this is always up to date with the functions 
 // that need to be accessed outside this file
 module.exports = Object.assign({
@@ -156,7 +216,10 @@ module.exports = Object.assign({
   getById,
   getAllByClassName,
   fadeBetweenElements,
+  updateStats,
   getUserName,
+  displayNameExists,
   isSameObject,
-  clone
+  clone,
+  toggleClass
 });

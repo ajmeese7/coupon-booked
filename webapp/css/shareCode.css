@@ -69,7 +69,7 @@
     margin: auto;
     margin-top: 35px; /* Calculated with copytooltip height - 1 */
     height: 54px;
-    padding-left: 60px;
+    padding-left: 50px;
 }
 #shareCodeText {
     /* TODO: Make this appear more grand so their purchase is validated */

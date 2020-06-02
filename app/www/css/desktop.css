@@ -1,0 +1,145 @@
+:root {
+    --nav-width: 272px;
+}
+
+@media screen and (min-width: 1000px) {
+    /* General bigger elements */
+    body {
+        width: 100vw;
+    }
+    #app {
+        width: 100%;
+        float: right;
+        padding-left: var(--nav-width);
+        min-height: 100vh;
+    }
+    #loader {
+        width: calc(100vw - var(--nav-width));
+    }
+
+    /* Stuff dealing with top of page, ex. tabs and topbar */
+    #topbar {
+        width: 100%;
+    }
+    .tabs {
+        width: calc(100% - var(--nav-width));
+        overflow: hidden;
+    }
+    #tab-menu {
+        position: absolute;
+        top: 0;
+    }
+    .active {
+        display: flex !important;
+    }
+
+    /* Navigation */
+    #nav {
+        display: inline;
+    }
+    .navbar {
+        width: var(--nav-width);
+        height: 100%;
+        position: fixed;
+        left: 0;
+        box-shadow: none;
+    }
+    .navbar > .container {
+        position: absolute;
+        top: 0;
+    }
+    div.dropdown {
+        float: none;
+        margin-top: none;
+        display: block;
+        position: inherit;
+    }
+    .navbar-expand-md .navbar-collapse {
+        display: none !important;
+    }
+
+    .mobileSideMenu, .contentShadow {
+        display: none;
+    }
+    #desktopNav {
+        display: initial !important;
+        width: 100%;
+        position: absolute;
+        top: 66px;
+        user-select: none;
+    }
+    #desktopNav li {
+        list-style-type: none;
+        font-size: 40px;
+        color: white;
+        cursor: pointer;
+        padding-left: 22px;
+        padding-bottom: 8px;
+        line-height: 1.75;
+        letter-spacing: -0.75px;
+        text-shadow: 1px 1px 2px #c4c4c4;
+    }
+    #desktopNav li:hover {
+        background: #e8f6fa;
+        color: #054c6f !important;
+
+        /* TODO: Decide if I like this delay */
+        transition: all 0.15s ease-in-out;
+    }
+    #logo {
+        width: 50px;
+        height: 50px;
+        margin-top: -8px;
+    }
+    #brand {
+        font-size: 24px !important;
+        display: inline-block;
+        margin-bottom: -5px;
+        padding-top: 12px;
+        margin-left: 5px;
+    }
+
+    #gestureZone {
+        position: absolute;
+        top: var(--tab-height);
+        width: calc(100vw - var(--nav-width));
+        min-height: calc(100vh - var(--tab-height));
+    }
+    .col {
+        min-height: calc(100vh - var(--tab-height));
+    }
+
+    /* TODO: Figure out how to make the row with different number of
+    elements still display aligned underneath other rows? Grid? */
+    #templateContainer, #sent, #received, #couponContainer {
+        /* https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        align-items: baseline;
+    }
+    .bookPreview, .couponPreview {
+        max-width: 350px;
+    }
+
+    .ui-dialog {
+        /* NOTE: I have no idea why this works, so don't touch it */
+        left: calc(50vw - (var(--nav-width) / 3.5)) !important;
+    }
+    #redeemButton, #bigShareButton {
+        left: calc(50% + (var(--nav-width) / 3.5)) !important; /* VM voodoo magic */
+        margin-left: 0 !important;
+    }
+
+    #desktopBreak {
+        display: block !important;
+    }
+
+    .gn-notification {
+        margin-left: calc(50% + 50px) !important;
+    }
+    .copytooltip .copytooltiptext {
+        left: calc(50% + 50px) !important;
+        margin-left: 0 !important;
+    }
+}

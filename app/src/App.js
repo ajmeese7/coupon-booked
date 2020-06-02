@@ -6,23 +6,27 @@ const jwt = require('jsonwebtoken');
 const Auth0 = require('auth0-js');
 const Auth0Cordova = require('@auth0/cordova');
 
-// https://github.com/OneSignal/OneSignal-Cordova-SDK/issues/385
-// TODO: Look into adding tests to make more appealing to buyers and
-  // to assure nothing breaks in the future
-
 var sent = require('./sentBooks.js');
 var received = require('./receivedBooks.js');
 var share = require('./shareBook.js');
 var helper = require('./helperFunctions.js');
 var globalVars = require('./globalVars.js');
 
+/**
+ * NOTE: I don't know HOW this works or even if it DOES work, 
+ * but at the moment it appears to stop the loading animation
+ * from displaying when returning to the dashboard. Can mess around
+ * with it in the future if any problems appear.
+ */
+var showLoadingIcon = true;
 var cleanBuild = false;
 function App() {
   // NOTE: Uncomment this to test with all localStorage erased
   //cleanBuild = true;
   if (cleanBuild) {
     console.warn("Wiping local storage...");
-    //window.plugins.OneSignal.removeExternalUserId();
+    window.plugins.OneSignal.removeExternalUserId();
+    
     // Have both just in case; either should cut it
     window.localStorage.clear();
     localStorage.clear();
@@ -41,71 +45,62 @@ function App() {
   darkModeSupport();
 }
 
-// IDEA: Make it when you click back from a coupon preview it takes you to where you were scrolled;
-  // perhaps with a tags that automatically save id as you scroll with name? Need to handle name updating...
-// IDEA: Press and hold coupon to preview it or something to avoid a lot of clicking;
-  // Maybe dropdown instead of entire other preview page?
-// IDEA: Display book animation on app open, but you have to click it to get it to open then go into app?
-  // Still have to redo home page...
-
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
   currentRoute: '/',
   routes: {
-    // TODO: Is it possible to fade between routes like within books instead of the
-    // lame instant transition?
     '/': {
       id: 'loading',
       onMount: function(page) {
-        console.warn("/ route...");
+        // Start new Google Analytics session
+        window.ga.trackView('root', '', true);
         globalVars.nav = helper.getBySelector("#nav");
         globalVars.loadingIcon = helper.getBySelector("#loader");
-        createConnection();
 
         // Don't want to have to code an annoying landscape layout
         screen.orientation.lock('portrait');
         globalVars._this = this;
 
-        determineAuthRoute(localStorage.getItem("start_animation") != "true");
+        //determineAuthRoute(localStorage.getItem("start_animation") != "true");
+        if (this.state.authenticated === true) {
+          createConnection();
+          getUserInfo();
+
+          return this.redirectTo('/dashboard');
+        } else {
+          return this.redirectTo('/login');
+        }
       }
     },
     '/login': {
       id: 'login',
       onMount: function(page) {
         console.warn("/login route...");
+        window.ga.trackView('Login Page'); // TODO: Make this work, because it isn't showing up right now
+
         if (this.state.authenticated === true) {
           return this.redirectTo('/dashboard');
         }
 
-        // Login button at bottom of page
+        // Login button at bottom of page;
+        // TODO: Find a way to remove this like in the webapp
         var loginButton = helper.getBySelector('.btn-login');
         $(loginButton).unbind().click(this.login);
-      }
-    },
-    '/home': {
-      // NOTE: Currently not referenced anywhere; look before this commit to see where it WAS
-      // referenced if wanting to reinstate with a new look/purpose
-      id: 'home',
-      onMount: function(page) {
-        globalVars._this = this;
-        navBar();
-
-        // Reset every time the user goes home
-        localStorage.setItem('activeTab', 'sent');
       }
     },
     '/create': {
       id: 'create',
       onMount: function(page) {
+        window.ga.trackView('Create Book');
         globalVars._this = this;
         navBar();
 
         globalVars.backButtonTarget = "/create";
-        $('#backArrow').unbind().click(function() {
-          // TODO: See if there needs to be a back button target here
-          globalVars._this.redirectTo('/dashboard');
-        });
+        $('#backArrow').unbind().click(function() { globalVars._this.redirectTo('/dashboard') });
+
+        // TODO: When back button is clicked after editing retrieved template,
+        // still make sure they want to discard changes
 
         // TODO: Either add a similar variable to /dashboard here or implement some
         // kind of caching mechanism so they don't have to wait every time for the
@@ -116,10 +111,10 @@ App.prototype.state = {
         getAllTemplates();
       }
     },
-    // https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_navbar_shrink_scroll
     '/sentBook': {
       id: 'sentBook',
       onMount: function(page) {
+        window.ga.trackView('Sent Book Page');
         globalVars._this = this;
         navBar();
 
@@ -131,6 +126,8 @@ App.prototype.state = {
     '/receivedBook': {
       id: 'receivedBook',
       onMount: function(page) {
+        window.ga.trackView('Redeem Code Page');
+
         globalVars._this = this;
         navBar();
 
@@ -142,6 +139,7 @@ App.prototype.state = {
     '/dashboard': {
       id: 'dashboard',
       onMount: function(page) {
+        window.ga.trackView('Dashboard');
         globalVars._this = this;
         navBar();
 
@@ -149,6 +147,8 @@ App.prototype.state = {
           this.container.appendChild(globalVars.loadingIcon);
           helper.fadeBetweenElements("#gestureZone", "", true);
         }
+
+        // TODO: Figure out why this is called after checking out
         pullUserRelatedBooks();
 
         // Initialize tab menu
@@ -159,14 +159,26 @@ App.prototype.state = {
           globalVars._this.redirectTo('/dashboard');
         });
 
-        // User clicks "Send one now!" and they're redirected to the create route;
-        // does the same thing as the plus button
-        $('#start, #plus').unbind().click(function() {
+        // User clicks "Send one now!" and they're redirected to the create route
+        $('#start').unbind().click(function() {
           globalVars._this.redirectTo('/create');
         });
 
-        $('#request').unbind().click(function() {
-          requestBook();
+        helper.getById("request").addEventListener('click', async () => {
+          if (navigator.share) {
+            requestBook();
+          } else {
+            // NOTE: Share should always be supported, so this should never run,
+            // but on the off chance it doesn't then this desktop code is a failsafe;
+            // TODO: Test if mailto even works in Cordova
+            window.ga.trackEvent('Book Sharing', 'Book Requested', 'Email Implementation');
+
+            // For now, if the share API isn't supported, it just opens the default
+            // email client with the specified contents
+            var subject = "I want a gift!";
+            var emailBody = "I want a Coupon Book! Go to https://couponbooked.com/webapp/index to make me something special :)";
+            document.location = "mailto:?subject="+subject+"&body="+emailBody;
+          }
         });
 
         $('#redeemLink').unbind().click(function() {
@@ -177,62 +189,25 @@ App.prototype.state = {
     '/redeemCode': {
       id: 'redeemCode',
       onMount: function(page) {
+        window.ga.trackView('Redeem Code Page');
+
         globalVars._this = this;
         navBar();
         darkModeSupport();
 
-        // IDEA: Use fadeBetweenElements here instead of another route
-        $('#backArrow').unbind().click(function() {
-          globalVars._this.redirectTo('/dashboard');
-        });
-
-        $('#redeemButton').unbind().click(function() {
-          var code = helper.getById("redeemBox").value.toLowerCase();
-          if (codeIsValid(code)) {
-            redeemCode(code);
-          }
-        });
-
-        // https://www.outsystems.com/forums/discussion/27816/mobile-max-length-of-input-not-working/#Post101576
-        $('#redeemBox').on("input", function (event) {
-          if (event.originalEvent.inputType == "insertFromPaste") {
-            for (var i = 0; i < this.value.length; i++) {
-              var currentChar = this.value.toLowerCase().charAt(i);
-              
-              if (!share.ALPHABET.includes(currentChar)) {
-                //console.log(`Problematic char: '${currentChar}'`);
-                //var before = this.value;
-                this.value = this.value.replace(currentChar, '');
-                //console.log(`Before: ${before}, after: ${this.value}`);
-
-                // To retest that same character spot since the string shifted now.
-                // No out of bounds issue because it's about to i++ in the loop.
-                i--;
-              }
-            }
-          } else {
-            var currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
-            if (!share.ALPHABET.includes(currentChar)) {
-              //console.log(`Problematic char: '${currentChar}'`);
-              this.value = this.value.slice(0, this.value.length - 1);
-            }
-          }
-
-          // Cut length down to desired amount
-          if (this.value.length > share.ID_LENGTH) {
-            this.value = this.value.slice(0, 8);
-          }
-        });
+        $('#backArrow').unbind().click(function() { _this.redirectTo('/dashboard') });
+        redeemListeners();
       }
     },
     '/shareCode': {
       id: 'shareCode',
       onMount: function(page) {
+        window.ga.trackView('Share Code Page');
+
         globalVars._this = this;
         navBar();
         darkModeSupport();
 
-        // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
           globalVars.backButtonTarget = "/dashboard";
           globalVars._this.redirectTo('/sentBook');
@@ -260,25 +235,32 @@ App.prototype.state = {
     '/settings': {
       id: 'settings',
       onMount: function(page) {
+        window.ga.trackView('Settings Page');
+
         globalVars._this = this;
         navBar();
 
-        // TODO: Mess with https://auth0.com/docs/api/management/v2#!/Users/patch_users_by_id
-          // to hopefully allow users to edit their data (what for?); use something similar to login functions?
+        // Called again to refresh data
+        getUserInfo(true);
+
         displayNameListeners();
         darkModeSupport(true);
-        animationSetting();
+        //animationSetting();
         
         var logoutButton = helper.getBySelector('.btn-logout');
         $(logoutButton).unbind().click(this.logout);
       }
     },
-    '/guide': {
-      id: 'guide',
+    '/help': {
+      id: 'help',
       onMount: function(page) {
-        globalVars._this = this;
+        window.ga.trackView('Help Page');
+
+        _this = this;
         navBar();
         darkModeSupport();
+
+        helpFormListeners();
       }
     }
   }
@@ -313,13 +295,107 @@ function createConnection() {
     // https://forum.ionicframework.com/t/err-cleartext-not-permitted-in-debug-app-on-android/164101/20
   $.ajax({
     type: "GET",
-    url: "http://www.couponbooked.com/scripts/createConnection",
+    url: "https://www.couponbooked.com/scripts/createConnection",
     datatype: "html",
     success: function(data) {
       console.warn("Successfully established database connection.");
+      window.ga.trackEvent('Connection', 'Connection Established');
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error establishing connection:", XMLHttpRequest.responseText);
+      window.ga.trackEvent('Connection', 'Connection Not Established');
+    }
+  });
+}
+
+/**
+ * Gets the current user info from the server and updates
+ * the contents of the settings page to reflect it.
+ * @param {boolean} updatePage - whether the setings page information
+ * should be updated on successful data retrieval.
+ */
+function getUserInfo(updatePage) {
+  var userId = localStorage.getItem('user_id');
+  $.ajax({
+    type: "GET",
+    url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}`,
+    datatype: "html",
+    success: function(data) {
+      // IDEA: Set mobile menu to creator, giver, etc. Have settings page on desktop show
+      // something similar with the profile so they aren't missing out
+      if (data) {
+        console.warn("Successfully retrieved user info.");
+
+        // Store all the data in localStorage for later use
+        data = JSON.parse(data);
+        localStorage.setItem("display_name", data.displayName);
+        localStorage.setItem("stats", data.stats);
+
+        // Adds user info to mobile sidebar menu
+        helper.getById("sidebarName").innerText = helper.getUserName();
+        var stats = JSON.parse(data.stats);
+        if (stats.sentBooks > stats.receivedBooks) {
+          var quip = "Giver";
+        } else if (stats.createdBooks > stats.sentBooks + 1) {
+          var quip = "Creator";
+        } else {
+          var quip = "Explorer";
+        }
+
+        helper.getById("sidebarQuip").innerText = quip;
+        if (updatePage) displayUserData();
+      } else {
+        console.warn("There was no user info to retrieve. Creating data...");
+        createUserInfo();
+      }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error retrieving user info:", XMLHttpRequest.responseText);
+    }
+  });
+}
+
+/**
+ * Takes the user's stats and adds them to the settings page.
+ */
+function displayUserData() {
+  // Put current display name in settings page input
+  var displayName = localStorage.getItem("display_name");
+  if (helper.displayNameExists()) {
+    // Stringified null would be put in the input box otherwise
+    $("#displayNameInput").val(displayName);
+  }
+
+  // Update all the individual stats elements
+  var stats = JSON.parse(localStorage.getItem("stats"));
+  helper.getById("createdBooks").innerText += ` ${stats.createdBooks}`;
+  helper.getById("sentBooks").innerText += ` ${stats.sentBooks}`;
+  helper.getById("receivedBooks").innerText += ` ${stats.receivedBooks}`;
+  helper.getById("redeemedCoupons").innerText += ` ${stats.redeemedCoupons}`;
+
+  // TODO: Still need to either do this one or get rid of it
+  helper.getById("fulfilledCoupons").innerText += ` ${stats.fulfilledCoupons}`;
+}
+
+/**
+ * Is called by getUserInfo() if there is no data returned from
+ * the server for the user. Generates inital data for the user
+ * and saves it for later modification.
+ */
+function createUserInfo() {
+  var userId = localStorage.getItem('user_id');
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/createUserInfo",
+    data: { userId: userId },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.warn("Successfully created user info...");
+      getUserInfo();
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error creating user info:", XMLHttpRequest.responseText);
     }
   });
 }
@@ -329,18 +405,19 @@ function createConnection() {
  * page and sets it in localStorage for display purposes.
  */
 function displayNameListeners() {
-  // Update textbox with current displayName
-  $("#displayNameInput").val(localStorage.getItem("display_name"));
-
   // Listen for clicking of update button
   $("#updateDisplayName").unbind().click(function() {
     var newName = helper.getById("displayNameInput").value;
+    var updateName = true;
     if (newName.length > 30) {
       SimpleNotification.warning({
         title: "Name too long",
         text: "Please enter a shorter name."
       }, globalVars.notificationOptions);
+      updateName = false;
     } else if (newName == "") {
+      window.ga.trackEvent('Display Name', 'Display Name Reset');
+
       SimpleNotification.info({
         title: "No name entered",
         text: "Using default username from now on."
@@ -348,12 +425,43 @@ function displayNameListeners() {
 
       localStorage.setItem("display_name", "");
     } else {
+      window.ga.trackEvent('Display Name', 'Display Name Updated');
+
       SimpleNotification.success({
         text: "Display name updated"
       }, globalVars.notificationOptions);
 
-      console.log("New display name:", newName);
       localStorage.setItem("display_name", newName);
+    }
+
+    // If there isn't a problem like "name too long", the update function will be called
+    if (updateName) updateDisplayName(newName);
+  });
+}
+
+/**
+ * Sends the updated display name to the server. In the future
+ * this function will also send updates to other settings, but
+ * none of those have been implemented yet.
+ * @param {string} newName - the name to replace the display name
+ * with; null if no display name
+ */
+function updateDisplayName(newName) {
+  var userId = localStorage.getItem('user_id');
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/updateDisplayName",
+    data: { userId: userId, displayName: newName },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.warn("Successfully updated display name...");
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      // TODO: Need to think of an elegant way to show user that it failed,
+      // but I'll have to get fancy with all the above notifications and
+      // I honestly just don't want to do that right now.
+      console.error("Error in updateDisplayName:", XMLHttpRequest.responseText);
     }
   });
 }
@@ -435,7 +543,7 @@ function animationSetting() {
 function getAllTemplates() {
   $.ajax({
     type: "GET",
-    url: "http://www.couponbooked.com/scripts/getAllTemplates",
+    url: "https://www.couponbooked.com/scripts/getAllTemplates",
     datatype: "json",
     success: function(data) {
       data = JSON.parse(data);
@@ -477,6 +585,7 @@ function processTemplates(data) {
     $(node).data("templateData", templateData);
     helper.getById("templateContainer").appendChild(node);
 
+    // TODO: Instead of applying this to the node, somehow only do it to the image
     $(node).unbind().click(function() {
       globalVars.book = $(node).data("templateData");
       globalVars.previousBook = helper.clone(globalVars.book);
@@ -488,14 +597,6 @@ function processTemplates(data) {
 }
 
 /**
- * NOTE: I don't know HOW this works or even if it DOES work, 
- * but at the moment it appears to stop the loading animation
- * from displaying when returning to the dashboard. Can mess around
- * with it in the future if any problems appear.
- */
-var showLoadingIcon = true;
-
-/**
  * Retrieve coupon books the user has sent or received.
  */
 function pullUserRelatedBooks() {
@@ -503,7 +604,7 @@ function pullUserRelatedBooks() {
   var userId = localStorage.getItem('user_id');
   $.ajax({
     type: "GET",
-      url: `http://www.couponbooked.com/scripts/getData?userId=${userId}`,
+      url: `https://www.couponbooked.com/scripts/getData?userId=${userId}`,
       datatype: "json",
       success: function(data) {
         data = JSON.parse(data);
@@ -512,6 +613,7 @@ function pullUserRelatedBooks() {
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.error("Error in pullUserRelatedBooks: ", XMLHttpRequest.responseText);
 
+        // TODO: Stop error being thrown when clicking logo
         SimpleNotification.error({
           title: 'Error reaching server',
           text: 'Please try again later.'
@@ -530,26 +632,17 @@ function processPulledData(data) {
   $.each(data, function(arrayNumber, array) {
     /** If true, book was sent. If false, it was received. */
     var isSent = arrayNumber == 0;
-    var allHidden = true;
 
     // If there are coupons for the category
     if (array.length != 0) {
       // Go over each coupon book in sent {0} or received array {1}
       $.each(array, function(couponNumber, couponBook) {
-          if (couponBook) {
-            addBookToPage(couponBook, isSent);
-
-            var hidden = JSON.parse(couponBook.bookData).hide == 1;
-            if (!hidden) {
-              allHidden = false;
-            } else if (couponNumber == array.length - 1 && allHidden) {
-              // If this is the last book and all of them are hidden
-              unhideMessage(isSent);
-            }
-          } else {
-            console.log("Showing that user doesn't have any books. They could be new, or something really bad could've happened...");
-            unhideMessage(isSent);
-          }
+        if (couponBook) {
+          addBookToPage(couponBook, isSent);
+        } else {
+          console.log("Showing that user doesn't have any books. They could be new, or something really bad could've happened...");
+          unhideMessage(isSent);
+        }
       });
     } else {
       unhideMessage(isSent);
@@ -620,9 +713,6 @@ function addBookToPage(couponBook, isSent) {
     node.innerHTML += "<p class='senderText'>" +
       (senderName ? /*"Sent from " +*/ senderName : "Sender unavailable") +
       "</p>";
-    if (bookData.hide) {
-      node.style.display = "none";
-    }
   }
 
   // https://api.jquery.com/data/
@@ -662,6 +752,89 @@ function addBookListeners(node) {
 }
 
 /**
+ * Adds the listeners for the help route.
+ */
+function helpFormListeners() {
+  var userId = localStorage.getItem("user_id");
+  $("#submit").unbind().click(function(event) {
+    event.preventDefault();
+
+    // TODO: Properly grab new lines from subject
+    var form = $('#helpForm').serializeArray();
+    var formData = {};
+    for (var i = 0; i < form.length; i++) {
+      formData[form[i].name] = form[i].value;
+    }
+
+    // TODO: Client side verification before submission
+    $.ajax({
+      type: "POST",
+      url: "https://www.couponbooked.com/scripts/form_submit",
+      data: { userId: userId, formData: JSON.stringify(formData) },
+      crossDomain: true,
+      cache: false,
+      success: function(success) {
+        // TODO: Finish the pagination for the dashboard
+        window.ga.trackEvent('Form Submission', 'Help Form Submitted', formData.topic);
+
+        // TODO: Show them a notification or fade the form into a success text or something
+        SimpleNotification.success({
+          text: "Form successfully submitted"
+        }, globalVars.notificationOptions);
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        console.error("Error with form submission:", XMLHttpRequest.responseText);
+        window.ga.trackEvent('Form Submission', 'Help Form Submitted', 'Error');
+
+        SimpleNotification.error({
+          title: "Error submitting form",
+          text: "Please try again later."
+        }, globalVars.notificationOptions);
+      }
+    });
+  });
+}
+
+/**
+ * Makes sure the stuff entered falls within the defined parameters.
+ */
+function redeemListeners() {
+  $('#redeemButton').unbind().click(function() {
+    var code = helper.getById("redeemBox").value.toLowerCase();
+    if (codeIsValid(code)) {
+      redeemCode(code);
+    }
+  });
+
+  // https://www.outsystems.com/forums/discussion/27816/mobile-max-length-of-input-not-working/#Post101576
+  $('#redeemBox').on("input", function (event) {
+    if (event.originalEvent.inputType == "insertFromPaste") {
+      for (var i = 0; i < this.value.length; i++) {
+        var currentChar = this.value.toLowerCase().charAt(i);
+        
+        if (!ALPHABET.includes(currentChar)) {
+          this.value = this.value.replace(currentChar, '');
+
+          // To retest that same character spot since the string shifted now.
+          // No out of bounds issue because it's about to i++ in the loop.
+          i--;
+        }
+      }
+    } else {
+      var currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
+      if (!ALPHABET.includes(currentChar)) {
+        this.value = this.value.slice(0, this.value.length - 1);
+      }
+    }
+
+    // Cut length down to desired amount
+    if (this.value.length > ID_LENGTH) {
+      this.value = this.value.slice(0, 8);
+    }
+  });
+}
+
+/**
  * Sends code to server to see if it is valid, and redeems it to
  * the current user if it is.
  * @param {string} shareCode the code to be redeemed for access
@@ -671,7 +844,7 @@ function redeemCode(shareCode) {
   var userId = localStorage.getItem("user_id");
   $.ajax({
     type: "POST",
-    url: "http://www.couponbooked.com/scripts/redeemCode",
+    url: "https://www.couponbooked.com/scripts/redeemCode",
     data: { userId: userId, receiverName: helper.getUserName(), shareCode: shareCode },
     crossDomain: true,
     cache: false,
@@ -680,6 +853,7 @@ function redeemCode(shareCode) {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error in redeemCode: ", XMLHttpRequest.responseText);
+      window.ga.trackEvent('Redemption', 'Share Code Redeemed', 'Error');
 
       SimpleNotification.error({
         title: "Error redeeming code!",
@@ -689,7 +863,6 @@ function redeemCode(shareCode) {
   });
 
   function handleSuccess(success) {
-    // TODO: Something to prevent spam, i.e. IP limiting
     if (success == "Not valid") {
       SimpleNotification.warning({
         title: "Invalid code",
@@ -701,10 +874,18 @@ function redeemCode(shareCode) {
         text: "Please send it to someone else."
       }, globalVars.notificationOptions);
     } else {
+      window.ga.trackEvent('Redemption', 'Share Code Redeemed', 'Success');
+
       SimpleNotification.success({
         title: "Successfully redeemed code!",
         text: "Check your dashboard."
       }, globalVars.notificationOptions);
+
+      // Update received book stats
+      var stats = JSON.parse(localStorage.getItem("stats"));
+      stats.receivedBooks++;
+      localStorage.setItem("stats", JSON.stringify(stats));
+      helper.updateStats();
     }
   }
 }
@@ -751,15 +932,25 @@ function codeIsValid(shareCode) {
  * don't have any received books.
  */
 function requestBook() {
+  var userName = helper.getUserName(), messageStart = "";
+  if (userName) {
+    // NOTE: This can probably be improved. Think on it
+    messageStart = `Your friend ${userName} wants a Coupon Book! `;
+  }
+
   var options = {
-    subject: "Send a Coupon Book!",
-    message: `Your friend ${helper.getUserName()} wants a Coupon Book! Go to couponbooked.com to download the app and send a Book now!`
+    title: "Send a Coupon Book!",
+    text: `${messageStart}Go to https://couponbooked.com/webapp to send a Book now!`
   };
+
+  // TODO: Work on adding a dedicated Snapchat share like Spotify does
   var onSuccess = function(result) {
     console.warn("Shared to app:", result.app);
+    window.ga.trackEvent('Book Sharing', 'Book Requested', 'Cordova Implementation');
   };
   var onError = function(msg) {
     console.error("Sharing failed with message:", msg);
+    window.ga.trackEvent('Book Sharing', 'Book Requested', 'Error');
   };
 
   window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
@@ -770,14 +961,9 @@ function requestBook() {
  * Redirects to login if user not authenticated.
  */
 function navBar() {
-  console.warn("navBar...");
   if (globalVars._this.state.authenticated === false) {
     return globalVars._this.redirectTo('/login');
   }
-
-  // Route to home on title or logo click
-  var mobile = helper.getBySelector("#mobile");
-  $(mobile).unbind().click(function() { globalVars._this.redirectTo('/dashboard') });
 
   // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
   var avatar = helper.getBySelector('.profile-image');
@@ -785,7 +971,6 @@ function navBar() {
     globalVars._this.loadProfile(function(err, _profile) {
       if (err) {
         console.error("Error loading profile: ", err);
-
         reacquireProfile();
       } else {
         avatar.src = _profile.picture;
@@ -793,35 +978,58 @@ function navBar() {
       }
     });
   } else {
-    // IDEA: Switch to localStorage to avoid profile bug? Does that solve the problem, or
-    // just give the appearance of solving it?
     avatar.src = globalVars.profile.picture;
   }
 
-  // TODO: See if this can dynamically do dropdowns other than logout to save time in future
-  // Dashboard button on dropdown
-  var dashboardButton = helper.getBySelector('.dashboard');
-  $(dashboardButton).unbind().click(function() { globalVars._this.redirectTo('/dashboard') });
+  /*
+  if (!globalVars.profile) {
+    var storedProfile = JSON.parse(localStorage.getItem('user_info'));
+    if (storedProfile) {
+      avatar.src = storedProfile.picture;
+      globalVars.profile = storedProfile;
+    } else {
+      // TODO: Test this on the app
+      console.error("Error loading profile: ", err);
+      reacquireProfile();
+    }
+  } else {
+    avatar.src = globalVars.profile.picture;
+  }
+  */
 
-  // Settings button on dropdown
-  var settingsButton = helper.getBySelector('.settings');
-  $(settingsButton).unbind().click(function() { globalVars._this.redirectTo('/settings') });
+  $("#mobile").unbind().click(function() { globalVars._this.redirectTo('/dashboard'); });
 
-  // Guide button on dropdown
-  var guideButton = helper.getBySelector('.guide');
-  $(guideButton).unbind().click(function() { globalVars._this.redirectTo('/guide') });
-
-  // Profile picture dropdown
-  $(".account").unbind().click(function() {
-      // TODO: See if it is possible to have the shadow visible before the entire element is unrolled
-      // IDEA: Container element?
-      if (!$('.submenu').is(':visible')) {
-        $(".submenu").slideDown();
-      }
+  // TODO: Make this all programmatic
+  $(".dashboard").unbind().click(function() {
+    toggleMobileMenu();
+    globalVars._this.redirectTo('/dashboard');
   });
-  $(document).unbind().mouseup(function() {
-    $(".submenu").slideUp();
+  $(".create").unbind().click(function() {
+    toggleMobileMenu();
+    globalVars._this.redirectTo('/create');
   });
+  $(".redeem").unbind().click(function() {
+    toggleMobileMenu();
+    globalVars._this.redirectTo('/redeemCode');
+  });
+  $(".settings").unbind().click(function() {
+    toggleMobileMenu();
+    globalVars._this.redirectTo('/settings');
+  });
+  $(".help").unbind().click(function() {
+    toggleMobileMenu();
+    globalVars._this.redirectTo('/help');
+  });
+
+  // Mobile menu will slide open on icon click
+  $("#sideMenuIcon, .contentShadow").unbind().click(function() {
+    toggleMobileMenu();
+  });
+}
+
+function toggleMobileMenu() {
+  helper.toggleClass(document.querySelector('.mobileSideMenu'), 'mobileSideMenu--open');
+  helper.toggleClass(document.querySelector('.contentShadow'), 'contentShadow--open');
 }
 
 var tempCounter = 0;
@@ -957,8 +1165,9 @@ App.prototype.login = function(e) {
       } else {
         // Now you have the user's information
         var userId = user.sub;
-        console.warn("User sub:", userId);
+        console.log("User sub:", userId);
         localStorage.setItem('user_id', userId);
+        window.ga.setUserId(userId);
 
         // Need to be able to access easily from my server
         window.plugins.OneSignal.setExternalUserId(userId);
@@ -1022,7 +1231,7 @@ function openUrl(url) {
 }
 
 App.prototype.redirectTo = function(route) {
-  console.warn(`redirectTo ${route}...`);
+  //console.warn(`redirectTo ${route}...`);
   if (!this.state.routes[route]) {
     throw new Error(`Unknown route ${route}.`);
   }

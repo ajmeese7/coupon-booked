@@ -54,7 +54,7 @@ the official library, this workaround will do. */
     overflow: hidden;
     margin: 1rem;
     margin-right: auto !important;
-    margin-left: auto !important;
+    margin-left: auto;
     cursor: default;
     animation-duration: 1000ms;
     animation-timing-function: cubic-bezier(0.165, 0.84, 0.44, 1);

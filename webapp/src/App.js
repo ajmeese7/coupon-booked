@@ -23,8 +23,8 @@ App.prototype.state = {
   accessToken: false,
   currentRoute: '/',
   routes: {
-    // TODO: Is it possible to fade between routes like within books instead of the
-    // lame instant transition? 
+    // TODO: Add route to URL or something so browser back button naviation works;
+      // use something like this: https://gomakethings.com/how-to-update-a-url-without-reloading-the-page-using-vanilla-javascript/
     '/': {
       id: 'loading',
       onMount: function(page) {
@@ -90,10 +90,7 @@ App.prototype.state = {
         navBar();
 
         backButtonTarget = "/create";
-        $('#backArrow').unbind().click(function() {
-          // TODO: See if there needs to be a back button target here
-          _this.redirectTo('/dashboard');
-        });
+        $('#backArrow').unbind().click(function() { _this.redirectTo('/dashboard') });
 
         // TODO: When back button is clicked after editing retrieved template,
         // still make sure they want to discard changes
@@ -160,6 +157,7 @@ App.prototype.state = {
       id: 'dashboard',
       onMount: function(page) {
         gtag('config', googleID, { 'page_title' : 'Dashboard', 'page_path' : '/dashboard' });
+        gtag('config', googleID, { 'user_id': localStorage.getItem("user_id") }); // TODO: Test with unique user IDs    
 
         _this = this;
         navBar();
@@ -214,11 +212,7 @@ App.prototype.state = {
         navBar();
         darkModeSupport();
 
-        // IDEA: Use fadeBetweenElements here instead of another route
-        $('#backArrow').unbind().click(function() {
-          _this.redirectTo('/dashboard');
-        });
-
+        $('#backArrow').unbind().click(function() { _this.redirectTo('/dashboard') });
         redeemListeners();
       }
     },
@@ -231,7 +225,6 @@ App.prototype.state = {
         navBar();
         darkModeSupport();
 
-        // IDEA: Use fadeBetweenElements here instead of another route
         $('#backArrow').unbind().click(function() {
           backButtonTarget = "/dashboard";
           _this.redirectTo('/sentBook');
@@ -247,7 +240,6 @@ App.prototype.state = {
         getById("shareCodeText").innerText = book.shareCode;
 
         // Display share icon based on platform
-        //var platform = device.platform;
         var shareIcon = getById("shareIcon");
         isIOS ? shareIcon.src = "./images/ios-share.svg" : shareIcon.src = "./images/md-share.svg"; // TODO: TEST
 
@@ -440,7 +432,7 @@ function displayNameListeners() {
         title: "Name too long",
         text: "Please enter a shorter name."
       }, notificationOptions);
-      updateUser = false;
+      updateName = false;
     } else if (newName == "") {
       gtag('event', 'Display Name Reset', { 'event_category' : 'Display Name' });
 
@@ -654,26 +646,17 @@ function processPulledData(data) {
   $.each(data, function(arrayNumber, array) {
     /** If true, book was sent. If false, it was received. */
     var isSent = arrayNumber == 0;
-    var allHidden = true;
 
     // If there are coupons for the category
     if (array.length != 0) {
       // Go over each coupon book in sent {0} or received array {1}
       $.each(array, function(couponNumber, couponBook) {
-          if (couponBook) {
-            addBookToPage(couponBook, isSent);
-
-            var hidden = JSON.parse(couponBook.bookData).hide == 1;
-            if (!hidden) {
-              allHidden = false;
-            } else if (couponNumber == array.length - 1 && allHidden) {
-              // If this is the last book and all of them are hidden
-              unhideMessage(isSent);
-            }
-          } else {
-            console.log("Showing that user doesn't have any books. They could be new, or something really bad could've happened...");
-            unhideMessage(isSent);
-          }
+        if (couponBook) {
+          addBookToPage(couponBook, isSent);
+        } else {
+          console.log("Showing that user doesn't have any books. They could be new, or something really bad could've happened...");
+          unhideMessage(isSent);
+        }
       });
     } else {
       unhideMessage(isSent);
@@ -744,9 +727,6 @@ function addBookToPage(couponBook, isSent) {
     node.innerHTML += "<p class='senderText'>" +
       (senderName ? /*"Sent from " +*/ senderName : "Sender unavailable") +
       "</p>";
-    if (bookData.hide) {
-      node.style.display = "none";
-    }
   }
 
   // https://api.jquery.com/data/

@@ -22,65 +22,6 @@
 }
 
 /**********************
-    Profile Picture
-***********************/
-
-/* TODO: Add a CSS downwards transition like menu */
-div.dropdown {
-    width: 115px;
-    margin-top: 5px;
-    float: right;
-}
-div.submenu {
-    z-index: 99;
-    position: fixed;
-    width: 110px;
-    display: none;
-    margin-left: -7.5px;
-    padding: 28px 0 5px;
-    border-radius: 6px;
-}
-.dropdown li {
-    /* TODO: Decide if this or default is better */
-    margin: 0;
-}
-.dropdown li a {
-    color: #555555;
-    display: block;
-    font-family: arial;
-    font-weight: bold;
-    padding: 6px 15px;
-}
-.dropdown li a:hover{
-    background: #155FB0;
-    color: #FFFFFF;
-}
-a.account {
-    padding: 11px 0 0 20px;
-    margin: -11px 0 0 -10px;
-}
-.root {
-    list-style: none;
-    font-size: 14px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
-    background: #fff;
-    padding: 10px 0 10px 0;
-    border-radius: 5px 5px 5px 5px;
-    margin: 21px 0 0 0;
-}
-.root:before {
-    content: '';
-    border-left: 7px solid transparent;
-    border-right: 7px solid transparent;
-    border-bottom: 7px solid #ccc;
-    border-bottom-color: #ffffff;
-    position: absolute;
-    color: #ffffff;
-    top: 42px;
-    left: 70px;
-}
-
-/**********************
        Dashboard
 ***********************/
 .col {

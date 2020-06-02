@@ -11,13 +11,15 @@ html {
 }
 
 body {
+    /* TODO: Reconcile this with jQuery UI */
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
 
     margin: 0px;
     padding: 0px;
     width: 100%;
-    text-transform: none !important; /* Should I let this be uppercase like Cordova does? */
+    text-transform: none !important;
+    overflow-x: hidden; /* TODO: Fix needless scrollbars sometimes, like on dashboard */
 }
 
 hr {
@@ -29,6 +31,7 @@ a {
 }
 button {
     border: .5px solid black;
+    cursor: pointer;
 }
 button:focus, a:focus {
     outline: none;
@@ -39,20 +42,8 @@ section {
     width: 100vw;
 }
 
-iframe[seamless] {
-    background-color: transparent;
-    border: none;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-}
-
 /* Used for testing purposes and toggling whether an element is displayed */
 .hide, .hidden {
-    display: none;
-}
-
-#deviceReady {
     display: none;
 }
 

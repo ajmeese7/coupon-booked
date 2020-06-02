@@ -70,7 +70,6 @@ function createShareCode() {
       book.shareCode = shareCode;
       
       // This is the end goal, meaning payment was successful
-      // TODO: Make this 'Google Play Payment' on the app
       gtag('config', googleID, { 'page_title' : 'Stripe Payment', 'page_path' : '/stripePayment' });
 
       // Update sent books stats

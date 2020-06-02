@@ -19,9 +19,7 @@
     transition: opacity 0.3s;
     overflow: visible;
     left: 50%;
-
-    /* Negative half of width, adding 50px to be centered over textbox because of copy icon */
-    margin-left: calc(-1 * (var(--copytooltip-width) + 50px) / 2);
+    margin-left: calc(-1 * var(--copytooltip-width) / 2);
 }
 .copytooltip .copytooltiptext::after {
     content: "";
@@ -48,8 +46,10 @@
     position: absolute;
     bottom: 0;
     margin-bottom: 50px;
-    left: 50%;
     width: var(--bigShareButton-width);
+
+    /* Only used on mobile; the desktop is in desktop.css */
+    left: 50%;
     margin-left: calc(-1 * var(--bigShareButton-width) / 2); /* Negative half of width */
 }
 #shareIcon {
@@ -69,6 +69,7 @@
     margin: auto;
     margin-top: 35px; /* Calculated with copytooltip height - 1 */
     height: 54px;
+    padding-left: 50px;
 }
 #shareCodeText {
     /* TODO: Make this appear more grand so their purchase is validated */
@@ -80,11 +81,17 @@
     border: 1px solid var(--text-color);
     background-color: var(--background-color);
 }
+#desktopBreak {
+    display: none;
+}
 #copyButton {
     /* TODO: Test on screen sizes */
     vertical-align: sub;
     margin-left: 10px;
     margin-bottom: -5px;
+}
+#shareCodeText, #copyButton {
+    cursor: pointer;
 }
 
 #shareCodeDescription, #descPreview {

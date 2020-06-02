@@ -256,8 +256,6 @@ function notificationError(failedResponse, coupon) {
     'non_interaction': true
   });
 
-  // TODO: Test if this actually works and can detect if the user has been deleted;
-  // it probably won't but whatever. Not really important
   if (failedResponse.includes("All included players are not subscribed")) {
     console.log("User no longer exists!");
     SimpleNotification.error({

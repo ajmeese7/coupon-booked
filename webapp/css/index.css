@@ -11,6 +11,7 @@ html {
 }
 
 body {
+    /* TODO: Reconcile this with jQuery UI */
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
 

@@ -25,11 +25,6 @@ function displayBook() {
   senderText += "</p>";
   previewText.innerHTML += senderText;
   miniPreview.appendChild(previewText);
-
-  // NOTE: These images provided by FontAwesome
-  var hideImg = "<img id='hideBook' class='filter-black' src='images/eye-";
-  hideImg += (globalVars.book.hide ? "slash-" : "") + "regular.svg' />";
-  miniPreview.innerHTML += hideImg;
   
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
@@ -48,45 +43,6 @@ function bookListeners() {
     globalVars._this.redirectTo("/dashboard");
   });
 
-  $('#hideBook').unbind().click(function() {
-    var newHideStatus = globalVars.book.hide ? 0 : 1;
-    $(this).attr('src', "images/eye-" + (newHideStatus ? "slash-" : "") + "regular.svg");
-    globalVars.book.hide = newHideStatus;
-
-    $.ajax({
-      type: "POST",
-      url: "http://www.couponbooked.com/scripts/changeHiddenStatus",
-      data: { bookData: JSON.stringify(globalVars.book), hide: newHideStatus, bookId: globalVars.book.bookId },
-      crossDomain: true,
-      cache: false,
-      success: function(success) {
-        // NOTE: UI to display hidden books will be implemented when I add the sorting button
-        // that allows you to do custom w/ dragging, alphabetical, newest, ect.
-        if (globalVars.book.hide) {
-          console.warn("Book is now hidden.");
-        } else {
-          console.warn("Book no longer hidden.");
-        }
-
-        // NOTE: Should I include this or let the icon speak for itself?
-        // Also, how do you see hidden books to unhide?
-        /*SimpleNotification.success({
-          text: "Successfully hid book"
-        }, globalVars.notificationOptions);*/
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        console.error("Error hiding book:", XMLHttpRequest.responseText);
-        // TODO: Undo hide action here; shoud literally never run so
-        // not making this a priority
-
-        SimpleNotification.warning({
-          title: "Error hiding book",
-          text: "Please try again later."
-        }, globalVars.notificationOptions);
-      }
-    });
-  });
-
   createCouponElements();
 }
 
@@ -103,6 +59,8 @@ function createCouponElements() {
     // should changing display preference permenantly update the order?
     // Option to hide coupons with 0 count; display 3 to a row
 
+  var couponContainer = document.createElement('div');
+  couponContainer.setAttribute("id", "couponContainer");
   $.each(globalVars.book.coupons, function(couponNumber, coupon) {
       var node = document.createElement('div');
       node.setAttribute("class", "couponPreview");
@@ -111,10 +69,12 @@ function createCouponElements() {
       node.innerHTML += `<p class='couponCount'>${coupon.count} remaining</p>`;
       $(node).data("coupon", coupon);
       $(node).data("couponNumber", couponNumber);
-      helper.getById("bookContent").appendChild(node);
+      couponContainer.appendChild(node);
 
       addCouponListeners(node);
   });
+
+  helper.getById("bookContent").appendChild(couponContainer);
 }
 
 /**
@@ -123,12 +83,12 @@ function createCouponElements() {
  */
 function addCouponListeners(node) {
   $(node).unbind().click(function() {
-    helper.fadeBetweenElements("#bookContent", "#couponPreview");
+    helper.fadeBetweenElements("#bookContent", "#dataPreview");
 
-      $('#backArrow').unbind().click(function() {
-        helper.fadeBetweenElements("#couponPreview", "#bookContent");
-        displayBook();
-      });
+    $('#backArrow').unbind().click(function() {
+      helper.fadeBetweenElements("#dataPreview", "#bookContent");
+      displayBook();
+    });
 
     // Updates preview fields with actual coupon's data
     var coupon = $(this).data("coupon");
@@ -138,19 +98,25 @@ function addCouponListeners(node) {
 
     // This is here to pass current coupon to redeemCoupon().
     $('#redeemCoupon').unbind().click(function() {
-      function onConfirm(buttonIndex) {
-        if (buttonIndex == 1) {
+      $( "#redeemCouponConfirm" ).dialog({
+        draggable: false,
+        resizable: false,
+        height: "auto",
+        width: 400,
+        modal: true,
+        buttons: {
+          Cancel: function() {
+            $( this ).dialog( "close" );
+          },
+          "Redeem it": function() {
+            // TODO: Test coupon redemption + notification;
+            // how to handle if they've logged out of device? Email? Text?
+            $( this ).dialog( "close" );
             redeemCoupon(coupon);
             $('#backArrow').click();
           }
         }
-        
-        navigator.notification.confirm(
-            "Do you want to redeem this coupon?",
-            onConfirm,
-            "Redemption confirmation",
-            ["Redeem it", "Cancel"]
-      );
+      });
     });
   });
 }
@@ -165,29 +131,28 @@ function addCouponListeners(node) {
 function redeemCoupon(coupon) {
   console.warn("Redeeming coupon...");
   if (coupon.count > 0) {
-    // TODO: Make sure this stalling forever is just a testing issue and not a runtime problem.
-    // If error continues, have some timeout that if in 3 seconds there's not a result the
-    // coupon is refunded then this is recursively called. Have some counter for that too like
-    // the nav issue and if nothing happens by the second time then display an error telling
-    // them to restart the app or try again later or something.
     var userId = localStorage.getItem("user_id");
     $.ajax({
       type: "POST",
-      url: "http://www.couponbooked.com/scripts/redeemCoupon",
+      url: "https://www.couponbooked.com/scripts/redeemCoupon",
       data: { bookId: globalVars.book.bookId, userId: userId, couponName: coupon.name },
       crossDomain: true,
       cache: false,
       success: function(success) {
         console.warn("redeemCoupon success:", success);
+        window.ga.trackEvent('Book Modification', 'Coupon Redeemed', 'Success');
         
         if (success == "None left") {
           noneLeft();
         } else {
+          // TODO: Have a better way of checking for null string here than the shitty
+          // way in notifySender()
           notifySender(success, coupon);
         }
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
         console.error("Error in redeemCoupon:", XMLHttpRequest.responseText);
+        window.ga.trackEvent('Book Modification', 'Coupon Redeemed', 'Error');
 
         SimpleNotification.error({
           title: "Error redeeming coupon!",
@@ -215,15 +180,19 @@ function redeemCoupon(coupon) {
  * @param {element} coupon - the coupon element that is being redeemed
  */
 function notifySender(senderId, coupon) {
+  // TODO: Think if I want to stick with this method or move to the new one
   var title = `${helper.getUserName()} redeemed \"${coupon.name}!\"`;
   var message = `${coupon.description}`; // IDEA: Current count or something?
   var notificationObj = { app_id : env.ONESIGNAL_ID,
-                          headings: {en: title},
+                          //headings: {en: title},
                           contents: {en: message},
-                          big_picture: coupon.image, // TODO: Decide if I like this or not
+                          big_picture: coupon.image,
+                          chrome_web_image: coupon.image,
+                          adm_big_picture: coupon.image,
+                          ios_attachments: coupon.image,
                           ttl: 2419200,
                           priority: 10,
-                          include_external_user_ids: [senderId] };
+                          include_player_ids: [senderId] };
   
   sendNotification(notificationObj, coupon);
 }
@@ -264,14 +233,20 @@ var sendNotification = function(data, coupon) {
  * from a successful fetch.
  */
 function notificationSuccess(successResponse, coupon) {
-  // PHP updated it on the server, this just does it locally and avoids another request
-  coupon.count--;
-  displayBook();
-
-  console.warn("Notification post success:", successResponse);
+  window.ga.trackEvent('Notification', 'Notification Sent');
   SimpleNotification.success({
     text: "Successfully redeemed coupon"
   }, globalVars.notificationOptions);
+
+  // Update redeemed coupons stats
+  var stats = JSON.parse(localStorage.getItem("stats"));
+  stats.redeemedCoupons++;
+  localStorage.setItem("stats", JSON.stringify(stats));
+  helper.updateStats();
+
+  // PHP updated it on the server, this just does it locally and avoids another request
+  coupon.count--;
+  displayBook();
 }
 
 /**
@@ -281,13 +256,10 @@ function notificationSuccess(successResponse, coupon) {
  * from a failed fetch.
  */
 function notificationError(failedResponse, coupon) {
+  window.ga.trackEvent('Notification', 'Notification Not Sent', 'notificationError');
   refundCoupon(coupon.name);
 
-  // TODO: Test if this actually works and can detect if the user has been deleted;
-  // it probably won't but whatever. Not really important
   if (failedResponse.errors[0] == "All included players are not subscribed") {
-    // IDEA: If error that person doesn't exist, hide the book or 
-    // something and let there be a note in the SQL
     console.log("User no longer exists!");
     SimpleNotification.error({
       text: "User no longer exists!"
@@ -307,25 +279,22 @@ function notificationError(failedResponse, coupon) {
  * @param {string} couponName - the name of the coupon being refunded
  */
 function refundCoupon(couponName) {
+  console.warn("Refunding coupon...");
   var userId = localStorage.getItem("user_id");
   
   $.ajax({
     type: "POST",
-    url: "http://www.couponbooked.com/scripts/refundCoupon",
+    url: "https://www.couponbooked.com/scripts/refundCoupon",
     data: { bookId: globalVars.book.bookId, userId: userId, couponName: couponName },
     crossDomain: true,
     cache: false,
     success: function(success) {
       console.warn("refundCoupon SUCCESS:", success);
+      window.ga.trackEvent('Refund', 'Coupon Refunded');
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("ERROR in refundCoupon: ", XMLHttpRequest.responseText);
-
-      // IDEA: Create a way to report problems such as this
-      /*SimpleNotification.error({
-        title: "Error refunding coupon",
-        text: "Please report this issue."
-      }, globalVars.notificationOptions);*/
+      window.ga.trackEvent('Refund', 'Coupon Not Refunded');
     }
   });
 }

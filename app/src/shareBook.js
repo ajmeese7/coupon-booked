@@ -1,3 +1,4 @@
+var helper = require('./helperFunctions');
 var globalVars = require('./globalVars.js');
 var sent = require('./sentBooks.js');
 
@@ -58,7 +59,7 @@ function createShareCode() {
 
   $.ajax({
     type: "POST",
-    url: "http://www.couponbooked.com/scripts/createShareCode",
+    url: "https://www.couponbooked.com/scripts/createShareCode",
     data: { bookId: globalVars.book.bookId, bookData: JSON.stringify(globalVars.book), shareCode: shareCode },
     crossDomain: true,
     cache: false,
@@ -101,8 +102,16 @@ function createShareCode() {
 
     } else {
       console.warn("Share code created successfully:", shareCode);
-      // Share code created successfully
       globalVars.book.shareCode = shareCode;
+
+      // This is the end goal, meaning payment was successful
+      window.ga.trackView('Play Store Payment');
+
+      // Update sent books stats
+      var stats = JSON.parse(localStorage.getItem("stats"));
+      stats.sentBooks++;
+      localStorage.setItem("stats", JSON.stringify(stats));
+      helper.updateStats();
 
       // So they can go back to dashboard without dealing with confirm prompt;
       // true means it's silent so they don't get a strange notification
@@ -118,7 +127,6 @@ function createShareCode() {
  */
 function shareCode() {
   var options = {
-    // TODO: Display sender name in message -> helper.getUserName()
     subject: "You've been Coupon Booked!", // for email
     message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${globalVars.book.shareCode}`
   };
@@ -126,9 +134,11 @@ function shareCode() {
     // On Android result.app since plugin version 5.4.0 this is no longer empty.
     // On iOS it's empty when sharing is cancelled (result.completed=false)
     console.warn("Shared to app:", result.app);
+    window.ga.trackEvent('Book Sharing', 'Book Shared', 'Cordova Implementation');
   };
   var onError = function(msg) {
     console.error("Sharing failed with message:", msg);
+    window.ga.trackEvent('Book Sharing', 'Book Shared', 'Error');
   };
 
   window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
