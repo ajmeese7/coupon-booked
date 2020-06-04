@@ -94,7 +94,7 @@ label {
             transition: transform .1s ease-in-out;
 }
 .mobileSideMenu {
-    width: 300px; /* TODO: See if this is better on real mobile */
+    width: 300px;
     height: 100vh;
     z-index: 999;
     position: fixed;
