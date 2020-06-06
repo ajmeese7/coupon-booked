@@ -70,8 +70,8 @@ function getUserName() {
   if (displayNameExists()) {
     console.warn("Using display name:", displayName);
     return displayName;
-  } else if (profile.name) {
-    console.warn("Using profile name:", profile.name);
+  } else if (globalVars.profile.name) {
+    console.warn("Using profile name:", globalVars.profile.name);
 
     // Through Google; name should be whole name
     return globalVars.profile.name;

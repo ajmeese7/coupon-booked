@@ -4,6 +4,10 @@
   // Make sure necessary variables exist
   if (isset($_GET['userId'])) {
     $userId = $_GET['userId'];
+    if (is_null($userId)) {
+      header('HTTP/1.1 400 Bad Request');
+      exit("A null userId cannot be used to retrieve data.");
+    }
 
     $stmt = $conn->prepare("SELECT displayName, stats FROM userData WHERE userId=?");
     $stmt->bind_param("s", $userId);
@@ -13,11 +17,13 @@
 
     if ($stmt->num_rows > 0) {
       while ($stmt->fetch()) {
-        // Using an object so it's easy to add more properties in the future
-        $userData = new \stdClass();
-        $userData->displayName = $displayName;
-        $userData->stats = $stats;
-        echo json_encode($userData, JSON_UNESCAPED_SLASHES);
+        if (!is_null($stats)) {
+          // Using an object so it's easy to add more properties in the future
+          $userData = new \stdClass();
+          $userData->displayName = $displayName;
+          $userData->stats = $stats;
+          echo json_encode($userData, JSON_UNESCAPED_SLASHES);
+        }
       }
     }
     

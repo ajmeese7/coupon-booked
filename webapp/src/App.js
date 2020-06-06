@@ -10,14 +10,7 @@ function App() {
   darkModeSupport();
 }
 
-/**
- * NOTE: I don't know HOW this works or even if it DOES work, 
- * but at the moment it appears to stop the loading animation
- * from displaying when returning to the dashboard. Can mess around
- * with it in the future if any problems appear.
- */
 var showLoadingIcon = true;
-
 App.prototype.state = {
   authenticated: false,
   accessToken: false,
@@ -334,6 +327,8 @@ function createConnection() {
  */
 function getUserInfo(updatePage) {
   var userId = localStorage.getItem('user_id');
+  if (!userId) return console.error("No user ID! Can't get user info...");
+
   $.ajax({
     type: "GET",
     url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}`,
@@ -349,15 +344,15 @@ function getUserInfo(updatePage) {
         localStorage.setItem("display_name", data.displayName);
         localStorage.setItem("stats", data.stats);
 
-        // Adds user info to mobile sidebar menu
+        // Adds user info to mobile sidebar menu;
+        // IDEA: Have settings page on desktop show something similar 
+        // with the profile so they aren't missing out
         getById("sidebarName").innerText = getUserName();
-        var stats = JSON.parse(data.stats);
+        var stats = JSON.parse(data.stats), quip = "Explorer";
         if (stats.sentBooks > stats.receivedBooks) {
-          var quip = "Giver";
+          quip = "Giver";
         } else if (stats.createdBooks > stats.sentBooks + 1) {
-          var quip = "Creator";
-        } else {
-          var quip = "Explorer";
+          quip = "Creator";
         }
 
         getById("sidebarQuip").innerText = quip;
@@ -369,6 +364,31 @@ function getUserInfo(updatePage) {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error retrieving user info:", XMLHttpRequest.responseText);
+    }
+  });
+}
+
+/**
+ * Is called by getUserInfo() if there is no data returned from
+ * the server for the user. Generates inital data for the user
+ * and saves it for later modification.
+ */
+function createUserInfo() {
+  var userId = localStorage.getItem('user_id');
+  if (!userId) return console.error("No user ID! Can't create user info...");
+
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/createUserInfo",
+    data: { userId: userId },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.warn("Successfully created user info...");
+      getUserInfo();
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error creating user info:", XMLHttpRequest.responseText);
     }
   });
 }
@@ -393,29 +413,6 @@ function displayUserData() {
 
   // TODO: Still need to either do this one or get rid of it
   getById("fulfilledCoupons").innerText += ` ${stats.fulfilledCoupons}`;
-}
-
-/**
- * Is called by getUserInfo() if there is no data returned from
- * the server for the user. Generates inital data for the user
- * and saves it for later modification.
- */
-function createUserInfo() {
-  var userId = localStorage.getItem('user_id');
-  $.ajax({
-    type: "POST",
-    url: "https://www.couponbooked.com/scripts/createUserInfo",
-    data: { userId: userId },
-    crossDomain: true,
-    cache: false,
-    success: function(success) {
-      console.warn("Successfully created user info...");
-      getUserInfo();
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error creating user info:", XMLHttpRequest.responseText);
-    }
-  });
 }
 
 /**
@@ -617,6 +614,8 @@ function processTemplates(data) {
 function pullUserRelatedBooks() {
   showLoadingIcon = true;
   var userId = localStorage.getItem('user_id');
+  if (!userId) return console.error("No user ID! Can't pull user related books...");
+
   $.ajax({
     type: "GET",
       url: `https://www.couponbooked.com/scripts/getData?userId=${userId}`,
@@ -1157,9 +1156,6 @@ App.prototype.run = function(id) {
 // made here should be made there as well.
 App.prototype.logout = function() {
   console.warn("Logging user out...");
-  // https://documentation.onesignal.com/docs/cordova-sdk#section--removeexternaluserid-
-  // TODO: Test logging in and out of devices to make sure notifications still work properly.
-  //window.plugins.OneSignal.removeExternalUserId();
 
   localStorage.clear();
   profile = null;

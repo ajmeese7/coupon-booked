@@ -17,9 +17,7 @@
     $stmt->execute();
     $stmt->store_result();
 
-    // Updates user info if it already exists and creates new info if it doesn't;
-    // TODO: Compare this against current checks to make sure the empty
-    // data doesn't break the already existing existance clauses
+    // Updates user info if it already exists and creates new info if it doesn't
     if ($stmt->num_rows > 0) {
       $stmt = $conn->prepare("UPDATE userData SET onesignalId=? WHERE userId=?");
       $stmt->bind_param("ss", $onesignalId, $userId);

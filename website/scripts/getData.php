@@ -3,6 +3,10 @@
 
   if (isset($_GET['userId'])) {
     $userId = $_GET['userId'];
+    if (is_null($userId)) {
+      header('HTTP/1.1 400 Bad Request');
+      exit("A null userId cannot be used to retrieve data.");
+    }
 
     $stmt = $conn->prepare("SELECT receiverName, bookData, deleted FROM couponBooks WHERE sender=?");
     $stmt->bind_param("s", $userId);

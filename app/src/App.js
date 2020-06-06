@@ -6,20 +6,16 @@ const jwt = require('jsonwebtoken');
 const Auth0 = require('auth0-js');
 const Auth0Cordova = require('@auth0/cordova');
 
+// Other local JavaScript files
 var sent = require('./sentBooks.js');
 var received = require('./receivedBooks.js');
 var share = require('./shareBook.js');
 var helper = require('./helperFunctions.js');
 var globalVars = require('./globalVars.js');
 
-/**
- * NOTE: I don't know HOW this works or even if it DOES work, 
- * but at the moment it appears to stop the loading animation
- * from displaying when returning to the dashboard. Can mess around
- * with it in the future if any problems appear.
- */
 var showLoadingIcon = true;
 var cleanBuild = false;
+var firstLogin = false;
 function App() {
   // NOTE: Uncomment this to test with all localStorage erased
   //cleanBuild = true;
@@ -77,10 +73,14 @@ App.prototype.state = {
       id: 'login',
       onMount: function(page) {
         console.warn("/login route...");
-        window.ga.trackView('Login Page'); // TODO: Make this work, because it isn't showing up right now
+
+        // TODO: Make this work, because it isn't showing up right now
+        window.ga.trackView('Login Page');
 
         if (this.state.authenticated === true) {
           return this.redirectTo('/dashboard');
+        } else {
+          firstLogin = true;
         }
 
         // Login button at bottom of page;
@@ -148,12 +148,10 @@ App.prototype.state = {
           helper.fadeBetweenElements("#gestureZone", "", true);
         }
 
-        // TODO: Figure out why this is called after checking out
-        pullUserRelatedBooks();
-
         // Initialize tab menu
         $('#tab-menu').tabs();
         manageTabMenu();
+        pullUserRelatedBooks();
 
         $('#backArrow').unbind().click(function() {
           globalVars._this.redirectTo('/dashboard');
@@ -165,20 +163,7 @@ App.prototype.state = {
         });
 
         helper.getById("request").addEventListener('click', async () => {
-          if (navigator.share) {
-            requestBook();
-          } else {
-            // NOTE: Share should always be supported, so this should never run,
-            // but on the off chance it doesn't then this desktop code is a failsafe;
-            // TODO: Test if mailto even works in Cordova
-            window.ga.trackEvent('Book Sharing', 'Book Requested', 'Email Implementation');
-
-            // For now, if the share API isn't supported, it just opens the default
-            // email client with the specified contents
-            var subject = "I want a gift!";
-            var emailBody = "I want a Coupon Book! Go to https://couponbooked.com/webapp/index to make me something special :)";
-            document.location = "mailto:?subject="+subject+"&body="+emailBody;
-          }
+          requestBook();
         });
 
         $('#redeemLink').unbind().click(function() {
@@ -282,8 +267,6 @@ function determineAuthRoute(instant) {
     } else {
       return globalVars._this.redirectTo('/login');
     }
-    // NOTE: The 1ms delay seems to take a good bit longer;
-    // should I complicate the code to speed it up?
   }, instant ? 1 : 3500);
 }
 
@@ -316,30 +299,35 @@ function createConnection() {
  */
 function getUserInfo(updatePage) {
   var userId = localStorage.getItem('user_id');
+  if (!userId) return console.error("No user ID! Can't get user info...");
+
   $.ajax({
     type: "GET",
     url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}`,
     datatype: "html",
     success: function(data) {
-      // IDEA: Set mobile menu to creator, giver, etc. Have settings page on desktop show
-      // something similar with the profile so they aren't missing out
       if (data) {
         console.warn("Successfully retrieved user info.");
+        if (firstLogin) {
+          // The initial pull will have failed, so calling the function again
+          pullUserRelatedBooks();
+          firstLogin = false;
+        }
 
         // Store all the data in localStorage for later use
         data = JSON.parse(data);
         localStorage.setItem("display_name", data.displayName);
         localStorage.setItem("stats", data.stats);
 
-        // Adds user info to mobile sidebar menu
+        // Adds user info to mobile sidebar menu;
+        // IDEA: Have settings page on desktop show something similar 
+        // with the profile so they aren't missing out
         helper.getById("sidebarName").innerText = helper.getUserName();
-        var stats = JSON.parse(data.stats);
+        var stats = JSON.parse(data.stats), quip = "Explorer";
         if (stats.sentBooks > stats.receivedBooks) {
-          var quip = "Giver";
+          quip = "Giver";
         } else if (stats.createdBooks > stats.sentBooks + 1) {
-          var quip = "Creator";
-        } else {
-          var quip = "Explorer";
+          quip = "Creator";
         }
 
         helper.getById("sidebarQuip").innerText = quip;
@@ -351,6 +339,32 @@ function getUserInfo(updatePage) {
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error retrieving user info:", XMLHttpRequest.responseText);
+    }
+  });
+}
+
+/**
+ * Is called by getUserInfo() if there is no data returned from
+ * the server for the user. Generates inital data for the user
+ * and saves it for later modification.
+ */
+function createUserInfo() {
+  var userId = localStorage.getItem('user_id');
+  if (!userId) return console.error("No user ID! Can't create user info...");
+
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/createUserInfo",
+    data: { userId: userId },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.warn("Successfully created user info...");
+      addOneSignalId(userId);
+      getUserInfo();
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error creating user info:", XMLHttpRequest.responseText);
     }
   });
 }
@@ -378,25 +392,26 @@ function displayUserData() {
 }
 
 /**
- * Is called by getUserInfo() if there is no data returned from
- * the server for the user. Generates inital data for the user
- * and saves it for later modification.
+ * Add user's OneSignal ID to the database.
  */
-function createUserInfo() {
-  var userId = localStorage.getItem('user_id');
-  $.ajax({
-    type: "POST",
-    url: "https://www.couponbooked.com/scripts/createUserInfo",
-    data: { userId: userId },
-    crossDomain: true,
-    cache: false,
-    success: function(success) {
-      console.warn("Successfully created user info...");
-      getUserInfo();
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      console.error("Error creating user info:", XMLHttpRequest.responseText);
-    }
+function addOneSignalId(userId) {
+  window["plugins"].OneSignal.getIds(function (state) {
+    localStorage.setItem('onesignal_id', state.userId);
+    $.ajax({
+        type: "POST",
+        url: "https://www.couponbooked.com/scripts/addOneSignalUserId",
+        data: { userId: userId, onesignalId: state.userId },
+        crossDomain: true,
+        cache: false,
+        success: function(success) {
+          console.warn("Successfully set user's OneSignal ID...");
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.error("Error setting OneSignal ID:", XMLHttpRequest.responseText);
+        }
+    });
+  }, err => {
+      console.error("Error getting user's OneSignal ID:", err);
   });
 }
 
@@ -602,6 +617,8 @@ function processTemplates(data) {
 function pullUserRelatedBooks() {
   showLoadingIcon = true;
   var userId = localStorage.getItem('user_id');
+  if (!userId) return console.error("No user ID! Can't pull user related books...");
+
   $.ajax({
     type: "GET",
       url: `https://www.couponbooked.com/scripts/getData?userId=${userId}`,
@@ -1165,9 +1182,11 @@ App.prototype.login = function(e) {
       } else {
         // Now you have the user's information
         var userId = user.sub;
-        console.log("User sub:", userId);
         localStorage.setItem('user_id', userId);
         window.ga.setUserId(userId);
+
+        // Called here once user ID is 100% valid
+        getUserInfo();
 
         // Need to be able to access easily from my server
         window.plugins.OneSignal.setExternalUserId(userId);
