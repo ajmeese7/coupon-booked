@@ -70,18 +70,18 @@ function getUserName() {
   if (displayNameExists()) {
     console.warn("Using display name:", displayName);
     return displayName;
-  } else if (globalVars.profile.name) {
+  } else if (globalVars.profile && globalVars.profile.name) {
     console.warn("Using profile name:", globalVars.profile.name);
 
     // Through Google; name should be whole name
     return globalVars.profile.name;
-  } else if (profile.nickname) {
+  } else if (globalVars.profile && globalVars.profile.nickname) {
     console.warn("Using profile nickname:", profile.nickname);
 
     // Through Auth0; nickname should be first part of email
     return globalVars.profile.nickname;
   } else {
-    console.error("There is no available userName!");
+    console.error("There is no available username!");
     return null;
   }
 }

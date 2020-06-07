@@ -319,18 +319,7 @@ function getUserInfo(updatePage) {
         localStorage.setItem("display_name", data.displayName);
         localStorage.setItem("stats", data.stats);
 
-        // Adds user info to mobile sidebar menu;
-        // IDEA: Have settings page on desktop show something similar 
-        // with the profile so they aren't missing out
-        helper.getById("sidebarName").innerText = helper.getUserName();
-        var stats = JSON.parse(data.stats), quip = "Explorer";
-        if (stats.sentBooks > stats.receivedBooks) {
-          quip = "Giver";
-        } else if (stats.createdBooks > stats.sentBooks + 1) {
-          quip = "Creator";
-        }
-
-        helper.getById("sidebarQuip").innerText = quip;
+        sideMenuInfo();
         if (updatePage) displayUserData();
       } else {
         console.warn("There was no user info to retrieve. Creating data...");
@@ -341,6 +330,21 @@ function getUserInfo(updatePage) {
       console.error("Error retrieving user info:", XMLHttpRequest.responseText);
     }
   });
+}
+
+/**
+ * Adds user info to mobile sidebar menu.
+ */
+function sideMenuInfo() {
+  helper.getById("sidebarName").innerText = helper.getUserName();
+  var stats = JSON.parse(localStorage.getItem("stats")), quip = "Explorer";
+  if (stats.sentBooks > stats.receivedBooks) {
+    quip = "Giver";
+  } else if (stats.createdBooks > stats.sentBooks + 1) {
+    quip = "Creator";
+  }
+
+  helper.getById("sidebarQuip").innerText = quip;
 }
 
 /**
@@ -829,7 +833,7 @@ function redeemListeners() {
       for (var i = 0; i < this.value.length; i++) {
         var currentChar = this.value.toLowerCase().charAt(i);
         
-        if (!ALPHABET.includes(currentChar)) {
+        if (!share.ALPHABET.includes(currentChar)) {
           this.value = this.value.replace(currentChar, '');
 
           // To retest that same character spot since the string shifted now.
@@ -839,13 +843,13 @@ function redeemListeners() {
       }
     } else {
       var currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
-      if (!ALPHABET.includes(currentChar)) {
+      if (!share.ALPHABET.includes(currentChar)) {
         this.value = this.value.slice(0, this.value.length - 1);
       }
     }
 
     // Cut length down to desired amount
-    if (this.value.length > ID_LENGTH) {
+    if (this.value.length > share.ID_LENGTH) {
       this.value = this.value.slice(0, 8);
     }
   });
@@ -992,27 +996,12 @@ function navBar() {
       } else {
         avatar.src = _profile.picture;
         globalVars.profile = _profile;
+        sideMenuInfo();
       }
     });
   } else {
     avatar.src = globalVars.profile.picture;
   }
-
-  /*
-  if (!globalVars.profile) {
-    var storedProfile = JSON.parse(localStorage.getItem('user_info'));
-    if (storedProfile) {
-      avatar.src = storedProfile.picture;
-      globalVars.profile = storedProfile;
-    } else {
-      // TODO: Test this on the app
-      console.error("Error loading profile: ", err);
-      reacquireProfile();
-    }
-  } else {
-    avatar.src = globalVars.profile.picture;
-  }
-  */
 
   $("#mobile").unbind().click(function() { globalVars._this.redirectTo('/dashboard'); });
 

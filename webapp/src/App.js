@@ -344,18 +344,8 @@ function getUserInfo(updatePage) {
         localStorage.setItem("display_name", data.displayName);
         localStorage.setItem("stats", data.stats);
 
-        // Adds user info to mobile sidebar menu;
-        // IDEA: Have settings page on desktop show something similar 
-        // with the profile so they aren't missing out
-        getById("sidebarName").innerText = getUserName();
-        var stats = JSON.parse(data.stats), quip = "Explorer";
-        if (stats.sentBooks > stats.receivedBooks) {
-          quip = "Giver";
-        } else if (stats.createdBooks > stats.sentBooks + 1) {
-          quip = "Creator";
-        }
-
-        getById("sidebarQuip").innerText = quip;
+        // TODO: Find a way to add for desktop
+        sideMenuInfo();
         if (updatePage) displayUserData();
       } else {
         console.warn("There was no user info to retrieve. Creating data...");
@@ -366,6 +356,21 @@ function getUserInfo(updatePage) {
       console.error("Error retrieving user info:", XMLHttpRequest.responseText);
     }
   });
+}
+
+/**
+ * Adds user info to mobile sidebar menu.
+ */
+function sideMenuInfo() {
+  getById("sidebarName").innerText = getUserName();
+  var stats = JSON.parse(localStorage.getItem("stats")), quip = "Explorer";
+  if (stats.sentBooks > stats.receivedBooks) {
+    quip = "Giver";
+  } else if (stats.createdBooks > stats.sentBooks + 1) {
+    quip = "Creator";
+  }
+
+  getById("sidebarQuip").innerText = quip;
 }
 
 /**
