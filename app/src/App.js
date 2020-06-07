@@ -180,7 +180,7 @@ App.prototype.state = {
         navBar();
         darkModeSupport();
 
-        $('#backArrow').unbind().click(function() { _this.redirectTo('/dashboard') });
+        $('#backArrow').unbind().click(function() { globalVars._this.redirectTo('/dashboard') });
         redeemListeners();
       }
     },
@@ -956,13 +956,13 @@ function requestBook() {
   }
 
   var options = {
-    title: "Send a Coupon Book!",
-    text: `${messageStart}Go to https://couponbooked.com/webapp to send a Book now!`
+    subject: "Send a Coupon Book!",
+    message: `${messageStart}Go to https://couponbooked.com/webapp to send a Book now!`
   };
 
   // TODO: Work on adding a dedicated Snapchat share like Spotify does
   var onSuccess = function(result) {
-    console.warn("Shared to app:", result.app);
+    console.log("Shared to app:", result.app);
     window.ga.trackEvent('Book Sharing', 'Book Requested', 'Cordova Implementation');
   };
   var onError = function(msg) {
