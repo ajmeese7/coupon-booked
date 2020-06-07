@@ -183,6 +183,7 @@ function notifySender(senderId, coupon) {
   // TODO: Think if I want to stick with this method or move to the new one
   var message = `${helper.getUserName()} redeemed \"${coupon.name}\"`;
   var notificationObj = { app_id : env.ONESIGNAL_ID,
+                          safari_web_id: env.ONESIGNAL_SAFARI_ID,
                           contents: {en: message},
                           big_picture: coupon.image,
                           chrome_web_image: coupon.image,

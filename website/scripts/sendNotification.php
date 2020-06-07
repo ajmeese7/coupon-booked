@@ -16,6 +16,7 @@
 
     $fields = array(
       'app_id' => $ONESIGNAL_APP_ID,
+      'safari_web_id' => $ONESIGNAL_SAFARI_ID,
       'include_player_ids' => array($senderId),
       'priority' => 10,
       'ttl' => 2419200,
