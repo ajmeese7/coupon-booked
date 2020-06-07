@@ -179,15 +179,16 @@ function redeemCoupon(coupon) {
  * @param {element} coupon - the coupon element that is being redeemed
  */
 function notifySender(onesignalId, coupon) {
-  var title = `${getUserName()} redeemed \"${coupon.name}!\"`;
-  var message = `${coupon.description}`; // IDEA: Current count or something?
+  var message = `${getUserName()} redeemed \"${coupon.name}\"`;
 
+  // TODO: Start setting coupon.image to ticket image and updating book when it's
+  // broken, so the no picture issue doesn't happen on notifications; in footer.php
   if (onesignalId) {
       $.ajax({
         type: "POST",
         url: "https://www.couponbooked.com/scripts/sendNotification",
         // senderId was external, but now it's the native OneSignal user's UUID
-        data: { title: title, message: message, image: coupon.image, senderId: onesignalId },
+        data: { message: message, image: coupon.image, senderId: onesignalId },
         crossDomain: true,
         cache: false,
         success: function(data) {

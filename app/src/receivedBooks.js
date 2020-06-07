@@ -181,10 +181,8 @@ function redeemCoupon(coupon) {
  */
 function notifySender(senderId, coupon) {
   // TODO: Think if I want to stick with this method or move to the new one
-  var title = `${helper.getUserName()} redeemed \"${coupon.name}!\"`;
-  var message = `${coupon.description}`; // IDEA: Current count or something?
+  var message = `${helper.getUserName()} redeemed \"${coupon.name}\"`;
   var notificationObj = { app_id : env.ONESIGNAL_ID,
-                          //headings: {en: title},
                           contents: {en: message},
                           big_picture: coupon.image,
                           chrome_web_image: coupon.image,

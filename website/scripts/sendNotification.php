@@ -2,17 +2,13 @@
   include('env.php');
 
   // Make sure necessary variables exist
-  if (isset($_POST['title']) && isset($_POST['message']) && isset($_POST['image']) && isset($_POST['senderId'])) {
-    $title = $_POST["title"];
+  if (isset($_POST['message']) && isset($_POST['image']) && isset($_POST['senderId'])) {
     $message = $_POST["message"];
     $image = $_POST["image"];
     $senderId = $_POST["senderId"];
 
     $content = array(
       "en" => $message
-    );
-    $headings = array(
-      "en" => $title
     );
     $iosPicture = array(
       "id1" => $image
@@ -23,8 +19,6 @@
       'include_player_ids' => array($senderId),
       'priority' => 10,
       'ttl' => 2419200,
-      // This doesn't look good because the length is limited. Try something else?
-      //'headings' => $headings,
       'contents' => $content,
       //'data' => array("a" => "b"),
       'big_picture' => $image,
