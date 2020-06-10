@@ -46,5 +46,3 @@ function onesignalNotifications() {
 
     // IDEA: https://documentation.onesignal.com/docs/create-an-activity-feed
 }
-
-// safari_web_id: "myID",

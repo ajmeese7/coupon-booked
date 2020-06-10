@@ -104,6 +104,9 @@ function createShareCode() {
       console.warn("Share code created successfully:", shareCode);
       globalVars.book.shareCode = shareCode;
 
+      // Set fireworks to display on the share code page
+      localStorage.setItem("show_fireworks", "true");
+
       // This is the end goal, meaning payment was successful
       window.ga.trackView('Play Store Payment');
 

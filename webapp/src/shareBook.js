@@ -72,6 +72,9 @@ function createShareCode() {
       // This is the end goal, meaning payment was successful
       gtag('config', googleID, { 'page_title' : 'Stripe Payment', 'page_path' : '/stripePayment' });
 
+      // Set fireworks to display on the share code page
+      localStorage.setItem("show_fireworks", "true");
+
       // Update sent books stats
       var stats = JSON.parse(localStorage.getItem("stats"));
       stats.sentBooks++;

@@ -23,4 +23,5 @@
     </p>
 
     <button id="bigShareButton"><img id="shareIcon" class="ionicon" />SHARE</button>
+    <script src="js/fireworks.js"></script>
 </template>
