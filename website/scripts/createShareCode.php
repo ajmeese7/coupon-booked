@@ -28,22 +28,24 @@
         // NOTE: If data ever becomes corrupted with unnecessary slashes, replace
         // here: http://www.unit-conversion.info/texttools/replace-text/.
         // However, the new encoding parameter should prevent that.
-        if (!$receiver && !$shareCode) {
-          $bookData = json_decode($bookData);
-          $bookData->shareCode = $newShareCode;
-          $bookData = json_encode($bookData, JSON_UNESCAPED_SLASHES);
-          
-          // https://www.w3schools.com/php/php_mysql_prepared_statements.asp
-          $stmt = $conn->prepare("UPDATE couponBooks SET shareCode=?, bookData=? WHERE bookId=?");
-          $stmt->bind_param("sss", $newShareCode, $bookData, $bookId);
-          $stmt->execute();
-        } else if (!$receiver) {
-          // Book already has a share code set
-          echo "Share code exists";
-        } else {
-          // Book has alreay been sent and cannot be sent again;
-          // IDEA: clone feature for sending same book to multiple people
-          echo "Receiver exists";
+        while ($stmt->fetch()) {
+          if (!$receiver && !$shareCode) {
+            $bookData = json_decode($bookData);
+            $bookData->shareCode = $newShareCode;
+            $bookData = json_encode($bookData, JSON_UNESCAPED_SLASHES);
+            
+            // https://www.w3schools.com/php/php_mysql_prepared_statements.asp
+            $stmt = $conn->prepare("UPDATE couponBooks SET shareCode=?, bookData=? WHERE bookId=?");
+            $stmt->bind_param("sss", $newShareCode, $bookData, $bookId);
+            $stmt->execute();
+          } else if (!$receiver) {
+            // Book already has a share code set
+            echo "Share code exists";
+          } else {
+            // Book has alreay been sent and cannot be sent again;
+            // IDEA: clone feature for sending same book to multiple people
+            echo "Receiver exists";
+          }
         }
 
         // IDEA: must have requried ID (sender/receiver) to manipulate book?

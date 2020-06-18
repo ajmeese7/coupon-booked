@@ -39,8 +39,11 @@
                   // Make sure the OneSignal ID is retrieved; probably a shorter way out there
                   if ($stmt->num_rows > 0) {
                     while ($stmt->fetch()) {
-                        // Sends back OneSignal ID for notification purposes in Node
-                        echo $onesignalId;
+                        // Sends back OneSignal ID and Auth0 ID for notification purposes in Node
+                        $userInfo = new \stdClass();
+                        $userInfo->onesignalId = $onesignalId;
+                        $userInfo->sender = $sender;
+                        echo json_encode($userInfo, JSON_UNESCAPED_SLASHES);
 
                         $stmt = $conn->prepare("UPDATE couponBooks SET bookData=? WHERE bookId=?");
                         $stmt->bind_param("ss", $bookData, $bookId);

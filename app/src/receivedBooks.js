@@ -144,10 +144,13 @@ function redeemCoupon(coupon) {
         
         if (success == "None left") {
           noneLeft();
+        } else if (success) {
+          // Should be an object with onesignalId and sender properties
+          notifySender(JSON.parse(success), coupon);
         } else {
-          // TODO: Have a better way of checking for null string here than the shitty
-          // way in notifySender()
-          notifySender(success, coupon);
+          // TODO: Alert user that there's an error and log it? This should never run, outside of
+          // when I break stuff when testing...
+          console.error("No server OneSignal user ID set! Not attempting to send notification...");
         }
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -176,24 +179,60 @@ function redeemCoupon(coupon) {
 /**
  * Send OneSignal notification to the sender of the book letting
  * them know who has redeemed what coupon.
- * @param {string} senderId - the user sub of the book's sender
+ * @param {object} senderInfo - the user sub of the book's sender, both 
+ * OneSignal and their actual ID.
  * @param {element} coupon - the coupon element that is being redeemed
  */
-function notifySender(senderId, coupon) {
-  // TODO: Think if I want to stick with this method or move to the new one
-  var message = `${helper.getUserName()} redeemed \"${coupon.name}\"`;
-  var notificationObj = { app_id : env.ONESIGNAL_ID,
-                          safari_web_id: env.ONESIGNAL_SAFARI_ID,
-                          contents: {en: message},
-                          big_picture: coupon.image,
-                          chrome_web_image: coupon.image,
-                          adm_big_picture: coupon.image,
-                          ios_attachments: coupon.image,
-                          ttl: 2419200,
-                          priority: 10,
-                          include_player_ids: [senderId] };
-  
-  sendNotification(notificationObj, coupon);
+function notifySender(senderInfo, coupon) {
+  // TODO: Find a cleaner way to do this, because this is nasty
+  $.ajax({
+    type: "GET",
+    url: `https://www.couponbooked.com/scripts/senderHasIOS?senderId=${senderInfo.sender}`,
+    success: function(data) {
+      let message = `${helper.getUserName()} redeemed \"${coupon.name}\"`;
+      if (data == "Missing number") {
+        notificationError("Error from sender_ios", coupon);
+      } else if (data == "true") {
+        // Notifications probably not supported, so using text messaging
+        $.ajax({
+          type: "POST",
+          url: "https://www.couponbooked.com/scripts/sendTextMessage",
+          data: { senderId: senderInfo.sender, message: `Coupon Booked: ${message}` },
+          crossDomain: true,
+          cache: false,
+          success: function(data) {
+            if (data == "Missing number") {
+              notificationError("Error from sender_ios", coupon);
+            } else {
+              notificationSuccess(true, coupon);
+            }
+          },
+          error: function(XMLHttpRequest, textStatus, errorThrown) {
+            console.error("Error sending message:", XMLHttpRequest.responseText);
+            notificationError(null, coupon);
+          }
+        });
+      } else {
+        var notificationObj = { app_id : env.ONESIGNAL_ID,
+          safari_web_id: env.ONESIGNAL_SAFARI_ID,
+          contents: {en: message},
+          big_picture: coupon.image,
+          chrome_web_image: coupon.image,
+          adm_big_picture: coupon.image,
+          ios_attachments: coupon.image,
+          ttl: 2419200,
+          priority: 10,
+          include_player_ids: [senderInfo.onesignalId] };
+
+        sendNotification(notificationObj, coupon);
+      }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      // This should *hopefully* never have to run, so that's why
+      // the error handling is extremely half-assed
+      console.error("Error in senderHasIOS:", XMLHttpRequest.responseText);
+    }
+  });
 }
 
 /** Handles the sending of the notifySender notification. */
@@ -215,7 +254,7 @@ var sendNotification = function(data, coupon) {
       console.error("Notification post failed: ", data);
       notificationError(data, coupon);
     } else {
-      notificationSuccess(data, coupon);
+      notificationSuccess(false, coupon);
     }
   })
   .catch((error) => {
@@ -228,11 +267,11 @@ var sendNotification = function(data, coupon) {
 /**
  * Updates local display with lowered coupon count and lets them 
  * know the redemption was successful.
- * @param {object} successResponse - the response from the server
- * from a successful fetch.
+ * @param {boolean} isText - if false it's a OneSignal notification
+ * that was successfully send, and if true it was a text message.
  */
-function notificationSuccess(successResponse, coupon) {
-  window.ga.trackEvent('Notification', 'Notification Sent');
+function notificationSuccess(isText, coupon) {
+  window.ga.trackEvent('Notification', isText ? 'Text Sent' : 'Notification Sent');
   SimpleNotification.success({
     text: "Successfully redeemed coupon"
   }, globalVars.notificationOptions);
@@ -252,13 +291,19 @@ function notificationSuccess(successResponse, coupon) {
  * Lets user know that the notification failed to send and refunds 
  * them that count.
  * @param {object} failedResponse - the response from the server 
- * from a failed fetch.
+ * from a failed fetch, or a string in the case of a failed text.
  */
 function notificationError(failedResponse, coupon) {
+  console.error("Inside notificationError:", failedResponse);
   window.ga.trackEvent('Notification', 'Notification Not Sent', 'notificationError');
   refundCoupon(coupon.name);
 
-  if (failedResponse.errors[0] == "All included players are not subscribed") {
+  if (failedResponse == "Error from sender_ios") {
+    SimpleNotification.warning({
+      title: "Can't send notification!",
+      text: "Please let them know they have to add their phone number to their account."
+    }, globalVars.notificationOptions);
+  } else if (failedResponse.errors[0] == "All included players are not subscribed") {
     console.log("User no longer exists!");
     SimpleNotification.error({
       text: "User no longer exists!"

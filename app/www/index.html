@@ -469,6 +469,14 @@
             <li class="tab"><a id="sentButton" href="#sent" class="active">Sent</a></li>
             <li class="tab"><a id="receivedButton" href="#received">Received</a></li>
         </ul>
+
+        <div id="phoneForm" class="dialog-box" title="Enter phone number">
+            <p>
+                If we can't reach your platform with a normal push notification,
+                we'll just text you to alert you when coupons are redeemed!
+            </p>
+            <input type="text" id="phoneNumber" name="phoneNumber" placeholder="(123) 456-7890">
+        </div>
     
         <div id="gestureZone">
             <div id="sent" class="col">
@@ -503,9 +511,17 @@
     
             <b>Display Name</b>
             <label id="displayName">
+                <!-- IDEA: Cycle through a few names here, like Elon Musk, etc. -->
                 <input type="text" id="displayNameInput" name="displayName" placeholder="Robert Downey Jr.">
             </label>
             <button id="updateDisplayName">Update</button>
+            <br />
+
+            <b>Phone Number</b>
+            <label id="phoneNumber">
+                <input type="text" id="phoneNumberInput" name="phoneNumber" placeholder="(123) 456-7890">
+            </label>
+            <button id="updatePhoneNumber">Update</button>
             <br />
     
             <b>Stats</b>

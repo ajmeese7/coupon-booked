@@ -2,27 +2,27 @@
   include('createConnection.php');
 
   // Make sure necessary variables exist
-  if (isset($_POST['userId']) && isset($_POST['onesignalId']) && isset($_POST['iOS'])) {
+  if (isset($_POST['userId']) && isset($_POST['phone_num'])) {
     $userId = $_POST["userId"];
-    $onesignalId = $_POST["onesignalId"];
-    $iOS = $_POST["iOS"] ? 1 : 0; // TODO: Test the setting of this
+    $phone_num = $_POST["phone_num"];
 
-    // Will let the client know whether the user's OneSignal ID was updated
+    // Will let the client know whether the user's phone number was updated
     // or inserted; mostly for debugging purposes.
     $returnMessage;
-    $stmt = $conn->prepare("SELECT onesignalId FROM userData WHERE userId=?");
+    $stmt = $conn->prepare("SELECT phone_num FROM userData WHERE userId=?");
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $stmt->store_result();
 
     // Updates user info if it already exists and creates new info if it doesn't
     if ($stmt->num_rows > 0) {
-      $stmt = $conn->prepare("UPDATE userData SET onesignalId=?, iOS=? WHERE userId=?");
-      $stmt->bind_param("sis", $onesignalId, $iOS, $userId);
+      $stmt = $conn->prepare("UPDATE userData SET phone_num=? WHERE userId=?");
+      $stmt->bind_param("ss", $phone_num, $userId);
       $returnMessage = "updated";
     } else {
-      $stmt = $conn->prepare("INSERT INTO userData (userId, onesignalId, iOS) VALUES (?, ?, ?)");
-      $stmt->bind_param("ssi", $userId, $onesignalId, $iOS);
+      // This should NEVER be called, but better safe than dead
+      $stmt = $conn->prepare("INSERT INTO userData (userId, phone_num) VALUES (?, ?)");
+      $stmt->bind_param("ss", $userId, $phone_num);
       $returnMessage = "created";
     }
     

@@ -14,11 +14,13 @@
       $stmt->bind_result($templateData);
 
       if ($stmt->num_rows > 0) {
-        // Template by that name exists
-        $templateData = $_POST["templateData"];
-        $stmt = $conn->prepare("UPDATE templates SET templateData=? WHERE name=?");
-        $stmt->bind_param("ss", $templateData, $name);
-        $stmt->execute();
+        while ($stmt->fetch()) {
+          // Template by that name exists
+          $templateData = $_POST["templateData"];
+          $stmt = $conn->prepare("UPDATE templates SET templateData=? WHERE name=?");
+          $stmt->bind_param("ss", $templateData, $name);
+          $stmt->execute();
+        }
       } else {
         header('HTTP/1.1 400 Bad Request');
         exit("A template by that name does not exist.");

@@ -142,8 +142,13 @@ function redeemCoupon(coupon) {
         
         if (success == "None left") {
           noneLeft();
+        } else if (success) {
+          // Should be an object with onesignalId and sender properties
+          notifySender(JSON.parse(success), coupon);
         } else {
-          notifySender(success, coupon);
+          // TODO: Alert user that there's an error and log it? This should never run, outside of
+          // when I break stuff when testing...
+          console.error("No server OneSignal user ID set! Not attempting to send notification...");
         }
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -175,57 +180,87 @@ function redeemCoupon(coupon) {
 /**
  * Send OneSignal notification to the sender of the book letting
  * them know who has redeemed what coupon.
- * @param {string} onesignalId - the OneSignal ID of the book's sender
+ * @param {object} senderInfo - the user sub of the book's sender, both 
+ * OneSignal and their actual ID.
  * @param {element} coupon - the coupon element that is being redeemed
  */
-function notifySender(onesignalId, coupon) {
-  var message = `${getUserName()} redeemed \"${coupon.name}\"`;
-
-  // TODO: Start setting coupon.image to ticket image and updating book when it's
-  // broken, so the no picture issue doesn't happen on notifications; in footer.php
-  if (onesignalId) {
-      $.ajax({
-        type: "POST",
-        url: "https://www.couponbooked.com/scripts/sendNotification",
-        // senderId was external, but now it's the native OneSignal user's UUID
-        data: { message: message, image: coupon.image, senderId: onesignalId },
-        crossDomain: true,
-        cache: false,
-        success: function(data) {
-          if (data.includes("errors")) {
-            notificationError(data, coupon);
-          } else {
-            notificationSuccess(data, coupon);
+function notifySender(senderInfo, coupon) {
+   // TODO: Find a cleaner way to do this, because this is nasty
+   $.ajax({
+    type: "GET",
+    url: `https://www.couponbooked.com/scripts/senderHasIOS?senderId=${senderInfo.sender}`,
+    success: function(data) {
+      let message = `${getUserName()} redeemed \"${coupon.name}\"`;
+      if (data == "Missing number") {
+        notificationError("Error from sender_ios", coupon);
+      } else if (data == "true") {
+        // Notifications probably not supported, so using text messaging
+        $.ajax({
+          type: "POST",
+          url: "https://www.couponbooked.com/scripts/sendTextMessage",
+          data: { senderId: senderInfo.sender, message: `Coupon Booked: ${message}` },
+          crossDomain: true,
+          cache: false,
+          success: function(data) {
+            if (data == "Missing number") {
+              notificationError("Error from sender_ios", coupon);
+            } else {
+              notificationSuccess(true, coupon);
+            }
+          },
+          error: function(XMLHttpRequest, textStatus, errorThrown) {
+            console.error("Error sending message:", XMLHttpRequest.responseText);
+            notificationError(null, coupon);
           }
-        },
-        error: function(XMLHttpRequest, textStatus, errorThrown) {
-          console.error("Error sending notification:", XMLHttpRequest.responseText);
-          gtag('event', 'Notification Not Sent', {
-            'event_category' : 'Notification',
-            'event_label' : 'notifySender',
-            'non_interaction': true
-          });
-        }
-      });
-  } else {
-    // TODO: Alert user that there's an error and log it? This should never run, outside of
-    // when I break stuff when testing...
-    console.error("No server OneSignal user ID set! Not attempting to send notification...");
-  }
+        });
+      } else {
+        // TODO: Start setting coupon.image to ticket image and updating book when it's
+        // broken, so the no picture issue doesn't happen on notifications; in footer.php
+        $.ajax({
+          type: "POST",
+          url: "https://www.couponbooked.com/scripts/sendNotification",
+          // senderId was external, but now it's the native OneSignal user's UUID
+          data: { message: message, image: coupon.image, senderId: senderInfo.onesignalId },
+          crossDomain: true,
+          cache: false,
+          success: function(data) {
+            if (data.includes("errors")) {
+              notificationError(data, coupon);
+            } else {
+              notificationSuccess(false, coupon);
+            }
+          },
+          error: function(XMLHttpRequest, textStatus, errorThrown) {
+            console.error("Error sending notification:", XMLHttpRequest.responseText);
+            gtag('event', 'Notification Not Sent', {
+              'event_category' : 'Notification',
+              'event_label' : 'notifySender',
+              'non_interaction': true
+            });
+          }
+        });
+      }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      // This should *hopefully* never have to run, so that's why
+      // the error handling is extremely half-assed
+      console.error("Error in senderHasIOS:", XMLHttpRequest.responseText);
+    }
+  });
 }
 
 /**
  * Updates local display with lowered coupon count and lets them 
  * know the redemption was successful.
- * @param {object} successResponse - the response from the server
- * from a successful fetch.
+ * @param {boolean} isText - if false it's a OneSignal notification
+ * that was successfully send, and if true it was a text message.
  */
-function notificationSuccess(successResponse, coupon) {
+function notificationSuccess(isText, coupon) {
   SimpleNotification.success({
     text: "Successfully redeemed coupon"
   }, notificationOptions);
 
-  gtag('event', 'Notification Sent', {
+  gtag('event', isText ? 'Text Sent' : 'Notification Sent', {
     'event_category' : 'Notification',
     'non_interaction': true
   });
@@ -245,10 +280,10 @@ function notificationSuccess(successResponse, coupon) {
  * Lets user know that the notification failed to send and refunds 
  * them that count.
  * @param {object} failedResponse - the response from the server 
- * from a failed fetch.
+ * from a failed fetch, or a string in the case of a failed text.
  */
 function notificationError(failedResponse, coupon) {
-  console.error("Notification post failed:", data);
+  console.error("Notification post failed:", failedResponse);
   refundCoupon(coupon.name);
 
   gtag('event', 'Notification Not Sent', {
@@ -257,7 +292,13 @@ function notificationError(failedResponse, coupon) {
     'non_interaction': true
   });
 
-  if (failedResponse.includes("All included players are not subscribed")) {
+  if (failedResponse == "Error from sender_ios") {
+    // TODO: Get this centered on the widescreen desktop!
+    SimpleNotification.warning({
+      title: "Can't send notification!",
+      text: "Please let them know they have to add their phone number to their account."
+    }, notificationOptions);
+  } else if (failedResponse.errors[0] == "All included players are not subscribed") {
     console.log("User no longer exists!");
     SimpleNotification.error({
       text: "User no longer exists!"

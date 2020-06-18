@@ -9,17 +9,18 @@
       exit("A null userId cannot be used to retrieve data.");
     }
 
-    $stmt = $conn->prepare("SELECT displayName, stats FROM userData WHERE userId=?");
+    $stmt = $conn->prepare("SELECT phone_num, displayName, stats FROM userData WHERE userId=?");
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $stmt->store_result();
-    $stmt->bind_result($displayName, $stats);
+    $stmt->bind_result($phone_num, $displayName, $stats);
 
     if ($stmt->num_rows > 0) {
       while ($stmt->fetch()) {
         if (!is_null($stats)) {
           // Using an object so it's easy to add more properties in the future
           $userData = new \stdClass();
+          $userData->phoneNumber = $phone_num;
           $userData->displayName = $displayName;
           $userData->stats = $stats;
           echo json_encode($userData, JSON_UNESCAPED_SLASHES);

@@ -129,7 +129,7 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
 
     function confirmFunction() {
       if (homeButtonClicked) {
-        globalVars._this.redirectTo('/home');
+        globalVars._this.redirectTo("/dashboard");
       } else {
         editPage ? fadeToBookContent() : goBack();
       }

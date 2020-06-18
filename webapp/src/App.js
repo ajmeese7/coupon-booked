@@ -259,6 +259,10 @@ App.prototype.state = {
         // Called again to refresh data
         getUserInfo(true);
 
+        formatPhoneNumber(true);
+        $("#updatePhoneNumber").unbind().click(function() {
+          validatePhoneNumber(true);
+        });
         displayNameListeners();
         darkModeSupport(true);
         
@@ -342,6 +346,7 @@ function getUserInfo(updatePage) {
         // Store all the data in localStorage for later use
         data = JSON.parse(data);
         localStorage.setItem("display_name", data.displayName);
+        localStorage.setItem("phone_num", data.phoneNumber);
         localStorage.setItem("stats", data.stats);
 
         // TODO: Find a way to add for desktop
@@ -379,8 +384,11 @@ function sideMenuInfo() {
  * and saves it for later modification.
  */
 function createUserInfo() {
+  // NOTE: This is the code that will only run on a user's first login, so I
+  //  call a prompt for their phone number here!
   var userId = localStorage.getItem('user_id');
   if (!userId) return console.error("No user ID! Can't create user info...");
+  phoneNumberDialog();
 
   $.ajax({
     type: "POST",
@@ -399,14 +407,148 @@ function createUserInfo() {
 }
 
 /**
+ * Popup prompting for the user's phone number.
+ */
+function phoneNumberDialog() {
+  formatPhoneNumber();
+  $( "#phoneForm" ).dialog({
+    draggable: false,
+    resizable: false,
+    height: "auto",
+    width: 400,
+    modal: true,
+    buttons: {
+      Cancel: function() {
+        $( this ).dialog( "close" );
+      },
+      "Submit Number": function() {
+        validatePhoneNumber();
+      }
+    }
+  });
+}
+
+/**
+ * Makes sure the phone number is the proper length before
+ * calling the function that sends it to the server.
+ * @param {boolean} settingsPage - used to determine which input
+ * element the listeners should be applied to.
+ */
+function validatePhoneNumber(settingsPage) {
+  let phoneNum = getById(settingsPage ? "phoneNumberInput" : "phoneNumber").value.replace( /\D+/g, '');
+  if (phoneNum.length == 10) {
+    // Proper length phone number submitted
+    addPhoneNumber(phoneNum, settingsPage);
+  } else {
+    SimpleNotification.warning({
+      text: "Please enter all 10 digits!"
+    }, notificationOptions);
+  }
+}
+
+/**
+ * Modified slightly from https://jsfiddle.net/rafj3md0;
+ * intended to make the phone number look properly formatted
+ * as the user types it, with some input validation.
+ * @param {boolean} settingsPage - used to determine which input
+ * element the listeners should be applied to.
+ */
+function formatPhoneNumber(settingsPage) {
+  const isNumericInput = (event) => {
+    const key = event.keyCode;
+    return ((key >= 48 && key <= 57) || // Allow number line
+      (key >= 96 && key <= 105) // Allow number pad
+    );
+  };
+
+  const isModifierKey = (event) => {
+    const key = event.keyCode;
+    return (event.shiftKey === true || key === 35 || key === 36) || // Allow Shift, Home, End
+      (key === 8 || key === 9 || key === 13 || key === 46) || // Allow Backspace, Tab, Enter, Delete
+      (key > 36 && key < 41) || // Allow left, up, right, down
+      (
+        // Allow Ctrl/Command + A,C,V,X,Z
+        (event.ctrlKey === true || event.metaKey === true) &&
+        (key === 65 || key === 67 || key === 86 || key === 88 || key === 90)
+      )
+  };
+
+  const enforceFormat = (event) => {
+    // Input must be of a valid number format or a modifier key, and not longer than ten digits
+    if (!isNumericInput(event) && !isModifierKey(event)) {
+      event.preventDefault();
+    }
+  };
+
+  const formatToPhone = (event) => {
+    if (isModifierKey(event)) { return; }
+    const target = event.target;
+    const input = event.target.value.replace(/\D/g,'').substring(0,10); // First ten digits of input only
+    const zip = input.substring(0,3);
+    const middle = input.substring(3,6);
+    const last = input.substring(6,10);
+  
+    if (input.length > 6) { target.value = `(${zip}) ${middle}-${last}` }
+    else if (input.length > 3) { target.value = `(${zip}) ${middle}` }
+    else if (input.length > 0) { target.value = `(${zip}` }
+  };
+
+  const inputElement = getById(settingsPage ? "phoneNumberInput" : "phoneNumber");
+  inputElement.addEventListener('keydown', enforceFormat);
+  inputElement.addEventListener('keyup', formatToPhone);  
+}
+
+/**
+ * Uploads the user's phone number to the server.
+ * @param {string} phoneNum 
+ * @param {boolean} settingsPage - used to determine what the
+ * successful notification should say.
+ */
+function addPhoneNumber(phoneNum, settingsPage) {
+  var userId = localStorage.getItem('user_id');
+  if (!userId) return console.error("No user ID! Can't add phone number...");
+
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/addUserPhoneNumber",
+    data: { userId: userId, phone_num: phoneNum },
+    crossDomain: true,
+    cache: false,
+    success: function(data) {
+      console.warn("Phone number added to user account!", data);
+      SimpleNotification.success({
+        text: `Phone number ${settingsPage ? "updated!" : "received!"}`
+      }, notificationOptions);
+
+      $( "#phoneForm" ).dialog( "close" );
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error adding phone number:", XMLHttpRequest.responseText);
+      SimpleNotification.error({
+        title: "Error adding phone number",
+        text: "Please try again later."
+      }, notificationOptions);
+    }
+  });
+}
+
+/**
  * Takes the user's stats and adds them to the settings page.
  */
 function displayUserData() {
   // Put current display name in settings page input
-  var displayName = localStorage.getItem("display_name");
+  var displayName = localStorage.getItem("display_name"),
+      phoneNumber = localStorage.getItem("phone_num");
   if (displayNameExists()) {
     // Stringified null would be put in the input box otherwise
     $("#displayNameInput").val(displayName);
+  }
+  if (phoneNumber) {
+    // Format the number before displaying in input
+    let zip = phoneNumber.substring(0,3);
+    let middle = phoneNumber.substring(3,6);
+    let last = phoneNumber.substring(6,10);
+    $("#phoneNumberInput").val(`(${zip}) ${middle}-${last}`);
   }
 
   // Update all the individual stats elements
@@ -630,7 +772,7 @@ function pullUserRelatedBooks() {
         processPulledData(data);
       },
       error: function(XMLHttpRequest, textStatus, errorThrown) {
-        console.error("Error in pullUserRelatedBooks: ", XMLHttpRequest.responseText);
+        console.error("Error in pullUserRelatedBooks:", XMLHttpRequest.responseText);
 
         SimpleNotification.error({
           title: 'Error reaching server',

@@ -626,11 +626,11 @@ input:checked + .slider:before {
     height: 35px;
 }
 
-#displayNameInput {
+#displayNameInput, #phoneNumberInput {
     /* TODO: Revamp the look of this whole section */
     margin: 7.5px 0 2.5px 0;
 }
-#updateDisplayName {
+#updateDisplayName, #updatePhoneNumber {
     margin-bottom: 17.5px;
 }
 
