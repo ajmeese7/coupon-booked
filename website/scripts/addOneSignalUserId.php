@@ -5,7 +5,7 @@
   if (isset($_POST['userId']) && isset($_POST['onesignalId']) && isset($_POST['iOS'])) {
     $userId = $_POST["userId"];
     $onesignalId = $_POST["onesignalId"];
-    $iOS = $_POST["iOS"] ? 1 : 0; // TODO: Test the setting of this
+    $iOS = $_POST["iOS"] == "true" ? 1 : 0;
 
     // Will let the client know whether the user's OneSignal ID was updated
     // or inserted; mostly for debugging purposes.
@@ -28,7 +28,7 @@
     
     $stmt->execute();
     $stmt->close();
-    return $returnMessage;
+    echo $returnMessage;
   } else {
     header('HTTP/1.1 400 Bad Request');
     exit("The necessary POST variables were not included.");

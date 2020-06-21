@@ -304,10 +304,11 @@ function createConnection() {
 function getUserInfo(updatePage) {
   var userId = localStorage.getItem('user_id');
   if (!userId) return console.error("No user ID! Can't get user info...");
+  let iOS = device != "Android" && device != "browser" && device != "Mac OS X";
 
   $.ajax({
     type: "GET",
-    url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}`,
+    url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}&iOS=${iOS}`,
     datatype: "html",
     success: function(data) {
       if (data) {
@@ -371,7 +372,7 @@ function createUserInfo() {
     crossDomain: true,
     cache: false,
     success: function(success) {
-      console.warn("Successfully created user info...");
+      console.warn("Successfully created user info...", success);
       addOneSignalId(userId);
       getUserInfo();
     },

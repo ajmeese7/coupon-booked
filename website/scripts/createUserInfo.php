@@ -19,18 +19,25 @@
 
     // Check if the OneSignal ID has already been created;
     // should be yes on webapp and no on app
-    $stmt = $conn->prepare("SELECT userId FROM userData WHERE userId=?");
+    $stmt = $conn->prepare("SELECT onesignalId FROM userData WHERE userId=?");
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $stmt->store_result();
+    $stmt->bind_result($onesignalId);
 
     // Display name defaults to null
     if ($stmt->num_rows > 0) {
-      $stmt = $conn->prepare("UPDATE userData SET stats=? WHERE userId=?");
-      $stmt->bind_param("ss", $stats, $userId);
+      $iOS = !is_null($onesignalId) ? 1 : 0;
+      $stmt = $conn->prepare("UPDATE userData SET iOS=?, stats=? WHERE userId=?");
+      $stmt->bind_param("iss", $iOS, $stats, $userId);
+      echo "updated!";
     } else {
-      $stmt = $conn->prepare("INSERT INTO userData (userId, stats) VALUES (?, ?)");
-      $stmt->bind_param("ss", $userId, $stats);
+      // Defaults to iOS on devices that don't support OneSignal (iOS devices),
+      // and on other devices the OneSignal initialization updates the value to 0
+      $iOS = 1;
+      $stmt = $conn->prepare("INSERT INTO userData (userId, iOS, stats) VALUES (?, ?, ?)");
+      $stmt->bind_param("sis", $userId, $iOS, $stats);
+      echo "created!";
     }
 
     $stmt->execute();

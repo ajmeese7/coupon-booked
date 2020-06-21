@@ -1,6 +1,3 @@
-// TODO: Get rid of env.js and replace it with something actually secure;
-// https://stackoverflow.com/a/20476846/6456163
-
 // When document is ready, initialize the application
 $(function() {
     // Called to prepare for application start
@@ -15,11 +12,6 @@ $(function() {
  * Initialize OneSignal connection once user is authenticated.
  */
 function onesignalNotifications() {
-    var userId = localStorage.getItem('user_id');
-    let iOS = /iPad|iPhone|iPod/.test(navigator.platform)
-        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    // TODO: Double check on a real device that this actually works
-
     // TODO: Is there a way to handle if the user refuses?
         // IDEA: Could email or some shit?
     OneSignal.push(function() {
@@ -28,7 +20,12 @@ function onesignalNotifications() {
 
         // Adds the OneSignal ID to the database
         OneSignal.getUserId(function(onesignalId) {
+            // TODO: Can I check if the OneSignal ID changes when logged in for same account
+            // on desktop vs mobile, and if it does update the server with the new one?
+            var userId = localStorage.getItem('user_id');
+            let iOS = !!navigator.platform.match(/iPhone|iPod|iPad/);
             localStorage.setItem('onesignal_id', onesignalId);
+
             $.ajax({
                 type: "POST",
                 url: "https://www.couponbooked.com/scripts/addOneSignalUserId",

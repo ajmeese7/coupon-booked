@@ -332,10 +332,11 @@ function createConnection() {
 function getUserInfo(updatePage) {
   var userId = localStorage.getItem('user_id');
   if (!userId) return console.error("No user ID! Can't get user info...");
+  let iOS = !!navigator.platform.match(/iPhone|iPod|iPad/);
 
   $.ajax({
     type: "GET",
-    url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}`,
+    url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}&iOS=${iOS}`,
     datatype: "html",
     success: function(data) {
       // IDEA: Set mobile menu to creator, giver, etc. Have settings page on desktop show
@@ -397,7 +398,7 @@ function createUserInfo() {
     crossDomain: true,
     cache: false,
     success: function(success) {
-      console.warn("Successfully created user info...");
+      console.warn("Successfully created user info...", success);
       getUserInfo();
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
