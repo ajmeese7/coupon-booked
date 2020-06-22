@@ -32,6 +32,12 @@
     font-size: 32px;
 }
 
+.menu-btn {
+    font-size: 30px;
+    cursor: pointer;
+    float: left;
+}
+
 #mobile {
     display: none;
 }
