@@ -4,7 +4,7 @@
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0b98de">
-    <meta name="description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back.">
+    <meta name="description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back. We offer the most customizable gift on the market.">
     <meta name="keywords" content="coupon, booked, gifts">
     <meta name="author" content="Aaron Meese">
 
@@ -12,12 +12,13 @@
     <meta property="og:site_name" content="Coupon Booked">
     <meta property="og:title" content="Coupon Booked - Webapp">
     <meta property="og:type" content="website" />
-    <meta property="og:description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back.">
-    <meta property="og:image" content="https://couponbooked.com/images/socialBanner_min.png">
+    <meta property="og:description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back. We offer the most customizable gift on the market.">
+    <meta property="og:image" content="https://couponbooked.com/images/socialBanner.png">
     <meta property="og:url" content="https://couponbooked.com">
     <meta property="twitter:title" content="Coupon Booked - Webapp">
-    <meta property="twitter:description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back.">
-    <meta name="twitter:image" content="https://couponbooked.com/images/socialBanner_min.png">
+    <meta property="twitter:description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back. We offer the most customizable gift on the market.">
+    <!-- TODO: Test if Twitter actually uses big images or just the small one, and change accordingly -->
+    <meta name="twitter:image" content="https://couponbooked.com/images/socialBanner.png">
     <meta name="twitter:image:alt" content="Coupon Booked banner">
     <meta name="twitter:card" content="summary">
 

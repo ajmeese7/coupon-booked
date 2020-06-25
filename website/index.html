@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back.">
+    <meta name="description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back. We offer the most customizable gift on the market.">
     <meta name="keywords" content="coupon, booked, gifts">
     <meta name="author" content="Aaron Meese">
 
@@ -11,12 +11,13 @@
     <meta property="og:site_name" content="Coupon Booked">
     <meta property="og:title" content="Coupon Booked">
     <meta property="og:type" content="website" />
-    <meta property="og:description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back.">
-    <meta property="og:image" content="https://couponbooked.com/images/socialBanner_min.png">
+    <meta property="og:description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back. We offer the most customizable gift on the market.">
+    <meta property="og:image" content="https://couponbooked.com/images/socialBanner.png">
     <meta property="og:url" content="https://couponbooked.com">
     <meta property="twitter:title" content="Coupon Booked">
-    <meta property="twitter:description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back.">
-    <meta name="twitter:image" content="https://couponbooked.com/images/socialBanner_min.png">
+    <meta property="twitter:description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back. We offer the most customizable gift on the market.">
+    <!-- TODO: Test if Twitter actually uses big images or just the small one, and change accordingly -->
+    <meta name="twitter:image" content="https://couponbooked.com/images/socialBanner.png">
     <meta name="twitter:image:alt" content="Coupon Booked banner">
     <meta name="twitter:card" content="summary">
 
@@ -25,8 +26,8 @@
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
     <link rel="stylesheet" type="text/css" href="css/scroll-down.css" />
-    <link rel="stylesheet" href="css/glide.core.min.css">
-    <link rel="stylesheet" href="css/glide.theme.min.css">
+    <link rel="stylesheet" type="text/css" href="css/glide.core.min.css">
+    <link rel="stylesheet" type="text/css" href="css/glide.theme.min.css">
 
     <!-- I'm sick of having to delete my cache every time I change something. Hopefully I'll
         remember to remove this once pushed to production. -->
@@ -41,10 +42,11 @@
     <link rel="manifest" href="images/site.webmanifest">
 
     <script src="javascript/jquery-1.8.0.min.js"></script>
+    <script src="javascript/webpDetection.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide"></script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-167229290-1"></script>
+    <script src="https://www.googletagmanager.com/gtag/js?id=UA-167229290-1"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
@@ -105,7 +107,11 @@
         <section id="about">
             <div id="top">
                 <div id="aaron">
-                    <img src="../images/graduation_min.JPG" alt="Aaron Meese in a cap and gown"/>
+                    <picture>
+                        <source srcset="../images/aaron.webp" type="image/webp">
+                        <source srcset="../images/aaron.jpg" type="image/jpeg"> 
+                        <img src="../images/aaron.jpg" alt="Aaron Meese in a cap and gown">
+                    </picture>
                     <p class="name">Aaron Meese, developer</p>
                 </div>
                 <div class="aboutText">
@@ -128,7 +134,11 @@
 
             <div id="bottom">
                 <div id="madison">
-                    <img src="../images/madison_cropped_min.PNG" alt="madison Rogers"/>
+                    <picture>
+                        <source srcset="../images/madison.webp" type="image/webp">
+                        <source srcset="../images/madison.jpg" type="image/jpeg"> 
+                        <img src="../images/madison.jpg" alt="Madison Rogers">
+                    </picture>
                     <p class="name">Madison Rogers, artist</p>
                 </div>
                 <div class="aboutText">
@@ -162,11 +172,11 @@
                                 so I don't have to duplicate them so many times on the page -->
                             <!-- TODO: Get a greyed out star to sprinkle in a few four stars -->
                             <div id="rating">
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
                             </div>
                         </div>
                         <div class="glide__slide">
@@ -174,11 +184,11 @@
                             <p>-Arturo Gallardo</p>
 
                             <div id="rating">
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
                             </div>
                         </div>
                         <div class="glide__slide">
@@ -186,11 +196,11 @@
                             <p>-Ethan Spencer</p>
 
                             <div id="rating">
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
                             </div>
                         </div>
                         <div class="glide__slide">
@@ -198,11 +208,11 @@
                             <p>-Susan</p>
 
                             <div id="rating">
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
                             </div>
                         </div>
                         <div class="glide__slide">
@@ -210,11 +220,11 @@
                             <p>-Jonathan Long</p>
 
                             <div id="rating">
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
-                                <img src="images/star_new_min.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
+                                <img src="images/star.png" alt="star" />
                             </div>
                         </div>
                     </div>

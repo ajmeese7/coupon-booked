@@ -26,6 +26,7 @@ app/www/index.js
 app/www/index.js.map
 website/scripts/env.php
 webapp/js/bundle.js
+Composer/
 
 # Building for release
 app/app-release-unsigned.apk

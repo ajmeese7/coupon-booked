@@ -1,0 +1,6 @@
+User-agent: *
+Allow: index.html
+Allow: /webapp/index.php
+
+Disallow: /webapp/success.html
+Disallow: /webapp/comingSoon.html

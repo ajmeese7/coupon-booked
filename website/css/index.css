@@ -24,7 +24,10 @@ a {
 
 @media screen and (min-width: 1550px) {
     #create {
-        background-image: url("../images/notebook_medium_min.jpg") !important;
+        background-image: url("../images/notebook_medium.jpg") !important;
+    }
+    .webp #create {
+        background-image: url("../images/notebook_medium.webp") !important;
     }
     #title {
         padding: 70px 0px 0px 70px !important;
@@ -50,8 +53,11 @@ a {
     }
 }
 @media screen and (max-width: 800px) {
-    #create {
-        background-image: url("../images/mobile_landing_soft_min.png") !important;
+    .no-webp #create {
+        background-image: url("../images/mobile_landing.png") !important;
+    }
+    .webp #create {
+        background-image: url("../images/mobile_landing.webp") !important;
     }
 
     #title {
@@ -111,12 +117,17 @@ a {
  ******************************/
 
 #create {
-    background-image: url("../images/notebook_min.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
     box-shadow: 0px 3px 3px #bdc9cc;
     min-height: calc(100vh - var(--nav-height));
+}
+.no-webp #create {
+    background-image: url("../images/notebook.png");
+}
+.webp #create {
+    background-image: url("../images/notebook.webp");
 }
 #title {
     position: relative;
@@ -218,6 +229,7 @@ a {
 
 @font-face {
     font-family: Bariol-Regular;
+    font-display: swap;
     src: url(../fonts/Bariol_Regular.otf);
 }
 #quoteContainer {

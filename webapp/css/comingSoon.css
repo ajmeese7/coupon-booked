@@ -6,7 +6,7 @@ body, html {
 }
 
 .bgimg {
-    background-image: url("../../images/notebook_min.png");
+    background-image: url("../../images/notebook.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -16,9 +16,15 @@ body, html {
     font-family: "Courier New", Courier, monospace;
     font-size: 25px;
 }
+.webp .bgimg {
+    background-image: url("../../images/notebook.webp") !important;
+}
 @media screen and (min-width: 1550px) {
-    .bgimg {
-        background-image: url("../../images/notebook_medium_min.jpg") !important;
+    .no-webp .bgimg {
+        background-image: url("../../images/notebook_medium.jpg") !important;
+    }
+    .webp .bgimg {
+        background-image: url("../../images/notebook_medium.webp") !important;
     }
 }
 
@@ -66,6 +72,9 @@ hr {
 
     .bgimg {
         font-size: 40px;
-        background-image: url("../../images/mobile_min.png") !important;
+        background-image: url("../../images/mobile.png") !important;
+    }
+    .webp .bgimg {
+        background-image: url("../../images/mobile.webp") !important;
     }
 }

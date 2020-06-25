@@ -2,7 +2,7 @@
 Options +MultiViews
 RewriteEngine On
 
-#Alternate default index page
+# Alternate default index page
 #DirectoryIndex comingSoon.html index.html
 
 RewriteCond %{THE_REQUEST} /([^.]+)\.php [NC]
@@ -19,3 +19,21 @@ RewriteRule ^ %{REQUEST_URI}.html [NC,L]
 SetEnvIf Origin "http(s)?://(.+\.)?couponbooked\.com(:\d{1,5})?$" CORS=$0
 Header set Access-Control-Allow-Origin "%{CORS}e" env=CORS
 Header merge  Vary "Origin"
+
+# Set images/fonts to remain in cache for a year
+<filesMatch "\.(ico|jpg|jpeg|png|webp|gif|otf)$">
+    Header set Cache-Control "max-age=31536000, public"
+</filesMatch>
+
+# Let minimized files remain in cache for two weeks
+<filesMatch "(\.min\.js|\.min\.css)$">
+    # Can't do these two because they aren't on our server: glide|analytics\.js
+    Header set Cache-Control "max-age=1209600, public"
+</filesMatch>
+
+# Keep JavaScript and CSS in cache for a week, because I can manually clear the 
+# server cache if I need to push updates to users
+<filesMatch "\.(js|css)$">
+    # TODO: Figure out why this isn't working and fix it
+    Header set Cache-Control "max-age=‭604800‬, public"
+</filesMatch>
