@@ -623,6 +623,7 @@ function updateDisplayName(newName) {
     cache: false,
     success: function(success) {
       console.warn("Successfully updated display name...");
+      localStorage.setItem("display_name", newName);
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       // TODO: Need to think of an elegant way to show user that it failed,
