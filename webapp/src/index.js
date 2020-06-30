@@ -3,6 +3,16 @@ $(function() {
     // Called to prepare for application start
     onesignalNotifications();
 
+    // Disable back button for page navigation; https://stackoverflow.com/a/25806609/6456163
+    var rx = /INPUT|SELECT|TEXTAREA/i;
+    $(document).bind("keydown keypress", function(e) {
+        if (e.which == 8) { // 8 == backspace
+            if (!rx.test(e.target.tagName) || e.target.disabled || e.target.readOnly) {
+                e.preventDefault();
+            }
+        }
+    });
+
     // Actually starts the app up
     var app = new App();
     app.run('#app');
@@ -22,23 +32,7 @@ function onesignalNotifications() {
         OneSignal.getUserId(function(onesignalId) {
             // TODO: Can I check if the OneSignal ID changes when logged in for same account
             // on desktop vs mobile, and if it does update the server with the new one?
-            var userId = localStorage.getItem('user_id');
-            let iOS = !!navigator.platform.match(/iPhone|iPod|iPad/);
             localStorage.setItem('onesignal_id', onesignalId);
-
-            $.ajax({
-                type: "POST",
-                url: "https://www.couponbooked.com/scripts/addOneSignalUserId",
-                data: { userId: userId, onesignalId: onesignalId, iOS: iOS },
-                crossDomain: true,
-                cache: false,
-                success: function(success) {
-                    console.warn("Successfully set user's OneSignal ID...", success);
-                },
-                error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    console.error("Error setting OneSignal ID:", XMLHttpRequest.responseText);
-                }
-            });
         });
     });
 

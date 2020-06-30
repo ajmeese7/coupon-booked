@@ -15,15 +15,11 @@
     $stmt->execute();
     $stmt->store_result();
 
-    // Updates user info if it already exists and creates new info if it doesn't
+    // Updates user info if it already exists, which it should with the new implementation
     if ($stmt->num_rows > 0) {
       $stmt = $conn->prepare("UPDATE userData SET onesignalId=?, iOS=? WHERE userId=?");
       $stmt->bind_param("sis", $onesignalId, $iOS, $userId);
       $returnMessage = "updated";
-    } else {
-      $stmt = $conn->prepare("INSERT INTO userData (userId, onesignalId, iOS) VALUES (?, ?, ?)");
-      $stmt->bind_param("ssi", $userId, $onesignalId, $iOS);
-      $returnMessage = "created";
     }
     
     $stmt->execute();

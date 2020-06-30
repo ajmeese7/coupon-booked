@@ -343,6 +343,7 @@ function getUserInfo(updatePage) {
       // something similar with the profile so they aren't missing out
       if (data) {
         console.warn("Successfully retrieved user info.");
+        addOneSignalUserId();
 
         // Store all the data in localStorage for later use
         data = JSON.parse(data);
@@ -361,6 +362,30 @@ function getUserInfo(updatePage) {
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error retrieving user info:", XMLHttpRequest.responseText);
     }
+  });
+}
+
+/**
+ * Called after we have confirmed that the user's data already exists,
+ * so we only have to worry about updating instead of insertion.
+ */
+function addOneSignalUserId() {
+  //console.warn("Setting user's OneSignal ID...");
+  let userId = localStorage.getItem('user_id');
+  let onesignalId = localStorage.getItem('onesignal_id');
+  let iOS = !!navigator.platform.match(/iPhone|iPod|iPad/);
+  $.ajax({
+      type: "POST",
+      url: "https://www.couponbooked.com/scripts/addOneSignalUserId",
+      data: { userId: userId, onesignalId: onesignalId, iOS: iOS },
+      crossDomain: true,
+      cache: false,
+      success: function(success) {
+          console.warn("Successfully set user's OneSignal ID...", success);
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+          console.error("Error setting OneSignal ID:", XMLHttpRequest.responseText);
+      }
   });
 }
 

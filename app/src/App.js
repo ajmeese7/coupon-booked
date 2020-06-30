@@ -325,6 +325,7 @@ function getUserInfo(updatePage) {
         localStorage.setItem("phone_num", data.phoneNumber);
         localStorage.setItem("stats", data.stats);
 
+        addOneSignalId(userId);
         sideMenuInfo();
         if (updatePage) displayUserData();
       } else {
@@ -373,7 +374,6 @@ function createUserInfo() {
     cache: false,
     success: function(success) {
       console.warn("Successfully created user info...", success);
-      addOneSignalId(userId);
       getUserInfo();
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -544,8 +544,8 @@ function displayUserData() {
  */
 function addOneSignalId(userId) {
   // Not 100% accurate, but should detect when OneSignal notifications aren't supported
-  let device = device.platform;
-  let iOS = device != "Android" && device != "browser" && device != "Mac OS X";
+  let OS = device.platform;
+  let iOS = OS != "Android" && OS != "browser" && OS != "Mac OS X";
 
   window["plugins"].OneSignal.getIds(function (state) {
     localStorage.setItem('onesignal_id', state.userId);
@@ -1348,11 +1348,14 @@ App.prototype.logout = function(e) {
   // Have both just in case; either should cut it
   window.localStorage.clear();
   localStorage.clear();
+  localStorage.removeItem('user_id');
   globalVars.profile = null;
 
   // https://auth0.com/authenticate/cordova/auth0-oidc/
   var url = getRedirectUrl();
   openUrl(url);
+  this.state.authenticated = false;
+  globalVars._this.state.authenticated = false;
   this.resumeApp();
 };
 

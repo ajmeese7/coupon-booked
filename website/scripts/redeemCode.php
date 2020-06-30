@@ -18,19 +18,18 @@
 
     if ($stmt->num_rows > 0) {
       while ($stmt->fetch()) {
-          $sender = $row["sender"];
-          if ($sender == $userId) {
-            echo "Sent to self";
-          } else {
-            $bookData = json_decode($bookData);
-            $bookData->shareCode = null;
-            $bookData = json_encode($bookData);
+        if ($sender == $userId) {
+          echo "Sent to self";
+        } else {
+          $bookData = json_decode($bookData);
+          $bookData->shareCode = null;
+          $bookData = json_encode($bookData);
 
-            $stmt = $conn->prepare("UPDATE couponBooks SET receiver=?, receiverName=?,
-              bookData=?, shareCode=null WHERE shareCode=?");
-            $stmt->bind_param("ssss", $userId, $receiverName, $bookData, $shareCode);
-            $stmt->execute();
-          }
+          $stmt = $conn->prepare("UPDATE couponBooks SET receiver=?, receiverName=?,
+            bookData=?, shareCode=null WHERE shareCode=?");
+          $stmt->bind_param("ssss", $userId, $receiverName, $bookData, $shareCode);
+          $stmt->execute();
+        }
       }
     } else {
       // Share code doesn't exist; should this be an error code?
