@@ -137,6 +137,11 @@ a {
     width: 525px;
     min-height: 94vh;
 }
+#headerParent {
+    font-size: inherit;
+    padding: 0;
+    display: inline;
+}
 #siteHeader {
 	font-variant: small-caps;
 	color: black;
@@ -221,10 +226,13 @@ a {
           TESTIMONIALS
  ******************************/
 
-#testimonials h1, #download h2 {
+#testimonials h2, #download h2 {
     margin: auto;
     text-align: center;
     font-style: oblique;
+}
+#testimonials h2 {
+    font-size: 36px;
 }
 
 @font-face {
