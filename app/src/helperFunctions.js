@@ -48,7 +48,7 @@ function updateStats() {
   var stats = localStorage.getItem('stats');
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/updateUserStats",
+    url: "https://couponbooked.com/scripts/updateUserStats",
     data: { userId: userId, stats: stats },
     crossDomain: true,
     cache: false,

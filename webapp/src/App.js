@@ -304,7 +304,7 @@ function copyToClipboard(element) {
 function createConnection() {
   $.ajax({
     type: "GET",
-    url: "https://www.couponbooked.com/scripts/createConnection",
+    url: "https://couponbooked.com/scripts/createConnection",
     datatype: "html",
     success: function(data) {
       console.warn("Successfully established database connection.");
@@ -336,7 +336,7 @@ function getUserInfo(updatePage) {
 
   $.ajax({
     type: "GET",
-    url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}&iOS=${iOS}`,
+    url: `https://couponbooked.com/scripts/getUserInfo?userId=${userId}&iOS=${iOS}`,
     datatype: "html",
     success: function(data) {
       // IDEA: Set mobile menu to creator, giver, etc. Have settings page on desktop show
@@ -376,7 +376,7 @@ function addOneSignalUserId() {
   let iOS = !!navigator.platform.match(/iPhone|iPod|iPad/);
   $.ajax({
       type: "POST",
-      url: "https://www.couponbooked.com/scripts/addOneSignalUserId",
+      url: "https://couponbooked.com/scripts/addOneSignalUserId",
       data: { userId: userId, onesignalId: onesignalId, iOS: iOS },
       crossDomain: true,
       cache: false,
@@ -418,7 +418,7 @@ function createUserInfo() {
 
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/createUserInfo",
+    url: "https://couponbooked.com/scripts/createUserInfo",
     data: { userId: userId },
     crossDomain: true,
     cache: false,
@@ -536,7 +536,7 @@ function addPhoneNumber(phoneNum, settingsPage) {
 
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/addUserPhoneNumber",
+    url: "https://couponbooked.com/scripts/addUserPhoneNumber",
     data: { userId: userId, phone_num: phoneNum },
     crossDomain: true,
     cache: false,
@@ -638,7 +638,7 @@ function updateDisplayName(newName) {
   var userId = localStorage.getItem('user_id');
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/updateDisplayName",
+    url: "https://couponbooked.com/scripts/updateDisplayName",
     data: { userId: userId, displayName: newName },
     crossDomain: true,
     cache: false,
@@ -730,7 +730,7 @@ function handlePayments() {
 function getAllTemplates() {
   $.ajax({
     type: "GET",
-    url: "https://www.couponbooked.com/scripts/getAllTemplates",
+    url: "https://couponbooked.com/scripts/getAllTemplates",
     datatype: "json",
     success: function(data) {
       data = JSON.parse(data);
@@ -792,7 +792,7 @@ function pullUserRelatedBooks() {
 
   $.ajax({
     type: "GET",
-      url: `https://www.couponbooked.com/scripts/getData?userId=${userId}`,
+      url: `https://couponbooked.com/scripts/getData?userId=${userId}`,
       datatype: "json",
       success: function(data) {
         data = JSON.parse(data);
@@ -956,12 +956,12 @@ function helpFormListeners() {
     // TODO: Client side verification before submission
     $.ajax({
       type: "POST",
-      url: "https://www.couponbooked.com/scripts/form_submit",
+      url: "https://couponbooked.com/scripts/form_submit",
       data: { userId: userId, formData: JSON.stringify(formData) },
       crossDomain: true,
       cache: false,
       success: function(success) {
-        // TODO: Test, and also finish the pagination
+        // TODO: Finish the pagination for the dashboard
         gtag('event', 'Help Form Submitted', {
           'event_category' : 'Form Submission',
           'event_label' : formData.topic
@@ -1037,7 +1037,7 @@ function redeemCode(shareCode) {
   var userId = localStorage.getItem("user_id");
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/redeemCode",
+    url: "https://couponbooked.com/scripts/redeemCode",
     data: { userId: userId, receiverName: getUserName(), shareCode: shareCode },
     crossDomain: true,
     cache: false,

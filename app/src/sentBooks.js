@@ -829,7 +829,7 @@ function deleteBook() {
     console.warn("Deleting book...");
     $.ajax({
       type: "POST",
-      url: "https://www.couponbooked.com/scripts/deleteBook",
+      url: "https://couponbooked.com/scripts/deleteBook",
       data: { bookId: globalVars.book.bookId },
       crossDomain: true,
       cache: false,
@@ -1073,7 +1073,7 @@ function createBook() {
 
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/createBook",
+    url: "https://couponbooked.com/scripts/createBook",
     data: { bookId: uuid, sender: sender, senderName: senderName, bookData: JSON.stringify(globalVars.book) },
     crossDomain: true,
     dataType: "html",
@@ -1155,7 +1155,7 @@ function editBookDetails() {
 function updateBook(silent) {
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/updateData",
+    url: "https://couponbooked.com/scripts/updateData",
     data: { bookId: globalVars.book.bookId, bookData: JSON.stringify(globalVars.book) },
     crossDomain: true,
     cache: false,
@@ -1226,7 +1226,7 @@ function updateTemplate(silent) {
 
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/updateTemplate",
+    url: "https://couponbooked.com/scripts/updateTemplate",
     data: { name: globalVars.book.name.toLowerCase(), templateData: JSON.stringify(globalVars.book), userId: userId },
     crossDomain: true,
     dataType: "html",

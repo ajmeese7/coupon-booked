@@ -12,7 +12,7 @@ $(function() {
 function getTickets() {
     $.ajax({
         type: "GET",
-        url: "https://www.couponbooked.com/scripts/getTickets",
+        url: "https://couponbooked.com/scripts/getTickets",
         datatype: "json",
         success: function(tickets) {
             tickets = JSON.parse(tickets);
@@ -83,7 +83,7 @@ function processTickets(tickets) {
 function updateStatus(number, newStatus, node) {
     $.ajax({
         type: "POST",
-        url: "https://www.couponbooked.com/scripts/updateTicketStatus",
+        url: "https://couponbooked.com/scripts/updateTicketStatus",
         data: { number: number, status: newStatus },
         crossDomain: true,
         cache: false,

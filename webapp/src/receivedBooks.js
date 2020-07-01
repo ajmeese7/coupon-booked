@@ -129,7 +129,7 @@ function redeemCoupon(coupon) {
     var userId = localStorage.getItem("user_id");
     $.ajax({
       type: "POST",
-      url: "https://www.couponbooked.com/scripts/redeemCoupon",
+      url: "https://couponbooked.com/scripts/redeemCoupon",
       data: { bookId: book.bookId, userId: userId, couponName: coupon.name },
       crossDomain: true,
       cache: false,
@@ -188,7 +188,7 @@ function notifySender(senderInfo, coupon) {
    // TODO: Find a cleaner way to do this, because this is nasty
    $.ajax({
     type: "GET",
-    url: `https://www.couponbooked.com/scripts/senderHasIOS?senderId=${senderInfo.sender}`,
+    url: `https://couponbooked.com/scripts/senderHasIOS?senderId=${senderInfo.sender}`,
     success: function(data) {
       let message = `${getUserName()} redeemed \"${coupon.name}\"`;
       if (data == "Missing number") {
@@ -197,7 +197,7 @@ function notifySender(senderInfo, coupon) {
         // Notifications probably not supported, so using text messaging
         $.ajax({
           type: "POST",
-          url: "https://www.couponbooked.com/scripts/sendTextMessage",
+          url: "https://couponbooked.com/scripts/sendTextMessage",
           data: { senderId: senderInfo.sender, message: `Coupon Booked: ${message}` },
           crossDomain: true,
           cache: false,
@@ -218,7 +218,7 @@ function notifySender(senderInfo, coupon) {
         // broken, so the no picture issue doesn't happen on notifications; in footer.php
         $.ajax({
           type: "POST",
-          url: "https://www.couponbooked.com/scripts/sendNotification",
+          url: "https://couponbooked.com/scripts/sendNotification",
           // senderId was external, but now it's the native OneSignal user's UUID
           data: { message: message, image: coupon.image, senderId: senderInfo.onesignalId },
           crossDomain: true,
@@ -323,7 +323,7 @@ function refundCoupon(couponName) {
   
   $.ajax({
     type: "POST",
-    url: "https://www.couponbooked.com/scripts/refundCoupon",
+    url: "https://couponbooked.com/scripts/refundCoupon",
     data: { bookId: book.bookId, userId: userId, couponName: couponName },
     crossDomain: true,
     cache: false,
