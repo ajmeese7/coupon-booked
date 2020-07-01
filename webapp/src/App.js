@@ -108,7 +108,8 @@ App.prototype.state = {
         displaySentBook();
         darkModeSupport();
 
-        var stripe = Stripe("pk_test_EAwuFkepc11nHEyPnzAH2XF600aoA16vHm");
+        // pk_test_EAwuFkepc11nHEyPnzAH2XF600aoA16vHm
+        var stripe = Stripe("pk_live_I0WlDMmpJNIVTFLhWJQj551C00ymlegiCt");
         var share = document.querySelector("#share");
         share.addEventListener("click", function () {
           // To access the current book after redirect, i.e. preventing requiring
@@ -118,13 +119,11 @@ App.prototype.state = {
 
           stripe.redirectToCheckout({
             items: [{
-              sku: "sku_H2NWOmtSCuAH2l", //sku_H2MwwLWIIYdV4M
+              sku: "sku_H2MwwLWIIYdV4M", // test: sku_H2NWOmtSCuAH2l
               quantity: 1
             }],
-            successUrl: `https://www.couponbooked.com/webapp/success?shared=true&bookId=${book.bookId}`,
-            cancelUrl: "https://www.couponbooked.com/webapp/index", // TODO: Make this work properly!
-
-            //customerEmail: 'customer@example.com' // TODO: Find way to get this to prefill
+            successUrl: `https://couponbooked.com/webapp/success?shared=true&bookId=${book.bookId}`,
+            cancelUrl: "https://couponbooked.com/webapp/index", // TODO: Make this work properly
           }).then(function (result) {
             // TODO: Do something similar to example on products page for error handling
             console.log("Result:", result);

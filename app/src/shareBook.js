@@ -11,20 +11,17 @@ function shareButtonListeners() {
     inAppPurchase
       .getProducts([ 'book' ])
       .then(function (products) {
-        console.log("getProducts data:", products);
         inAppPurchase
           .buy('book')
           .then(function (data) {
             // ...then mark it as consumed:
-            console.log("data:", data);
             return inAppPurchase.consume(data.productType, data.receipt, data.signature);
           })
           .then(function (data) {
-            console.log("Purchase data:", data);
             createShareCode();
           })
           .catch(function (err) {
-            console.log("Error making purchase:", err);
+            console.error("Error making purchase:", err);
             SimpleNotification.warning({
               title: "Problem making purchase",
               text: "Please try again later."
@@ -32,7 +29,7 @@ function shareButtonListeners() {
           });
       })
       .catch(function (err) {
-        console.log("Error retrieving products:", err);
+        console.error("Error retrieving products:", err);
       });
   });
 }

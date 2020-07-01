@@ -1,5 +1,5 @@
 #Alternate default index page
-DirectoryIndex comingSoon.html index.html
+#DirectoryIndex comingSoon.html index.html
 
 # Redirect all www requests to the non-www domain
 RewriteEngine on
