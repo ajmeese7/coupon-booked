@@ -186,7 +186,7 @@ App.prototype.state = {
             // For now, if the share API isn't supported, it just opens the default
             // email client with the specified contents
             var subject = "I want a gift!";
-            var emailBody = "I want a Coupon Book! Go to https://couponbooked.com/webapp/index to make me something special :)";
+            var emailBody = "I want a Coupon Book! Go to https://couponbooked.com/webapp to make me something special :)";
             document.location = "mailto:?subject="+subject+"&body="+emailBody;
           }
         });

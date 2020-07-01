@@ -124,14 +124,13 @@ function createShareCode() {
   }
 }
 
-// TODO: Test on iOS, as site said there may be some special requirements
 /**
  * Opens native share function of device populated with the coded options.
  */
 function shareCode() {
   var options = {
-    subject: "You've been Coupon Booked!", // for email
-    message: `You've been Coupon Booked! Go to www.couponbooked.com to download the app, then redeem your code: ${globalVars.book.shareCode}`
+    //subject: "You've been Coupon Booked!", // for email
+    message: `You've been Coupon Booked! Go to couponbooked.com/webapp to redeem your code: ${globalVars.book.shareCode}`
   };
   var onSuccess = function(result) {
     // On Android result.app since plugin version 5.4.0 this is no longer empty.

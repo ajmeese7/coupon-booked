@@ -94,8 +94,8 @@ function createShareCode() {
  */
 async function shareCode() {
   var options = {
-    title: "You've been Coupon Booked!", // for email
-    text: `You've been Coupon Booked! Go to https://couponbooked.com/webapp to redeem your code: ${book.shareCode}`
+    //title: "You've been Coupon Booked!", // for email
+    text: `You've been Coupon Booked! Go to couponbooked.com/webapp to redeem your code: ${book.shareCode}`
   };
 
   // https://developer.mozilla.org/en-US/docs/Web/API/Navigator/share
