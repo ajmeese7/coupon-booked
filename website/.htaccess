@@ -37,3 +37,13 @@ Header merge  Vary "Origin"
     # TODO: Figure out why this isn't working and fix it
     Header set Cache-Control "max-age=‭604800‬, public"
 </filesMatch>
+
+# Redirect all www requests to the non-www domain
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-SSL} !on
+RewriteCond %{HTTP_HOST} ^www\.couponbooked\.com$
+RewriteRule ^/?$ "https\:\/\/couponbooked\.com\/" [R=301,L]
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-SSL} !on
+RewriteCond %{HTTP_HOST} ^www\.couponbooked\.com$
+RewriteRule ^webapp\/?$ "https\:\/\/couponbooked\.com\/webapp" [R=301,L]

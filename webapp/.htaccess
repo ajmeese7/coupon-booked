@@ -1,2 +1,7 @@
 #Alternate default index page
 DirectoryIndex comingSoon.html index.html
+
+# Redirect all www requests to the non-www domain
+RewriteEngine on
+RewriteCond %{HTTP_HOST} ^www\.webapp\.couponbooked\.com$
+RewriteRule ^/?$ "https\:\/\/couponbooked\.com\/webapp" [R=301,L]
