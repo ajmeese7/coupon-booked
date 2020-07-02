@@ -93,10 +93,9 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
     // Get latest book info
     var tempBook = helper.clone(globalVars.book);
     var bookToCompareTo = editPage ? newPreviousBook : globalVars.previousBook;
-    var tempBookImage = helper.getById("bookImage").src;
     
-    // If image invalid, replaced with ticket.png, so have to ignore that for comparison
-    tempBook.image = tempBookImage.includes("ticket.png") ? bookToCompareTo.image : tempBookImage;
+    // image already saved to server, so ignore that part of object
+    tempBook.image = bookToCompareTo.image;
     tempBook.name  = helper.getById("bookName").value;
     tempBook.description = helper.getById("bookDescription").value;
     bookToCompareTo.bookId = globalVars.book.bookId;
@@ -140,8 +139,6 @@ function bookBackButtonListener(editPage, homeButtonClicked) {
  * Calls functions to create books and templates accordingly.
  */
 function createBookButton() {
-  // TODO: Test this method on an unsaved book and normal process
-
   $("#createButton").unbind().click(function() {
     // Replace Android full URL with a cross-platform local one
     var imageSrc = helper.getById("bookImage").src;
@@ -372,10 +369,10 @@ function uploadImage(updatedImage, coupon) {
       console.log("Upload response:", response);
       updatedImage.src = response.secure_url;
 
-      // TODO: make it work for coupons automatically too, or save the image uploading for save button
+      // TODO: try to save the image uploading for the save button
       if (!coupon) {
         globalVars.book.image = response.secure_url;
-        updateBook();
+        updateBook(true);
       }
     }, 
     function(error) {
@@ -943,15 +940,11 @@ function couponFormIsValid() {
  * @returns {boolean} whether or not the form is valid
  */
 function bookFormIsValid() {
-  var image = helper.getById("bookImage");
   var name = helper.getById("bookName").value;
   var desc = helper.getById("bookDescription").value;
 
   // Validate that form is filled out properly
-  if (!image) {
-    // image input
-    // TODO: Add proper if conditions after creating input field
-  } else if (name.length < 1) {
+  if (name.length < 1) {
     SimpleNotification.warning({
       text: "Please enter a name"
     }, globalVars.notificationOptions);

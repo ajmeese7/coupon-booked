@@ -867,15 +867,11 @@ function couponFormIsValid() {
  * @returns {boolean} whether or not the form is valid
  */
 function bookFormIsValid() {
-  var image = getById("bookImage");
   var name = getById("bookName").value;
   var desc = getById("bookDescription").value;
 
   // Validate that form is filled out properly
-  if (!image) {
-    // image input
-    // TODO: Add proper if conditions after creating input field
-  } else if (name.length < 1) {
+  if (name.length < 1) {
     SimpleNotification.warning({
       text: "Please enter a name"
     }, notificationOptions);

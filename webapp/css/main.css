@@ -274,7 +274,7 @@ label {
     width: 90%;
 }
 .bookImage {
-    /* TODO: Work on this and decide if couponImage needs it */
+    margin-top: 7.5px;
     margin-bottom: 3.5px;
 }
 .bookName, .couponName {
@@ -297,13 +297,12 @@ label {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    margin-bottom: 5px;
     text-align: center;
 }
 
 #shareCodePreview {
     color: #7E7E7E;
-    margin-bottom: /*7.*/5px;
+    margin-bottom: 5px;
 }
 #shareCodePreview span {
     color: #039be5;
