@@ -1,6 +1,3 @@
-/** True means book will be published to template database; false is normal */
-var development = false;
-
 // https://stackoverflow.com/a/58065241/6456163
 var isIOS = /iPad|iPhone|iPod/.test(navigator.platform)
 || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -147,15 +144,8 @@ function createBookButton() {
     var imageSrc = getById("bookImage").src;
     book.image = imageSrc.includes("ticket.png") ? "./images/ticket.png" : imageSrc;
 
-    if (development) {
-      // TODO: Renovate createTemplate with new stuff for here
-      createTemplate();
-    } else {
-      // TODO: Make leaving edited template page out of dev mode ask to confirm
-
-      console.warn("Creating book...", book);
-      createBook();
-    }
+    console.warn("Creating book...", book);
+    createBook();
   });
 }
 
@@ -267,7 +257,7 @@ function editBook() {
       book.description = getById("bookDescription").value;
 
       // Saves the edits from the page immediately
-      development ? updateTemplate(true) : updateBook(true);
+      updateBook(true);
       fadeToBookContent();
     }
   });
@@ -427,7 +417,7 @@ function showCouponPreview($this) {
           // 'Node': parameter 1 is not of type 'Node'.
           var couponNumber = $($this).data("couponNumber");
           book.coupons.splice(couponNumber, 1);
-          development ? updateTemplate() : updateBook();
+          updateBook();
           
           displaySentBook();
           fadeBetweenElements("#couponForm, #dataPreview", "#bookContent");
@@ -517,7 +507,7 @@ function showCouponEditPage($this) {
   $('#save').unbind().click(function() {
     if (couponFormIsValid()) {
       updateCoupon(coupon, $this);
-      development ? updateTemplate(true) : updateBook(true);
+      updateBook(true);
       showCouponPreview($this);
     }
   });
@@ -764,7 +754,7 @@ function createCoupon() {
   // Name already validated before this function is called so
   // no need to do it again.
   book.coupons.push(coupon);
-  development ? updateTemplate(true) : updateBook(true);
+  updateBook(true);
   displaySentBook(true);
 }
 
@@ -913,7 +903,7 @@ function bookFormIsValid() {
  * @param {string} currentPage - the page for which the display needs to be updated
  */
 function showProperButton(currentPage) {
-  if ((currentPage == "home" && !book.bookId && !development) || currentPage == "newCoupon") {
+  if ((currentPage == "home" && !book.bookId) || currentPage == "newCoupon") {
     // displaySentBook called last and book not yet created, or a new coupon
     // is being created by the user
     fadeBetweenElements("#save, #delete, #share", "#createButton", true);
@@ -1008,7 +998,7 @@ function editBookDetails() {
 
   // Even if nothing is changed, we lie to the user so they don't get confused
   SimpleNotification.success({
-    text: development ? "Updated template" : "Updated book"
+    text: "Updated book"
   }, notificationOptions);
 
   if (!isSameObject(book, oldBook)) {
@@ -1091,63 +1081,6 @@ function nameAlreadyExists(name) {
   });
 
   return nameAlreadyExists;
-}
-
-/**
- * Development-only function. Same as updateBook, but for templates.
- * @param {boolean} silent - whether or not a notification should be 
- * displayed on the screen if the function is successful.
- */
-function updateTemplate(silent) {
-  // TODO: Implement checking like this if it doesn't already exist,
-  // or a silent alternative so they aren't bothered and neither is the server:
-  /*
-    !isSameObject(book, previousBook)
-    // Template hasn't been modified
-    SimpleNotification.info({
-      title: "Development mode",
-      text: "You haven't changed anything!"
-    }, notificationOptions);
-  */
-
-  var userId = localStorage.getItem("user_id");
-
-  $.ajax({
-    type: "POST",
-    url: "https://www.couponbooked.com/scripts/updateTemplate",
-    data: { name: book.name.toLowerCase(), templateData: JSON.stringify(book), userId: userId },
-    crossDomain: true,
-    dataType: "html",
-    cache: false,
-    success: function(success) {
-      if (success) console.warn("updateTemplate success:", success);
-      previousBook = clone(book);
-
-      if (!silent) {
-        SimpleNotification.success({
-          text: "Successfully updated template"
-        }, notificationOptions);
-      }
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      var responseText = XMLHttpRequest.responseText;
-      console.error("Error in updateTemplate:", responseText);
-
-      if (responseText.includes("not allowed")) {
-        // Unauthorized user trying to update a template
-        SimpleNotification.error({
-          title: "Unauthorized template update",
-          text: "Your violation has been logged."
-        }, notificationOptions);
-      } else {
-        // Generic error
-        SimpleNotification.error({
-          title: "Error updating template",
-          text: "Please try again later."
-        }, notificationOptions);
-      }
-    }
-  });
 }
 
 /**

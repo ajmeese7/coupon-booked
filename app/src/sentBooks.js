@@ -3,9 +3,6 @@ const env = require('../env');
 var helper = require('./helperFunctions');
 var globalVars = require('./globalVars.js');
 
-/** True means book will be published to template database; false is normal */
-var development = false;
-
 /**
  * Takes the current book JSON data and adds it to the page.
  * @param {boolean} funky - true if called from a place where
@@ -150,15 +147,8 @@ function createBookButton() {
     var imageSrc = helper.getById("bookImage").src;
     globalVars.book.image = imageSrc.includes("ticket.png") ? "images/ticket.png" : imageSrc;
 
-    if (development) {
-      // TODO: Renovate createTemplate with new stuff for here
-      createTemplate();
-    } else {
-      // TODO: Make leaving edited template page out of dev mode ask to confirm
-
-      console.warn("Creating book...", globalVars.book);
-      createBook();
-    }
+    console.warn("Creating book...", globalVars.book);
+    createBook();
   });
 }
 
@@ -269,7 +259,7 @@ function editBook() {
       globalVars.book.description = helper.getById("bookDescription").value;
 
       // Saves the edits from the page immediately
-      development ? updateTemplate(true) : updateBook(true);
+      updateBook(true);
       fadeToBookContent();
     }
   });
@@ -351,22 +341,14 @@ function uploadImage(updatedImage, coupon) {
   var timestamp = Math.floor(Date.now() / 1000);
 
   // https://support.cloudinary.com/hc/en-us/community/posts/360030104392/comments/360002948811
-  if (development && !globalVars.book.bookId) {
-    // TODO: Figure out how to view all images in parent folder, so it's essentially
-    // metadata but in the location name
-    console.log("TEMPLATE folder for image upload!");
-    var folder = "templates/" + (!!coupon ? "coupons" : "books") + "/" + globalVars.book.name;
-  } else {
-    console.log("USER folder for image upload!");
-    var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + globalVars.book.bookId;
-  }
+  var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + globalVars.book.bookId;
 
   // Add in the params required for Cloudinary
   options.params = {
-      api_key: env.CLOUDINARY_KEY,
-      folder: folder,
-      timestamp: timestamp,
-      signature: new Hashes.SHA1().hex(`folder=${folder}&timestamp=${timestamp}${env.CLOUDINARY_SECRET}`)
+    api_key: env.CLOUDINARY_KEY,
+    folder: folder,
+    timestamp: timestamp,
+    signature: new Hashes.SHA1().hex(`folder=${folder}&timestamp=${timestamp}${env.CLOUDINARY_SECRET}`)
   };
 
   var ft = new FileTransfer();
@@ -374,15 +356,11 @@ function uploadImage(updatedImage, coupon) {
   // Leaving this here in case I ever need it
   ft.onprogress = (function(progressEvent) {
     try {
-        if (progressEvent.lengthComputable) {
-            // if we can calculate the length of the upload ...
-            var percentageComplete = ((progressEvent.loaded / progressEvent.total) * 100);
-            console.log("Percentage complete:", percentageComplete)
-        } else {
-          // otherwise increment some counter by 1
-        }
-
-        // do something with the latest progress...
+      if (progressEvent.lengthComputable) {
+        // if we can calculate the length of the upload ...
+        var percentageComplete = ((progressEvent.loaded / progressEvent.total) * 100);
+        console.log("Percentage complete:", percentageComplete)
+      }
     } catch(err) {
       console.error("Problem computing progress:", err);
     }
@@ -516,7 +494,7 @@ function showCouponPreview($this) {
           // 'Node': parameter 1 is not of type 'Node'.
           var couponNumber = $($this).data("couponNumber");
           globalVars.book.coupons.splice(couponNumber, 1);
-          development ? updateTemplate() : updateBook();
+          updateBook();
           
           displayBook();
           helper.fadeBetweenElements("#couponForm, #dataPreview", "#bookContent");
@@ -605,7 +583,7 @@ function showCouponEditPage($this) {
   $('#save').unbind().click(function() {
     if (couponFormIsValid()) {
       updateCoupon(coupon, $this);
-      development ? updateTemplate(true) : updateBook(true);
+      updateBook(true);
       showCouponPreview($this);
     }
   });
@@ -848,7 +826,7 @@ function createCoupon() {
   // Name already validated before this function is called so
   // no need to do it again.
   globalVars.book.coupons.push(coupon);
-  development ? updateTemplate(true) : updateBook(true);
+  updateBook(true);
   displayBook(true);
 }
 
@@ -1001,7 +979,7 @@ function bookFormIsValid() {
  * @param {string} currentPage - the page for which the display needs to be updated
  */
 function showProperButton(currentPage) {
-  if ((currentPage == "home" && !globalVars.book.bookId && !development) || currentPage == "newCoupon") {
+  if ((currentPage == "home" && !globalVars.book.bookId) || currentPage == "newCoupon") {
     // displayBook called last and book not yet created, or a new coupon
     // is being created by the user
     helper.fadeBetweenElements("#save, #delete, #share", "#createButton", true);
@@ -1090,7 +1068,7 @@ function editBookDetails() {
 
   // Even if nothing is changed, we lie to the user so they don't get confused
   SimpleNotification.success({
-    text: development ? "Updated template" : "Updated book"
+    text: "Updated book"
   }, globalVars.notificationOptions);
 
   if (!helper.isSameObject(globalVars.book, oldBook)) {
@@ -1165,63 +1143,6 @@ function nameAlreadyExists(name) {
   });
 
   return nameAlreadyExists;
-}
-
-/**
- * Development-only function. Same as updateBook, but for templates.
- * @param {boolean} silent - whether or not a notification should be 
- * displayed on the screen if the function is successful.
- */
-function updateTemplate(silent) {
-  // TODO: Implement checking like this if it doesn't already exist,
-  // or a silent alternative so they aren't bothered and neither is the server:
-  /*
-    !helper.isSameObject(globalVars.book, globalVars.previousBook)
-    // Template hasn't been modified
-    SimpleNotification.info({
-      title: "Development mode",
-      text: "You haven't changed anything!"
-    }, globalVars.notificationOptions);
-  */
-
-  var userId = localStorage.getItem("user_id");
-
-  $.ajax({
-    type: "POST",
-    url: "https://www.couponbooked.com/scripts/updateTemplate",
-    data: { name: globalVars.book.name.toLowerCase(), templateData: JSON.stringify(globalVars.book), userId: userId },
-    crossDomain: true,
-    dataType: "html",
-    cache: false,
-    success: function(success) {
-      if (success) console.warn("updateTemplate success:", success);
-      globalVars.previousBook = helper.clone(globalVars.book);
-
-      if (!silent) {
-        SimpleNotification.success({
-          text: "Successfully updated template"
-        }, globalVars.notificationOptions);
-      }
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      var responseText = XMLHttpRequest.responseText;
-      console.error("Error in updateTemplate:", responseText);
-
-      if (responseText.includes("not allowed")) {
-        // Unauthorized user trying to update a template
-        SimpleNotification.error({
-          title: "Unauthorized template update",
-          text: "Your violation has been logged."
-        }, globalVars.notificationOptions);
-      } else {
-        // Generic error
-        SimpleNotification.error({
-          title: "Error updating template",
-          text: "Please try again later."
-        }, globalVars.notificationOptions);
-      }
-    }
-  });
 }
 
 /**
