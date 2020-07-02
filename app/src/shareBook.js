@@ -56,7 +56,7 @@ function createShareCode() {
 
   $.ajax({
     type: "POST",
-    url: "https://couponbooked.com/scripts/createShareCode",
+    url: "https://www.couponbooked.com/scripts/createShareCode",
     data: { bookId: globalVars.book.bookId, bookData: JSON.stringify(globalVars.book), shareCode: shareCode },
     crossDomain: true,
     cache: false,

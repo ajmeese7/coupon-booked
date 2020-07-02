@@ -285,14 +285,12 @@ function editBook() {
  * TODO: maybe also allow users to search through (browse) all the templated images
  */
 function imageUploadListeners(coupon) {
-  // TODO: Add option to reset image to present
-  // TODO
   var imageToUpdate = !!coupon ? helper.getById("couponImage") : helper.getById("bookImage");
   var bytes = require('bytes');
   var args = {
-      'selectMode': 100,
-      'maxSelectCount': 1,
-      'maxSelectSize': (bytes.parse("5mb") * 8) // Megabytes to bytes to bits
+    'selectMode': 100,
+    'maxSelectCount': 1,
+    'maxSelectSize': (bytes.parse("5mb") * 8) // Megabytes to bytes to bits
   };
 
   // TODO: Make sure the image isn't rotated for some users somehow
@@ -309,7 +307,7 @@ function imageUploadListeners(coupon) {
         // transparency. The logs for this issue are located here:
         // https://github.com/DmcSDK/cordova-plugin-mediaPicker/issues/102
         // https://github.com/jeduan/cordova-plugin-crop/issues/78
-        console.log("Not cropping PNG due to transparency loss...");
+        console.warn("Not cropping PNG due to transparency loss...");
         imageToUpdate.src = uncroppedImage;
         uploadImage(imageToUpdate, coupon);
       } else {
@@ -327,45 +325,6 @@ function imageUploadListeners(coupon) {
       }
     }, function(e) { console.error("Problem in selecting media ->", e) })
   });
-
-  /** Shows a loading circle when waiting for the image to upload */
-  function loadingUI() {
-    // TODO - because when uploading a photo you take it can take a second to load
-  }
-
-  $('#bookTakePhoto, #couponTakePhoto').unbind().click(function() {
-    // https://stackoverflow.com/a/35133183/6456163;
-    // is it possible to add a circular option or would that have to be after the fact?
-    var cameraOptions = {
-      quality: 75,
-      allowEdit: true,
-      targetWidth: 512,
-      targetHeight: 512,
-      mediaType: Camera.MediaType.PICTURE
-    };
-
-    MediaPicker.takePhoto(cameraOptions, function(media) {
-      loadingUI();
-
-      // Need to call this in a function for some reason otherwise media isn't ready yet
-      handlePreparedPhoto(media);
-    }, function(e) { console.error("Error in takePhoto ->", e) });
-  });
-
-  /** Literally just a handler function to wait until a variable is ready */
-  function handlePreparedPhoto(media) {
-    //console.log("handlePreparedPhoto media:", media);
-    imageToUpdate.src = media.uri;
-    uploadImage(imageToUpdate, coupon);
-  }
-  
-  function compressImage(compressedImage) {
-    compressedImage.quality = 80; // when the value is 100, return original image
-    MediaPicker.compressImage(compressedImage, function(compressData) {
-        // https://stackoverflow.com/a/40360666/6456163
-        console.log("Compressed image path:", compressData.path);
-    }, function(e) { console.error("Error in compressImage ->", e) });
-  }
 }
 
 /**
@@ -829,7 +788,7 @@ function deleteBook() {
     console.warn("Deleting book...");
     $.ajax({
       type: "POST",
-      url: "https://couponbooked.com/scripts/deleteBook",
+      url: "https://www.couponbooked.com/scripts/deleteBook",
       data: { bookId: globalVars.book.bookId },
       crossDomain: true,
       cache: false,
@@ -888,7 +847,7 @@ function createCoupon() {
   // no need to do it again.
   globalVars.book.coupons.push(coupon);
   development ? updateTemplate(true) : updateBook(true);
-  displaySentBook();
+  displayBook();
 }
 
 /**
@@ -1073,7 +1032,7 @@ function createBook() {
 
   $.ajax({
     type: "POST",
-    url: "https://couponbooked.com/scripts/createBook",
+    url: "https://www.couponbooked.com/scripts/createBook",
     data: { bookId: uuid, sender: sender, senderName: senderName, bookData: JSON.stringify(globalVars.book) },
     crossDomain: true,
     dataType: "html",
@@ -1155,7 +1114,7 @@ function editBookDetails() {
 function updateBook(silent) {
   $.ajax({
     type: "POST",
-    url: "https://couponbooked.com/scripts/updateData",
+    url: "https://www.couponbooked.com/scripts/updateData",
     data: { bookId: globalVars.book.bookId, bookData: JSON.stringify(globalVars.book) },
     crossDomain: true,
     cache: false,
@@ -1226,7 +1185,7 @@ function updateTemplate(silent) {
 
   $.ajax({
     type: "POST",
-    url: "https://couponbooked.com/scripts/updateTemplate",
+    url: "https://www.couponbooked.com/scripts/updateTemplate",
     data: { name: globalVars.book.name.toLowerCase(), templateData: JSON.stringify(globalVars.book), userId: userId },
     crossDomain: true,
     dataType: "html",

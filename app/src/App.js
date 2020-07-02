@@ -282,7 +282,7 @@ function createConnection() {
     // https://forum.ionicframework.com/t/err-cleartext-not-permitted-in-debug-app-on-android/164101/20
   $.ajax({
     type: "GET",
-    url: "https://couponbooked.com/scripts/createConnection",
+    url: "https://www.couponbooked.com/scripts/createConnection",
     datatype: "html",
     success: function(data) {
       console.warn("Successfully established database connection.");
@@ -308,7 +308,7 @@ function getUserInfo(updatePage) {
 
   $.ajax({
     type: "GET",
-    url: `https://couponbooked.com/scripts/getUserInfo?userId=${userId}&iOS=${iOS}`,
+    url: `https://www.couponbooked.com/scripts/getUserInfo?userId=${userId}&iOS=${iOS}`,
     datatype: "html",
     success: function(data) {
       if (data) {
@@ -368,7 +368,7 @@ function createUserInfo() {
 
   $.ajax({
     type: "POST",
-    url: "https://couponbooked.com/scripts/createUserInfo",
+    url: "https://www.couponbooked.com/scripts/createUserInfo",
     data: { userId: userId },
     crossDomain: true,
     cache: false,
@@ -487,7 +487,7 @@ function addPhoneNumber(phoneNum, settingsPage) {
 
   $.ajax({
     type: "POST",
-    url: "https://couponbooked.com/scripts/addUserPhoneNumber",
+    url: "https://www.couponbooked.com/scripts/addUserPhoneNumber",
     data: { userId: userId, phone_num: phoneNum },
     crossDomain: true,
     cache: false,
@@ -551,7 +551,7 @@ function addOneSignalId(userId) {
     localStorage.setItem('onesignal_id', state.userId);
     $.ajax({
         type: "POST",
-        url: "https://couponbooked.com/scripts/addOneSignalUserId",
+        url: "https://www.couponbooked.com/scripts/addOneSignalUserId",
         data: { userId: userId, onesignalId: state.userId, iOS: iOS },
         crossDomain: true,
         cache: false,
@@ -617,7 +617,7 @@ function updateDisplayName(newName) {
   var userId = localStorage.getItem('user_id');
   $.ajax({
     type: "POST",
-    url: "https://couponbooked.com/scripts/updateDisplayName",
+    url: "https://www.couponbooked.com/scripts/updateDisplayName",
     data: { userId: userId, displayName: newName },
     crossDomain: true,
     cache: false,
@@ -711,7 +711,7 @@ function animationSetting() {
 function getAllTemplates() {
   $.ajax({
     type: "GET",
-    url: "https://couponbooked.com/scripts/getAllTemplates",
+    url: "https://www.couponbooked.com/scripts/getAllTemplates",
     datatype: "json",
     success: function(data) {
       data = JSON.parse(data);
@@ -774,7 +774,7 @@ function pullUserRelatedBooks() {
 
   $.ajax({
     type: "GET",
-      url: `https://couponbooked.com/scripts/getData?userId=${userId}`,
+      url: `https://www.couponbooked.com/scripts/getData?userId=${userId}`,
       datatype: "json",
       success: function(data) {
         data = JSON.parse(data);
@@ -939,7 +939,7 @@ function helpFormListeners() {
     // TODO: Client side verification before submission
     $.ajax({
       type: "POST",
-      url: "https://couponbooked.com/scripts/form_submit",
+      url: "https://www.couponbooked.com/scripts/form_submit",
       data: { userId: userId, formData: JSON.stringify(formData) },
       crossDomain: true,
       cache: false,
@@ -1014,7 +1014,7 @@ function redeemCode(shareCode) {
   var userId = localStorage.getItem("user_id");
   $.ajax({
     type: "POST",
-    url: "https://couponbooked.com/scripts/redeemCode",
+    url: "https://www.couponbooked.com/scripts/redeemCode",
     data: { userId: userId, receiverName: helper.getUserName(), shareCode: shareCode },
     crossDomain: true,
     cache: false,
