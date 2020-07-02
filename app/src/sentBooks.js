@@ -8,8 +8,10 @@ var development = false;
 
 /**
  * Takes the current book JSON data and adds it to the page.
+ * @param {boolean} funky - true if called from a place where
+ * weird things happen, and the app gets *funky*
  */
-function displayBook() {
+function displayBook(funky) {
   // Override the default nav listener code
   var mobile = helper.getBySelector("#mobile");
   $(mobile).unbind().click(function() {
@@ -17,7 +19,7 @@ function displayBook() {
     $('#backArrow').click();
   });
 
-  showProperButton("home");
+  showProperButton(funky ? "funky" : "home");
   var bookContent = helper.getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
@@ -315,7 +317,7 @@ function imageUploadListeners(coupon) {
           plugins.crop.promise(image[0].uri, { quality: 100 })
           .then(function success(newPath) {
               // https://riptutorial.com/cordova/example/23783/crop-image-after-clicking-using-camera-or-selecting-image-
-              console.log("Cropped image data:", newPath);
+              console.warn("Cropped image data:", newPath);
               imageToUpdate.src = newPath;
               uploadImage(imageToUpdate, coupon);
           })
@@ -847,7 +849,7 @@ function createCoupon() {
   // no need to do it again.
   globalVars.book.coupons.push(coupon);
   development ? updateTemplate(true) : updateBook(true);
-  displayBook();
+  displayBook(true);
 }
 
 /**
@@ -892,7 +894,7 @@ function updateCoupon(oldCoupon, $this) {
             globalVars.book.coupons[couponNumber] = newCoupon;
       
             $($this).data("coupon", newCoupon);
-            displayBook();
+            displayBook(true);
       
             // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
             // I'm honestly not 100% sure what this line does, but don't touch it
@@ -1007,13 +1009,14 @@ function showProperButton(currentPage) {
     // Book already created but still on displayBook page
     var showShareButton = !globalVars.book.receiver && !globalVars.book.shareCode && globalVars.book.bookId;
     helper.fadeBetweenElements("#createButton, #save, #delete", showShareButton ? "#share" : null, true);
+  } else if (currentPage == "funky") {
+    // I *FINALLY* fixed the share button issue with this
+    helper.fadeBetweenElements("#createButton, #save, #delete", null, true);
   } else if (currentPage == "editBook" || currentPage == "editCoupon") {
-    // Save edits to book or coupon;
-    // TODO: only show save button once there are changes
+    // Save edits to book or coupon
     helper.fadeBetweenElements("#createButton, #delete, #share", "#save", true);
   } else if (currentPage == "couponPreview") {
     // For if they want to delete a coupon
-    // TODO: Figure out why the share button is still visible after this
     helper.fadeBetweenElements("#createButton, #save, #share", "#delete", true);
   }
 }

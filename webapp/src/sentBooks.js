@@ -7,8 +7,10 @@ var isIOS = /iPad|iPhone|iPod/.test(navigator.platform)
 
 /**
  * Takes the current book JSON data and adds it to the page.
+ * @param {boolean} funky - true if called from a place where
+ * weird things happen, and the app gets *funky*
  */
-function displaySentBook() {
+function displaySentBook(funky) {
   // Override the default nav listener code
   var mobile = getBySelector("#mobile");
   $(mobile).unbind().click(function() {
@@ -16,7 +18,7 @@ function displaySentBook() {
     $('#backArrow').click();
   });
 
-  showProperButton("home");
+  showProperButton(funky ? "funky" : "home");
   var bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
@@ -763,7 +765,7 @@ function createCoupon() {
   // no need to do it again.
   book.coupons.push(coupon);
   development ? updateTemplate(true) : updateBook(true);
-  displaySentBook();
+  displaySentBook(true);
 }
 
 /**
@@ -804,7 +806,7 @@ function updateCoupon(oldCoupon, $this) {
             book.coupons[couponNumber] = newCoupon;
 
             $($this).data("coupon", newCoupon);
-            displaySentBook();
+            displaySentBook(true);
 
             // https://learn.jquery.com/using-jquery-core/faq/how-do-i-pull-a-native-dom-element-from-a-jquery-object/
             // I'm honestly not 100% sure what this line does, but don't touch it
@@ -919,13 +921,14 @@ function showProperButton(currentPage) {
     // Book already created but still on displaySentBook page
     var showShareButton = !book.receiver && !book.shareCode && book.bookId;
     fadeBetweenElements("#createButton, #save, #delete", showShareButton ? "#share" : null, true);
+  } else if (currentPage == "funky") {
+    // I *FINALLY* fixed the share button issue with this
+    fadeBetweenElements("#createButton, #save, #delete", null, true);
   } else if (currentPage == "editBook" || currentPage == "editCoupon") {
-    // Save edits to book or coupon;
-    // TODO: only show save button once there are changes
+    // Save edits to book or coupon
     fadeBetweenElements("#createButton, #delete, #share", "#save", true);
   } else if (currentPage == "couponPreview") {
-    // For if they want to delete a coupon;
-    // TODO: Figure out why the share button is still visible after this
+    // For if they want to delete a coupon
     fadeBetweenElements("#createButton, #save, #share", "#delete", true);
   }
 }
