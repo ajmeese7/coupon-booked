@@ -520,7 +520,9 @@ function displayUserData() {
     // Stringified null would be put in the input box otherwise
     $("#displayNameInput").val(displayName);
   }
-  if (phoneNumber) {
+
+  // '> 4' prevents null from being displayed, because that happens for some reason
+  if (phoneNumber && phoneNumber.length > 4) {
     // Format the number before displaying in input
     let zip = phoneNumber.substring(0,3);
     let middle = phoneNumber.substring(3,6);
