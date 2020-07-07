@@ -20,8 +20,11 @@ function displayReceivedBook() {
   senderText += book.sender ? `Sent from ${book.sender}` : "Sender unavailable";
   senderText += "</p>";
   previewText.innerHTML += senderText;
+
+  previewText.innerHTML += `<p id='bookDescriptionPreview'>${book.description}</p>`;
+  previewText.innerHTML += "<p id='bookDescriptionShortcut'>Click for description</p>";
+
   miniPreview.appendChild(previewText);
-  
   bookContent.appendChild(miniPreview);
   bookContent.innerHTML += "<hr>";
   
@@ -32,13 +35,30 @@ function displayReceivedBook() {
  * The normal listeners for the /receivedBook route.
  */
 function bookListeners() {
-  $('#backArrow').unbind().click(function() {
-    // NOTE: previousBook probably isn't needed here, but better safe than dead
-    previousBook = null;
-    book = null;
-    _this.redirectTo("/dashboard");
+  $("#bookDescriptionPreview, #bookDescriptionShortcut, #miniPreviewImage").unbind().click(function() {
+    fadeBetweenElements("#bookContent, #redeemCoupon", "#dataPreview");
+    gtag('config', googleID, { 'page_title' : 'Received Book Preview' });
+
+    $('#backArrow').unbind().click(function() {
+      fadeBetweenElements("#dataPreview", "#bookContent, #redeemCoupon");
+      backListener();
+    });
+
+    getById("imgPreview").src        = book.image;
+    getById("namePreview").innerText = book.name;
+    getById("descPreview").innerText = book.description;
   });
 
+  function backListener() {
+    $('#backArrow').unbind().click(function() {
+      // NOTE: previousBook probably isn't needed here, but better safe than dead
+      previousBook = null;
+      book = null;
+      _this.redirectTo("/dashboard");
+    });
+  }
+
+  backListener();
   createReceivedCouponElements();
 }
 
