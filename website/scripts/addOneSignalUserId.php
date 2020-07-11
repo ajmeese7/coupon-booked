@@ -17,6 +17,11 @@
 
     // Updates user info if it already exists, which it should with the new implementation
     if ($stmt->num_rows > 0) {
+      if (is_null($onesignalId) || $onesignalId == "null") {
+        // TODO: TEST
+        $iOS = 1;
+      }
+      
       $stmt = $conn->prepare("UPDATE userData SET onesignalId=?, iOS=? WHERE userId=?");
       $stmt->bind_param("sis", $onesignalId, $iOS, $userId);
       $returnMessage = "updated";

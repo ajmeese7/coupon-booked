@@ -18,6 +18,13 @@
 
         <b>Phone Number</b>
         <label id="phoneNumber">
+            <select id="countryCode">
+                <!-- TODO: Add flags -->
+                <option value="+1" selected="selected">+1</option>
+                <option value="+44">+44</option>
+            </select>
+
+            <!-- IDEA: Change the suggested format, so Europeans get it? -->
             <input type="text" id="phoneNumberInput" name="phoneNumber" placeholder="(123) 456-7890">
         </label>
         <button id="updatePhoneNumber">Update</button>
@@ -31,7 +38,7 @@
             <p id="redeemedCoupons">Coupons redeemed:</p>
 
             <!-- TODO: Work on this in app and webapp -->
-            <p id="fulfilledCoupons">Coupons fulfilled:</p>
+            <!--<p id="fulfilledCoupons">Coupons fulfilled:</p>-->
         </div>
         <hr />
 

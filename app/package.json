@@ -1,6 +1,6 @@
 {
     "name": "com.couponbooked.app",
-    "version": "2.2.6",
+    "version": "2.3.0",
     "displayName": "Coupon Booked",
     "description": "Gift virtual coupon books to loved ones.",
     "scripts": {

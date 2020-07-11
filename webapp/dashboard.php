@@ -11,6 +11,12 @@
             If we can't reach your platform with a normal push notification,
             we'll just text you to alert you when coupons are redeemed!
         </p>
+
+        <!-- NOTE: Copied from settings.php; copy over all future changes! -->
+        <select id="countryCode">
+            <option value="+1" selected="selected">+1</option>
+            <option value="+44">+44</option>
+        </select>
         <input type="text" id="phoneNumber" name="phoneNumber" placeholder="(123) 456-7890">
     </div>
 

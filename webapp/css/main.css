@@ -48,7 +48,13 @@ label {
         padding: 0px;
     }
     #logo {
+        margin-top: -4px;
         margin-right: -3px;
+    }
+    #brand {
+        position: absolute;
+        top: 8px;
+        left: 60px;
     }
 
     #bookDescriptionPreview {
@@ -508,6 +514,7 @@ textarea {
     font-weight: bold;
 }
 #displayNameInput,
+#phoneNumberInput,
 #couponForm label,
 #couponForm input[type=text],
 #couponForm textarea,
@@ -620,23 +627,20 @@ input:checked + .slider:before {
     background-image: url("../images/moon.png");
 }
 
-#animationCheckbox {
-    width: 35px;
-    height: 35px;
+#phoneNumber {
+    width: inherit !important;
+    max-width: 600px;
 }
-
+#phoneNumberInput {
+    width: calc(100% - 60px) !important;
+}
+#displayNameInput {
+    width: 100%;
+}
 #displayNameInput, #phoneNumberInput {
-    /* TODO: Revamp the look of this whole section */
     margin: 7.5px 0 2.5px 0;
+    display: inline;
 }
 #updateDisplayName, #updatePhoneNumber {
     margin-bottom: 17.5px;
-}
-
-/* Rounded sliders */
-.slider.round {
-    border-radius: 34px;
-}
-.slider.round:before {
-    border-radius: 50%;
 }

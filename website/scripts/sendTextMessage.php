@@ -11,11 +11,11 @@
     $myMessage = $_POST["message"];
 
     // Get their phone number to send the message
-    $stmt = $conn->prepare("SELECT phone_num FROM userData WHERE userId=?");
+    $stmt = $conn->prepare("SELECT phone_num, countryCode FROM userData WHERE userId=?");
     $stmt->bind_param("s", $senderId);
     $stmt->execute();
     $stmt->store_result();
-    $stmt->bind_result($phoneNum);
+    $stmt->bind_result($phoneNum, $countryCode);
 
     if ($stmt->num_rows > 0) {
       $basic  = new \Nexmo\Client\Credentials\Basic($VONAGE_API_KEY, $VONAGE_API_SECRET);
@@ -23,11 +23,14 @@
 
       while ($stmt->fetch()) {
         if (!is_null($phoneNum)) {
-          // TODO: Is there a way to error check this to make sure the message is sent?
+          $sendingNumber = '15056669731';
+          if ($countryCode == "+44") {
+            $sendingNumber = '447480635013';
+          }
+
           $message = $client->message()->send([
-              // TODO: Let people know that this is only US numbers as of now
-              'to' => "1" . $phoneNum,
-              'from' => '15056669731',
+              'to' => $countryCode . $phoneNum,
+              'from' => $sendingNumber,
               'text' => $myMessage
           ]);
         } else {

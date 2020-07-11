@@ -322,6 +322,7 @@ function getUserInfo(updatePage) {
         // Store all the data in localStorage for later use
         data = JSON.parse(data);
         localStorage.setItem("display_name", data.displayName);
+        localStorage.setItem("country_code", data.countryCode);
         localStorage.setItem("phone_num", data.phoneNumber);
         localStorage.setItem("stats", data.stats);
 
@@ -460,14 +461,8 @@ function formatPhoneNumber(settingsPage) {
   const formatToPhone = (event) => {
     if (isModifierKey(event)) { return; }
     const target = event.target;
-    const input = event.target.value.replace(/\D/g,'').substring(0,10); // First ten digits of input only
-    const zip = input.substring(0,3);
-    const middle = input.substring(3,6);
-    const last = input.substring(6,10);
-  
-    if (input.length > 6) { target.value = `(${zip}) ${middle}-${last}` }
-    else if (input.length > 3) { target.value = `(${zip}) ${middle}` }
-    else if (input.length > 0) { target.value = `(${zip}` }
+    const number = event.target.value.replace(/\D/g,'').substring(0,10); // First ten digits of input only
+    target.value = number;
   };
 
   const inputElement = helper.getById(settingsPage ? "phoneNumberInput" : "phoneNumber");
@@ -484,11 +479,12 @@ function formatPhoneNumber(settingsPage) {
 function addPhoneNumber(phoneNum, settingsPage) {
   var userId = localStorage.getItem('user_id');
   if (!userId) return console.error("No user ID! Can't add phone number...");
+  let countryCode = helper.getById("countryCode").selectedOptions[0].value;
 
   $.ajax({
     type: "POST",
     url: "https://www.couponbooked.com/scripts/addUserPhoneNumber",
-    data: { userId: userId, phone_num: phoneNum },
+    data: { userId: userId, countryCode: countryCode, phone_num: phoneNum },
     crossDomain: true,
     cache: false,
     success: function(data) {
@@ -515,7 +511,8 @@ function addPhoneNumber(phoneNum, settingsPage) {
 function displayUserData() {
   // Put current display name in settings page input
   var displayName = localStorage.getItem("display_name"),
-      phoneNumber = localStorage.getItem("phone_num");
+      phoneNumber = localStorage.getItem("phone_num"),
+      countryCode = localStorage.getItem("country_code");
   if (helper.displayNameExists()) {
     // Stringified null would be put in the input box otherwise
     $("#displayNameInput").val(displayName);
@@ -523,11 +520,8 @@ function displayUserData() {
 
   // '> 4' prevents null from being displayed, because that happens for some reason
   if (phoneNumber && phoneNumber.length > 4) {
-    // Format the number before displaying in input
-    let zip = phoneNumber.substring(0,3);
-    let middle = phoneNumber.substring(3,6);
-    let last = phoneNumber.substring(6,10);
-    $("#phoneNumberInput").val(`(${zip}) ${middle}-${last}`);
+    $("#phoneNumberInput").val(phoneNumber);
+    $('#countryCode').val(countryCode);
   }
 
   // Update all the individual stats elements
@@ -538,7 +532,7 @@ function displayUserData() {
   helper.getById("redeemedCoupons").innerText += ` ${stats.redeemedCoupons}`;
 
   // TODO: Still need to either do this one or get rid of it
-  helper.getById("fulfilledCoupons").innerText += ` ${stats.fulfilledCoupons}`;
+  //helper.getById("fulfilledCoupons").innerText += ` ${stats.fulfilledCoupons}`;
 }
 
 /**
@@ -812,7 +806,7 @@ function processPulledData(data) {
         if (couponBook) {
           addBookToPage(couponBook, isSent);
         } else {
-          console.log("Showing that user doesn't have any books. They could be new, or something really bad could've happened...");
+          console.warn("Showing that user doesn't have any books. They could be new, or something really bad could've happened...");
           unhideMessage(isSent);
         }
       });

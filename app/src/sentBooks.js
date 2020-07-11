@@ -704,7 +704,7 @@ function openBookPreview() {
   // IDEA: Also add click listener to image on edit page that
   // shows the image fullscreen with a nav bar or sumn?
   helper.fadeBetweenElements("#bookContent", "#dataPreview");
-  window.ga.trackView('Book Preview');
+  window.ga.trackView('Sent Book Preview');
   $("#edit").unbind().click(function() { editBook() });
 
   $('#backArrow').unbind().click(function() {

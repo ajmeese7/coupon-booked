@@ -16,17 +16,18 @@
     $stmt->bind_param("is", $iOS, $userId);
     $stmt->execute();
 
-    $stmt = $conn->prepare("SELECT phone_num, displayName, stats FROM userData WHERE userId=?");
+    $stmt = $conn->prepare("SELECT countryCode, phone_num, displayName, stats FROM userData WHERE userId=?");
     $stmt->bind_param("s", $userId);
     $stmt->execute();
     $stmt->store_result();
-    $stmt->bind_result($phone_num, $displayName, $stats);
+    $stmt->bind_result($countryCode, $phone_num, $displayName, $stats);
 
     if ($stmt->num_rows > 0) {
       while ($stmt->fetch()) {
         if (!is_null($stats)) {
           // Using an object so it's easy to add more properties in the future
           $userData = new \stdClass();
+          $userData->countryCode = $countryCode;
           $userData->phoneNumber = $phone_num;
           $userData->displayName = $displayName;
           $userData->stats = $stats;
