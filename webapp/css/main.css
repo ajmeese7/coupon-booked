@@ -510,7 +510,7 @@ textarea {
     width: 85%;
 }
 #couponForm label, #bookForm label {
-    margin-top: 12.5px;
+    margin-top: 12.5px !important;
     font-weight: bold;
 }
 #displayNameInput,
@@ -518,7 +518,7 @@ textarea {
 #couponForm label,
 #couponForm input[type=text],
 #couponForm textarea,
-#bookForm label,
+#bookForm label:not(.pickImage),
 #bookForm input[type=text],
 #bookForm textarea,
 #bookDescLength,
@@ -533,16 +533,11 @@ textarea {
     margin-top: 5px;
 }
 #couponImage, #bookImage, #imgPreview {
-    /* NOTE: Probably going to have to institute max-width when starting to test tablets;
-    breaking into different column sizes in JS will likely work better */
     width: 50%;
     height: 50%;
     display: block;
     margin: 15px auto;
-    max-width: 300px; /* TODO: Decide on how to make this look good on mobile & desktop */
-    /* Need to make this attractive for images with a lot of whitespace somehow. That or 
-    just don't square crop the images in templates. Should user-uploaded images be forced to
-    an aspect ratio as well or leave it up to them? */
+    max-width: 300px;
 }
 #couponImage, #bookImage {
     cursor: pointer;
@@ -555,15 +550,47 @@ textarea {
     text-align: center;
 }
 
-.cloudinary-button {
+.pickImage {
     /* TODO: Make this fit in with the app style */
-    display: table !important;
+    display: inline !important;
     padding: 2px 14px !important;
+    margin: auto !important;
+    text-align: center;
+}
+#imageUpload {
+    display: table;
     margin: auto;
+    margin-top: 6px;
+    margin-bottom: 10px;
+}
+#imageUpload p {
+    margin-bottom: 0;
+    font-weight: bold;
+    cursor: pointer;
+    width: initial !important;
+    color: white;
+    background-color: var(--primary-button-color);
+    border: 1px solid #999;
+    border-radius: 4px;
+    display: inline-block;
+    padding: 3px 15px;
+}
+#inputImage {
+    display: none;
+}
+.cropper-container.cropper-bg {
+    /* TODO: Test */
+    margin-top: 25px !important;
+    /*min-width: 500px;
+    min-height: 225px;
+    max-width: 800px;*/
+	display: table;
+	margin: auto;
 }
 
 #namePreview {
-    /* Trying to make it not look bad for longer names; TODO: still work to be done */
+    /* Trying to make it not look bad for longer names; 
+        TODO: still work to be done */
     width: 90%;
     padding-left: 10%;
     margin: 0;

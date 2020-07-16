@@ -22,7 +22,3 @@
         image.src = "https://couponbooked.com/webapp/images/ticket.png";
     }
 </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.8.2/cloudinary-core.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.8.2/cloudinary-core.js.map"></script>
-<script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>

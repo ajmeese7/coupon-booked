@@ -38,7 +38,13 @@
         </div>
 
         <!-- NOTE: Nearly all of this is copied directly from bookForm, so changes should be reflected there -->
-        <button type="button" class="cloudinary-button">Change image</button>
+        <div id="imageUpload">
+            <label class="pickImage" for="inputImage" title="Upload image file">
+                <input type="file" id="inputImage" name="file" accept="image/*">
+                <p>Change image</p>
+            </label>
+            <p id="couponCrop">Crop</p>
+        </div>
         
         <!-- TODO: Need to get this to run on browser back button for desktop and native mobile -->
         <div id="discardCouponConfirm" class="dialog-box" title="Discard all changes?">
@@ -67,7 +73,13 @@
             <img id="bookImage" height="100px" onerror="imageError(this)" src="./images/ticket.png" />
         </div>
 
-        <button type="button" class="cloudinary-button">Change image</button>
+        <div id="imageUpload">
+            <label class="pickImage" for="inputImage" title="Upload image file">
+                <input type="file" id="inputImage" name="file" accept="image/*">
+                <p>Change image</p>
+            </label>
+            <p id="bookCrop">Crop</p>
+        </div>
         
         <div id="discardBookEditsConfirm" class="dialog-box" title="Discard all changes">
             <p id="confirmText">

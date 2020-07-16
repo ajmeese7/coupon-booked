@@ -23,16 +23,17 @@
     <meta name="twitter:card" content="summary">
 
     <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/ https://checkout.stripe.com 
-        https://www.google-analytics.com https://stats.g.doubleclick.net; 
+        https://www.google-analytics.com https://stats.g.doubleclick.net https://res.cloudinary.com/couponbooked/image/upload/ https://api.cloudinary.com/v1_1/couponbooked/upload 
+        blob:https://couponbooked.com/; 
         default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://cdn.onesignal.com https://onesignal.com https://cdn.auth0.com 
         https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/ https://js.stripe.com/ https://checkout.stripe.com/ https://cdnjs.cloudflare.com/ajax/libs/jshashes/
-        https://cdnjs.cloudflare.com/ajax/libs/cloudinary-core/2.8.2/ https://widget.cloudinary.com/v2.0/global/ https://widget.cloudinary.com/v2.0/n/couponbooked/ 
-        https://www.googletagmanager.com/gtag/js https://www.google-analytics.com/; 
-        style-src 'self' 'unsafe-inline' https://cdn.auth0.com https://checkout.stripe.com/v3/checkout/; media-src *; img-src *; font-src *;" />
+        https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.7/ https://www.googletagmanager.com/gtag/js https://www.google-analytics.com/; 
+        style-src 'self' 'unsafe-inline' https://cdn.auth0.com https://checkout.stripe.com/v3/checkout/; media-src *; img-src https: data: blob:; font-src *;" />
     
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/nav.css" />
     <link rel="stylesheet" type="text/css" href="css/auth0-theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/cropper.min.css" />
     <link rel="stylesheet" type="text/css" href="css/main.css" />
     <link rel="stylesheet" type="text/css" href="css/index.css" />
     <link rel="stylesheet" type="text/css" href="css/fontawesome.css" />
@@ -56,6 +57,7 @@
     <script src="https://cdn.auth0.com/w2/auth0-7.2.min.js"></script>
     <script src="https://unpkg.com/uuid@latest/dist/umd/uuidv4.min.js"></script>
     <script src="https://js.stripe.com/v3"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.7/cropper.js"></script>
 
     <script>
         // Copied from OneSignal website

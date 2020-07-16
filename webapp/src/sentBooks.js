@@ -263,7 +263,7 @@ function editBook() {
   });
 
   $("#bookImage").unbind().click(function() {
-    $(".cloudinary-button").click();
+    $("#inputImage").click();
   });
 }
 
@@ -272,45 +272,101 @@ function editBook() {
  * @param {object} coupon - exists if for the coupon image, so if for
  * book it'll be null, allowing it to serve as a Boolean detector for 
  * which purpose the function is being called for.
- * TODO: Fix problem with pay button showing up after saving
  */
 function imageUploadListeners(coupon) {
-  //var timestamp = Math.floor(Date.now() / 1000);
-  var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + book.bookId;
+  var Cropper = window.Cropper;
+  var URL = window.URL || window.webkitURL;
+  let image = getById(!!coupon ? "couponImage" : "bookImage");
+  let options = {
+    aspectRatio: 1 / 1,
+    autoCropArea: 1,
+    minContainerWidth: 450,
+    minContainerHeight: 250,
+    viewMode: 2,
+  };
 
-  // TODO: Have some unused bit or way to delete images of books that are old
-  // TODO: Add our images to Dropbox or something to display that; https://cloudinary.com/documentation/media_library_widget?
-  var uploadWidget = cloudinary.createUploadWidget({
-    // IDEA: https://demo.cloudinary.com/uw/#/
-    // NOTE: maxImageWidth/Height really ruin the photo quality since they are applied before cropping,
-    // so it might be worth looking into eventually for a replacement after cropping
-    cloudName: "couponbooked", uploadPreset: "default_unsigned", cropping: true, maxFileSize: 1500000, 
-    resourceType: "image", maxImageWidth: 512, maxImageHeight: 512, apiKey: "363493359893521", folder: folder, 
-    multiple: false, croppingAspectRatio: 1}, (error, result) => {
-      if (!error && result && result.event === "success") {
-        var imageToUpdate = !!coupon ? getById("couponImage") : getById("bookImage");
-        imageToUpdate.src = result.info.secure_url;
+  var cropper = new Cropper(image, options);
+  var inputImage = getById('inputImage');
+  var uploadedImageType;
+  inputImage.onchange = function() {
+    // From main.js on https://fengyuanchen.github.io/cropperjs/
+    var files = this.files;
+    var file;
 
-        gtag('event', 'Image Uploaded', {
-          'event_category' : 'Images',
-          'event_label' : (!!coupon ? "Coupon" : "Book")
-        });
+    if (cropper && files && files.length) {
+      file = files[0];
+
+      // Should have only allowed image with the input type, but just confirming
+      if (/^image\/\w+/.test(file.type)) {
+        uploadedImageType = file.type;
+        image.src = URL.createObjectURL(file);
+        cropper.destroy();
+        cropper = new Cropper(image, options);
+        inputImage.value = null;
+      } else {
+        window.alert('Please choose an image file.');
       }
     }
-  )
-  
-  $(".cloudinary-button").unbind().click(function() {
-    if (uploadWidget.isMinimized()) {
-      uploadWidget.show();
-    } else {
-      uploadWidget.open();
+  };
+
+  $(!!coupon ? "#couponCrop" : "#bookCrop").unbind().click(function() {
+    let cropBoxData = cropper.getCropBoxData();
+    let canvasData = cropper.getCanvasData();
+    cropper.setCropBoxData(cropBoxData).setCanvasData(canvasData);
+    cropper.crop();
+
+    result = cropper["getCroppedCanvas"]({
+      // TODO: Fix this destroying quality on large images
+      maxWidth: 512,
+      maxHeight: 512,
+    }, undefined);
+    if (result) {
+      // Resizes the image; https://stackoverflow.com/a/20965997/6456163
+      console.log("Image onload called...");
+
+      // https://stackoverflow.com/a/29851040/6456163
+      let croppedImage = result.toDataURL(uploadedImageType);
+      image.src = croppedImage;
+      uploadImage(coupon, croppedImage);
     }
+
+    cropper.destroy();
   });
+
+  // TODO: Add our images to Dropbox or something to display that;
+  // https://cloudinary.com/documentation/media_library_widget?
 }
 
-// TODO: Eventually have this signed with PHP sending back hash with secret
-// https://cloudinary.com/documentation/upload_images#generating_authentication_signatures
-// signature: new Hashes.SHA1().hex(`folder=${folder}&timestamp=${timestamp}${env.CLOUDINARY_SECRET}`)
+/**
+ * Upload to Cloudinary's storage.
+ * @param {object} coupon - same as for imageUploadListeners()
+ * @param {string} image - the Base64 image string
+ */
+function uploadImage(coupon, image) {
+  var url = "https://api.cloudinary.com/v1_1/couponbooked/upload";
+  var xhr = new XMLHttpRequest();
+  var fd = new FormData();
+  xhr.open('POST', url, true);
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      // File uploaded successfully
+      let response = JSON.parse(xhr.responseText);
+      getById(!!coupon ? "couponImage" : "bookImage").src = response.secure_url;
+      gtag('event', 'Image Uploaded', {
+        'event_category' : 'Images',
+        'event_label' : (!!coupon ? "Coupon" : "Book")
+      });
+    }
+  };
+
+  let folder = `users/${localStorage.getItem('user_id')}/${(!!coupon ? "coupons" : "books")}/${book.bookId}`;
+  fd.append('upload_preset', "default_unsigned");
+  fd.append('folder', folder);
+  fd.append('file', image);
+  xhr.send(fd);
+}
 
 /**
  * The normal listeners for the /sentBook route.
@@ -513,7 +569,7 @@ function showCouponEditPage($this) {
   });
 
   $("#couponImage").unbind().click(function() {
-    $(".cloudinary-button").click();
+    $("#inputImage").click();
   });
 }
 
@@ -765,8 +821,6 @@ function createCoupon() {
  * @param {Object} $this - reference to the applicable couponPreview node
  */
 function updateCoupon(oldCoupon, $this) {
-  // TODO: Make choosing image not be automatic and they still have to save it or
-  // choose to discard changes. 
   var form = $('#couponForm').serializeArray();
 
   var newCoupon = {};
