@@ -135,7 +135,9 @@ a {
     margin: 0 auto 20px auto;
     padding: 60px 0px 50px 55px;
     width: 525px;
-    min-height: 94vh;
+    height: 94vh;
+    /* 94vh before, but changed b/c 1366*768 */
+    min-height: 825px;
 }
 #headerParent {
     font-size: inherit;
