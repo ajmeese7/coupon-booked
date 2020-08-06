@@ -1,5 +1,5 @@
 User-agent: *
-Allow: index.html
+Allow: /index.html
 Allow: /webapp/index.php
 
 Disallow: /webapp/success.html

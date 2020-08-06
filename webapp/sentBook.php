@@ -31,8 +31,6 @@
     </div>
 
     <form id="couponForm" class="hide col">
-        <!-- https://picnicss.com/documentation#dropimage -->
-        <!-- https://stackoverflow.com/questions/4112575/client-checking-file-size-using-html5 -->
         <div>
             <img id="couponImage" height="100px" onerror="imageError(this)" src="./images/ticket.png" />
         </div>
