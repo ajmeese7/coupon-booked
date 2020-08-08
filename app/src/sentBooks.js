@@ -324,21 +324,22 @@ function imageUploadListeners(coupon) {
  */
 function uploadImage(updatedImage, coupon) {
   // NOTE: !!coupon == (isCoupon && !isBook), for reference
-  var filePath = updatedImage.src;
+  let filePath = updatedImage.src;
+  updatedImage.src = "images/loading.gif";
   console.warn("Uploading image...");
-
+  
   // https://github.com/collectmeaustralia/cordova-cloudinary-upload/issues/1
-  var Hashes = require('jshashes');
-  var uri = encodeURI('https://api.cloudinary.com/v1_1/couponbooked/image/upload');
-  var fileToUploadPath = filePath;
+  const Hashes = require('jshashes');
+  let uri = encodeURI('https://api.cloudinary.com/v1_1/couponbooked/image/upload');
+  let fileToUploadPath = filePath;
 
-  var options = new FileUploadOptions();
-    options.fileKey = "file";
-    options.fileName = fileToUploadPath.substr(fileToUploadPath.lastIndexOf('/') + 1);
-  var timestamp = Math.floor(Date.now() / 1000);
+  let options = new FileUploadOptions();
+      options.fileKey = "file";
+      options.fileName = fileToUploadPath.substr(fileToUploadPath.lastIndexOf('/') + 1);
+  let timestamp = Math.floor(Date.now() / 1000);
 
   // https://support.cloudinary.com/hc/en-us/community/posts/360030104392/comments/360002948811
-  var folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + globalVars.book.bookId;
+  let folder = "users/" + localStorage.getItem('user_id') + "/" + (!!coupon ? "coupons" : "books") + "/" + globalVars.book.bookId;
 
   // Add in the params required for Cloudinary
   options.params = {
@@ -348,9 +349,8 @@ function uploadImage(updatedImage, coupon) {
     signature: new Hashes.SHA1().hex(`folder=${folder}&timestamp=${timestamp}${env.CLOUDINARY_SECRET}`)
   };
 
-  var ft = new FileTransfer();
-
   // Leaving this here in case I ever need it
+  let ft = new FileTransfer();
   ft.onprogress = (function(progressEvent) {
     try {
       if (progressEvent.lengthComputable) {
@@ -365,7 +365,7 @@ function uploadImage(updatedImage, coupon) {
 
   ft.upload(fileToUploadPath, uri, 
     function(result) {
-      var response = JSON.parse(result.response);
+      let response = JSON.parse(result.response);
       console.log("Upload response:", response);
       updatedImage.src = response.secure_url;
 
@@ -721,8 +721,6 @@ function openBookPreview() {
  * Adds click listener to trash can icon in miniPreview.
  */
 function addDeleteListeners() {
-  // TODO: 'Wait, stop!'
-
   $('#deleteBook').unbind().click(function(event) {
     // Stop page from scrolling when clicking delete button;
     // https://stackoverflow.com/a/21876609/6456163
@@ -812,8 +810,7 @@ function createCoupon() {
   // Convert from string to number
   coupon.count = parseInt(coupon.count);
 
-  // Replace Android full URL with a cross-platform local one;
-  // TODO: Fix this in coupon changed checker
+  // Replace Android full URL with a cross-platform local one
   var imageSrc = helper.getById("couponImage").src;
   coupon.image = imageSrc.includes("ticket.png") ? "images/ticket.png" : imageSrc;
 
@@ -850,10 +847,6 @@ function updateCoupon(oldCoupon, $this) {
   // Replace Android full URL with a cross-platform local one
   var imageSrc = helper.getById("couponImage").src;
   newCoupon.image = imageSrc.includes("ticket.png") ? "images/ticket.png" : imageSrc;
-
-  //uploadImage(newCoupon.image, newCoupon);
-  // TODO: Go over this and figure out when uploading actually happens again so I can make
-  // sure to erase premature uploading if they decide to not create a coupon
 
   // TODO: Consider decomposing
   if (!helper.isSameObject(oldCoupon, newCoupon)) {

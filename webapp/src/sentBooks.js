@@ -324,17 +324,15 @@ function imageUploadListeners(coupon) {
       // Resizes the image; https://stackoverflow.com/a/20965997/6456163
       console.log("Image onload called...");
 
-      // https://stackoverflow.com/a/29851040/6456163
       let croppedImage = result.toDataURL(uploadedImageType);
-      image.src = croppedImage;
+      image.src = "./images/loading.gif";
       uploadImage(coupon, croppedImage);
     }
 
     cropper.destroy();
   });
 
-  // TODO: Add our images to Dropbox or something to display that;
-  // https://cloudinary.com/documentation/media_library_widget?
+  // TODO: Add our images to Dropbox or something to display
 }
 
 /**
@@ -352,6 +350,7 @@ function uploadImage(coupon, image) {
   xhr.onreadystatechange = function() {
     if (xhr.readyState == 4 && xhr.status == 200) {
       // File uploaded successfully
+      console.warn("File upload successful!");
       let response = JSON.parse(xhr.responseText);
       getById(!!coupon ? "couponImage" : "bookImage").src = response.secure_url;
       gtag('event', 'Image Uploaded', {
