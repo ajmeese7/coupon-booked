@@ -23,8 +23,7 @@
     <meta name="twitter:card" content="summary">
 
     <meta http-equiv="Content-Security-Policy" content="connect-src 'self' https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/ https://checkout.stripe.com 
-        https://www.google-analytics.com https://stats.g.doubleclick.net https://res.cloudinary.com/couponbooked/image/upload/ https://api.cloudinary.com/v1_1/couponbooked/upload 
-        blob:https://couponbooked.com/; 
+        https://www.google-analytics.com https://stats.g.doubleclick.net https://res.cloudinary.com/couponbooked/image/upload/ https://api.cloudinary.com/v1_1/couponbooked/upload;
         default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://cdn.onesignal.com https://onesignal.com https://cdn.auth0.com 
         https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/ https://js.stripe.com/ https://checkout.stripe.com/ https://cdnjs.cloudflare.com/ajax/libs/jshashes/
         https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.7/ https://www.googletagmanager.com/gtag/js https://www.google-analytics.com/; 
