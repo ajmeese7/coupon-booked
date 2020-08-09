@@ -744,7 +744,7 @@ function addDeleteListeners() {
           // waiting for a promise or asynchronously running a function or something. 
           goBack();
         },
-        Cancel: function() {
+        "Wait, stop!": function() {
           $( this ).dialog( "close" );
         }
       }

@@ -58,7 +58,6 @@ App.prototype.state = {
         screen.orientation.lock('portrait');
         globalVars._this = this;
 
-        //determineAuthRoute(localStorage.getItem("start_animation") != "true");
         if (this.state.authenticated === true) {
           createConnection();
           getUserInfo();
@@ -254,25 +253,6 @@ App.prototype.state = {
     }
   }
 };
-
-/**
- * Decides whether to redirect to the home page or the login page,
- * depending on the current authentication state of the user.
- * @param {boolean} instant - true for zero delay, false for time for 
- * animation to display to the user.
- */
-function determineAuthRoute(instant) {
-  console.warn("Showing startup animation:", !instant);
-
-  // Gives time for opening animation to run
-  setTimeout(function() {
-    if (globalVars._this.state.authenticated === true) {
-      return globalVars._this.redirectTo('/dashboard');
-    } else {
-      return globalVars._this.redirectTo('/login');
-    }
-  }, instant ? 1 : 3500);
-}
 
 /**
  * Establish connection with the database so no load times later on.
@@ -683,22 +663,6 @@ function darkModeSupport(settingsPage) {
   function setRootProperty(name, value) {
     document.documentElement.style.setProperty(name, value);
   }
-}
-
-/**
- * Helps display the toggle for startup animation and modify
- * the localStorage variable when the toggle is modified.
- */
-function animationSetting() {
-  if (localStorage.getItem("start_animation") == "true") helper.getById("animationCheckbox").click();
-
-  // NOTE: The code in here runs twice; shouldn't be a problem
-  var toggle = helper.getById("animationToggle");
-  $(toggle).unbind().click(function() {
-    var animation = helper.getById("animationCheckbox").checked;
-    console.log("Animation state changing to " + animation + "...")
-    localStorage.setItem("start_animation", animation + "");
-  });
 }
 
 /**
