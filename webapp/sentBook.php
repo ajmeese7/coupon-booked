@@ -61,7 +61,7 @@
         <textarea id="couponDescription" name="description" placeholder="A nice, long massage." 
             maxlength="180"></textarea>
         <div id="couponDescLength">0</div>
-        
+
         <label for="count">Count</label>
         <input type="number" id="count" name="count" min="1" max="99" placeholder="3">
     </form>
@@ -102,10 +102,8 @@
         </p>
     </div>
 
-    <script id="moreOptions" type="text/html">
+    <div id="moreOptions">
         <nav class="menu">
-            <!-- TODO: Try to speed up this animation, and probably replace the hamburger
-                icon with ellipses or something. -->
             <input type="checkbox" href="#" class="menu-open" name="menu-open" id="menu-open"/>
             <label class="menu-open-button" for="menu-open">
                 <span class="hamburger hamburger-1"></span>
@@ -116,9 +114,40 @@
             <a href="#editBook" class="menu-item">
                 <img id='editBook' class='ionicon' src='./images/md-edit.svg' />
             </a>
+            <a href="#shareBook" class="menu-item">
+                <!-- TODO: One this is working, get it to recevied books and redeemed coupons too -->
+                <img id='shareBook' class='ionicon' src='./images/md-share.svg' />
+            </a>
             <a href="#deleteBook" class="menu-item">
                 <img id='deleteBook' class='ionicon' src='./images/md-trash.svg' />
             </a>
         </nav>
-    </script>
+    </div>
+
+    <!-- Required for Facebook share -->
+    <div id="fb-root"></div>
+    <script async defer crossorigin="anonymous" 
+    src="https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v8.0&appId=2521896274501206&autoLogAppEvents=1" 
+    nonce="EhJQ7gMr"></script>
+
+    <!-- TODO: Figure out why this is fucky on the second book you try it on -->
+    <div id="shareBookDialog" class="dialog-box" title="Share book">
+        Love your new book? Spread the word!
+
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        <div id="shareButtons">
+            <a id="twitter" href="https://twitter.com/share" class="twitter-share-button" 
+            data-url="https://couponbooked.com" data-via="CouponBooked" data-related="CouponBooked" 
+            data-dnt="true" data-show-count="false">Tweet</a>
+
+            <div class="fb-share-button" data-href="https://couponbooked.com" 
+            data-layout="button_count" data-size="small"><a target="_blank" 
+            href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcouponbooked.com%2F&amp;src=sdkpreparse" 
+            class="fb-xfbml-parse-ignore">Share</a></div>
+
+            <a id="pinterest">
+                <img src="https://img.shields.io/badge/-Pinterest-red?style=flat&logo=Pinterest&logoColor=white" />
+            </a>
+        </div>
+    </div>
 </template>

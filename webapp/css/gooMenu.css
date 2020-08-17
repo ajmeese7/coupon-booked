@@ -87,6 +87,9 @@
 .menu-item:nth-child(4) {
   transition-duration: 180ms;
 }
+.menu-item:nth-child(5) {
+  transition-duration: 180ms;
+}
 .menu-item .ionicon {
     height: 35px;
     margin-top: -5px;
@@ -118,4 +121,9 @@
   transition-duration: 290ms;
   -webkit-transform: translate3d(-100px, 0, 0);
           transform: translate3d(-100px, 0, 0);
+}
+.menu-open:checked ~ .menu-item:nth-child(5) {
+  transition-duration: 390ms;
+  -webkit-transform: translate3d(-150px, 0, 0);
+          transform: translate3d(-150px, 0, 0);
 }

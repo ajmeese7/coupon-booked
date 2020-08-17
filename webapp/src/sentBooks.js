@@ -57,6 +57,7 @@ function displaySentBook(funky) {
   if (isIOS) {
     // Changes icons based on platform
     $('#editBook').attr('src', "./images/ios-edit.svg");
+    $('#shareBook').attr('src', "./images/ios-share.svg");
     $('#deleteBook').attr('src', "./images/ios-trash.svg");
   }
   miniPreview.innerHTML += moreOptions;
@@ -65,6 +66,7 @@ function displaySentBook(funky) {
   bookContent.innerHTML += "<hr>";
 
   addDeleteListeners();
+  addShareListeners();
   addListeners();
 }
 
@@ -394,6 +396,37 @@ function addListeners() {
 }
 
 /**
+ * Adds click listener to share icon in miniPreview.
+ */
+function addShareListeners() {
+  let twitter = getById("twitter");
+  let twitterText = `Just made this awesome coupon book, '${book.name}!' Go make your own at`;
+  twitter.setAttribute("data-text", twitterText);
+
+  // TODO: Figure out how to check the description
+  let pinterest = getById("pinterest");
+  let pinterestText = encodeURIComponent(`Just made this awesome coupon book, '${book.name}!' Go make your own at https://couponbooked.com!`);
+  pinterest.href = `https://pinterest.com/pin/create/button/?url=https%3A//couponbooked.com&media=${book.image}&description=${pinterestText}`;
+
+  $('#shareBook').unbind().click(function(event) {
+    event.preventDefault();
+
+    $( "#shareBookDialog" ).dialog({
+      draggable: false,
+      resizable: false,
+      height: "auto",
+      width: 400,
+      modal: true,
+      buttons: {
+        Cancel: function() {
+          $( this ).dialog( "close" );
+        }
+      }
+    });
+  });
+}
+
+/**
  * Adds coupon data to div and inserts it to page.
  * @param {integer} couponNumber - the location of the current coupon in the array
  * @param {object} coupon - the data for the current coupon
@@ -703,37 +736,35 @@ function openBookPreview() {
  * Adds click listener to trash can icon in miniPreview.
  */
 function addDeleteListeners() {
-    // TODO: 'Wait, stop!'
+  $('#deleteBook').unbind().click(function(event) {
+    // Stop page from scrolling when clicking delete button;
+    // https://stackoverflow.com/a/21876609/6456163
+    event.preventDefault();
 
-    $('#deleteBook').unbind().click(function(event) {
-      // Stop page from scrolling when clicking delete button;
-      // https://stackoverflow.com/a/21876609/6456163
-      event.preventDefault();
+    $( "#deleteBookConfirm" ).dialog({
+      draggable: false,
+      resizable: false,
+      height: "auto",
+      width: 400,
+      modal: true,
+      buttons: {
+        "Delete it": function() {
+          $( this ).dialog( "close" );
+          deleteBook();
 
-      $( "#deleteBookConfirm" ).dialog({
-        draggable: false,
-        resizable: false,
-        height: "auto",
-        width: 400,
-        modal: true,
-        buttons: {
-          "Delete it": function() {
-            $( this ).dialog( "close" );
-            deleteBook();
-
-            // NOTE: This used to not always pull the new data in time for when the
-            // user sees the dashboard so the deleted book would still show up, but it's
-            // hard to replicate so I don't know if the problem still exists. If noticed 
-            // again in the future I'll look further into how to prevent it. Possibly with
-            // waiting for a promise or asynchronously running a function or something. 
-            goBack();
-          },
-          Cancel: function() {
-            $( this ).dialog( "close" );
-          }
+          // NOTE: This used to not always pull the new data in time for when the
+          // user sees the dashboard so the deleted book would still show up, but it's
+          // hard to replicate so I don't know if the problem still exists. If noticed 
+          // again in the future I'll look further into how to prevent it. Possibly with
+          // waiting for a promise or asynchronously running a function or something. 
+          goBack();
+        },
+        "Wait, stop!": function() {
+          $( this ).dialog( "close" );
         }
-      });
+      }
     });
+  });
 }
 
 /**

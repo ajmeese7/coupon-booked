@@ -349,6 +349,18 @@ label {
     height: 40px;
 }
 
+#shareButtons {
+    display: table;
+    margin: auto;
+    margin-top: 10px;
+}
+.twitter-share-button {
+    margin-bottom: -5px;
+}
+#pinterest img {
+    margin-top: -2px;
+}
+
 /* TODO: Get this inside the a; preferrably w/o margin - */
 #sentButton, #receivedButton {
     display: inline-block !important;

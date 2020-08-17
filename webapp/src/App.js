@@ -233,7 +233,7 @@ App.prototype.state = {
 
         // Display share icon based on platform
         var shareIcon = getById("shareIcon");
-        isIOS ? shareIcon.src = "./images/ios-share.svg" : shareIcon.src = "./images/md-share.svg"; // TODO: TEST
+        if (isIOS) shareIcon.src = "./images/ios-share.svg";
 
         // Hides share button if native share API not supported;
         // can implement my own alternative later if desired like in

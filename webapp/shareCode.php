@@ -22,6 +22,9 @@
         redeem the code.
     </p>
 
-    <button id="bigShareButton"><img id="shareIcon" class="ionicon" />SHARE</button>
+    <button id="bigShareButton">
+        <img id="shareIcon" class="ionicon" src="./images/md-share.svg"/>
+        SHARE
+    </button>
     <script src="js/fireworks.js"></script>
 </template>

@@ -17,16 +17,16 @@
     <meta property="og:url" content="https://couponbooked.com">
     <meta property="twitter:title" content="Coupon Booked - Webapp">
     <meta property="twitter:description" content="Looking for a thoughtful gift idea for your loved ones? Look no further, Coupon Booked has your back. We offer the most customizable gift on the market.">
-    <!-- TODO: Test if Twitter actually uses big images or just the small one, and change accordingly -->
-    <meta name="twitter:image" content="https://couponbooked.com/images/socialBanner.png">
-    <meta name="twitter:image:alt" content="Coupon Booked banner">
+    <meta name="twitter:image" content="https://couponbooked.com/images/logo_small.png">
+    <meta name="twitter:image:alt" content="Coupon Booked logo">
     <meta name="twitter:card" content="summary">
 
     <meta http-equiv="Content-Security-Policy" content="connect-src 'self' blob: https://*.auth0.com https://*.couponbooked.com https://onesignal.com/api/v1/ https://checkout.stripe.com 
-        https://www.google-analytics.com https://stats.g.doubleclick.net https://res.cloudinary.com/couponbooked/image/upload/ https://api.cloudinary.com/v1_1/couponbooked/upload ;
+        https://www.google-analytics.com https://stats.g.doubleclick.net https://res.cloudinary.com/couponbooked/image/upload/ https://api.cloudinary.com/v1_1/couponbooked/upload;
         default-src 'self' data: gap: 'unsafe-inline' https://ssl.gstatic.com https://couponbooked.auth0.com https://cdn.onesignal.com https://onesignal.com https://cdn.auth0.com 
         https://unpkg.com/uuid@latest/dist/umd/ https://code.jquery.com/ui/1.12.1/ https://js.stripe.com/ https://checkout.stripe.com/ https://cdnjs.cloudflare.com/ajax/libs/jshashes/
-        https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.7/ https://www.googletagmanager.com/gtag/js https://www.google-analytics.com/; 
+        https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.7/ https://www.googletagmanager.com/gtag/js https://www.google-analytics.com/ https://platform.twitter.com/
+        https://connect.facebook.net/en_US/ https://www.facebook.com/v8.0/plugins/; 
         style-src 'self' 'unsafe-inline' https://cdn.auth0.com https://checkout.stripe.com/v3/checkout/; media-src *; img-src https: data: blob:; font-src *;" />
     
     <link rel="stylesheet" type="text/css" href="css/index.css" />
