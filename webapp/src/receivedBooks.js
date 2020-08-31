@@ -2,21 +2,21 @@
  * Displays the UI for the current received book.
  */
 function displayReceivedBook() {
-  var bookContent = getById("bookContent");
+  let bookContent = getById("bookContent");
 
   // Reset to default code so when refreshed it isn't populated twice
   bookContent.innerHTML = "";
 
   // Dynamically create preview of book at top of display
-  var miniPreview = document.createElement('div');
+  let miniPreview = document.createElement("div");
   miniPreview.setAttribute("id", "miniPreview");
   miniPreview.innerHTML += `<img id='miniPreviewImage' onerror='imageError(this)' src='${book.image}' />`;
 
-  var previewText = document.createElement('div');
+  let previewText = document.createElement("div");
   previewText.setAttribute("id", "previewText");
   previewText.innerHTML += `<h4>${book.name}</h4>`;
 
-  var senderText = "<p class='senderText'>";
+  let senderText = "<p class='senderText'>";
   senderText += book.sender ? `Sent from ${book.sender}` : "Sender unavailable";
   senderText += "</p>";
   previewText.innerHTML += senderText;
@@ -74,10 +74,10 @@ function createReceivedCouponElements() {
     // should changing display preference permenantly update the order?
     // Option to hide coupons with 0 count; display 3 to a row
 
-  var couponContainer = document.createElement('div');
+  let couponContainer = document.createElement("div");
   couponContainer.setAttribute("id", "couponContainer");
   $.each(book.coupons, function(couponNumber, coupon) {
-      var node = document.createElement('div');
+      let node = document.createElement("div");
       node.setAttribute("class", "couponPreview");
       node.innerHTML += `<img class='couponImage' onerror='imageError(this)' src='${coupon.image}' />`;
       node.innerHTML += `<p class='couponName'>${coupon.name}</p>`;
@@ -106,14 +106,14 @@ function receivedCouponListeners(node) {
     });
 
     // Updates preview fields with actual coupon's data
-    var coupon = $(this).data("coupon");
+    let coupon = $(this).data("coupon");
     getById("imgPreview").src        = coupon.image;
     getById("namePreview").innerText = `${coupon.name}: ${coupon.count}`;
     getById("descPreview").innerText = coupon.description;
 
     // This is here to pass current coupon to redeemCoupon().
-    $('#redeemCoupon').unbind().click(function() {
-      $( "#redeemCouponConfirm" ).dialog({
+    $("#redeemCoupon").unbind().click(function() {
+      $("#redeemCouponConfirm").dialog({
         draggable: false,
         resizable: false,
         height: "auto",
@@ -121,14 +121,14 @@ function receivedCouponListeners(node) {
         modal: true,
         buttons: {
           Cancel: function() {
-            $( this ).dialog( "close" );
+            $(this).dialog("close");
           },
           "Redeem it": function() {
             // TODO: Test coupon redemption + notification;
             // how to handle if they've logged out of device? Email? Text?
-            $( this ).dialog( "close" );
+            $(this).dialog("close");
             redeemCoupon(coupon);
-            $('#backArrow').click();
+            $("#backArrow").click();
           }
         }
       });
@@ -145,48 +145,47 @@ function receivedCouponListeners(node) {
  */
 function redeemCoupon(coupon) {
   console.warn("Redeeming coupon...");
-  if (coupon.count > 0) {
-    var userId = localStorage.getItem("user_id");
-    $.ajax({
-      type: "POST",
-      url: "https://www.couponbooked.com/scripts/redeemCoupon",
-      data: { bookId: book.bookId, userId: userId, couponName: coupon.name },
-      crossDomain: true,
-      cache: false,
-      success: function(success) {
-        console.warn("redeemCoupon success:", success);
-        gtag('event', 'Coupon Redeemed', {
-          'event_category' : 'Book Modification',
-          'event_label' : 'Success'
-        });
-        
-        if (success == "None left") {
-          noneLeft();
-        } else if (success) {
-          // Should be an object with onesignalId and sender properties
-          notifySender(JSON.parse(success), coupon);
-        } else {
-          // TODO: Alert user that there's an error and log it? This should never run, outside of
-          // when I break stuff when testing...
-          console.error("No server OneSignal user ID set! Not attempting to send notification...");
-        }
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-        console.error("Error in redeemCoupon:", XMLHttpRequest.responseText);
-        gtag('event', 'Coupon Redeemed', {
-          'event_category' : 'Book Modification',
-          'event_label' : 'Error'
-        });
-
-        SimpleNotification.error({
-          title: "Error redeeming coupon!",
-          text: "Please try again later."
-        }, notificationOptions);
+  if (coupon.count == 0)
+    return noneLeft();
+  
+  let userId = localStorage.getItem("user_id");
+  $.ajax({
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/redeemCoupon",
+    data: { bookId: book.bookId, userId: userId, couponName: coupon.name },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+      console.warn("redeemCoupon success:", success);
+      gtag('event', 'Coupon Redeemed', {
+        'event_category' : 'Book Modification',
+        'event_label' : 'Success'
+      });
+      
+      if (success == "None left") {
+        noneLeft();
+      } else if (success) {
+        // Should be an object with onesignalId and sender properties
+        notifySender(JSON.parse(success), coupon);
+      } else {
+        // TODO: Alert user that there's an error and log it? This should never run, outside of
+        // when I break stuff when testing...
+        console.error("No server OneSignal user ID set! Not attempting to send notification...");
       }
-    });
-  } else {
-    noneLeft();
-  }
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      console.error("Error in redeemCoupon:", XMLHttpRequest.responseText);
+      gtag('event', 'Coupon Redeemed', {
+        'event_category' : 'Book Modification',
+        'event_label' : 'Error'
+      });
+
+      SimpleNotification.error({
+        title: "Error redeeming coupon!",
+        text: "Please try again later."
+      }, notificationOptions);
+    }
+  });
 
   function noneLeft() {
     SimpleNotification.warning({
@@ -286,7 +285,7 @@ function notificationSuccess(isText, coupon) {
   });
 
   // Update redeemed coupons stats
-  var stats = JSON.parse(localStorage.getItem("stats"));
+  let stats = JSON.parse(localStorage.getItem("stats"));
   stats.redeemedCoupons++;
   localStorage.setItem("stats", JSON.stringify(stats));
   updateStats();
@@ -339,7 +338,7 @@ function notificationError(failedResponse, coupon) {
  */
 function refundCoupon(couponName) {
   console.warn("Refunding coupon...");
-  var userId = localStorage.getItem("user_id");
+  let userId = localStorage.getItem("user_id");
   
   $.ajax({
     type: "POST",

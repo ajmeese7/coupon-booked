@@ -587,7 +587,7 @@ textarea {
     display: inline-block;
     padding: 3px 15px;
 }
-#inputImage {
+#bookInputImage, #couponInputImage {
     display: none;
 }
 .cropper-container.cropper-bg {

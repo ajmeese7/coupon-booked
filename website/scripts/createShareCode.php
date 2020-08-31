@@ -42,14 +42,10 @@
             // Book already has a share code set
             echo "Share code exists";
           } else {
-            // Book has alreay been sent and cannot be sent again;
-            // IDEA: clone feature for sending same book to multiple people
+            // Book has alreay been sent and cannot be sent again
             echo "Receiver exists";
           }
         }
-
-        // IDEA: must have requried ID (sender/receiver) to manipulate book?
-        // Except for my master ID; how to protect? Env file?
       } else {
         // TODO: Look further into which headers to use
         header('HTTP/1.1 400 Bad Request');

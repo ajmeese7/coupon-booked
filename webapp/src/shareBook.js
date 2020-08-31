@@ -9,9 +9,9 @@ var ID_LENGTH = 8;
  */
 function createShareCode() {
   // https://www.fiznool.com/blog/2014/11/16/short-id-generation-in-javascript/
-  var shareCode = generateShareCode();
+  let shareCode = generateShareCode();
   function generateShareCode() {
-    var rtn = '';
+    let rtn = '';
     for (var i = 0; i < ID_LENGTH; i++) {
       rtn += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length));
     }
@@ -76,7 +76,7 @@ function createShareCode() {
       localStorage.setItem("show_fireworks", "true");
 
       // Update sent books stats
-      var stats = JSON.parse(localStorage.getItem("stats"));
+      let stats = JSON.parse(localStorage.getItem("stats"));
       stats.sentBooks++;
       localStorage.setItem("stats", JSON.stringify(stats));
       updateStats();
@@ -93,7 +93,7 @@ function createShareCode() {
  * Opens native share function of device populated with the coded options.
  */
 async function shareCode() {
-  var options = {
+  let options = {
     //title: "You've been Coupon Booked!", // for email
     text: `You've been Coupon Booked! Go to couponbooked.com/webapp to redeem your code: ${book.shareCode}`
   };

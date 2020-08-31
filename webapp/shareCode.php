@@ -9,10 +9,9 @@
         <span class="copytooltiptext" style="opacity: 0;">Copied to clipboard</span>
     </div>
     <div id="shareCodeDiv">
-        <!-- TODO: Switch to having icons in different folders for different OS -->
+        <!-- https://ionicons.com/ -->
         <p id="shareCodeText">88888888</p>
         <img id="copyButton" src="./images/copy.svg" />
-        <!-- https://ionicons.com/ -->
     </div>
 
     <p id="shareCodeDescription">

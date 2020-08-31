@@ -16,8 +16,6 @@ App.prototype.state = {
   accessToken: false,
   currentRoute: '/',
   routes: {
-    // TODO: Add route to URL or something so browser back button naviation works;
-      // use something like this: https://gomakethings.com/how-to-update-a-url-without-reloading-the-page-using-vanilla-javascript/
     '/': {
       id: 'loading',
       onMount: function(page) {
@@ -85,12 +83,6 @@ App.prototype.state = {
         backButtonTarget = "/create";
         $('#backArrow').unbind().click(function() { _this.redirectTo('/dashboard') });
 
-        // TODO: When back button is clicked after editing retrieved template,
-        // still make sure they want to discard changes
-
-        // TODO: Either add a similar variable to /dashboard here or implement some
-        // kind of caching mechanism so they don't have to wait every time for the
-        // templates to be retrieved
         this.container.appendChild(loadingIcon);
         $("#loader").css("display", "inline-block");
         fadeBetweenElements("#gestureZone, #templateContainer", "", true);
@@ -123,7 +115,7 @@ App.prototype.state = {
               quantity: 1
             }],
             successUrl: `https://couponbooked.com/webapp/success?shared=true&bookId=${book.bookId}`,
-            cancelUrl: "https://couponbooked.com/webapp/index", // TODO: Make this work properly
+            cancelUrl: "https://couponbooked.com/webapp/index",
           }).then(function (result) {
             // TODO: Do something similar to example on products page for error handling
             console.log("Result:", result);
@@ -144,12 +136,11 @@ App.prototype.state = {
         darkModeSupport();
       }
     },
-    // TODO: Speed up loading of books somehow; caching until change?
     '/dashboard': {
       id: 'dashboard',
       onMount: function(page) {
         gtag('config', googleID, { 'page_title' : 'Dashboard', 'page_path' : '/dashboard' });
-        gtag('config', googleID, { 'user_id': localStorage.getItem("user_id") }); // TODO: Test with unique user IDs    
+        gtag('config', googleID, { 'user_id': localStorage.getItem("user_id") });  
 
         _this = this;
         navBar();
@@ -233,6 +224,7 @@ App.prototype.state = {
 
         // Display share icon based on platform
         var shareIcon = getById("shareIcon");
+        let shareIcon = getById("shareIcon");
         if (isIOS) shareIcon.src = "./images/ios-share.svg";
 
         // Hides share button if native share API not supported;
@@ -265,7 +257,7 @@ App.prototype.state = {
         displayNameListeners();
         darkModeSupport(true);
         
-        var logoutButton = getBySelector('.btn-logout');
+        let logoutButton = getBySelector(".btn-logout");
         $(logoutButton).unbind().click(this.logout);
       }
     },
@@ -290,7 +282,7 @@ App.prototype.state = {
  * is going to be copied from.
  */
 function copyToClipboard(element) {
-  var $temp = $("<input>");
+  let $temp = $("<input>");
   $("body").append($temp);
   $temp.val($(element).text()).select();
   document.execCommand("copy");
@@ -329,7 +321,7 @@ function createConnection() {
  * should be updated on successful data retrieval.
  */
 function getUserInfo(updatePage) {
-  var userId = localStorage.getItem('user_id');
+  let userId = localStorage.getItem("user_id");
   if (!userId) return console.error("No user ID! Can't get user info...");
   let iOS = !!navigator.platform.match(/iPhone|iPod|iPad/);
 
@@ -380,17 +372,17 @@ function addOneSignalUserId() {
   }
 
   $.ajax({
-      type: "POST",
-      url: "https://www.couponbooked.com/scripts/addOneSignalUserId",
-      data: { userId: userId, onesignalId: onesignalId, iOS: iOS },
-      crossDomain: true,
-      cache: false,
-      success: function(success) {
-          console.warn("Successfully set user's OneSignal ID...", success);
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
-          console.error("Error setting OneSignal ID:", XMLHttpRequest.responseText);
-      }
+    type: "POST",
+    url: "https://www.couponbooked.com/scripts/addOneSignalUserId",
+    data: { userId: userId, onesignalId: onesignalId, iOS: iOS },
+    crossDomain: true,
+    cache: false,
+    success: function(success) {
+        console.warn("Successfully set user's OneSignal ID...", success);
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+        console.error("Error setting OneSignal ID:", XMLHttpRequest.responseText);
+    }
   });
 }
 
@@ -399,7 +391,7 @@ function addOneSignalUserId() {
  */
 function sideMenuInfo() {
   getById("sidebarName").innerText = getUserName();
-  var stats = JSON.parse(localStorage.getItem("stats")), quip = "Explorer";
+  let stats = JSON.parse(localStorage.getItem("stats")), quip = "Explorer";
   if (stats.sentBooks > stats.receivedBooks) {
     quip = "Giver";
   } else if (stats.createdBooks > stats.sentBooks + 1) {
@@ -442,7 +434,7 @@ function createUserInfo() {
  */
 function phoneNumberDialog() {
   formatPhoneNumber();
-  $( "#phoneForm" ).dialog({
+  $("#phoneForm").dialog({
     draggable: false,
     resizable: false,
     height: "auto",
@@ -450,7 +442,7 @@ function phoneNumberDialog() {
     modal: true,
     buttons: {
       Cancel: function() {
-        $( this ).dialog( "close" );
+        $(this).dialog("close");
       },
       "Submit Number": function() {
         validatePhoneNumber();
@@ -530,7 +522,7 @@ function formatPhoneNumber(settingsPage) {
  * successful notification should say.
  */
 function addPhoneNumber(phoneNum, settingsPage) {
-  var userId = localStorage.getItem('user_id');
+  let userId = localStorage.getItem("user_id");
   if (!userId) return console.error("No user ID! Can't add phone number...");
   let countryCode = getById("countryCode").selectedOptions[0].value;
 
@@ -546,7 +538,7 @@ function addPhoneNumber(phoneNum, settingsPage) {
         text: `Phone number ${settingsPage ? "updated!" : "received!"}`
       }, notificationOptions);
 
-      $( "#phoneForm" ).dialog( "close" );
+      $("#phoneForm").dialog("close");
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       console.error("Error adding phone number:", XMLHttpRequest.responseText);
@@ -563,7 +555,7 @@ function addPhoneNumber(phoneNum, settingsPage) {
  */
 function displayUserData() {
   // Put current display name in settings page input
-  var displayName = localStorage.getItem("display_name"),
+  let displayName = localStorage.getItem("display_name"),
       phoneNumber = localStorage.getItem("phone_num"),
       countryCode = localStorage.getItem("country_code");
   if (displayNameExists()) {
@@ -595,8 +587,8 @@ function displayUserData() {
 function displayNameListeners() {
   // Listen for clicking of update button
   $("#updateDisplayName").unbind().click(function() {
-    var newName = getById("displayNameInput").value;
-    var updateName = true;
+    let newName = getById("displayNameInput").value;
+    let updateName = true;
     if (newName.length > 30) {
       SimpleNotification.warning({
         title: "Name too long",
@@ -635,7 +627,7 @@ function displayNameListeners() {
  * with; null if no display name
  */
 function updateDisplayName(newName) {
-  var userId = localStorage.getItem('user_id');
+  let userId = localStorage.getItem("user_id");
   $.ajax({
     type: "POST",
     url: "https://www.couponbooked.com/scripts/updateDisplayName",
@@ -660,27 +652,26 @@ function updateDisplayName(newName) {
  * @param {boolean} settingsPage - true for settings page, false for elsewhere
  */
 function darkModeSupport(settingsPage) {
-  if (settingsPage) {
-    // https://stackoverflow.com/a/3263248/6456163
-    if (localStorage.getItem("darkMode") == "true") getById("darkCheckbox").click();
+  // Set or remove the `dark` and `light` class the first time.
+  if (!settingsPage)
+    return setProperMode();
 
-    // NOTE: The code in here runs twice; shouldn't be a problem
-    var toggle = getById("darkToggle");
-    $(toggle).unbind().click(function() {
-      var darkMode = getById("darkCheckbox").checked;
-      localStorage.setItem("darkMode", darkMode + "");
+  // https://stackoverflow.com/a/3263248/6456163
+  if (localStorage.getItem("darkMode") == "true") getById("darkCheckbox").click();
 
-      setProperMode();
-    });
-  } else {
-    // Set or remove the `dark` and `light` class the first time.
+  // NOTE: The code in here runs twice; shouldn't be a problem
+  let toggle = getById("darkToggle");
+  $(toggle).unbind().click(function() {
+    let darkMode = getById("darkCheckbox").checked;
+    localStorage.setItem("darkMode", darkMode + "");
+
     setProperMode();
-  }
+  });
 
   /** Sets dark mode if applicable and light mode if not. */
   function setProperMode() {
-    var copyButton = getById("copyButton");
-    var backArrow = getById("backArrow");
+    let copyButton = getById("copyButton");
+    let backArrow = getById("backArrow");
 
     if (localStorage.getItem('darkMode') == "true") {
       setRootProperty('--background-color', 'rgb(15, 15, 15)');
@@ -709,19 +700,19 @@ function darkModeSupport(settingsPage) {
 
 function handlePayments() {
   book = JSON.parse(localStorage.getItem('book'));
-  if (book) {
-    localStorage.removeItem('book');
-    book.paymentStatus = "succeeded"; // TODO: Use this properly...
-    updateBook(true);
 
-    // TODO: Need to update succeeded status on completion of successful payment
-    createShareCode();
-  } else {
-    // Typically means they refreshed the page with the URL variables still up there.
-    // Not really an issue I'm worried about, that's why I clear the localStorage so it doesn't
-    // try to process the payments twice.
-    console.error("There was a problem retrieving the book to update payment status...");
-  }
+  // Typically means they refreshed the page with the URL variables still up there.
+  // Not really an issue I'm worried about, that's why I clear the localStorage so it doesn't
+  // try to process the payments twice.
+  if (!book)
+    return console.error("There was a problem retrieving the book to update payment status...");
+  
+  localStorage.removeItem('book');
+  book.paymentStatus = "succeeded"; // TODO: Use this properly...
+  updateBook(true);
+
+  // TODO: Need to update succeeded status on completion of successful payment
+  createShareCode();
 }
 
 /**
@@ -758,10 +749,10 @@ function getAllTemplates() {
 function processTemplates(data) {
   // Go over the array of returned data
   $.each(data, function(templateNumber, template) {
-    var templateData = JSON.parse(template);
+    let templateData = JSON.parse(template);
 
     // Create node and give CSS class that applies styles
-    var node = document.createElement('div');
+    let node = document.createElement("div");
     node.setAttribute("class", "bookPreview");
 
     // Image and name
@@ -787,7 +778,7 @@ function processTemplates(data) {
  */
 function pullUserRelatedBooks() {
   showLoadingIcon = true;
-  var userId = localStorage.getItem('user_id');
+  let userId = localStorage.getItem("user_id");
   if (!userId) return console.error("No user ID! Can't pull user related books...");
 
   $.ajax({
@@ -818,7 +809,7 @@ function processPulledData(data) {
   // Go over sent and received arrays
   $.each(data, function(arrayNumber, array) {
     /** If true, book was sent. If false, it was received. */
-    var isSent = arrayNumber == 0;
+    let isSent = arrayNumber == 0;
 
     // If there are coupons for the category
     if (array.length != 0) {
@@ -857,7 +848,7 @@ function hideLoadingIcon(templatesPage) {
  * @param {boolean} isSent - true if sent page, false if received
  */
 function unhideMessage(isSent) {
-  var element = isSent ? $("#noneSent") : $("#noneReceived");
+  let element = isSent ? $("#noneSent") : $("#noneReceived");
   if (element.hasClass("hidden")) {
     element.removeClass("hidden");
   }
@@ -870,11 +861,11 @@ function unhideMessage(isSent) {
  * @param {boolean} isSent - true for sent book, false for received
  */
 function addBookToPage(couponBook, isSent) {
-  var bookData = JSON.parse(couponBook.bookData);
-  var applicableElement = isSent ? getById("sent") : getById("received");
+  let bookData = JSON.parse(couponBook.bookData);
+  let applicableElement = getById(isSent ? "sent": "received");
 
   // Create node and give CSS class that applies styles
-  var node = document.createElement('div');
+  let node = document.createElement("div");
   node.setAttribute("class", "bookPreview");
 
   // Image and name
@@ -882,21 +873,21 @@ function addBookToPage(couponBook, isSent) {
   node.innerHTML += `<p class='bookName'>${bookData.name}</p>`;
 
   if (isSent) {
-    var shareCode = bookData.shareCode;
+    let shareCode = bookData.shareCode;
     if (shareCode) {
       node.innerHTML += `<p class='receiverText'>Code: ${shareCode}</p>`;
     } else {
       // TODO: Make this not move the div up when longer than one line, and instead
       // drop the text while keeping the images level. Temporarily avoided with 
       // ellpises method but people might think that's ugly
-      var receiver = couponBook.receiverName;
+      let receiver = couponBook.receiverName;
       node.innerHTML += "<p class='receiverText'>" +
         (receiver ? /*"Sent to " +*/ receiver : "Not sent yet") +
         "</p>";
     }
   } else {
     // Who the book is sent from; should always exist, but failsafe in case it doesn't
-    var senderName = couponBook.senderName;
+    let senderName = couponBook.senderName;
     node.innerHTML += "<p class='senderText'>" +
       (senderName ? /*"Sent from " +*/ senderName : "Sender unavailable") +
       "</p>";
@@ -929,12 +920,8 @@ function addBookListeners(node) {
     // Could put in a loading screen for a short period of time
     backButtonTarget = "/dashboard";
 
-    var isSent = $(this).data("isSent");
-    if (isSent) {
-      _this.redirectTo('/sentBook');
-    } else {
-      _this.redirectTo('/receivedBook');
-    }
+    let isSent = $(this).data("isSent");
+    _this.redirectTo(isSent ? "/sentBook" : "/receivedBook");
   });
 }
 
@@ -942,14 +929,14 @@ function addBookListeners(node) {
  * Adds the listeners for the help route.
  */
 function helpFormListeners() {
-  var userId = localStorage.getItem("user_id");
+  let userId = localStorage.getItem("user_id");
   $("#submit").unbind().click(function(event) {
     event.preventDefault();
 
     // TODO: Properly grab new lines from subject
-    var form = $('#helpForm').serializeArray();
-    var formData = {};
-    for (var i = 0; i < form.length; i++) {
+    let form = $("#helpForm").serializeArray();
+    let formData = {};
+    for (let i = 0; i < form.length; i++) {
       formData[form[i].name] = form[i].value;
     }
 
@@ -992,18 +979,16 @@ function helpFormListeners() {
  * Makes sure the stuff entered falls within the defined parameters.
  */
 function redeemListeners() {
-  $('#redeemButton').unbind().click(function() {
-    var code = getById("redeemBox").value.toLowerCase();
-    if (codeIsValid(code)) {
-      redeemCode(code);
-    }
+  $("#redeemButton").unbind().click(function() {
+    let code = getById("redeemBox").value.toLowerCase();
+    if (codeIsValid(code)) redeemCode(code);
   });
 
   // https://www.outsystems.com/forums/discussion/27816/mobile-max-length-of-input-not-working/#Post101576
-  $('#redeemBox').on("input", function (event) {
+  $("#redeemBox").on("input", function (event) {
     if (event.originalEvent.inputType == "insertFromPaste") {
-      for (var i = 0; i < this.value.length; i++) {
-        var currentChar = this.value.toLowerCase().charAt(i);
+      for (let i = 0; i < this.value.length; i++) {
+        let currentChar = this.value.toLowerCase().charAt(i);
         
         if (!ALPHABET.includes(currentChar)) {
           this.value = this.value.replace(currentChar, '');
@@ -1014,16 +999,14 @@ function redeemListeners() {
         }
       }
     } else {
-      var currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
-      if (!ALPHABET.includes(currentChar)) {
+      let currentChar = this.value.toLowerCase().charAt(this.value.length - 1);
+      if (!ALPHABET.includes(currentChar))
         this.value = this.value.slice(0, this.value.length - 1);
-      }
     }
 
     // Cut length down to desired amount
-    if (this.value.length > ID_LENGTH) {
+    if (this.value.length > ID_LENGTH)
       this.value = this.value.slice(0, 8);
-    }
   });
 }
 
@@ -1034,7 +1017,7 @@ function redeemListeners() {
  * to a coupon book.
  */
 function redeemCode(shareCode) {
-  var userId = localStorage.getItem("user_id");
+  let userId = localStorage.getItem("user_id");
   $.ajax({
     type: "POST",
     url: "https://www.couponbooked.com/scripts/redeemCode",
@@ -1081,7 +1064,7 @@ function redeemCode(shareCode) {
       }, notificationOptions);
 
       // Update received book stats
-      var stats = JSON.parse(localStorage.getItem("stats"));
+      let stats = JSON.parse(localStorage.getItem("stats"));
       stats.receivedBooks++;
       localStorage.setItem("stats", JSON.stringify(stats));
       updateStats();
@@ -1096,8 +1079,8 @@ function redeemCode(shareCode) {
  */
 function codeIsValid(shareCode) {
   if (shareCode.length == ID_LENGTH) {
-    var validCode = true;
-    for (var i = 0; i < ID_LENGTH; i++) {
+    let validCode = true;
+    for (let i = 0; i < ID_LENGTH; i++) {
       if (!ALPHABET.includes(shareCode.charAt(i))) {
         validCode = false;
       }
@@ -1131,13 +1114,13 @@ function codeIsValid(shareCode) {
  * don't have any received books.
  */
 async function requestBook() {
-  var userName = getUserName(), messageStart = "";
+  let userName = getUserName(), messageStart = "";
   if (userName) {
     // NOTE: This can probably be improved. Think on it
     messageStart = `Your friend ${userName} wants a Coupon Book! `;
   }
 
-  var options = {
+  let options = {
     title: "Send a Coupon Book!",
     text: `${messageStart}Go to https://couponbooked.com/webapp to send a Book now!`
   };
@@ -1167,12 +1150,11 @@ async function requestBook() {
  * Redirects to login if user not authenticated.
  */
 function navBar() {
-  if (_this.state.authenticated === false) {
+  if (_this.state.authenticated === false)
     return _this.redirectTo('/login');
-  }
 
   // Only retrieve data if it does not exist in memory; https://auth0.com/docs/policies/rate-limits
-  var avatar = getBySelector('.profile-image');
+  let avatar = getBySelector('.profile-image');
   if (!profile) {
     var storedProfile = JSON.parse(localStorage.getItem('user_info'));
     if (storedProfile) {
@@ -1217,13 +1199,13 @@ function navBar() {
 }
 
 function toggleMobileMenu() {
-  toggleClass(document.querySelector('.mobileSideMenu'), 'mobileSideMenu--open');
-  toggleClass(document.querySelector('.contentShadow'), 'contentShadow--open');
+  toggleClass(document.querySelector(".mobileSideMenu"), "mobileSideMenu--open");
+  toggleClass(document.querySelector(".contentShadow"), "contentShadow--open");
 }
 
 var tempCounter = 0;
 function reacquireProfile() {
-  var options = {
+  let options = {
     method: 'POST',
     url: 'https://couponbooked.auth0.com/oauth/token',
     headers: {'content-type': 'application/x-www-form-urlencoded'},
@@ -1237,7 +1219,7 @@ function reacquireProfile() {
   request(options, function (error, response, body) {
     if (error) throw new Error(error);
 
-    var accessToken = JSON.parse(response.body).access_token;
+    let accessToken = JSON.parse(response.body).access_token;
     localStorage.setItem('access_token', accessToken);
     _this.state.accessToken = accessToken;
     _this.state.authenticated = true; // Should be set, but just in case...
@@ -1255,28 +1237,28 @@ function reacquireProfile() {
  */
 function manageTabMenu() {
   // Select the tab the user was last on; sent by default
-  $('#tab-menu').tabs('select', localStorage.getItem('activeTab'));
+  $("#tab-menu").tabs("select", localStorage.getItem("activeTab"));
 
-  const gestureZone = getById('gestureZone');
-  var sentButton = $('#sentButton');
-  var receivedButton = $('#receivedButton');
-  var touchstartX = 0;
-  var touchendX = 0;
+  const gestureZone = getById("gestureZone");
+  let sentButton = $("#sentButton");
+  let receivedButton = $("#receivedButton");
+  let touchstartX = 0;
+  let touchendX = 0;
 
-  gestureZone.addEventListener('touchstart', function(event) {
-      touchstartX = event.changedTouches[0].screenX;
+  gestureZone.addEventListener("touchstart", function(event) {
+    touchstartX = event.changedTouches[0].screenX;
   }, false);
 
-  gestureZone.addEventListener('touchend', function(event) {
-      touchendX = event.changedTouches[0].screenX;
-      handleGesture();
+  gestureZone.addEventListener("touchend", function(event) {
+    touchendX = event.changedTouches[0].screenX;
+    handleGesture();
   }, false);
 
   // Modified from https://gist.github.com/SleepWalker/da5636b1abcbaff48c4d#gistcomment-2555343
   function handleGesture() {
     // IDEA: Add animation while moving between pages; is this possible with Materialize?
-    var ratio_horizontal = (touchendX - touchstartX) / $(gestureZone).width();
-    var ratioComparison = .10;
+    let ratio_horizontal = (touchendX - touchstartX) / $(gestureZone).width();
+    let ratioComparison = .10;
 
     // Swipe right (select sent)
     if (ratio_horizontal > ratioComparison) {
@@ -1290,14 +1272,9 @@ function manageTabMenu() {
     }
   }
 
-  // Click sent tab
-  sentButton.unbind().click(function() {
-    sentTab();
-  });
-  // Click received tab
-  receivedButton.unbind().click(function() {
-    receivedTab();
-  });
+  // Click listeners for sent/received tab
+  sentButton.unbind().click(() => sentTab());
+  receivedButton.unbind().click(() => receivedTab());
 
   // TODO: Replicate behavior of color fading away when tab clicked off of,
   // i.e. when the user is scrolling down the page
@@ -1347,10 +1324,9 @@ App.prototype.logout = function() {
 };
 
 App.prototype.redirectTo = function(route) {
-  //console.warn(`redirectTo ${route}...`);
-  if (!this.state.routes[route]) {
+  if (!this.state.routes[route])
     throw new Error(`Unknown route ${route}.`);
-  }
+  
   this.state.currentRoute = route;
   this.render();
 };
@@ -1359,43 +1335,40 @@ App.prototype.resumeApp = function() {
   console.log("Please unhide warnings if debugging. Otherwise, you might want to hide them.");
   console.warn("resumeApp...");
   _this = this;
-  var accessToken = localStorage.getItem('access_token');
-  var idToken = localStorage.getItem('id_token');
+  let accessToken = localStorage.getItem('access_token');
+  let idToken = localStorage.getItem('id_token');
 
-  if (accessToken) {
-    // Verifies the access token is still valid
-    var decoded = parseJwt(idToken);
-    var expDate = decoded.exp;
-
-    if (expDate) {
-        var currentDate = Math.ceil(Date.now() / 1000);
-
-        // NOTE: To test `expired` code, reverse the direction of the angle bracket
-        if (expDate < currentDate) {
-          console.log("Access token expired! Going back to login screen...");
-
-          // TODO: Remember why I did this and fix it;
-          // once done use to replace reacquireProfile()
-          _this.redirectTo("/login");
-        } else {
-          console.warn("The tokens are not yet expired.");
-          successfulAuth(accessToken);
-        }
-    } else {
-        console.error("Error parsing idToken! Freaking out and not fixing the problem...");
-    }
-  } else {
+  if (!accessToken) {
     console.warn("No access token. Setting authentication state to false...");
-    failedAuth();
+    return failedAuth();
+  }
+
+  // Verifies the access token is still valid
+  let decoded = parseJwt(idToken);
+  let expDate = decoded.exp;
+  if (!expDate)
+    return console.error("Error parsing idToken! Freaking out and not fixing the problem...");
+
+  // NOTE: To test `expired` code, reverse the direction of the angle bracket
+  var currentDate = Math.ceil(Date.now() / 1000);
+  if (expDate < currentDate) {
+    console.log("Access token expired! Going back to login screen...");
+
+    // TODO: Remember why I did this and fix it;
+    // once done use to replace reacquireProfile()
+    _this.redirectTo("/login");
+  } else {
+    console.warn("The tokens are not yet expired.");
+    successfulAuth(accessToken);
   }
 };
 
 /** The decoding feature is all I needed from jsonwebtoken. */
 function parseJwt(token) {
   // https://stackoverflow.com/a/38552302/6456163
-  var base64Url = token.split('.')[1];
-  var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  var stringifiedToken = decodeURIComponent(atob(base64).split('').map(function(c) {
+  let base64Url = token.split('.')[1];
+  let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  let stringifiedToken = decodeURIComponent(atob(base64).split('').map(function(c) {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
   }).join(''));
 
@@ -1418,10 +1391,10 @@ function failedAuth() {
 
 App.prototype.render = function() {
   //console.warn("render...");
-  var currRoute = this.state.routes[this.state.currentRoute];
-  var currRouteEl = getById(currRoute.id);
-  var currRouteId = currRouteEl.id;
-  var element = document.importNode(currRouteEl.content, true);
+  let currRoute = this.state.routes[this.state.currentRoute];
+  let currRouteEl = getById(currRoute.id);
+  let currRouteId = currRouteEl.id;
+  let element = document.importNode(currRouteEl.content, true);
   this.container.innerHTML = '';
 
   // Apply nav

@@ -6,7 +6,7 @@
         Aaron Meese
     </author>
     <description>
-        Gift virtual coupon books to loved ones
+        Gift virtual coupon books to loved ones.
     </description>
     <content src="index.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
@@ -32,9 +32,5 @@
         <resource-file src="Android/res/drawable-xhdpi/ic_stat_onesignal_default.png" target="app/src/main/res/drawable-xhdpi/ic_stat_onesignal_default.png" />
         <resource-file src="Android/res/drawable-xxhdpi/ic_stat_onesignal_default.png" target="app/src/main/res/drawable-xxhdpi/ic_stat_onesignal_default.png" />
         <resource-file src="Android/res/drawable-xxxhdpi/ic_stat_onesignal_default.png" target="app/src/main/res/drawable-xxxhdpi/ic_stat_onesignal_default.png" />
-    </platform>
-    <platform name="ios">
-        <allow-intent href="itms:*" />
-        <allow-intent href="itms-apps:*" />
     </platform>
 </widget>

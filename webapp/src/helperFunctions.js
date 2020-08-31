@@ -25,12 +25,10 @@ function getAllByClassName(className) {
  */
 function fadeBetweenElements(fadeOut, fadeIn, instant) {
   if (instant) {
-    //console.warn(`Instantly transitioning between [${fadeOut}] and [${fadeIn}]...`);
     $(fadeOut).hide(1, function() {
       $(fadeIn).show(1);
     });
   } else {
-    //console.warn(`Fading out [${fadeOut}] and fading in [${fadeIn}]...`);
     $(fadeOut).fadeOut(150, function() {
       // Optionally allows all elements to just fade out if no valid fadeIn
       // parameter is passed
@@ -44,8 +42,8 @@ function fadeBetweenElements(fadeOut, fadeIn, instant) {
  * to update the data on the server to reflect the changes.
  */
 function updateStats() {
-  var userId = localStorage.getItem('user_id');
-  var stats = localStorage.getItem('stats');
+  let userId = localStorage.getItem("user_id");
+  let stats = localStorage.getItem("stats");
   $.ajax({
     type: "POST",
     url: "https://www.couponbooked.com/scripts/updateUserStats",
@@ -63,9 +61,9 @@ function updateStats() {
 
 // https://stackoverflow.com/a/8845823/6456163
 function getUrlVars() {
-  var vars = [], hash;
-  var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-  for (var i = 0; i < hashes.length; i++) {
+  let vars = [], hash;
+  let hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+  for (let i = 0; i < hashes.length; i++) {
     hash = hashes[i].split('=');                        
     vars[hash[0]] = hash[1];
   }
@@ -77,7 +75,7 @@ function getUrlVars() {
  * @returns {string}
  */
 function getUserName() {
-  var displayName = localStorage.getItem("display_name");
+  let displayName = localStorage.getItem("display_name");
   if (displayNameExists()) {
     console.warn("Using display name:", displayName);
     return displayName;
@@ -102,7 +100,7 @@ function getUserName() {
  * and make a function out of it.
  */
 function displayNameExists() {
-  var displayName = localStorage.getItem("display_name");
+  let displayName = localStorage.getItem("display_name");
   if (displayName && displayName != "" && !!displayName && displayName != null && displayName != "null") {
     return true;
   } else {
@@ -118,31 +116,25 @@ function displayNameExists() {
  */
 function isSameObject(obj1, obj2) {
   // Loop through properties in object 1
-  for (var p in obj1) {
-      // Check property exists on both objects
-      if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
+  for (let p in obj1) {
+    // Check property exists on both objects
+    if (obj1.hasOwnProperty(p) !== obj2.hasOwnProperty(p)) return false;
 
-      switch (typeof (obj1[p])) {
-          // Deep compare objects
-          case 'object':
-              if (!isSameObject(obj1[p], obj2[p])) return false;
-              break;
-          // Compare function code
-          case 'function':
-              if (typeof (obj2[p]) == 'undefined' || (p != 'compare' && obj1[p].toString() != obj2[p].toString())) return false;
-              break;
-          // Compare values
-          default:
-              if (obj1[p] != obj2[p]) return false;
-      }
+    switch (typeof (obj1[p])) {
+      // Deep compare objects
+      case 'object':
+        if (!isSameObject(obj1[p], obj2[p])) return false;
+        break;
+      // Compare function code
+      case 'function':
+        if (typeof (obj2[p]) == 'undefined' || (p != 'compare' && obj1[p].toString() != obj2[p].toString())) return false;
+        break;
+      // Compare values
+      default:
+        if (obj1[p] != obj2[p]) return false;
+    }
   }
 
-  // Check object 2 for any extra properties;
-  // NOTE: This is problematic when left in tact, but hopefully 
-  // removing it won't cause any unintended issues
-  /*for (var p in obj2) {
-      if (typeof (obj1[p]) == 'undefined') return false;
-  }*/
   return true;
 };
 
@@ -152,51 +144,52 @@ function isSameObject(obj1, obj2) {
  * @param {object} item - object to be cloned
  */
 function clone(item) {
-  if (!item) { return item; } // null, undefined values check
+  // null, undefined values check
+  if (!item) return item;
 
-  var types = [ Number, String, Boolean ], 
+  let types = [ Number, String, Boolean ], 
       result;
 
   // normalizing primitives if someone did new String('aaa'), or new Number('444');
   types.forEach(function(type) {
-      if (item instanceof type) {
-          result = type( item );
-      }
+    if (item instanceof type) {
+      result = type( item );
+    }
   });
 
   if (typeof result == "undefined") {
-      if (Object.prototype.toString.call( item ) === "[object Array]") {
-          result = [];
-          item.forEach(function(child, index, array) { 
-              result[index] = clone( child );
-          });
-      } else if (typeof item == "object") {
-          // testing that this is DOM
-          if (item.nodeType && typeof item.cloneNode == "function") {
-              result = item.cloneNode( true );    
-          } else if (!item.prototype) { // check that this is a literal
-              if (item instanceof Date) {
-                  result = new Date(item);
-              } else {
-                  // it is an object literal
-                  result = {};
-                  for (var i in item) {
-                      result[i] = clone( item[i] );
-                  }
+    if (Object.prototype.toString.call( item ) === "[object Array]") {
+      result = [];
+      item.forEach(function(child, index, array) { 
+        result[index] = clone( child );
+      });
+    } else if (typeof item == "object") {
+        // testing that this is DOM
+        if (item.nodeType && typeof item.cloneNode == "function") {
+            result = item.cloneNode( true );    
+        } else if (!item.prototype) { // check that this is a literal
+            if (item instanceof Date) {
+              result = new Date(item);
+            } else {
+              // it is an object literal
+              result = {};
+              for (var i in item) {
+                result[i] = clone( item[i] );
               }
-          } else {
-              // depending what you would like here,
-              // just keep the reference, or create new object
-              if (false && item.constructor) {
-                  // would not advice to do that, reason? Read below
-                  result = new item.constructor();
-              } else {
-                  result = item;
-              }
-          }
-      } else {
-          result = item;
-      }
+            }
+        } else {
+            // depending what you would like here,
+            // just keep the reference, or create new object
+            if (false && item.constructor) {
+              // would not advice to do that, reason? Read below
+              result = new item.constructor();
+            } else {
+              result = item;
+            }
+        }
+    } else {
+      result = item;
+    }
   }
 
   return result;
@@ -206,16 +199,16 @@ function clone(item) {
 function toggleClass(target, addedClass) {
   // If target is an element rather than a list, it is converted to array form
   if (!NodeList.prototype.isPrototypeOf(target)) {
-      target = [target];
+    target = [target];
   }
 
   // Allows for multiple elements to be toggled, such as by using the querySelectorAll() method
   [].forEach.call(target, (element) => {
-      if (element.classList.contains(addedClass)) {
-          element.classList.remove(addedClass);
-      } else {
-          element.classList.add(addedClass);
-      }
+    if (element.classList.contains(addedClass)) {
+      element.classList.remove(addedClass);
+    } else {
+      element.classList.add(addedClass);
+    }
   });
 };
 

@@ -37,8 +37,8 @@
 
         <!-- NOTE: Nearly all of this is copied directly from bookForm, so changes should be reflected there -->
         <div id="imageUpload">
-            <label class="pickImage" for="inputImage" title="Upload image file">
-                <input type="file" id="inputImage" name="file" accept="image/*">
+            <label class="pickImage" for="couponInputImage" title="Upload image file">
+                <input type="file" id="couponInputImage" name="file" accept="image/*">
                 <p>Change image</p>
             </label>
             <p id="couponCrop">Crop</p>
@@ -52,8 +52,6 @@
             </p>
         </div>
 
-        <!-- IDEA: Cycle through an array of these for examples; appropriate to template? 
-            Could be paired arrays to have description matched with name, or objects & pull fields -->
         <label for="name">Coupon Name</label>
         <input type="text" id="name" name="name" placeholder="Backrub">
 
@@ -72,8 +70,8 @@
         </div>
 
         <div id="imageUpload">
-            <label class="pickImage" for="inputImage" title="Upload image file">
-                <input type="file" id="inputImage" name="file" accept="image/*">
+            <label class="pickImage" for="bookInputImage" title="Upload image file">
+                <input type="file" id="bookInputImage" name="file" accept="image/*">
                 <p>Change image</p>
             </label>
             <p id="bookCrop">Crop</p>
