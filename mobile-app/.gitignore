@@ -1,0 +1,7 @@
+# Generated directories
+.expo
+.vscode
+
+# Amplify generated files
+amplify
+src

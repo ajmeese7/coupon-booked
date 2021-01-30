@@ -1,0 +1,25 @@
+{
+	"dependencies": {
+		"expo": "~40.0.0",
+		"expo-app-loading": "^1.0.1",
+		"expo-asset": "~8.2.1",
+		"expo-constants": "~9.3.3",
+		"expo-splash-screen": "~0.8.1",
+		"react": "16.13.1",
+		"react-dom": "16.13.1",
+		"react-native": "https://github.com/expo/react-native/archive/sdk-40.0.1.tar.gz",
+		"react-native-web": "~0.13.12",
+		"react-router-native": "5.1.2"
+	},
+	"devDependencies": {
+		"@babel/core": "~7.9.0"
+	},
+	"scripts": {
+		"start": "expo start",
+		"android": "expo start --android",
+		"ios": "expo start --ios",
+		"web": "expo web",
+		"eject": "expo eject"
+	},
+	"private": true
+}
