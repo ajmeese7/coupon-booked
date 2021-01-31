@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Auth } from 'aws-amplify';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 
 import AppTextInput from '../components/AppTextInput';
 import AppButton from '../components/AppButton';
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center'
 	},
 	forgotPasswordButtonText: {
-		color: 'tomato',
+		color: Constants.manifest.extra.blue,
 		fontSize: 18,
 		fontWeight: '600'
 	}

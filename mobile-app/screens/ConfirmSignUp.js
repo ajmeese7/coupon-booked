@@ -57,18 +57,18 @@ export default function ConfirmSignUp({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safeAreaContainer: {
-    flex: 1,
-    backgroundColor: 'white'
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center'
-  },
-  title: {
-    fontSize: 20,
-    color: '#202020',
-    fontWeight: '500',
-    marginVertical: 15
-  }
+	safeAreaContainer: {
+		flex: 1,
+		backgroundColor: 'white'
+	},
+	container: {
+		flex: 1,
+		alignItems: 'center'
+	},
+	title: {
+		fontSize: 20,
+		color: '#202020',
+		fontWeight: '500',
+		marginVertical: 15
+	}
 });

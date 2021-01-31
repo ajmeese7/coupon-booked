@@ -4,5 +4,8 @@ export default {
     image: "./images/splash.png",
     resizeMode: "cover",
     backgroundColor: "#0b98de",
-  },
+	},
+	extra: {
+		blue: "#0b98de",
+	}
 };

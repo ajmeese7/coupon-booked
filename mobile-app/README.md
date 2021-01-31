@@ -13,3 +13,4 @@ just make a decent static site that links to the apps.
 ### Notes
 - REST API endpoint: https://9uxs1q2p91.execute-api.us-east-2.amazonaws.com/dev
 - If AWS auth ever stops working, try the fix [here](https://github.com/aws-amplify/amplify-js/issues/4315#issuecomment-629736223).
+- For auth references, look [here](https://medium.com/javascript-in-plain-english/the-ultimate-guide-for-integrate-aws-amplify-authentication-for-react-native-15a8eec10890)

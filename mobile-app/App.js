@@ -2,6 +2,7 @@ import AppLoading from 'expo-app-loading';
 import { Asset } from 'expo-asset';
 import Constants from 'expo-constants';
 import * as SplashScreen from 'expo-splash-screen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import React, { useState, useEffect } from 'react';
 import {
 	ActivityIndicator,
@@ -22,43 +23,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 const AuthenticationStack = createStackNavigator();
 const AppStack = createStackNavigator();
 
-const AuthenticationNavigator = props => {
-  return (
-    <AuthenticationStack.Navigator headerMode="none">
-      <AuthenticationStack.Screen name="SignIn">
-        {screenProps => (
-          <SignIn {...screenProps} updateAuthState={props.updateAuthState} />
-        )}
-      </AuthenticationStack.Screen>
-      <AuthenticationStack.Screen name="SignUp" component={SignUp} />
-      <AuthenticationStack.Screen
-        name="ConfirmSignUp"
-        component={ConfirmSignUp}
-      />
-    </AuthenticationStack.Navigator>
-  );
-};
-
-const AppNavigator = props => {
-  return (
-    <AppStack.Navigator>
-      <AppStack.Screen name="Home">
-        {screenProps => (
-          <Home {...screenProps} updateAuthState={props.updateAuthState} />
-        )}
-      </AppStack.Screen>
-    </AppStack.Navigator>
-  );
-};
-
-const Initializing = () => {
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <ActivityIndicator size="large" color="tomato" />
-    </View>
-  );
-};
-
 // AWS stuff
 import Amplify, { Auth } from 'aws-amplify';
 import awsconfig from './src/aws-exports';
@@ -71,7 +35,7 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 export default function App() {
 	const [isUserLoggedIn, setUserLoggedIn] = useState('initializing');
 	useEffect(() => {
-    checkAuthState();
+		checkAuthState();
 	}, []);
 	
 	async function checkAuthState() {
@@ -91,29 +55,67 @@ export default function App() {
 
 	return (
 		<AnimatedAppLoader image={{ uri: Constants.manifest.splash.image }}>
-			<NavigationContainer>
-				{isUserLoggedIn === 'initializing' && <Initializing />}
-				{isUserLoggedIn === 'loggedIn' && (
-					<AppNavigator updateAuthState={updateAuthState} />
-				)}
-				{isUserLoggedIn === 'loggedOut' && (
-					<AuthenticationNavigator updateAuthState={updateAuthState} />
-				)}
-			</NavigationContainer>
+			<SafeAreaProvider>
+				<NavigationContainer>
+					{isUserLoggedIn === 'initializing' && <Initializing />}
+					{isUserLoggedIn === 'loggedIn' && (
+						<AppNavigator updateAuthState={updateAuthState} />
+					)}
+					{isUserLoggedIn === 'loggedOut' && (
+						<AuthenticationNavigator updateAuthState={updateAuthState} />
+					)}
+				</NavigationContainer>
+			</SafeAreaProvider>
 		</AnimatedAppLoader>
 	);
 }
 
+const AuthenticationNavigator = props => {
+	return (
+		<AuthenticationStack.Navigator headerMode="none">
+			<AuthenticationStack.Screen name="SignIn">
+				{screenProps => (
+					<SignIn {...screenProps} updateAuthState={props.updateAuthState} />
+				)}
+			</AuthenticationStack.Screen>
+			<AuthenticationStack.Screen name="SignUp" component={SignUp} />
+			<AuthenticationStack.Screen
+				name="ConfirmSignUp"
+				component={ConfirmSignUp}
+			/>
+		</AuthenticationStack.Navigator>
+	);
+};
+
+const AppNavigator = props => {
+	return (
+		<AppStack.Navigator headerMode="none">
+			<AppStack.Screen name="Home">
+				{screenProps => (
+					<Home {...screenProps} updateAuthState={props.updateAuthState} />
+				)}
+			</AppStack.Screen>
+		</AppStack.Navigator>
+	);
+};
+
+// TODO: See if/when this actually gets called, and customize
+const Initializing = () => {
+	return (
+		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<ActivityIndicator size="large" color="tomato" />
+		</View>
+	);
+};
+
 function AnimatedAppLoader({ children, image }) {
 	const [isSplashReady, setSplashReady] = React.useState(false);
-
-	// TODO: See if I can replace this
+	const onFinish = React.useMemo(() => setSplashReady(true), []);
 	const startAsync = React.useMemo(
+		// TODO: See if I can replace this
 		() => () => Asset.fromModule(image).downloadAsync(),
 		[image]
 	);
-
-	const onFinish = React.useMemo(() => setSplashReady(true), []);
 
 	if (!isSplashReady) {
 		return (
@@ -133,9 +135,7 @@ function AnimatedAppLoader({ children, image }) {
 function AnimatedSplashScreen({ children, image }) {
 	const animation = React.useMemo(() => new Animated.Value(1), []);
 	const [isAppReady, setAppReady] = React.useState(false);
-	const [isSplashAnimationComplete, setAnimationComplete] = React.useState(
-		false
-	);
+	const [isSplashAnimationComplete, setAnimationComplete] = React.useState(false);
 
 	React.useEffect(() => {
 		if (isAppReady) {
