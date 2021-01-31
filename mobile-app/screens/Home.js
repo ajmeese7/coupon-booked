@@ -1,25 +1,29 @@
 import React from 'react';
+import { View, Text, StyleSheet, Button } from 'react-native';
+import { Auth } from 'aws-amplify';
 
-import {
-	StyleSheet,
-	Text,
-} from 'react-native';
-
-const Home = () => (
-	<Text>Home</Text>
-);
+export default function Home({ updateAuthState }) {
+  async function signOut() {
+    try {
+      await Auth.signOut();
+      updateAuthState('loggedOut');
+    } catch (error) {
+      console.log('Error signing out: ', error);
+    }
+	}
+	
+	return (
+    <View style={styles.container}>
+      <Text> 💙 + 💛</Text>
+      <Button title="Sign Out" color="tomato" onPress={signOut} />
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
-	
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    marginTop: 20
+  },
 });
-
-export default Home;
-
-/*export default class Home extends React.Component {
-	render() {
-		return (
-			<Text>Home</Text>
-		);
-	}
-}*/
-
