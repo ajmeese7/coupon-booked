@@ -37,7 +37,6 @@ export default function ConfirmSignUp({ navigation }) {
 				<AppTextInput
 					value={username}
 					onChangeText={text => setUsername(text)}
-					leftIcon="account"
 					placeholder="Enter username"
 					autoCapitalize="none"
 					keyboardType="email-address"
@@ -46,7 +45,6 @@ export default function ConfirmSignUp({ navigation }) {
 				<AppTextInput
 					value={authCode}
 					onChangeText={text => setAuthCode(text)}
-					leftIcon="numeric"
 					placeholder="Enter verification code"
 					keyboardType="numeric"
 				/>

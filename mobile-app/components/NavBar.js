@@ -5,23 +5,13 @@ import {
 	Text,
 	View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
+import TopPadding from '../components/TopPadding';
 
 export default function NavBar() {
-	const insets = useSafeAreaInsets();
-
-	// TODO: See how the insets.top method works on iOS, compared to
-	// the older <SafeAreaView> method
 	return (
 		<>
-			<View
-				style={{
-					height: insets.top,
-					width: '100%',
-					backgroundColor: Constants.manifest.extra.blue,
-				}}
-			></View>
+			<TopPadding />
 			<View style={styles.container}>
 				<Image
 					style={styles.logo}

@@ -11,9 +11,12 @@ import {
 	View
 } from 'react-native';
 
-// Screens
+// Normal screens
 import Home from './screens/Home';
+
+// Auth stack screens
 import SignIn from './screens/SignIn';
+import ForgotPassword from './screens/ForgotPassword';
 import SignUp from './screens/SignUp';
 import ConfirmSignUp from './screens/ConfirmSignUp';
 
@@ -72,15 +75,16 @@ export default function App() {
 
 const AuthenticationNavigator = props => {
 	return (
-		<AuthenticationStack.Navigator headerMode="none">
-			<AuthenticationStack.Screen name="SignIn">
+		<AuthenticationStack.Navigator headerMode='none'>
+			<AuthenticationStack.Screen name='SignIn'>
 				{screenProps => (
 					<SignIn {...screenProps} updateAuthState={props.updateAuthState} />
 				)}
 			</AuthenticationStack.Screen>
-			<AuthenticationStack.Screen name="SignUp" component={SignUp} />
+			<AuthenticationStack.Screen name='ForgotPassword' component={ForgotPassword} />
+			<AuthenticationStack.Screen name='SignUp' component={SignUp} />
 			<AuthenticationStack.Screen
-				name="ConfirmSignUp"
+				name='ConfirmSignUp'
 				component={ConfirmSignUp}
 			/>
 		</AuthenticationStack.Navigator>
@@ -89,8 +93,8 @@ const AuthenticationNavigator = props => {
 
 const AppNavigator = props => {
 	return (
-		<AppStack.Navigator headerMode="none">
-			<AppStack.Screen name="Home">
+		<AppStack.Navigator headerMode='none'>
+			<AppStack.Screen name='Home'>
 				{screenProps => (
 					<Home {...screenProps} updateAuthState={props.updateAuthState} />
 				)}
@@ -103,7 +107,7 @@ const AppNavigator = props => {
 const Initializing = () => {
 	return (
 		<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-			<ActivityIndicator size="large" color="tomato" />
+			<ActivityIndicator size='large' color='tomato' />
 		</View>
 	);
 };
@@ -151,7 +155,7 @@ function AnimatedSplashScreen({ children, image }) {
 		try {
 			await SplashScreen.hideAsync();
 		} catch (e) {
-			console.error("Error hiding splash screen:", e);
+			console.error('Error hiding splash screen:', e);
 		} finally {
 			setAppReady(true);
 		}
@@ -162,7 +166,7 @@ function AnimatedSplashScreen({ children, image }) {
 			{isAppReady && children}
 			{!isSplashAnimationComplete && (
 				<Animated.View
-					pointerEvents="none"
+					pointerEvents='none'
 					style={[
 						StyleSheet.absoluteFill,
 						{
@@ -173,9 +177,9 @@ function AnimatedSplashScreen({ children, image }) {
 				>
 					<Animated.Image
 						style={{
-							width: "100%",
-							height: "100%",
-							resizeMode: Constants.manifest.splash.resizeMode || "contain",
+							width: '100%',
+							height: '100%',
+							resizeMode: Constants.manifest.splash.resizeMode || 'contain',
 							transform: [{
 								scale: animation,
 							}],

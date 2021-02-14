@@ -9,7 +9,7 @@ export default function Home({ updateAuthState }) {
 			await Auth.signOut();
 			updateAuthState('loggedOut');
 		} catch (error) {
-			console.log('Error signing out: ', error);
+			console.log('Error signing out:', error);
 		}
 	}
 	
@@ -18,7 +18,7 @@ export default function Home({ updateAuthState }) {
 			<NavBar />
 
 			<Text style={{ marginVertical: 10, }}>Welcome to my app!</Text>
-			<Button title="Sign Out" color="tomato" onPress={signOut} />
+			<Button title='Sign Out' color='tomato' onPress={signOut} />
 		</View>
 	);
 }

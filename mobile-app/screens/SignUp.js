@@ -27,7 +27,6 @@ export default function SignUp({ navigation }) {
 				<AppTextInput
 					value={username}
 					onChangeText={text => setUsername(text)}
-					leftIcon="account"
 					placeholder="Enter username"
 					autoCapitalize="none"
 					keyboardType="email-address"
@@ -36,7 +35,6 @@ export default function SignUp({ navigation }) {
 				<AppTextInput
 					value={password}
 					onChangeText={text => setPassword(text)}
-					leftIcon="lock"
 					placeholder="Enter password"
 					autoCapitalize="none"
 					autoCorrect={false}
@@ -46,7 +44,6 @@ export default function SignUp({ navigation }) {
 				<AppTextInput
 					value={email}
 					onChangeText={text => setEmail(text)}
-					leftIcon="email"
 					placeholder="Enter email"
 					autoCapitalize="none"
 					keyboardType="email-address"
@@ -66,28 +63,28 @@ export default function SignUp({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safeAreaContainer: {
-    flex: 1,
-    backgroundColor: 'white'
-  },
-  container: {
-    flex: 1,
-    alignItems: 'center'
-  },
-  title: {
-    fontSize: 20,
-    color: '#202020',
-    fontWeight: '500',
-    marginVertical: 15
-  },
-  footerButtonContainer: {
-    marginVertical: 15,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  forgotPasswordButtonText: {
-    color: 'tomato',
-    fontSize: 18,
-    fontWeight: '600'
-  }
+	safeAreaContainer: {
+		flex: 1,
+		backgroundColor: 'white'
+	},
+	container: {
+		flex: 1,
+		alignItems: 'center'
+	},
+	title: {
+		fontSize: 20,
+		color: '#202020',
+		fontWeight: '500',
+		marginVertical: 15
+	},
+	footerButtonContainer: {
+		marginVertical: 15,
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	forgotPasswordButtonText: {
+		color: 'tomato',
+		fontSize: 18,
+		fontWeight: '600'
+	}
 });
