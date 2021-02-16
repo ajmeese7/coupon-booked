@@ -1,7 +1,11 @@
-import { StyleSheet } from 'react-native';
+import {
+	Dimensions,
+	StyleSheet,
+} from 'react-native';
 import Constants from 'expo-constants';
 
 const gray = '#707070';
+const profilePicBorderRadius = Dimensions.get('window').width * 0.4 * 0.5;
 const AuthStackStyles = StyleSheet.create({
 	signInForm: {
 		flex: 1,
@@ -19,9 +23,9 @@ const AuthStackStyles = StyleSheet.create({
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	forgotPasswordButtonText: {
+	smallGrayText: {
 		color: gray,
-		letterSpacing: 1.25,
+		letterSpacing: 1.2,
 		fontSize: 18,
 		fontWeight: '600',
 	},
@@ -49,6 +53,29 @@ const AuthStackStyles = StyleSheet.create({
 		color: Constants.manifest.extra.blue,
 		letterSpacing: 1.25,
 		fontSize: 16,
+	},
+	profilePictureContainer: {
+		width: '40%',
+		height: undefined,
+		aspectRatio: 1,
+		marginVertical: 35,
+	},
+	profilePicture: {
+		width: '100%',
+		height: undefined,
+		aspectRatio: 1,
+	},
+	profilePictureShadow: {
+		// TODO: Test shadows on different screen sizes
+		borderRadius: profilePicBorderRadius,
+		shadowColor: '#000',
+		shadowOffset: {
+			width: 1,
+			height: 6,
+		},
+		shadowOpacity: 0.35,
+		shadowRadius: 2.5,
+		elevation: 15,
 	},
 });
 

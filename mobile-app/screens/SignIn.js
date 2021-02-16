@@ -48,8 +48,8 @@ export default function SignIn({ navigation, updateAuthState }) {
 					onChangeText={text => setUsername(text)}
 					placeholder='username'
 					autoCapitalize='none'
-					keyboardType='email-address'
-					textContentType='emailAddress'
+					keyboardType='default'
+					textContentType='username'
 				/>
 				<AppTextInput
 					value={password}
@@ -62,16 +62,17 @@ export default function SignIn({ navigation, updateAuthState }) {
 				/>
 
 				<AppButton title='Sign In' onPress={signIn} />
-				<TouchableOpacity 
+				<TouchableOpacity
 					style={AuthStackStyles.forgotPasswordButton}
 					onPress={() => navigation.navigate('ForgotPassword')}
 				>
-					<Text style={AuthStackStyles.forgotPasswordButtonText}>
+					<Text style={AuthStackStyles.smallGrayText}>
 						forgot password?
 					</Text>
 				</TouchableOpacity>
 			</View>
 
+			{/* TODO: Add AuthStackWrapper to a scrollview to prevent this rising over the text inputs */}
 			<View style={AuthStackStyles.footer}>
 				<Hr color={gray} width={1}>
 					<Text style={AuthStackStyles.textWithDivider}>or</Text>

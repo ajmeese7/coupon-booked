@@ -17,7 +17,9 @@ import Home from './screens/Home';
 // Auth stack screens
 import SignIn from './screens/SignIn';
 import ForgotPassword from './screens/ForgotPassword';
+import ForgotPasswordCode from './screens/ForgotPasswordCode';
 import SignUp from './screens/SignUp';
+import FinishSignUp from './screens/FinishSignUp';
 import ConfirmSignUp from './screens/ConfirmSignUp';
 
 // Navigation items
@@ -82,7 +84,9 @@ const AuthenticationNavigator = props => {
 				)}
 			</AuthenticationStack.Screen>
 			<AuthenticationStack.Screen name='ForgotPassword' component={ForgotPassword} />
+			<AuthenticationStack.Screen name='ForgotPasswordCode' component={ForgotPasswordCode} />
 			<AuthenticationStack.Screen name='SignUp' component={SignUp} />
+			<AuthenticationStack.Screen name='FinishSignUp' component={FinishSignUp} />
 			<AuthenticationStack.Screen
 				name='ConfirmSignUp'
 				component={ConfirmSignUp}

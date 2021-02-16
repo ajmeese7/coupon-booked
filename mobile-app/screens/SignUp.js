@@ -1,90 +1,189 @@
+// Packages
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+	Dimensions,
+	Image,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from 'react-native';
 import { Auth } from 'aws-amplify';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
+import * as ImagePicker from 'expo-image-picker';
+import CheckBox from '@react-native-community/checkbox';
+
+// Components
 import AppTextInput from '../components/AppTextInput';
 import AppButton from '../components/AppButton';
+import AuthStackWrapper from '../components/AuthStackWrapper';
+
+// Styles
+import AuthStackStyles from '../styles/AuthStack';
+const profilePicBorderRadius = Dimensions.get('window').width * 0.4 * 0.5;
+
 export default function SignUp({ navigation }) {
-	const [username, setUsername] = useState('');
-	const [password, setPassword] = useState('');
+	const [picture, setPicture] = useState();
+	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
-	async function signUp() {
-		try {
-			await Auth.signUp({ username, password, attributes: { email } });
-			console.log('✅ Sign-up Confirmed');
-			navigation.navigate('ConfirmSignUp');
-		} catch (error) {
-			console.log('❌ Error signing up...', error);
+	const [number, setNumber] = useState('');
+	const [toggleCheckBox, setToggleCheckBox] = useState(false);
+
+	const pickImage = async () => {
+		// TODO: Resize locally as well
+		let result = await ImagePicker.launchImageLibraryAsync({
+			allowsEditing: true,
+			aspect: [1, 1],
+			quality: 1,
+		});
+
+		if (!result.cancelled) {
+			// TODO: Upload then use S3 image link
+			setPicture(result.uri);
 		}
+	};
+
+	function nextSignUpPage() {
+		//if (!toggleCheckBox || !picture) console.log("Can't go to next page yet!");
+		navigation.navigate('FinishSignUp', {
+			picture: picture,
+		});
 	}
 
-	// TODO: Figure out why confirmation email never received,
-	// and experiment with test accounts
+	function socialAuth(provider) {
+		console.log("Social auth provider:", provider);
+	}
+
 	return (
-		<SafeAreaView style={styles.safeAreaContainer}>
-			<View style={styles.container}>
-				<Text style={styles.title}>Create a new account</Text>
+		<AuthStackWrapper>
+			<View style={AuthStackStyles.signInForm}>
+				<TouchableOpacity onPress={() => pickImage()}>
+					<View style={[
+						AuthStackStyles.profilePictureContainer,
+						picture ? AuthStackStyles.profilePictureShadow : null
+					]}>
+						<Image
+							source={picture ? { uri: picture, } : require('../images/SelectProfilePicture.png')}
+							style={[AuthStackStyles.profilePicture, picture ? { borderRadius: profilePicBorderRadius } : null]}
+						/>
+					</View>
+				</TouchableOpacity>
+
 				<AppTextInput
-					value={username}
-					onChangeText={text => setUsername(text)}
-					placeholder="Enter username"
-					autoCapitalize="none"
-					keyboardType="email-address"
-					textContentType="emailAddress"
-				/>
-				<AppTextInput
-					value={password}
-					onChangeText={text => setPassword(text)}
-					placeholder="Enter password"
-					autoCapitalize="none"
-					autoCorrect={false}
-					secureTextEntry
-					textContentType="password"
+					value={name}
+					onChangeText={text => setName(text)}
+					placeholder='name'
+					autoCapitalize='none'
+					keyboardType='default'
+					textContentType='name'
 				/>
 				<AppTextInput
 					value={email}
 					onChangeText={text => setEmail(text)}
-					placeholder="Enter email"
-					autoCapitalize="none"
-					keyboardType="email-address"
-					textContentType="emailAddress"
+					placeholder='email address'
+					autoCapitalize='none'
+					keyboardType='email-address'
+					textContentType='emailAddress'
 				/>
-				<AppButton title="Sign Up" onPress={signUp} />
-				<View style={styles.footerButtonContainer}>
-					<TouchableOpacity onPress={() => navigation.navigate('SignIn')}>
-						<Text style={styles.forgotPasswordButtonText}>
-							Already have an account? Sign In
-						</Text>
+				<AppTextInput
+					value={number}
+					onChangeText={text => setNumber(text)}
+					placeholder='mobile number'
+					autoCapitalize='none'
+					keyboardType='phone-pad'
+					textContentType='telephoneNumber'
+				/>
+
+				<View style={styles.row}>
+					<CheckBox
+						disabled={false}
+						value={toggleCheckBox}
+						// TODO: Fix this; might need to switch to another lib like
+						// https://github.com/crazycodeboy/react-native-check-box#readme
+						tintColor={'#ffffff'}
+						onFillColor={Constants.manifest.extra.blue}
+						lineWidth={1}
+						boxType={'square'}
+						onValueChange={(newValue) => setToggleCheckBox(newValue)}
+					/>
+					<Text style={styles.termsText}>
+						I accept all{' '}
+						<Text style={styles.link}>terms and conditions</Text>
+					</Text>
+				</View>
+
+				<AppButton title='Next' onPress={nextSignUpPage} />
+			</View>
+
+			{/* TODO: Make it look different for Android */}
+			<View style={AuthStackStyles.footer}>
+				<Text style={styles.socialText}>sign up with social</Text>
+				<View style={styles.row}>
+					<TouchableOpacity
+						style={styles.socialButton}
+						onPress={() => socialAuth('Apple')}
+					>
+						<Image
+							style={styles.socialIcon}
+							// TODO: Get a better image
+							source={require('../images/AppleLogo.png')}
+						/>
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.socialButton}
+						onPress={() => socialAuth('Facebook')}
+					>
+						<Image
+							style={styles.socialIcon}
+							source={require('../images/FacebookLogo.png')}
+						/>
+					</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.socialButton}
+						onPress={() => socialAuth('Google')}
+					>
+						<Image
+							style={styles.socialIcon}
+							// TODO: Get a better image
+							source={require('../images/GoogleLogo.png')}
+						/>
 					</TouchableOpacity>
 				</View>
 			</View>
-		</SafeAreaView>
+		</AuthStackWrapper>
 	);
 }
 
 const styles = StyleSheet.create({
-	safeAreaContainer: {
-		flex: 1,
-		backgroundColor: 'white'
-	},
-	container: {
-		flex: 1,
-		alignItems: 'center'
-	},
-	title: {
-		fontSize: 20,
-		color: '#202020',
-		fontWeight: '500',
-		marginVertical: 15
-	},
-	footerButtonContainer: {
-		marginVertical: 15,
+	row: {
+		display: 'flex',
+		flexDirection: 'row',
 		justifyContent: 'center',
-		alignItems: 'center'
+		marginVertical: 20,
 	},
-	forgotPasswordButtonText: {
-		color: 'tomato',
+	termsText: {
+		color: '#707070',
+		textAlignVertical: 'center',
+		letterSpacing: 0.4,
+	},
+	link: {
+		color: Constants.manifest.extra.blue,
+		textDecorationLine: 'underline',
+		textDecorationColor: Constants.manifest.extra.blue,
+	},
+	socialText: {
+		color: '#707070',
 		fontSize: 18,
-		fontWeight: '600'
+		letterSpacing: 0.8,
+	},
+	socialButton: {
+		width: '15%',
+		minWidth: 40,
+		paddingHorizontal: 5,
+	},
+	socialIcon: {
+		width: '100%',
+		height: undefined,
+		aspectRatio: 1,
 	}
 });
