@@ -2,9 +2,6 @@
 import React, { useState } from 'react';
 import {
 	Image,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
 	View,
 } from 'react-native';
 import { Auth } from 'aws-amplify';
@@ -24,7 +21,7 @@ export default function ForgotPassword({ navigation }) {
 		navigation.navigate('ForgotPasswordCode', {
 			username: username,
 		});
-		
+
 		/*if (!username) return;
 		Auth.forgotPassword(username)
 			.then(data => {

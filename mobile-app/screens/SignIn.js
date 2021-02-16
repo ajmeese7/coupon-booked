@@ -72,7 +72,6 @@ export default function SignIn({ navigation, updateAuthState }) {
 				</TouchableOpacity>
 			</View>
 
-			{/* TODO: Add AuthStackWrapper to a scrollview to prevent this rising over the text inputs */}
 			<View style={AuthStackStyles.footer}>
 				<Hr color={gray} width={1}>
 					<Text style={AuthStackStyles.textWithDivider}>or</Text>

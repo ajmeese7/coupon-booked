@@ -1,21 +1,37 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import {
+	Dimensions,
+	ScrollView,
+	StyleSheet,
+} from 'react-native';
 import Constants from 'expo-constants';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TopPadding from '../components/TopPadding';
 
 // https://stackoverflow.com/a/31564812/6456163
 export default function AuthStackWrapper({ children }) {
+	const insets = useSafeAreaInsets();
+
+	// TODO: Test on smaller screens
 	return (
 		<>
 			<TopPadding />
-			<LinearGradient
-				colors={[Constants.manifest.extra.blue, '#ffffff']}
-				locations={[0, 0.80]}
-				style={styles.pageBody}
+			<ScrollView
+				contentContainerStyle={{
+					minHeight: Dimensions.get('window').height - insets.top,
+					flex: 1,
+					flexGrow: 1,
+				}}
 			>
-				{children}
-			</LinearGradient>
+				<LinearGradient
+					colors={[Constants.manifest.extra.blue, '#ffffff']}
+					locations={[0, 0.80]}
+					style={styles.pageBody}
+				>
+					{children}
+				</LinearGradient>
+			</ScrollView>
 		</>
 	);
 }
