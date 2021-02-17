@@ -83,10 +83,23 @@ const AuthenticationNavigator = props => {
 					<SignIn {...screenProps} updateAuthState={props.updateAuthState} />
 				)}
 			</AuthenticationStack.Screen>
-			<AuthenticationStack.Screen name='ForgotPassword' component={ForgotPassword} />
-			<AuthenticationStack.Screen name='ForgotPasswordCode' component={ForgotPasswordCode} />
-			<AuthenticationStack.Screen name='SignUp' component={SignUp} />
-			<AuthenticationStack.Screen name='FinishSignUp' component={FinishSignUp} />
+			<AuthenticationStack.Screen
+				name='ForgotPassword'
+				component={ForgotPassword}
+			/>
+			<AuthenticationStack.Screen
+				name='ForgotPasswordCode'
+				component={ForgotPasswordCode}
+			/>
+			<AuthenticationStack.Screen
+				name='SignUp'
+				component={SignUp}
+			/>
+			<AuthenticationStack.Screen name='FinishSignUp'>
+				{screenProps => (
+					<FinishSignUp {...screenProps} updateAuthState={props.updateAuthState} />
+				)}
+			</AuthenticationStack.Screen>
 			<AuthenticationStack.Screen
 				name='ConfirmSignUp'
 				component={ConfirmSignUp}

@@ -53,8 +53,12 @@ export default function SignUp({ navigation }) {
 		});
 	}
 
+	// TODO: Come back and implement after moving away from expo;
+	// https://medium.com/abn-amro-developer/a-guide-to-implement-push-notifications-with-react-native-expo-and-aws-amplify-5b0b62456f39
+	
 	function socialAuth(provider) {
 		console.log("Social auth provider:", provider);
+		Auth.federatedSignIn({provider: provider});
 	}
 
 	return (

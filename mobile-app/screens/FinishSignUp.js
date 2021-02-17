@@ -16,7 +16,7 @@ import AuthStackWrapper from '../components/AuthStackWrapper';
 import AuthStackStyles from '../styles/AuthStack';
 const profilePicBorderRadius = Dimensions.get('window').width * 0.4 * 0.5;
 
-export default function FinishSignUp({ navigation, route }) {
+export default function FinishSignUp({ navigation, route, updateAuthState }) {
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const picture = route.params.picture;
