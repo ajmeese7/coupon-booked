@@ -22,9 +22,10 @@ export default function FinishSignUp({ navigation, route }) {
 	const picture = route.params.picture;
 	
 	async function signUp() {
+		// TODO: Display alert to user
 		if (!username || !password) return console.log("Not ready to auth yet!");
+
 		try {
-			// TODO: Test if user is auto logged-in after sign up
 			await Auth.signUp({ username, password, attributes: { email } });
 			console.log('✅ Sign-up Confirmed');
 			await Auth.signIn(username, password);
@@ -40,7 +41,7 @@ export default function FinishSignUp({ navigation, route }) {
 
 	return (
 		<AuthStackWrapper>
-			<View style={AuthStackStyles.signInForm}>
+			<View style={AuthStackStyles.mainContent}>
 				<View style={[
 					AuthStackStyles.profilePictureContainer,
 					AuthStackStyles.profilePictureShadow

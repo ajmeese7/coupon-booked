@@ -45,7 +45,9 @@ export default function SignUp({ navigation }) {
 	};
 
 	function nextSignUpPage() {
-		//if (!toggleCheckBox || !picture) console.log("Can't go to next page yet!");
+		// TODO: Alert the user here!
+		if (!toggleCheckBox || !picture) return console.log("Can't go to next page yet!");
+
 		navigation.navigate('FinishSignUp', {
 			picture: picture,
 		});
@@ -57,7 +59,7 @@ export default function SignUp({ navigation }) {
 
 	return (
 		<AuthStackWrapper>
-			<View style={AuthStackStyles.signInForm}>
+			<View style={AuthStackStyles.mainContent}>
 				<TouchableOpacity onPress={() => pickImage()}>
 					<View style={[
 						AuthStackStyles.profilePictureContainer,
@@ -119,19 +121,9 @@ export default function SignUp({ navigation }) {
 			<View style={AuthStackStyles.footer}>
 				<Text style={styles.socialText}>sign up with social</Text>
 				<View style={styles.row}>
-					{Platform.OS === 'ios' ?
-						<>
-							<AppleIcon socialAuth={socialAuth} />
-							<FacebookIcon socialAuth={socialAuth} />
-							<GoogleIcon socialAuth={socialAuth} />
-						</>
-						:
-						<>
-							<FacebookIcon socialAuth={socialAuth} />
-							<GoogleIcon socialAuth={socialAuth} />
-							<TwitterIcon socialAuth={socialAuth} />
-						</>
-					}
+					{Platform.OS === 'ios' && <AppleIcon socialAuth={socialAuth} />}
+					<FacebookIcon socialAuth={socialAuth} />
+					<GoogleIcon socialAuth={socialAuth} />
 				</View>
 			</View>
 		</AuthStackWrapper>
@@ -139,7 +131,8 @@ export default function SignUp({ navigation }) {
 }
 
 // Social icon components
-const AppleIcon = ({ socialAuth }) => 
+const AppleIcon = ({ socialAuth }) =>
+	// NOTE: Skipping implementation until I have an Apple Developer account
 	<TouchableOpacity
 		style={styles.socialButton}
 		onPress={() => socialAuth('Apple')}
@@ -169,16 +162,6 @@ const GoogleIcon = ({ socialAuth }) =>
 			style={styles.socialIcon}
 			// TODO: Get a better image
 			source={require('../images/GoogleLogo.png')}
-		/>
-	</TouchableOpacity>;
-const TwitterIcon = ({ socialAuth }) =>
-	<TouchableOpacity
-		style={styles.socialButton}
-		onPress={() => socialAuth('Twitter')}
-	>
-		<Image
-			style={styles.socialIcon}
-			source={require('../images/TwitterLogo.png')}
 		/>
 	</TouchableOpacity>;
 

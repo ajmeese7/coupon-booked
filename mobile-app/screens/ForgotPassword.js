@@ -35,7 +35,7 @@ export default function ForgotPassword({ navigation }) {
 
 	return (
 		<AuthStackWrapper>
-			<View style={AuthStackStyles.signInForm}>
+			<View style={AuthStackStyles.mainContent}>
 				<Image
 					source={require('../images/logo_small.png')}
 					style={AuthStackStyles.centeredLogo}

@@ -8,6 +8,7 @@ import {
 	View,
 } from 'react-native';
 import { Auth } from 'aws-amplify';
+import Constants from 'expo-constants';
 import Hr from 'react-native-hr-plus';
 
 // Components
@@ -24,7 +25,8 @@ export default function SignIn({ navigation, updateAuthState }) {
 	const [password, setPassword] = useState('');
 
 	async function signIn() {
-		// TODO: Validate input details before submitting to auth
+		// TODO: Display alert to user
+		if (!username || !password) return console.log("Not ready to auth yet!");
 
 		try {
 			await Auth.signIn(username, password);
@@ -37,7 +39,7 @@ export default function SignIn({ navigation, updateAuthState }) {
 
 	return (
 		<AuthStackWrapper>
-			<View style={AuthStackStyles.signInForm}>
+			<View style={AuthStackStyles.mainContent}>
 				<Image
 					source={require('../images/logo_small.png')}
 					style={AuthStackStyles.centeredLogo}
@@ -63,10 +65,10 @@ export default function SignIn({ navigation, updateAuthState }) {
 
 				<AppButton title='Sign In' onPress={signIn} />
 				<TouchableOpacity
-					style={AuthStackStyles.forgotPasswordButton}
+					style={styles.forgotPasswordButton}
 					onPress={() => navigation.navigate('ForgotPassword')}
 				>
-					<Text style={AuthStackStyles.smallGrayText}>
+					<Text style={styles.smallGrayText}>
 						forgot password?
 					</Text>
 				</TouchableOpacity>
@@ -74,14 +76,14 @@ export default function SignIn({ navigation, updateAuthState }) {
 
 			<View style={AuthStackStyles.footer}>
 				<Hr color={gray} width={1}>
-					<Text style={AuthStackStyles.textWithDivider}>or</Text>
+					<Text style={styles.textWithDivider}>or</Text>
 				</Hr>
 
 				<TouchableOpacity
-					style={AuthStackStyles.createAccountButton}
+					style={styles.createAccountButton}
 					onPress={() => navigation.navigate('SignUp')}
 				>
-					<Text style={AuthStackStyles.createAccountText}>
+					<Text style={styles.createAccountText}>
 						create new account
 					</Text>
 				</TouchableOpacity>
@@ -91,5 +93,36 @@ export default function SignIn({ navigation, updateAuthState }) {
 }
 
 const styles = StyleSheet.create({
-	
+	forgotPasswordButton: {
+		marginVertical: 10,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+	smallGrayText: {
+		color: gray,
+		letterSpacing: 1.2,
+		fontSize: 18,
+		fontWeight: '600',
+	},
+	textWithDivider: {
+		color: gray,
+		fontSize: 16,
+		paddingHorizontal: '12.5%',
+	},
+	createAccountButton: {
+		marginTop: 25,
+		marginBottom: 30,
+		borderRadius: 14,
+		justifyContent: 'center',
+		alignItems: 'center',
+		padding: 12,
+		backgroundColor: '#AEDDF4',
+		width: '80%',
+		maxWidth: 350,
+	},
+	createAccountText: {
+		color: Constants.manifest.extra.blue,
+		letterSpacing: 1.25,
+		fontSize: 16,
+	},
 });
