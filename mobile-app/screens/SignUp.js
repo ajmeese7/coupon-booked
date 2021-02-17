@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import {
 	Dimensions,
 	Image,
+	Platform,
 	StyleSheet,
 	Text,
 	TouchableOpacity,
@@ -115,45 +116,73 @@ export default function SignUp({ navigation }) {
 				<AppButton title='Next' onPress={nextSignUpPage} />
 			</View>
 
-			{/* TODO: Make it look different for Android */}
 			<View style={AuthStackStyles.footer}>
 				<Text style={styles.socialText}>sign up with social</Text>
 				<View style={styles.row}>
-					<TouchableOpacity
-						style={styles.socialButton}
-						onPress={() => socialAuth('Apple')}
-					>
-						<Image
-							style={styles.socialIcon}
-							// TODO: Get a better image
-							source={require('../images/AppleLogo.png')}
-						/>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={styles.socialButton}
-						onPress={() => socialAuth('Facebook')}
-					>
-						<Image
-							style={styles.socialIcon}
-							source={require('../images/FacebookLogo.png')}
-						/>
-					</TouchableOpacity>
-					<TouchableOpacity
-						style={styles.socialButton}
-						onPress={() => socialAuth('Google')}
-					>
-						<Image
-							style={styles.socialIcon}
-							// TODO: Get a better image
-							source={require('../images/GoogleLogo.png')}
-						/>
-					</TouchableOpacity>
+					{Platform.OS === 'ios' ?
+						<>
+							<AppleIcon socialAuth={socialAuth} />
+							<FacebookIcon socialAuth={socialAuth} />
+							<GoogleIcon socialAuth={socialAuth} />
+						</>
+						:
+						<>
+							<FacebookIcon socialAuth={socialAuth} />
+							<GoogleIcon socialAuth={socialAuth} />
+							<TwitterIcon socialAuth={socialAuth} />
+						</>
+					}
 				</View>
 			</View>
 		</AuthStackWrapper>
 	);
 }
 
+// Social icon components
+const AppleIcon = ({ socialAuth }) => 
+	<TouchableOpacity
+		style={styles.socialButton}
+		onPress={() => socialAuth('Apple')}
+	>
+		<Image
+			style={styles.socialIcon}
+			// TODO: Get a better image
+			source={require('../images/AppleLogo.png')}
+		/>
+	</TouchableOpacity>;
+const FacebookIcon = ({ socialAuth }) =>
+	<TouchableOpacity
+		style={styles.socialButton}
+		onPress={() => socialAuth('Facebook')}
+	>
+		<Image
+			style={styles.socialIcon}
+			source={require('../images/FacebookLogo.png')}
+		/>
+	</TouchableOpacity>;
+const GoogleIcon = ({ socialAuth }) =>
+	<TouchableOpacity
+		style={styles.socialButton}
+		onPress={() => socialAuth('Google')}
+	>
+		<Image
+			style={styles.socialIcon}
+			// TODO: Get a better image
+			source={require('../images/GoogleLogo.png')}
+		/>
+	</TouchableOpacity>;
+const TwitterIcon = ({ socialAuth }) =>
+	<TouchableOpacity
+		style={styles.socialButton}
+		onPress={() => socialAuth('Twitter')}
+	>
+		<Image
+			style={styles.socialIcon}
+			source={require('../images/TwitterLogo.png')}
+		/>
+	</TouchableOpacity>;
+
+// Styles for the SignUp page
 const styles = StyleSheet.create({
 	row: {
 		display: 'flex',
