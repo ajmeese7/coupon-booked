@@ -38,6 +38,10 @@ export default function SignUp({ navigation }) {
 		}).then(image => {
 			console.log(image);
 			setPicture(image.path);
+		}).catch(error => {
+			if (error == "Error: User cancelled image selection")
+				return console.log("User cancelled PFP selection.");
+			console.error("Error picking PFP:", error);
 		});
 	};
 
