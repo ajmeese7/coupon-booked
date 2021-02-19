@@ -8,8 +8,8 @@ import {
 	View,
 } from 'react-native';
 import { Auth } from 'aws-amplify';
-import Constants from 'expo-constants';
 import Hr from 'react-native-hr-plus';
+import Constants from "../constants";
 
 // Components
 import AppTextInput from '../components/AppTextInput';
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
 		maxWidth: 350,
 	},
 	createAccountText: {
-		color: Constants.manifest.extra.blue,
+		color: Constants.colors.blue,
 		letterSpacing: 1.25,
 		fontSize: 16,
 	},

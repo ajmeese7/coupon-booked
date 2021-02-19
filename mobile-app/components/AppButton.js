@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
-import Constants from 'expo-constants';
+import Constants from "../constants";
 
 export default function AppButton({ title, onPress }) {
 	return (
@@ -19,13 +19,13 @@ const styles = StyleSheet.create({
 		padding: 12,
 		width: '50%',
 		maxWidth: 250,
-		backgroundColor: Constants.manifest.extra.blue
+		backgroundColor: Constants.colors.blue,
 	},
 	buttonText: {
 		color: 'white',
 		letterSpacing: 2.5,
 		fontSize: 18,
 		fontWeight: '600',
-		textTransform: 'uppercase'
+		textTransform: 'uppercase',
 	}
 });

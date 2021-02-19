@@ -4,10 +4,10 @@ import {
 	ScrollView,
 	StyleSheet,
 } from 'react-native';
-import Constants from 'expo-constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import TopPadding from '../components/TopPadding';
+import Constants from "../constants";
+import TopPadding from "../components/TopPadding";
 
 // https://stackoverflow.com/a/31564812/6456163
 export default function AuthStackWrapper({ children }) {
@@ -25,7 +25,7 @@ export default function AuthStackWrapper({ children }) {
 				}}
 			>
 				<LinearGradient
-					colors={[Constants.manifest.extra.blue, '#ffffff']}
+					colors={[Constants.colors.blue, '#ffffff']}
 					locations={[0, 0.80]}
 					style={styles.pageBody}
 				>

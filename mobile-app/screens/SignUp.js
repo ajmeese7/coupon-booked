@@ -10,9 +10,9 @@ import {
 	View,
 } from 'react-native';
 import { Auth } from 'aws-amplify';
-import Constants from 'expo-constants';
-import * as ImagePicker from 'expo-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 import CheckBox from '@react-native-community/checkbox';
+import Constants from "../constants";
 
 // Components
 import AppTextInput from '../components/AppTextInput';
@@ -30,18 +30,15 @@ export default function SignUp({ navigation }) {
 	const [number, setNumber] = useState('');
 	const [toggleCheckBox, setToggleCheckBox] = useState(false);
 
-	const pickImage = async () => {
-		// TODO: Resize locally as well
-		let result = await ImagePicker.launchImageLibraryAsync({
-			allowsEditing: true,
-			aspect: [1, 1],
-			quality: 1,
+	const pickImage = () => {
+		ImagePicker.openPicker({
+			width: 250,
+			height: 250,
+			cropping: true
+		}).then(image => {
+			console.log(image);
+			setPicture(image.path);
 		});
-
-		if (!result.cancelled) {
-			// TODO: Upload then use S3 image link
-			setPicture(result.uri);
-		}
 	};
 
 	function nextSignUpPage() {
@@ -108,7 +105,7 @@ export default function SignUp({ navigation }) {
 						// TODO: Fix this; might need to switch to another lib like
 						// https://github.com/crazycodeboy/react-native-check-box#readme
 						tintColor={'#ffffff'}
-						onFillColor={Constants.manifest.extra.blue}
+						onFillColor={Constants.colors.blue}
 						lineWidth={1}
 						boxType={'square'}
 						onValueChange={(newValue) => setToggleCheckBox(newValue)}
@@ -183,9 +180,9 @@ const styles = StyleSheet.create({
 		letterSpacing: 0.4,
 	},
 	link: {
-		color: Constants.manifest.extra.blue,
+		color: Constants.colors.blue,
 		textDecorationLine: 'underline',
-		textDecorationColor: Constants.manifest.extra.blue,
+		textDecorationColor: Constants.colors.blue,
 	},
 	socialText: {
 		color: '#707070',

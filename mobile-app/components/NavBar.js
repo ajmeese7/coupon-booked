@@ -5,8 +5,8 @@ import {
 	Text,
 	View,
 } from 'react-native';
-import Constants from 'expo-constants';
-import TopPadding from '../components/TopPadding';
+import Constants from "../constants";
+import TopPadding from "../components/TopPadding";
 
 export default function NavBar() {
 	return (
@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
 	container: {
 		height: 60,
 		width: '100%',
-		backgroundColor: Constants.manifest.extra.blue,
+		backgroundColor: Constants.colors.blue,
 		flexDirection: 'row',
 		alignItems: 'center',
 	},

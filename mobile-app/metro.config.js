@@ -4,6 +4,7 @@ module.exports = {
 		blacklistRE: blacklist([/#current-cloud-backend\/.*/]),
 	},
 	transformer: {
+		assetPlugins: ['expo-asset/tools/hashAssetFiles'],
 		getTransformOptions: async () => ({
 			transform: {
 				experimentalImportSupport: false,

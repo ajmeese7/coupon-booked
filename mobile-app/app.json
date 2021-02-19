@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "_internal": {
+      "isDebug": false,
+      "projectRoot": "C:\\Users\\DeclaredDig10\\Documents\\coupon-booked\\mobile-app",
+      "dynamicConfigPath": null,
+      "staticConfigPath": null,
+      "packageJsonPath": "C:\\Users\\DeclaredDig10\\Documents\\coupon-booked\\mobile-app\\package.json"
+    },
+    "name": "mobile-app",
+    "slug": "mobile-app",
+    "version": "1.0.0",
+    "sdkVersion": "40.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "android": {
+      "package": "com.couponbooked.mobileapp"
+    }
+  }
+}
