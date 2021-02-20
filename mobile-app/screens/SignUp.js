@@ -64,64 +64,62 @@ export default function SignUp({ navigation }) {
 
 	return (
 		<AuthStackWrapper>
-			<View style={AuthStackStyles.mainContent}>
-				<TouchableOpacity onPress={() => pickImage()}>
-					<View style={[
-						AuthStackStyles.profilePictureContainer,
-						picture ? AuthStackStyles.profilePictureShadow : null
-					]}>
-						<Image
-							source={picture ? { uri: picture, } : require('../images/SelectProfilePicture.png')}
-							style={[AuthStackStyles.profilePicture, picture ? { borderRadius: profilePicBorderRadius } : null]}
-						/>
-					</View>
-				</TouchableOpacity>
-
-				<AppTextInput
-					value={name}
-					onChangeText={text => setName(text)}
-					placeholder='name'
-					autoCapitalize='none'
-					keyboardType='default'
-					textContentType='name'
-				/>
-				<AppTextInput
-					value={email}
-					onChangeText={text => setEmail(text)}
-					placeholder='email address'
-					autoCapitalize='none'
-					keyboardType='email-address'
-					textContentType='emailAddress'
-				/>
-				<AppTextInput
-					value={number}
-					onChangeText={text => setNumber(text)}
-					placeholder='mobile number'
-					autoCapitalize='none'
-					keyboardType='phone-pad'
-					textContentType='telephoneNumber'
-				/>
-
-				<View style={styles.row}>
-					<CheckBox
-						disabled={false}
-						value={toggleCheckBox}
-						// TODO: Fix this; might need to switch to another lib like
-						// https://github.com/crazycodeboy/react-native-check-box#readme
-						tintColor={'#ffffff'}
-						onFillColor={Constants.colors.blue}
-						lineWidth={1}
-						boxType={'square'}
-						onValueChange={(newValue) => setToggleCheckBox(newValue)}
+			<TouchableOpacity onPress={() => pickImage()}>
+				<View style={[
+					AuthStackStyles.profilePictureContainer,
+					picture ? AuthStackStyles.profilePictureShadow : null
+				]}>
+					<Image
+						source={picture ? { uri: picture, } : require('../images/SelectProfilePicture.png')}
+						style={[AuthStackStyles.profilePicture, picture ? { borderRadius: profilePicBorderRadius } : null]}
 					/>
-					<Text style={styles.termsText}>
-						I accept all{' '}
-						<Text style={styles.link}>terms and conditions</Text>
-					</Text>
 				</View>
+			</TouchableOpacity>
 
-				<AppButton title='Next' onPress={nextSignUpPage} />
+			<AppTextInput
+				value={name}
+				onChangeText={text => setName(text)}
+				placeholder='name'
+				autoCapitalize='none'
+				keyboardType='default'
+				textContentType='name'
+			/>
+			<AppTextInput
+				value={email}
+				onChangeText={text => setEmail(text)}
+				placeholder='email address'
+				autoCapitalize='none'
+				keyboardType='email-address'
+				textContentType='emailAddress'
+			/>
+			<AppTextInput
+				value={number}
+				onChangeText={text => setNumber(text)}
+				placeholder='mobile number'
+				autoCapitalize='none'
+				keyboardType='phone-pad'
+				textContentType='telephoneNumber'
+			/>
+
+			<View style={styles.row}>
+				<CheckBox
+					disabled={false}
+					value={toggleCheckBox}
+					// TODO: Fix this; might need to switch to another lib like
+					// https://github.com/crazycodeboy/react-native-check-box#readme
+					tintColor={'#ffffff'}
+					onFillColor={Constants.colors.blue}
+					lineWidth={1}
+					boxType={'square'}
+					onValueChange={(newValue) => setToggleCheckBox(newValue)}
+				/>
+				<Text style={styles.termsText}>
+					I accept all{' '}
+					<Text style={styles.link}>terms and conditions</Text>
+				</Text>
 			</View>
+
+			<AppButton title='Next' onPress={nextSignUpPage} />
 
 			<View style={AuthStackStyles.footer}>
 				<Text style={styles.socialText}>sign up with social</Text>

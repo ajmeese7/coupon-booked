@@ -5,6 +5,10 @@
 	- Can potentially do animations and such w/o a library, like detailed [here](https://reactrouter.com/native/guides/animation)
 - Use the book turning GIF, rather than the static splash screen
 
+### TODOs
+- Need to go back and add the ability to jump to the next text field on enter press
+on all the auth forms; possibly with Formik or something
+
 ### Plan
 I'm going to attempt to write a mobile-only app first, then if I like how it
 turns out I'll worry about adding a web side of things. In the meantime, I'll

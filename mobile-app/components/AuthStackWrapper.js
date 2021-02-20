@@ -13,14 +13,12 @@ import TopPadding from "../components/TopPadding";
 export default function AuthStackWrapper({ children }) {
 	const insets = useSafeAreaInsets();
 
-	// TODO: Test on smaller screens
 	return (
 		<>
 			<TopPadding />
 			<ScrollView
 				contentContainerStyle={{
 					minHeight: Dimensions.get('window').height - insets.top,
-					flex: 1,
 					flexGrow: 1,
 				}}
 			>

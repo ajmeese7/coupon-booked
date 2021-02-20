@@ -19,6 +19,7 @@ const AuthStackStyles = StyleSheet.create({
 	footer: {
 		alignItems: 'center',
 		width: '100%',
+		marginTop: 15,
 	},
 	profilePictureContainer: {
 		width: '40%',
@@ -32,7 +33,6 @@ const AuthStackStyles = StyleSheet.create({
 		aspectRatio: 1,
 	},
 	profilePictureShadow: {
-		// TODO: Test shadows on different screen sizes
 		borderRadius: profilePicBorderRadius,
 		shadowColor: '#000',
 		shadowOffset: {
