@@ -35,7 +35,7 @@
         "cordova-plugin-x-socialsharing": "^5.4.7",
         "es6-promise-plugin": "^4.2.2",
         "jshashes": "^1.0.7",
-        "jsonwebtoken": "^8.5.1",
+        "jsonwebtoken": "^9.0.0",
         "onesignal-cordova-plugin": "2.8.2",
         "request": "^2.88.0",
         "uuid": "^3.3.2",
