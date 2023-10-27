@@ -11,7 +11,7 @@
     },
     "author": "ajmeese7",
     "dependencies": {
-        "@auth0/cordova": "^0.2.0",
+        "@auth0/cordova": "^0.4.5",
         "acorn": ">=5.7.4",
         "auth0-js": ">=9.13.2",
         "bytes": "^3.1.0",
